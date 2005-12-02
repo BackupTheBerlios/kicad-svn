@@ -1,0 +1,35 @@
+EXTRALIBS = ../common/common.a
+EXTRACPPFLAGS= -DKICAD -I./ -Ibitmaps -I../include -I../kicad -I../common
+
+DEPEND =
+
+OBJECTS = kicad.o\
+		treeprj.o\
+		buildmnu.o\
+		infospgm.o\
+		mdiframe.o\
+		prjconfig.o\
+		preferences.o\
+		files-io.o
+
+
+$(TARGET).o: $(TARGET).cpp $(DEPEND) $(TARGET).h
+
+treeprj.o: treeprj.cpp $(DEPEND) kicad.h
+
+prjconfig.o: prjconfig.cpp $(DEPEND) prjconfig.h
+
+files-io.o: files-io.cpp $(DEPEND) kicad.h
+
+mdiframe.o: mdiframe.cpp $(DEPEND) kicad.h
+
+buildmnu.o: buildmnu.cpp $(DEPEND) kicad.h
+
+gr_basic.o: ../common/gr_basic.cpp\
+			../common/gr_basic.h ../common/colors.h $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+common.o: ../common/common.cpp $(DEPEND)
+
+infospgm.o: ../common/infospgm.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp

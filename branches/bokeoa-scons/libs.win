@@ -1,0 +1,50 @@
+# File:		winmake.env
+#binaries path:
+KICAD_BIN = /f/kicad/winexe
+
+
+
+# Target			 WXMAKINGDLL	   WXUSINGDLL	  WXBUILDDLL
+# wxWin DLL				 1					0			   1
+# wxWin STATIC			 0					  0				 0
+# App use wxWin DLL		 0					  1				 0
+# DLL use wxWin DLL		 0					  1				 1
+# DLL use wxWin STATIC	 0					0			   1
+#
+
+#Define the wxWidget path:
+ifndef WXWIN
+WXWIN=/f/wxWidgets-2.6.2
+endif
+WXLIBVERSION = 2.6
+
+
+#comment this for static wxWidgets link
+#WXUSINGDLL = 1
+
+SRCSUFF = .cpp
+OBJSUFF = .o
+
+FINAL = 1
+
+#setup.h is in "$(WXWIN)/lib/wx/include/msw-ansi-release-xxxx"; Adjust exact name
+ALL_CPPFLAGS += -I$(WXWIN)/lib/wx/include/msw-ansi-release-static-$(WXLIBVERSION)
+
+EDACPPFLAGS = $(ALL_CPPFLAGS) $(ALL_CXXFLAGS)
+
+EDALIBS = $(EXTRALIBS)
+
+# Attention: l'ordre des librairies semble avoir de l'importance
+#Warning: Library order seems important
+WXLIB_BASE = -L$(WXWIN)/lib --subsystem,windows -mwindows\
+	-lwx_msw-$(WXLIBVERSION) -lwxexpat-$(WXLIBVERSION)\
+	-lwxpng-$(WXLIBVERSION) -lwxjpeg-$(WXLIBVERSION)\
+	-lwxzlib-$(WXLIBVERSION)
+
+SYSWXLIB =  -mthreads $(WXLIB_BASE)\
+	-lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm\
+	-lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32\
+	-lwsock32 -lgdi32
+
+LIBS3D = -lwx_msw_gl-$(WXLIBVERSION) /mingw/lib/libglu32.a -lopengl32
+
