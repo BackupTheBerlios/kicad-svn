@@ -1,0 +1,25 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags --libs')
+
+sources = Split("""
+	buildmnu.cpp
+	files-io.cpp
+	kicad.cpp
+	mdiframe.cpp
+	preferences.cpp
+	prjconfig.cpp
+	treeprj.cpp""")
+
+ext_sources = ['../common/infospgm.cpp']
+
+env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DKICAD'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH'] = ['../include', './bitmaps'] + env.Dictionary()['CPPPATH']
+env.Dictionary()['LIBPATH'] = ['../common'] + env.Dictionary()['LIBPATH']
+env.Dictionary()['LIBS']    = ['common'] + env.Dictionary()['LIBS']
+
+objects = env.Object(sources)
+for cur_source in ext_sources:
+	objects.append(env.Object(cur_source[10:-4], cur_source))
+
+env.Program('kicad', objects)

@@ -1,0 +1,59 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags --libs std,gl')
+
+sources = Split("""
+	autosel.cpp
+	cfg.cpp
+	cvframe.cpp
+	cvpcb.cpp
+	displayframe.cpp
+	genequiv.cpp
+	genorcad.cpp
+	init.cpp
+	listboxes.cpp
+	listlib.cpp
+	loadcmp.cpp
+	memoire.cpp
+	menucfg.cpp
+	options.cpp
+	rdorcad.cpp
+	rdpcad.cpp
+	savecmp.cpp
+	setvisu.cpp
+	tool_cvpcb.cpp
+	viewlnet.cpp
+	viewlogi.cpp
+	visumod.cpp""")
+
+ext_sources = Split("""
+	../common/drawframe.cpp
+	../common/drawpanel.cpp
+	../common/gr_basic.cpp
+	../common/infospgm.cpp
+	../common/zoom.cpp
+	../pcbnew/basepcbframe.cpp
+	../pcbnew/class_board.cpp
+	../pcbnew/class_cotation.cpp
+	../pcbnew/class_edge_mod.cpp
+	../pcbnew/class_equipot.cpp
+	../pcbnew/class_mire.cpp
+	../pcbnew/class_module.cpp
+	../pcbnew/class_pad.cpp
+	../pcbnew/class_pcb_text.cpp
+	../pcbnew/class_text_mod.cpp
+	../pcbnew/class_track.cpp
+	../pcbnew/classpcb.cpp
+	../pcbnew/ioascii.cpp
+	../pcbnew/tracemod.cpp""")
+
+env.Dictionary()['CCFLAGS']   = ['-Wall', '-O2', '-DCVPCB'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH']   = ['./', '../include', '../pcbnew', '../3d-viewer', './bitmaps'] + env.Dictionary()['CPPPATH']
+env.Dictionary()['LIBPATH']   = ['../common', '../3d-viewer'] + env.Dictionary()['LIBPATH']
+env.Dictionary()['LIBS']      = ['common', '3dviewer'] + env.Dictionary()['LIBS']
+
+objects = env.Object(sources)
+for cur_source in ext_sources:
+	objects.append(env.Object(cur_source[10:-4], cur_source))
+
+env.Program('cvpcb', objects)

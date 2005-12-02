@@ -1,0 +1,10 @@
+modules = Split("""
+	3d-viewer/SConscript
+	common/SConscript
+	cvpcb/SConscript
+	eeschema/SConscript
+	gerbview/SConscript
+	kicad/SConscript
+	pcbnew/SConscript""")
+
+SConscript(modules)

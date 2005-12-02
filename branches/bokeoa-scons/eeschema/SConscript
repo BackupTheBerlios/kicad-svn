@@ -1,0 +1,101 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags --libs')
+
+sources = Split("""
+	affiche.cpp
+	annotate.cpp
+	block.cpp
+	block_libedit.cpp
+	busentry.cpp
+	bus-wire-junction.cpp
+	cleanup.cpp
+	cmpclass.cpp
+	component_class.cpp
+	controle.cpp
+	dangling_ends.cpp
+	database.cpp
+	delete.cpp
+	delsheet.cpp
+	divers.cpp
+	editexte.cpp
+	editpart.cpp
+	eeclass.cpp
+	eeconfig.cpp
+	eelayer.cpp
+	eelibs1.cpp
+	eelibs2.cpp
+	eeload.cpp
+	eeredraw.cpp
+	eeschema.cpp
+	eestatus.cpp
+	eestring.cpp
+	erc.cpp
+	files-io.cpp
+	find.cpp
+	genliste.cpp
+	getpart.cpp
+	hierarch.cpp
+	hotkeys.cpp
+	libalias.cpp
+	libarch.cpp
+	libclass.cpp
+	libedit.cpp
+	libedit_onleftclick.cpp
+	libedit_onrightclick.cpp
+	libedit_undo_redo.cpp
+	libedpart.cpp
+	lib_export.cpp
+	libfield.cpp
+	libframe.cpp
+	locate.cpp
+	menubar.cpp
+	netform.cpp
+	netlist_control.cpp
+	netlist.cpp
+	onleftclick.cpp
+	onrightclick.cpp
+	options.cpp
+	pinedit.cpp
+	plot.cpp
+	plothpgl.cpp
+	plotps.cpp
+	priorque.cpp
+	savelib.cpp
+	save_schemas.cpp
+	schedit.cpp
+	schframe.cpp
+	selpart.cpp
+	sheet.cpp
+	sheetlab.cpp
+	symbdraw.cpp
+	symbedit.cpp
+	symbtext.cpp
+	tool_lib.cpp
+	tool_sch.cpp
+	tool_viewlib.cpp
+	viewlib_frame.cpp
+	viewlibs.cpp""")
+
+ext_sources = Split("""
+	../common/drawframe.cpp
+	../common/drawpanel.cpp
+	../common/gr_basic.cpp
+	../common/infospgm.cpp
+	../common/selcolor.cpp
+	../common/setpage.cpp
+	../common/worksheet.cpp
+	../common/wxprint.cpp
+	../common/zoom.cpp""")
+
+env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DEESCHEMA'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH'] = ['./', '../include', './bitmaps'] + env.Dictionary()['CPPPATH']
+env.Dictionary()['LIBPATH'] = ['../common'] + env.Dictionary()['LIBPATH']
+env.Dictionary()['LIBS']    = ['common'] + env.Dictionary()['LIBS']
+
+objects = env.Object(sources)
+for cur_source in ext_sources:
+	cur_object = env.Object(cur_source[10:-4], cur_source)
+	objects.append(cur_object)
+
+env.Program('eeschema', objects)

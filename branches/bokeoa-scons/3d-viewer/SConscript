@@ -1,0 +1,20 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags')
+
+sources = Split("""
+	3d_aux.cpp
+	3d_canvas.cpp
+	3d_class.cpp
+	3d_draw.cpp
+	3d_frame.cpp
+	3d_read_mesh.cpp
+	3d_toolbar.cpp
+	trackball.cpp""")
+
+env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH'] = ['../include', '../common', '../pcbnew'] + env.Dictionary()['CPPPATH']
+
+objects = env.Object(sources)
+
+env.StaticLibrary('3dviewer', objects)

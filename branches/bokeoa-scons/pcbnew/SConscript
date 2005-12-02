@@ -1,0 +1,125 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags --libs std,gl')
+
+sources = Split("""
+	affiche.cpp
+	attribut.cpp
+	automove.cpp
+	autoplac.cpp
+	autorout.cpp
+	basepcbframe.cpp
+	block.cpp
+	board.cpp
+	class_board.cpp
+	class_cotation.cpp
+	class_edge_mod.cpp
+	class_equipot.cpp
+	class_mire.cpp
+	class_module.cpp
+	class_pad.cpp
+	classpcb.cpp
+	class_pcb_text.cpp
+	class_text_mod.cpp
+	class_track.cpp
+	clean.cpp
+	connect.cpp
+	controle.cpp
+	cotation.cpp
+	cursors.cpp
+	deltrack.cpp
+	dialog_setup_libs.cpp
+	dist.cpp
+	dragsegm.cpp
+	drc.cpp
+	edgemod.cpp
+	edit.cpp
+	editedge.cpp
+	editmod.cpp
+	editpads.cpp
+	editrack.cpp
+	edit_track_width.cpp
+	edtxtmod.cpp
+	export_gencad.cpp
+	files.cpp
+	find.cpp
+	gendrill.cpp
+	gen_modules_placefile.cpp
+	globaleditpad.cpp
+	graphpcb.cpp
+	hotkeys.cpp
+	initpcb.cpp
+	ioascii.cpp
+	lay2plot.cpp
+	librairi.cpp
+	loadcmp.cpp
+	locate.cpp
+	menubarmodedit.cpp
+	menubarpcb.cpp
+	mirepcb.cpp
+	modedit.cpp
+	modedit_onclick.cpp
+	modeditoptions.cpp
+	moduleframe.cpp
+	modules.cpp
+	move_copy_track.cpp
+	move-drag_pads.cpp
+	muonde.cpp
+	muwave_command.cpp
+	netlist.cpp
+	onrightclick.cpp
+	options.cpp
+	pcbcfg.cpp
+	pcbframe.cpp
+	pcbnew.cpp
+	pcbpiste.cpp
+	pcbplot.cpp
+	pcbtexte.cpp
+	plotgerb.cpp
+	plothpgl.cpp
+	plotps.cpp
+	plot_rtn.cpp
+	queue.cpp
+	ratsnest.cpp
+	router.cpp
+	sel_layer.cpp
+	set_color.cpp
+	set_grid.cpp
+	solve.cpp
+	struct.cpp
+	surbrill.cpp
+	tool_modedit.cpp
+	tool_onrightclick.cpp
+	tool_pcb.cpp
+	tracemod.cpp
+	tracepcb.cpp
+	track.cpp
+	tr_modif.cpp
+	trpiste.cpp
+	undelete.cpp
+	via_edit.cpp
+	work.cpp
+	xchgmod.cpp
+	zones.cpp""")
+
+ext_sources = Split("""
+	../common/drawframe.cpp
+	../common/drawpanel.cpp
+	../common/gr_basic.cpp
+	../common/infospgm.cpp
+	../common/selcolor.cpp
+	../common/setpage.cpp
+	../common/worksheet.cpp
+	../common/wxprint.cpp
+	../common/zoom.cpp""")
+
+env.Dictionary()['CCFLAGS']   = ['-Wall', '-O2', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH']   = ['./', '../include', '../common', '../3d-viewer', './bitmaps'] + env.Dictionary()['CPPPATH']
+env.Dictionary()['LIBPATH']   = ['../common', '../3d-viewer'] + env.Dictionary()['LIBPATH']
+env.Dictionary()['LIBS']      = ['common', '3dviewer'] + env.Dictionary()['LIBS']
+
+objects = env.Object(sources)
+for cur_source in ext_sources:
+	objects.append(env.Object(cur_source[10:-4], cur_source))
+
+env.Program('pcbnew', objects)

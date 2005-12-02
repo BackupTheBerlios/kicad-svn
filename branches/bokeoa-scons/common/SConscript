@@ -1,0 +1,37 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags')
+
+sources = Split("""
+	base_screen.cpp
+	base_struct.cpp
+	basicframe.cpp
+	bitmaps.cpp
+	block_commande.cpp
+	common.cpp
+	common_plot_functions.cpp
+	common_plotHPGL_functions.cpp
+	common_plotPS_functions.cpp
+	confirm.cpp
+	displlst.cpp
+	drawtxt.cpp
+	eda_dde.cpp
+	eda_doc.cpp
+	edaappl.cpp
+	gestfich.cpp
+	get_component_dialog.cpp
+	msgpanel.cpp
+	projet_config.cpp
+	string.cpp
+	svg_print.cpp
+	toolbars.cpp
+	trigo.cpp
+	wx/dcsvg.cpp
+	wxwineda.cpp""")
+
+env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH'] = ['../include', './bitmaps'] + env.Dictionary()['CPPPATH']
+
+objects = env.Object(sources)
+
+env.StaticLibrary('common', objects)

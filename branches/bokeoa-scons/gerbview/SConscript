@@ -1,0 +1,59 @@
+env = Environment()
+
+env.ParseConfig('wx-config --cxxflags --libs')
+
+sources = Split("""
+	affiche.cpp
+	block.cpp
+	cfg.cpp
+	controle.cpp
+	dcode.cpp
+	deltrack.cpp
+	edit.cpp
+	files.cpp
+	gerberframe.cpp
+	gerbview.cpp
+	initpcb.cpp
+	lay2plot.cpp
+	locate.cpp
+	onrightclick.cpp
+	options.cpp
+	pcbplot.cpp
+	readgerb.cpp
+	reglage.cpp
+	rs274d.cpp
+	rs274x.cpp
+	set_color.cpp
+	struct.cpp
+	tool_gerber.cpp
+	tracepcb.cpp
+	trpiste.cpp
+	undelete.cpp""")
+
+ext_sources = Split("""
+	../common/drawframe.cpp
+	../common/drawpanel.cpp
+	../common/gr_basic.cpp
+	../common/infospgm.cpp
+	../common/selcolor.cpp
+	../common/setpage.cpp
+	../common/worksheet.cpp
+	../common/wxprint.cpp
+	../common/zoom.cpp
+	../pcbnew/basepcbframe.cpp
+	../pcbnew/class_board.cpp
+	../pcbnew/class_pcb_text.cpp
+	../pcbnew/class_track.cpp
+	../pcbnew/classpcb.cpp
+	../pcbnew/cursors.cpp""")
+
+env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DGERBVIEW', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
+env.Dictionary()['CPPPATH'] = ['./', '../include', '../common', '../pcbnew', '../3d-viewer'] + env.Dictionary()['CPPPATH']
+env.Dictionary()['LIBPATH'] = ['../common'] + env.Dictionary()['LIBPATH']
+env.Dictionary()['LIBS']    = ['common'] + env.Dictionary()['LIBS']
+
+objects = env.Object(sources)
+for cur_source in ext_sources:
+	objects.append(env.Object(cur_source[10:-4], cur_source))
+
+env.Program('gerbview', objects)
