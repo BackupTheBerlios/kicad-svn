@@ -1,0 +1,338 @@
+	/**********************************************************/
+	/* Routines d'affichage de parametres et caracteristiques */
+	/**********************************************************/
+
+		/* Fichier common.cpp */
+
+#include "fctsys.h"
+#include "gr_basic.h"
+#include "trigo.h"
+#include "wxstruct.h"
+#include "base_struct.h"
+#include "common.h"
+
+/***************************************************/
+wxSize SetBestFontPointSize(wxDC * DC, wxFont * Font, int ReferencePointSize)
+/***************************************************/
+/* Compute a font point size for texts showed in Msg_Panel or Status Lines.
+	The best point size is equivalent to a point size = 10
+	for a 96 ppp Arial font
+	This is necessary because system or default fonts can be bigger if 
+	we have selected 120 ppp fonts (big fonts), and messages are too longs
+	and they are truncated on display
+*/
+{
+static wxString msgtst("MMMMMWWWWW");// This is a text to compute a font optimal size
+wxSize FontSizeInPixels;
+int best_pointsize, ref_size;
+#define TST_SIZE 10
+	
+	ref_size = ReferencePointSize;		// Equiv size in ppp
+	
+	/* Measure real size with a test point size, and a 10 char text reference: */
+	Font->SetPointSize(TST_SIZE);
+	DC->SetFont(*Font);
+	DC->GetTextExtent(msgtst, &FontSizeInPixels.x, &FontSizeInPixels.y);
+	
+	// Compute font optimal size for msg texts (Size ref_size at 96 ppp):
+	best_pointsize = (ref_size*TST_SIZE*10)/FontSizeInPixels.x;	
+	
+	if ( Font->GetPointSize() != best_pointsize )
+	{
+		Font->SetPointSize(best_pointsize);
+		DC->SetFont(*Font);
+		DC->GetTextExtent(msgtst, &FontSizeInPixels.x, &FontSizeInPixels.y);
+	}
+	
+	FontSizeInPixels.x /= msgtst.Len();
+	
+	return FontSizeInPixels;
+}
+
+/******************************************************************/
+double To_User_Unit(bool is_metric, int val,int internal_unit_value)
+/******************************************************************/
+/* Convert in inch or mm the variable "val" given in internal units
+*/
+{
+double value;
+
+	if (is_metric)
+		value = (double) (val) * 25.4 / internal_unit_value;
+	else value = (double) (val) / internal_unit_value;
+
+	return value;
+}
+
+/**********************************************************************/
+int From_User_Unit(bool is_metric, double val,int internal_unit_value)
+/**********************************************************************/
+/* Return in internal units the value "val" given in inch or mm
+*/
+{
+double value;
+
+	if (is_metric) value = val * internal_unit_value / 25.4 ;
+	else value = val * internal_unit_value;
+
+	return (int) round(value);
+}
+
+/**********************/
+wxString GenDate(void)
+/**********************/
+/* Return the string date "day month year" like "23 jun 2005"
+*/
+{
+static char * mois[12] =
+	{
+	"jan", "feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"
+	};
+time_t buftime;
+struct tm * Date;
+wxString string_date;
+char Line[1024];
+
+	time(&buftime);
+	Date = gmtime(&buftime);
+	sprintf(Line,"%d %s %d", Date->tm_mday,
+							mois[Date->tm_mon],
+							Date->tm_year + 1900);
+	string_date = Line;
+	return(string_date);
+}
+
+/***********************************/
+void * MyMalloc (size_t nb_octets)
+/***********************************/
+/* My memory allocation */
+{
+void * pt_mem;
+char txt[60];
+
+	if (nb_octets == 0)
+		{
+		DisplayError(NULL, "Allocate 0 bytes !!");
+		return(NULL);
+		}
+	pt_mem = malloc(nb_octets);
+	if (pt_mem == NULL)
+		{
+		sprintf(txt,"Out of memory: allocation %d bytes", nb_octets);
+		DisplayError(NULL, txt);
+		}
+	return(pt_mem);
+}
+
+/************************************/
+void * MyZMalloc (size_t nb_octets)
+/************************************/
+/* My memory allocation, memory space is cleared
+*/
+{
+	void * pt_mem = MyMalloc (nb_octets);
+	if ( pt_mem) memset(pt_mem, 0, nb_octets);
+	return(pt_mem);
+}
+
+/*******************************/
+void MyFree (void * pt_mem)
+/*******************************/
+{
+	if( pt_mem ) free(pt_mem);
+}
+
+
+/**************************************************************/
+wxString ReturnPcbLayerName(int layer_number, bool is_filename)
+/**************************************************************/
+/* Return the name of the layer number "layer_number".
+	if "is_filefame" == TRUE, the name can be used for a file name
+	(not internatinalized, no space)
+*/
+{
+wxString layer_name;
+wxString layer_name_list[] = {
+	_("Copper   "), _("Inner L1 "), _("Inner L2 "), _("Inner L3 "),
+	_("Inner L4 "), _("Inner L5 "), _("Inner L6 "), _("Inner L7 "),
+	_("Inner L8 "), _("Inner L9 "), _("Inner L10"), _("Inner L11"),
+	_("Inner L12"), _("Inner L13"), _("Inner L14"), _("Component"),
+	_("Adhes Cop"), _("Adhes Cmp"), _("SoldP Cop"), _("SoldP Cmp"),
+	_("SilkS Cop"), _("SilkS Cmp"), _("Mask Copp"), _("Mask Cmp "),
+	_("Drawings "), _("Comments "), _("Eco1     "), _("Eco2     "),
+	_("Edges Pcb"), _("---      "), _("---      "), _("---      ")
+	};
+	
+// Same as layer_name_list, without space, not internationalized
+wxString layer_name_list_for_filename[] = {
+	"Copper", "InnerL1", "InnerL2", "InnerL3",
+	"InnerL4", "InnerL5", "InnerL6", "InnerL7",
+	"InnerL8", "InnerL9", "InnerL10", "InnerL11",
+	"InnerL12", "InnerL13", "InnerL14", "Component",
+	"AdhesCop", "AdhesCmp", "SoldPCop", "SoldPCmp",
+	"SilkSCop", "SilkSCmp", "MaskCopp", "MaskCmp",
+	"Drawings", "Comments", "Eco1", "Eco2",
+	"Edges Pcb", "---", "---", "---"
+	};
+	if ( layer_number >= 31 ) layer_number = 31;
+
+#if 0	// Use it (#if 1) to return layer_name internationalized, without space
+	if ( is_filename )
+	{
+		int ll = layer_name_list[layer_number].Length();
+		int ii;
+		for ( ii = 0; ii < ll; ii++ )
+		{
+			char cc = layer_name_list[layer_number].GetChar(ii);
+			if ( cc != ' ' )
+				layer_name += cc;
+		}
+	}
+#else
+	if ( is_filename ) layer_name = layer_name_list_for_filename[layer_number];
+#endif
+	else layer_name = layer_name_list[layer_number];
+	
+	return layer_name;
+
+}
+
+
+enum textbox {
+	ID_TEXTBOX_LIST = 8010
+};
+
+BEGIN_EVENT_TABLE(WinEDA_TextFrame, wxDialog)
+	EVT_LISTBOX_DCLICK(ID_TEXTBOX_LIST, WinEDA_TextFrame::D_ClickOnList)
+	EVT_LISTBOX(ID_TEXTBOX_LIST, WinEDA_TextFrame::D_ClickOnList)
+	EVT_CLOSE( WinEDA_TextFrame::OnClose )
+END_EVENT_TABLE()
+
+/***************************************************************************/
+WinEDA_TextFrame::WinEDA_TextFrame(wxWindow * parent, const wxString & title):
+			wxDialog(parent, -1, title, wxPoint(-1,-1), wxSize(250,350),
+					wxDEFAULT_DIALOG_STYLE| wxFRAME_FLOAT_ON_PARENT )
+/***************************************************************************/
+{
+wxSize size;
+
+	m_Parent = parent;
+
+	CentreOnParent();
+
+	size = GetClientSize();
+	m_List = new wxListBox(this, ID_TEXTBOX_LIST,
+							wxPoint(0,0), size,
+							0, NULL,
+							wxLB_ALWAYS_SB|wxLB_SINGLE);
+	m_List->SetBackgroundColour(wxColour(200,255,255));
+	SetReturnCode(-1);
+}
+
+/***************************************************/
+void WinEDA_TextFrame::Append( const wxString & text)
+/***************************************************/
+{
+	m_List->Append(text);
+}
+
+/**********************************************************/
+void WinEDA_TextFrame::D_ClickOnList(wxCommandEvent& event)
+/**********************************************************/
+{
+int ii = m_List->GetSelection();
+	EndModal(ii);
+}
+
+/*************************************************/
+void WinEDA_TextFrame::OnClose(wxCloseEvent& event)
+/*************************************************/
+{
+	EndModal(-1);
+}
+
+
+
+/*****************************************************************************/
+void Affiche_1_Parametre(WinEDA_DrawFrame * frame , int pos_X,
+				const wxString & texte_H,const wxString & texte_L,int color)
+/*****************************************************************************/
+/*
+ Routine d'affichage d'un parametre.
+	pos_X = cadrage horizontal
+		si pos_X < 0 : la position horizontale est la derniere
+			valeur demandee >= 0
+	texte_H = texte a afficher en ligne superieure.
+		si "", par d'affichage sur cette ligne
+	texte_L = texte a afficher en ligne inferieure.
+		si "", par d'affichage sur cette ligne
+	color = couleur d'affichage
+*/
+{
+	frame->MsgPanel->Affiche_1_Parametre(pos_X, texte_H,texte_L, color);
+}
+
+/****************************************************************************/
+void AfficheDoc(WinEDA_DrawFrame * frame, const char * Doc, const char * KeyW)
+/****************************************************************************/
+/*
+ Routine d'affichage de la documentation associee a un composant
+*/
+{
+wxString Line1("Doc:  "), Line2("KeyW: ");
+int color = BLUE;
+
+#if ( (wxMAJOR_VERSION < 2) || ((wxMAJOR_VERSION == 2) && (wxMINOR_VERSION <= 4)) )
+	frame->MsgPanel->Clear();
+#else
+	frame->MsgPanel->ClearBackground();
+#endif
+	
+	if ( Doc ) Line1 +=Doc;
+	if ( KeyW ) Line2 += KeyW;
+
+	frame->MsgPanel->Affiche_1_Parametre(10, Line1, Line2, color);
+}
+
+
+
+
+/***********************/
+int GetTimeStamp(void)
+/***********************/
+/*
+ Retourne une identification temporelle (Time stamp) differente a chaque appel
+*/
+{
+static int OldTimeStamp, NewTimeStamp;
+
+	NewTimeStamp = time(NULL);
+	if(NewTimeStamp <= OldTimeStamp) NewTimeStamp = OldTimeStamp + 1;
+	OldTimeStamp = NewTimeStamp;
+	return(NewTimeStamp);
+}
+
+/*************************************************/
+void valeur_param(int valeur,char * buf_texte)
+/*************************************************/
+/* Retourne pour affichage la valeur d'un parametre, selon type d'unites choisies
+	entree : valeur en mils , buffer de texte
+	retourne en buffer : texte : valeur exprimee en pouces ou millimetres
+						suivie de " ou mm
+*/
+{
+extern bool UnitMetric;
+
+	if ( UnitMetric )
+		{
+		sprintf(buf_texte,"% 3.3f      ",(float) valeur * 0.00254);
+		buf_texte[8] = buf_texte[9] = 'm' ;
+		}
+	else
+		{
+		sprintf(buf_texte,"% 2.4f      ",(float) valeur * 0.0001);
+		buf_texte[8] = '"'; buf_texte[9] = ' ';
+		}
+	buf_texte[10] = 0 ;
+}
+

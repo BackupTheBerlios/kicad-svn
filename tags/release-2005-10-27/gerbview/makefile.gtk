@@ -1,0 +1,38 @@
+## Makefile for GERBVIEW et wxGTK
+CC = gcc
+LD = gcc
+
+# Compiler flags.
+CPPFLAGS =  -Wall -O2 `wx-config --cxxflags`
+
+LDFLAGS =  -s
+
+EXTRALIBS = ../common/common.a
+include ../libs.linux
+
+
+TARGET = gerbview
+
+all: $(TARGET)
+
+include makefile.include
+
+CPPFLAGS += $(EXTRACPPFLAGS)
+EDACPPFLAGS = $(CPPFLAGS)
+
+
+$(TARGET): $(OBJECTS) makefile.gtk makefile.include $(EXTRALIBS) ../libs.linux
+		$(LD) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $(TARGET)
+		
+install:
+		cp $(TARGET) $(KICAD_BIN)
+
+
+clean:
+		-erase *.o
+		-erase *.exe
+		-erase *.res
+		-erase *.map
+
+
+
