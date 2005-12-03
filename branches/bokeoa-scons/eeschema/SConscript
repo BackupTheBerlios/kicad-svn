@@ -1,6 +1,13 @@
+#!/usr/bin/env python
+
 env = Environment()
 
 env.ParseConfig('wx-config --cxxflags --libs')
+
+env.Append(CCFLAGS = ['-Wall', '-O2', '-DEESCHEMA'])
+env.Append(CPPPATH = ['./', '../include', './bitmaps'])
+env.Append(LIBPATH = ['../common'])
+env.Append(LIBS    = ['common'])
 
 sources = Split("""
 	affiche.cpp
@@ -87,11 +94,6 @@ ext_sources = Split("""
 	../common/worksheet.cpp
 	../common/wxprint.cpp
 	../common/zoom.cpp""")
-
-env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DEESCHEMA'] + env.Dictionary()['CCFLAGS']
-env.Dictionary()['CPPPATH'] = ['./', '../include', './bitmaps'] + env.Dictionary()['CPPPATH']
-env.Dictionary()['LIBPATH'] = ['../common'] + env.Dictionary()['LIBPATH']
-env.Dictionary()['LIBS']    = ['common'] + env.Dictionary()['LIBS']
 
 objects = env.Object(sources)
 for cur_source in ext_sources:

@@ -1,6 +1,13 @@
+#!/usr/bin/env python
+
 env = Environment()
 
 env.ParseConfig('wx-config --cxxflags --libs')
+
+env.Append(CCFLAGS = ['-Wall', '-O2', '-DGERBVIEW', '-DPCBNEW'])
+env.Append(CPPPATH = ['./', '../include', '../common', '../pcbnew', '../3d-viewer'])
+env.Append(LIBPATH = ['../common'])
+env.Append(LIBS    = ['common'])
 
 sources = Split("""
 	affiche.cpp
@@ -46,11 +53,6 @@ ext_sources = Split("""
 	../pcbnew/class_track.cpp
 	../pcbnew/classpcb.cpp
 	../pcbnew/cursors.cpp""")
-
-env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DGERBVIEW', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
-env.Dictionary()['CPPPATH'] = ['./', '../include', '../common', '../pcbnew', '../3d-viewer'] + env.Dictionary()['CPPPATH']
-env.Dictionary()['LIBPATH'] = ['../common'] + env.Dictionary()['LIBPATH']
-env.Dictionary()['LIBS']    = ['common'] + env.Dictionary()['LIBS']
 
 objects = env.Object(sources)
 for cur_source in ext_sources:

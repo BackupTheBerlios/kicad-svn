@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+
 env = Environment()
 
 env.ParseConfig('wx-config --cxxflags')
+
+env.Append(CCFLAGS = ['-Wall', '-O2', '-DPCBNEW'])
+env.Append(CPPPATH = ['../include', '../common', '../pcbnew'])
 
 sources = Split("""
 	3d_aux.cpp
@@ -11,9 +16,6 @@ sources = Split("""
 	3d_read_mesh.cpp
 	3d_toolbar.cpp
 	trackball.cpp""")
-
-env.Dictionary()['CCFLAGS'] = ['-Wall', '-O2', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
-env.Dictionary()['CPPPATH'] = ['../include', '../common', '../pcbnew'] + env.Dictionary()['CPPPATH']
 
 objects = env.Object(sources)
 

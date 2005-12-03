@@ -1,10 +1,8 @@
-modules = Split("""
-	3d-viewer/SConscript
-	common/SConscript
-	cvpcb/SConscript
-	eeschema/SConscript
-	gerbview/SConscript
-	kicad/SConscript
-	pcbnew/SConscript""")
+#!/usr/bin/env python
 
-SConscript(modules)
+# All of the subdirectories that contain SConscript files
+modules = ['3d-viewer', 'common', 'cvpcb', 'eeschema', 'gerbview', 'kicad', 'pcbnew']
+
+# Load all the SConscript files we use and do a build
+for curmod in modules:
+   SConscript("%s/SConscript" % curmod)

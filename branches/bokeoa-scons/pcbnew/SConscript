@@ -1,6 +1,13 @@
+#!/usr/bin/env python
+
 env = Environment()
 
 env.ParseConfig('wx-config --cxxflags --libs std,gl')
+
+env.Append(CCFLAGS = ['-Wall', '-O2', '-DPCBNEW'])
+env.Append(CPPPATH = ['./', '../include', '../common', '../3d-viewer', './bitmaps'])
+env.Append(LIBPATH = ['../common', '../3d-viewer'])
+env.Append(LIBS    = ['common', '3dviewer'])
 
 sources = Split("""
 	affiche.cpp
@@ -112,11 +119,6 @@ ext_sources = Split("""
 	../common/worksheet.cpp
 	../common/wxprint.cpp
 	../common/zoom.cpp""")
-
-env.Dictionary()['CCFLAGS']   = ['-Wall', '-O2', '-DPCBNEW'] + env.Dictionary()['CCFLAGS']
-env.Dictionary()['CPPPATH']   = ['./', '../include', '../common', '../3d-viewer', './bitmaps'] + env.Dictionary()['CPPPATH']
-env.Dictionary()['LIBPATH']   = ['../common', '../3d-viewer'] + env.Dictionary()['LIBPATH']
-env.Dictionary()['LIBS']      = ['common', '3dviewer'] + env.Dictionary()['LIBS']
 
 objects = env.Object(sources)
 for cur_source in ext_sources:
