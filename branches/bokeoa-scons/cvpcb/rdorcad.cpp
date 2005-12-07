@@ -46,37 +46,38 @@ STORECMP * Cmp;
 	if( BaseListeCmp ) FreeMemoryComponants();
 
 	/* Ouverture du fichier source */
-	source = fopen(FFileName.GetData(),"rt");
+	source = wxFopen(FFileName, wxT("rt"));
 	if (source == 0)
-		 {
-		 sprintf(cbuf,_("File <%s> not found"),FFileName.GetData());
-		 DisplayError(this, cbuf); return(-1);
-		 }
+	{
+		wxString msg;
+		msg.Printf( _("File <%s> not found"),FFileName.GetData());
+		DisplayError(this, msg); return(-1);
+	}
 
 	/* Lecture entete qui doit etre "( { OrCAD PCB"*/
 	/* ou "# EESchema Netliste"*/
 	fgets(Line,255,source) ;
 	i =  strnicmp(Line,"( { ",4) ;	/* net type PCB2 */
 	if( i != 0 )
-		{
+	{
 		i =  strnicmp(Line,"# EESchema",7) ;	/* net type EESchema */
 		if( i == 0 ) FlagEESchema = 1;
-		}
+	}
 
 	if ( i != 0 )
-		{
-		sprintf(cbuf,"Unknown file format [%s]",Line) ;
-		wxMessageBox(cbuf,"");
-		fclose(source);
-		return(-3) ;
-		}
+	{
+		wxString msg;
+		msg.Printf( _("Unknown file format <%s>"),Line) ;
+		DisplayError(this, msg);
+		fclose(source); return(-3) ;
+	}
 
 	SetStatusText( _("Netlist Format: EESchema"), 0);
 
 
 	/* Lecture de la liste */
 	for (;;)
-		{
+	{
 		/* recherche du debut de la description d'un composant */
 
 		if( fgets(Line,80,source)  == 0 ) break;
@@ -90,7 +91,7 @@ STORECMP * Cmp;
 		if (strnicmp(&Line[i],"( ",2) != 0) continue ;
 
 		/****************************/
-		/* debut description trouv‚ */
+		/* debut description trouve */
 		/****************************/
 		/* memo ident schema */
 		while ( Line[i] != ' ') i++ ;
@@ -113,23 +114,24 @@ STORECMP * Cmp;
 		/* recherche fin de valeur (' ') */
 		ptchar = strstr(&Line[i]," ") ;
 		if (ptchar == 0)
-			{
-			sprintf(cbuf, _("Netlist error: %s"),Line) ;
-			DisplayError(NULL, cbuf);
+		{
+		wxString msg;
+		msg.Printf( _("Netlist error: %s"),Line) ;
+			DisplayError(NULL, msg);
 			k = 0 ;
-			}
+		}
 		else k = ptchar - Line ;
 
 		for (j = 0 ; i < k ;  i++)
-			 {
+		{
 			 if ( Line[i] == SEPARATEUR ) break ;
 			 if ( j < 8 ) val[j++] = Line[i] ;
-			 }
+		}
 
 		if ( (Line[++i] == '(') && (Line[k-1] == ')' ) )
-			{
+		{
 			i++ ; l = 0 ; while ( k-1 > i ) alim[l++] = Line[i++] ;
-			}
+		}
 
 		else	i = k ;
 
@@ -139,10 +141,10 @@ STORECMP * Cmp;
 
 		/* debut reference trouv‚ */
 		for ( k = 0 ; k < 8 ; i++ , k++ )
-			{
+		{
 			if ( Line[i] <= ' ' ) break ;
 			label[k] = Line[i] ;
-			}
+		}
 
 		/* recherche vraie valeur du composant */
 		while(Line[i] != ' ') i++ ; /* elimination fin reference */
@@ -150,40 +152,37 @@ STORECMP * Cmp;
 
 		/* debut vraie valeur trouv‚e */
 		for ( k = 0 ; k < 16 ; i++ , k++ )
-			{
+		{
 			if ( Line[i] <= ' ' ) break ;
 			postval[k] = Line[i] ;
-			}
+		}
 
 
 		/* classement du composant ,suivi de sa valeur */
-		Cmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
-		Cmp->Type = STRUCT_COMPONANT;
+		Cmp = new STORECMP();
 		Cmp->Pnext = BaseListeCmp;
 		BaseListeCmp = Cmp;
-		strncpy( Cmp->Reference, label ,sizeof(Cmp->Reference) -1 );
-		strncpy(Cmp->Valeur, postval, sizeof(Cmp->Valeur) -1 ) ;
+		Cmp->m_Reference = CONV_FROM_UTF8(label);
+		Cmp->m_Valeur = CONV_FROM_UTF8(postval) ;
 
 		if( FlagEESchema )	/* Copie du nom module: */
-			{
+		{
 			if( strnicmp(LibName, "$noname", 7 ) != 0 )
-				{
-				i = 0;
+			{
 				while( *LibName > ' ' )
-					{
-					Cmp->Module[i] = *LibName;
-					i++; LibName++;
-					if( i >= ((int)sizeof(Cmp->Module) -1) ) break;
-					}
+				{
+					Cmp->m_Module.Append(*LibName);
+					LibName++;
 				}
 			}
+		}
 		/* classement du TimeStamp */
-		memcpy(	Cmp->TimeStamp, ref_schema, 8 );
+		Cmp->m_TimeStamp = CONV_FROM_UTF8(ref_schema);
 
 		pin_orcad( Cmp) ;
 
 		nbcomp++ ;
-		}
+	}
 	fclose(source);
 
 	/* reclassement alpab‚tique : */
@@ -192,17 +191,15 @@ STORECMP * Cmp;
 	return(0);
 }
 
-		/***********************************/
-		/* pin() : analyse liste des pins */
-		/***********************************/
-
+/***********************************/
 int pin_orcad(STORECMP * Cmp)
+/***********************************/
 {
 int i , jj;
 char numpin[9] , net[1024] ;
 char Line[1024];
 STOREPIN * Pin = NULL;
-STOREPIN ** LastPin = & Cmp->Pins;
+STOREPIN ** LastPin = & Cmp->m_Pins;
 
 for ( ;; )
 	{
@@ -234,14 +231,13 @@ for ( ;; )
 
 		/* recherche affectation forc‚e de net  */
 		if ( reaffect(numpin,net) != 0)
-			{
-			Pin = (STOREPIN *)MyZMalloc( sizeof(STOREPIN) );
-			Pin->Type = STRUCT_PIN;
+		{
+			Pin = new STOREPIN();
 			*LastPin = Pin; LastPin = &Pin->Pnext;
-			strncpy( Pin->PinNum, numpin, sizeof(Pin->PinNum) -1 );
-			Pin->PinNet = strdup(net);
+			Pin->m_PinNum = CONV_FROM_UTF8(numpin);
+			Pin->m_PinNet = CONV_FROM_UTF8(net);
 			continue ;
-			}
+		}
 
 		/* recherche netname */
 		while(Line[i] == ' ') i++ ; /* recherche debut reference */
@@ -253,26 +249,22 @@ for ( ;; )
 			net[jj] = Line[i] ;
 			}
 
-		Pin = (STOREPIN *)MyZMalloc( sizeof(STOREPIN) );
-		Pin->Type = STRUCT_PIN;
+		Pin =  new STOREPIN();
 		*LastPin = Pin; LastPin = &Pin->Pnext;
-		strncpy( Pin->PinNum, numpin, sizeof(Pin->PinNum) -1 );
-		Pin->PinNet = strdup(net);
+		Pin->m_PinNum = CONV_FROM_UTF8(numpin);
+		Pin->m_PinNet = CONV_FROM_UTF8(net);
 		}
 	}
 }
 
 
-	/***********************************************************/
-	/* void TriListeComposants(STOREMOD * BaseListe, int nbitems) */
-	/***********************************************************/
-
+/****************************************************************/
+STORECMP * TriListeComposantss(STORECMP * BaseListe, int nbitems)
+/****************************************************************/
 /* Tri la liste des composants par ordre alphabetique et me a jour
 le nouveau chainage avant/arriere
 	retourne un pointeur sur le 1er element de la liste
 */
-
-STORECMP * TriListeComposantss(STORECMP * BaseListe, int nbitems)
 {
 STORECMP ** bufferptr, * Item;
 int ii;
@@ -281,9 +273,9 @@ int ii;
 	bufferptr = (STORECMP**)MyZMalloc( (nbitems+2) * sizeof(STORECMP*) );
 
 	for( ii= 1, Item = BaseListe; Item != NULL; Item = Item->Pnext, ii++)
-		{
+	{
 		bufferptr[ii] = Item;
-		}
+	}
 
 	/* ici bufferptr[0] = NULL et bufferptr[nbitem+1] = NULL et ces 2 valeurs
 	representent le chainage arriere du 1er element, et le chainage avant
@@ -293,24 +285,22 @@ int ii;
 							(int(*)(const void*,const void*))CmpCompare) ;
 	/* Mise a jour du chainage */
 	for( ii = 1; ii <= nbitems; ii++ )
-		{
+	{
 		Item = bufferptr[ii];
-		Item->Num = ii;
+		Item->m_Num = ii;
 		Item->Pnext = bufferptr[ii+1];
 		Item->Pback = bufferptr[ii-1];
-		}
+	}
 	return(bufferptr[1]);
 }
 
-	/***************************************************/
-	/* int CmpCompare(void *mod1, void *mod2) */
-	/***************************************************/
 
-/*
-routine compare() pour qsort() en classement alphab‚tique des composants
-*/
-
+/****************************************/
 int CmpCompare(void * mod1, void * mod2)
+/****************************************/
+/*
+routine compare() pour qsort() en classement alphabetique des composants
+*/
 {
 int ii;
 STORECMP *pt1 , *pt2 ;
@@ -318,7 +308,8 @@ STORECMP *pt1 , *pt2 ;
 	pt1 = * ((STORECMP**)mod1);
 	pt2 = * ((STORECMP**)mod2);
 
-	ii = StrNumICmp( pt1->Reference, pt2->Reference );
+	//FIXME:
+	ii = StrNumICmp( (const wxChar*) pt1->m_Reference, (const wxChar*) pt2->m_Reference );
 	return(ii);
 }
 

@@ -69,7 +69,7 @@ public:
 	// autres
 	void SetPadName(const wxString & name);	// Change pade name
 	wxString ReturnStringPadName(void);		// Return pad name as string in a wxString
-	void ReturnStringPadName(char * text);	// Return pad name as string in a buffer
+	void ReturnStringPadName(wxString & text);	// Return pad name as string in a buffer
 	void ComputeRayon(void);			// met a jour m_Rayon, rayon du cercle exinscrit
 	const wxPoint ReturnShapePos(void) const;	// retourne la position
 								// de la forme (pastilles excentrees)

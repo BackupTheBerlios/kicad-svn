@@ -114,7 +114,7 @@ EDA_BaseStruct * Struct, * NextStruct;
 				break;
 
 			default:
-				DisplayError(NULL, "Warn: ItemType not handled in delete MODULE");
+				DisplayError(NULL, wxT("Warn: ItemType not handled in delete MODULE"));
 				NextStruct = NULL;
 				break;
 			}
@@ -181,7 +181,7 @@ D_PAD * pad,* lastpad;
 				((EDGE_MODULE*)NewStruct)->Copy((EDGE_MODULE*)OldStruct);
 				break;
 			default:
-				DisplayError(NULL, "Internal Err: CopyModule: type indefini");
+				DisplayError(NULL, wxT("Internal Err: CopyModule: type indefini"));
 				break;
 			}
 		if( NewStruct == NULL) break;
@@ -339,11 +339,12 @@ EDGE_MODULE * PtEdge;
 D_PAD * ptpad;
 EDA_BaseStruct * PtStruct;
 int ii, NbLigne = 0;
+wxString msg;
 
 	if( GetState(DELETED) ) return(NbLigne);
 
 	/* Generation du fichier module: */
-	fprintf( File,"$MODULE %s\n", m_LibRef.GetData());
+	fprintf( File,"$MODULE %s\n", CONV_TO_UTF8(m_LibRef));
 	NbLigne++;
 
 	/* Generation des coord et caracteristiques */
@@ -361,18 +362,18 @@ int ii, NbLigne = 0;
 			m_TimeStamp, StringStat);
 	NbLigne++;
 
-	fprintf(File,"Li %s\n", m_LibRef.GetData());
+	fprintf(File,"Li %s\n", CONV_TO_UTF8(m_LibRef));
 	NbLigne++;
 
-	if ( m_Doc != "")
+	if ( ! m_Doc.IsEmpty())
 		{
-		fprintf(File,"Cd %s\n", m_Doc.GetData());
+		fprintf(File,"Cd %s\n", CONV_TO_UTF8(m_Doc));
 		NbLigne++;
 		}
 
-	if ( m_KeyWord != "")
+	if ( ! m_KeyWord.IsEmpty())
 		{
-		fprintf(File,"Kw %s\n", m_KeyWord.GetData());
+		fprintf(File,"Kw %s\n", CONV_TO_UTF8(m_KeyWord));
 		NbLigne++;
 		}
 
@@ -398,7 +399,8 @@ int ii, NbLigne = 0;
 				m_Reference->m_Size.y,m_Reference->m_Size.x,
 				m_Reference->m_Orient + m_Orient, m_Reference->m_Width,
 				m_Reference->m_Miroir ? 'N' : 'M', m_Reference->m_NoShow ? 'I' : 'V',
-				m_Reference->m_Layer, m_Reference->GetText() );
+				m_Reference->m_Layer,
+				CONV_TO_UTF8(m_Reference->m_Text) );
 	NbLigne++;
 
 	/* Texte Value du module */
@@ -408,7 +410,8 @@ int ii, NbLigne = 0;
 				m_Value->m_Size.y,m_Value->m_Size.x,
 				m_Value->m_Orient + m_Orient, m_Value->m_Width,
 				m_Value->m_Miroir ? 'N' : 'M', m_Value->m_NoShow ? 'I' : 'V',
-				m_Value->m_Layer, m_Value->GetText() );
+				m_Value->m_Layer,
+				CONV_TO_UTF8(m_Value->m_Text) );
 	NbLigne++;
 
 	/* Generation des elements Drawing modules */
@@ -426,7 +429,7 @@ int ii, NbLigne = 0;
 						PtText->m_Orient + m_Orient, PtText->m_Width,
 						PtText->m_Miroir ? 'N' : 'M',
 						PtText->m_NoShow ? 'I' : 'V',
-						PtText->m_Layer, PtText->GetText() );
+						PtText->m_Layer, CONV_TO_UTF8(PtText->m_Text) );
 				NbLigne++;
 				break;
 
@@ -436,9 +439,9 @@ int ii, NbLigne = 0;
 				break;
 
 			default:
-				sprintf(cbuf,"Type (%d) Draw Module inconnu",
+				msg.Printf( wxT("Type (%d) Draw Module inconnu"),
 										PtStruct->m_StructType);
-				DisplayError(NULL, cbuf);
+				DisplayError(NULL, msg);
 				break;
 			}	/* Fin switch gestion des Items draw */
 		}
@@ -455,7 +458,7 @@ int ii, NbLigne = 0;
 	Write_3D_Descr( File );
 
 	/* Fin de description: */
-	fprintf( File,"$EndMODULE  %s\n", m_LibRef.GetData());
+	fprintf( File,"$EndMODULE  %s\n", CONV_TO_UTF8(m_LibRef));
 	NbLigne++;
 	return(NbLigne);
 }
@@ -471,11 +474,11 @@ Struct3D_Master * Struct3D = m_3D_Drawings;
 
 	for ( ; Struct3D != NULL; Struct3D = (Struct3D_Master *) Struct3D->Pnext)
 	{
-		if ( Struct3D->m_Shape3DName != "" )
+		if ( ! Struct3D->m_Shape3DName.IsEmpty() )
 		{
 		fprintf( File,"$SHAPE3D\n");
 
-		fprintf( File,"Na \"%s\"\n", Struct3D->m_Shape3DName.GetData());
+		fprintf( File,"Na \"%s\"\n", CONV_TO_UTF8(Struct3D->m_Shape3DName));
 
 		sprintf( buf,"Sc %lf %lf %lf\n",
 				Struct3D->m_MatScale.x,
@@ -514,7 +517,7 @@ char Line[1024];
 char * text = Line + 3;
 Struct3D_Master * Struct3D = m_3D_Drawings;
 
-	if ( Struct3D->m_Shape3DName != "" )
+	if ( ! Struct3D->m_Shape3DName.IsEmpty() )
 	{
 	Struct3D_Master * NewStruct3D;
 		while ( Struct3D->Pnext )
@@ -536,7 +539,7 @@ Struct3D_Master * Struct3D = m_3D_Drawings;
 				{
 				char buf[512];
 				ReadDelimitedText( buf, text, 512);
-				Struct3D->m_Shape3DName = buf;
+				Struct3D->m_Shape3DName = CONV_FROM_UTF8(buf);
 				break;
 				}
 
@@ -632,7 +635,7 @@ int itmp1, itmp2;
 			case 'L':	/* Li = Lecture du nom librairie du module */
 				*BufLine = 0;
 				sscanf(PtLine," %s",BufLine);
-				m_LibRef = BufLine;
+				m_LibRef = CONV_FROM_UTF8(BufLine);
 				break;
 
 			case 'S':
@@ -700,7 +703,7 @@ int itmp1, itmp2;
 				DrawText->SetDrawCoord();
 				/* Lecture de la chaine "text" */
 				ReadDelimitedText(BufLine, Line	, sizeof(BufLine) );
-				DrawText->m_Text = BufLine;
+				DrawText->m_Text = CONV_FROM_UTF8(BufLine);
 				// Controle d'epaisseur raisonnable:
 				if( DrawText->m_Width <= 1 ) DrawText->m_Width = 1;
 				if( DrawText->m_Width > MAX_WIDTH ) DrawText->m_Width = MAX_WIDTH;
@@ -726,11 +729,11 @@ int itmp1, itmp2;
 				break;
 
 			case 'C': /* Lecture de la doc */
-				m_Doc = StrPurge(PtLine);
+				m_Doc = CONV_FROM_UTF8(StrPurge(PtLine));
 				break;
 
 			case 'K': /* Lecture de la liste des mots cle */
-				m_KeyWord = StrPurge(PtLine);
+				m_KeyWord = CONV_FROM_UTF8(StrPurge(PtLine));
 				break;
 
 			default:
@@ -786,7 +789,7 @@ int	deltaY = newpos.y - m_Pos.y;
 				break;
 				}
 
-			default: DisplayError(NULL, "Type Draw Indefini"); break;
+			default: DisplayError(NULL, wxT("Type Draw Indefini")); break;
 			}
 		}
 
@@ -1006,31 +1009,32 @@ int nbpad;
 char bufcar[512], Line[512];
 int pos;
 bool flag = FALSE;
-
+wxString msg;
+	
 	frame->MsgPanel->EraseMsgBox() ;	/* Effacement de la zone message */
 	if ( frame->m_Ident != PCB_FRAME ) flag = TRUE;
 	pos = 1;
-	Affiche_1_Parametre(frame, pos, m_Reference->GetText(),
-							   m_Value->GetText(),  DARKCYAN);
+	Affiche_1_Parametre(frame, pos, m_Reference->m_Text, m_Value->m_Text, DARKCYAN);
 
 	/* Affiche signature temporelle ou date de modif (en edition de modules) */
 	pos += 14;
 	if ( flag )	// Affichage date de modification (utile en Module Editor)
-		{
+	{
 		strcpy(Line, ctime(&m_LastEdit_Time));
 		strtok(Line," \n\r");
 		strcpy( bufcar, strtok(NULL," \n\r") ); strcat(bufcar," ");
 		strcat( bufcar, strtok(NULL," \n\r") ); strcat(bufcar,", ");
 		strtok(NULL," \n\r");
 		strcat( bufcar, strtok(NULL," \n\r") );
-		Affiche_1_Parametre(frame, pos, _("Last Change"), bufcar, BROWN);
+		msg = CONV_FROM_UTF8(bufcar);
+		Affiche_1_Parametre(frame, pos, _("Last Change"), msg, BROWN);
 		pos += 4;
-		}
+	}
 	else
-		{
-		sprintf(bufcar, "%8.8lX", m_TimeStamp);
-		Affiche_1_Parametre(frame, pos, _("TimeStamp"),bufcar,BROWN);
-		}
+	{
+		msg.Printf( wxT("%8.8lX"), m_TimeStamp);
+		Affiche_1_Parametre(frame, pos, _("TimeStamp"), msg,BROWN);
+	}
 
 	pos += 6;
 	Affiche_1_Parametre(frame, pos,_("Layer"),ReturnPcbLayerName(m_Layer),RED) ;
@@ -1039,18 +1043,18 @@ bool flag = FALSE;
 	EDA_BaseStruct * PtStruct = m_Pads;
 	nbpad = 0;
 	while( PtStruct ) { nbpad ++; PtStruct = PtStruct->Pnext; }
-	sprintf(bufcar,"%d",nbpad);
-	Affiche_1_Parametre(frame, pos,_("Pads"), bufcar,BLUE);
+	msg.Printf( wxT("%d"),nbpad);
+	Affiche_1_Parametre(frame, pos,_("Pads"), msg,BLUE);
 
 	pos += 4;
-	strcpy(bufcar,"..");
-	if( m_ModuleStatus & MODULE_is_LOCKED ) bufcar[0] = 'F';
-	if( m_ModuleStatus & MODULE_is_PLACED ) bufcar[1] = 'P';
-	Affiche_1_Parametre(frame, pos,_("Stat"), bufcar, MAGENTA);
+	msg = wxT("..");
+	if( m_ModuleStatus & MODULE_is_LOCKED ) msg[0] = 'F';
+	if( m_ModuleStatus & MODULE_is_PLACED ) msg[1] = 'P';
+	Affiche_1_Parametre(frame, pos,_("Stat"), msg, MAGENTA);
 
 	pos += 4;
-	sprintf(bufcar,"%.1f",(float)m_Orient / 10 );
-	Affiche_1_Parametre(frame, pos,_("Orient"), bufcar, BROWN);
+	msg.Printf( wxT("%.1f"),(float)m_Orient / 10 );
+	Affiche_1_Parametre(frame, pos,_("Orient"), msg, BROWN);
 
 	pos += 5;
 	Affiche_1_Parametre(frame, pos,_("Module"), m_LibRef, BLUE);
@@ -1060,8 +1064,8 @@ bool flag = FALSE;
 			m_3D_Drawings->m_Shape3DName, RED);
 
 	pos += 14;
-	wxString doc = "Doc:  " +  m_Doc;
-	wxString keyword = "KeyW: " + m_KeyWord;
+	wxString doc = _("Doc:  ") +  m_Doc;
+	wxString keyword = _("KeyW: ") + m_KeyWord;
 	Affiche_1_Parametre(frame, pos, doc, keyword, BLACK);
 
 }

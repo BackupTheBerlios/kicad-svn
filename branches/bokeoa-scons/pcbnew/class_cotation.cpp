@@ -48,7 +48,7 @@ void COTATION::UnLink( void )
 }
 
 /* Changement du texte de la cotation */
-void COTATION:: SetText(char * NewText)
+void COTATION:: SetText(const wxString & NewText)
 {
 	m_Text->m_Text = NewText;
 }
@@ -111,7 +111,7 @@ char  Line[2048], Text[2048];
 		if(Line[0] == 'T')
 		{
 			ReadDelimitedText(Text, Line+2, sizeof(Text) );
-			m_Text->m_Text = Text;
+			m_Text->m_Text = CONV_FROM_UTF8(Text);
 			continue;
 		}
 

@@ -42,7 +42,7 @@ int ii;
 EDA_LibComponentStruct * LibEntry;
 LibraryStruct * Lib;
 WinEDAListBox * ListBox;
-const char ** ListNames;
+const wxChar ** ListNames;
 
 	BufName.MakeUpper();
 	Keys.MakeUpper();
@@ -53,7 +53,7 @@ const char ** ListNames;
 		LibEntry = (EDA_LibComponentStruct *) PQFirst(&Lib->m_Entries, FALSE);
 		while( LibEntry )
 			{
-			if ( Keys != "")
+			if ( ! Keys.IsEmpty() )
 				{
 				if( KeyWordOk(Keys, LibEntry->m_KeyWord) ) ii++;
 				}
@@ -71,14 +71,14 @@ const char ** ListNames;
 		return 0;
 		}
 
-	ListNames = (const char**)MyZMalloc( (ii+1) * sizeof(const char*));
+	ListNames = (const wxChar**)MyZMalloc( (ii+1) * sizeof(const wxChar*));
 	for (Lib = g_LibraryList, ii = 0; Lib != NULL; Lib = Lib->m_Pnext)
 		{
 		/* Examen de la liste des elements */
 		LibEntry = (EDA_LibComponentStruct *) PQFirst(&Lib->m_Entries, FALSE);
 		while( LibEntry )
 			{
-			if ( Keys != "")
+			if ( ! Keys.IsEmpty())
 				{
 				if( KeyWordOk(Keys, LibEntry->m_KeyWord) )
 					{
@@ -94,7 +94,7 @@ const char ** ListNames;
 		}
 
 	ListBox = new WinEDAListBox(frame, _("Selection"), ListNames,
-						"", DisplayCmpDoc, wxColour(200,200,255) );
+						wxEmptyString, DisplayCmpDoc, wxColour(200,200,255) );
 	ListBox->MoveMouseToOrigin();
 		
 	/* Affichage de la liste selectionnee */
@@ -121,11 +121,11 @@ void DisplayCmpDoc(wxString & Name)
 {
 LibCmpEntry * CmpEntry;
 
-	CmpEntry = FindLibPart(Name.GetData(), "", FIND_ALIAS);
+	CmpEntry = FindLibPart(Name.GetData(), wxEmptyString, FIND_ALIAS);
 	if ( CmpEntry == NULL ) return;
 
-	Name = "Descr: " + CmpEntry->m_Doc;
-	Name += "\nKeyW: " + CmpEntry->m_KeyWord;
+	Name = wxT("Descr: ") + CmpEntry->m_Doc;
+	Name += wxT("\nKeyW: ") + CmpEntry->m_KeyWord;
 }
 
 

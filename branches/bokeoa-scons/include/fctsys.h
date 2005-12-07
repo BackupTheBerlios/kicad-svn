@@ -47,11 +47,14 @@
 
 #ifdef __WINDOWS__
 #define DIR_SEP '\\'
-#define STRING_DIR_SEP "\\"
+#define STRING_DIR_SEP wxT("\\")
 #else
 #define DIR_SEP '/'
-#define STRING_DIR_SEP "/"
+#define STRING_DIR_SEP wxT("/")
 #endif
+
+#define UNIX_STRING_DIR_SEP wxT("/")
+#define WIN_STRING_DIR_SEP wxT("\\")
 
 
 eda_global char g_FloatSeparator;	// = '.' ou = ',' selon locale pour l'ecriture des nombres flotttant

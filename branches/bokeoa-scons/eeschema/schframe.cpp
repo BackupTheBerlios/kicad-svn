@@ -110,7 +110,7 @@ WinEDA_SchematicFrame::	WinEDA_SchematicFrame(wxWindow * father, WinEDA_App *par
 					const wxString & title, const wxPoint& pos, const wxSize& size) :
 					WinEDA_DrawFrame(father, SCHEMATIC_FRAME, parent, title, pos, size)
 {
-	m_FrameName = "SchematicFrame";
+	m_FrameName = wxT("SchematicFrame");
 	m_Draw_Axes = FALSE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = g_ShowGrid;			// TRUE pour avoir la grille dessinee
 	m_Draw_Sheet_Ref = TRUE;		// TRUE pour avoir le cartouche dessiné
@@ -175,16 +175,18 @@ SCH_SCREEN * screen;
 		}
 	}
 
+	screen = ScreenSch ;
 	while( screen )	// suppression flag modify pour eviter d'autres message
 	{
 		screen->ClrModify();
 		screen = (SCH_SCREEN*)screen->Pnext;
 	}
 
-	if ( strlen (ScreenSch->m_FileName) && (ScreenSch->EEDrawList != NULL) )
+	if ( ! ScreenSch->m_FileName.IsEmpty() && (ScreenSch->EEDrawList != NULL) )
 			SetLastProject(ScreenSch->m_FileName);
 
 	ClearProjectDrawList(ScreenSch);
+	
 	/* Tous les autres SCREEN sont effaces, aussi reselection de
 	 l'ecran de base, pour les evenements de refresh générés par wxWindows */
 	m_CurrentScreen = ActiveScreen = ScreenSch;
@@ -272,13 +274,8 @@ wxSize size;
 	size =  DrawPanel->GetClientSize();
 	ii = dx / size.x;
 	jj = dy / size.y;
-	bestzoom = MAX(ii, jj);
+	bestzoom = MAX(ii, jj) + 1;
 
-	/* determination du zoom existant le plus proche */
-	for (ii = 1 ; ii < 512 ; ii <<= 1 )
-		{
-		if(ii >= bestzoom) break;
-		}
 	m_CurrentScreen->SetZoom(ii);
 	m_CurrentScreen->m_Curseur.x =  dx / 2;
 	m_CurrentScreen->m_Curseur.y =  dy / 2;

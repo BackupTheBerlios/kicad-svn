@@ -134,7 +134,7 @@ wxButton * Button;
 			UnitMetric, pos, m_Parent->m_InternalUnits);
 
 	pos.x += 15 + m_TxtPosCtrl->GetDimension().x;
-	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER,"",
+	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER, wxEmptyString,
 					pos, wxDefaultSize, 0, NULL, wxCB_READONLY);
 	int ii;
 	for ( ii = 0; ii < 29 ; ii ++ )
@@ -144,7 +144,7 @@ wxButton * Button;
 	m_SelLayerBox->SetSelection( TextPCB->m_Layer );
 
 	pos.x = 270; pos.y = VPOS0 + 80;
-wxString orient_msg[4] = { "0", "90", "180", "-90"};
+wxString orient_msg[4] = { wxT("0"), wxT("90"), wxT("180"), wxT("-90") };
 	m_Orient = new wxRadioBox(this, -1, _("Orientation"),
 							pos, wxSize(-1,-1), 4, orient_msg,
 							1, wxRA_SPECIFY_COLS );

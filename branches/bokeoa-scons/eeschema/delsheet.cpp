@@ -26,14 +26,14 @@ SCH_SCREEN *Screen;
 EDA_BaseStruct *DrawStruct;
 EDA_BaseStruct *EEDrawList;
 WinEDA_SchematicFrame * frame = EDA_Appl->SchematicFrame;
-char Line[256];
+wxString msg;
 
 	if( FirstSheet == NULL ) return;
 
 	if( FirstSheet->m_StructType != DRAW_SHEET_STRUCT_TYPE)
 		{
 		DisplayError(NULL,
-				"DeleteSubHierarchy error: NOT a SubSheet");
+				wxT("DeleteSubHierarchy error: NOT a SubSheet"));
 		return;
 		}
 
@@ -43,15 +43,15 @@ char Line[256];
 	if(Screen == NULL) return;
 
 	if( Screen->IsModify() )
-		{
-		sprintf(Line,"Sheet %s (file %s) modified. Save ?",
+	{
+		msg.Printf( _("Sheet %s (file %s) modified. Save it?"),
 					FirstSheet->m_Field[VALUE].m_Text.GetData(),
 					Screen->m_FileName.GetData()); 
-		if( IsOK(frame, Line) )
-			{
+		if( IsOK(frame, msg) )
+		{
 			frame->SaveEEFile(Screen, FILE_SAVE_AS);
-			}
 		}
+	}
 
 	/* Effacement des sous feuilles */
 	EEDrawList = Screen->EEDrawList;
@@ -90,36 +90,31 @@ EDA_BaseStruct *EEDrawList ;
 	
 	if ( screen == NULL ) return(TRUE);
 
-	if( screen->EEDrawList == NULL ) return(TRUE);  /* Projet vide */
-
 	/* Effacement des structures */
 	EEDrawList = screen->EEDrawList;
-	if (EEDrawList != NULL)
+	while (EEDrawList != NULL)
+	{
+		DrawStruct = EEDrawList;
+		EEDrawList = EEDrawList->Pnext;
+
+		if( DrawStruct->m_StructType == DRAW_SHEET_STRUCT_TYPE)
 		{
-		while (EEDrawList != NULL)
-			{
-			DrawStruct = EEDrawList;
-			EEDrawList = EEDrawList->Pnext;
-
-			if( DrawStruct->m_StructType == DRAW_SHEET_STRUCT_TYPE)
-				{
-				DeleteSubHierarchy((DrawSheetStruct*) DrawStruct);
-				}
-
-			delete DrawStruct;
-			}
-		screen->EEDrawList = NULL;
+			DeleteSubHierarchy((DrawSheetStruct*) DrawStruct);
 		}
+
+		delete DrawStruct;
+	}
+	screen->EEDrawList = NULL;
 
 	/* Init de l'ecran de depart */
 	screen->m_SheetNumber = screen->m_NumberOfSheet = 1;
-	screen->m_Title = "";
-	screen->m_Revision = "";
-	screen->m_Company = "";
-	screen->m_Commentaire1 = "";
-	screen->m_Commentaire2 = "";
-	screen->m_Commentaire3 = "";
-	screen->m_Commentaire4 = "";
+	screen->m_Title.Empty();
+	screen->m_Revision.Empty();
+	screen->m_Company.Empty();
+	screen->m_Commentaire1.Empty();
+	screen->m_Commentaire2.Empty();
+	screen->m_Commentaire3.Empty();
+	screen->m_Commentaire4.Empty();
 	screen->m_Date = GenDate();
 
 	return TRUE;

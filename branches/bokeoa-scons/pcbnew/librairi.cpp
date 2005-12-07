@@ -22,8 +22,8 @@ liste des descriptions des Modules
 $EndLIBRARY
 */
 
-#define OLD_EXT ".bak"
-#define FILETMP_EXT ".$$$"
+#define OLD_EXT wxT(".bak")
+#define FILETMP_EXT wxT(".$$$")
 
 
 /* Fonctions locales */
@@ -45,8 +45,8 @@ MODULE * module = NULL;
 
 	/* Lecture Fichier module */
 	CmpFullFileName = EDA_FileSelector( _("Import Module:"),
-					"",				/* Chemin par defaut */
-					"",				/* nom fichier par defaut */
+					wxEmptyString,				/* Chemin par defaut */
+					wxEmptyString,				/* nom fichier par defaut */
 					EXT_CMP,			/* extension par defaut */
 					EXT_CMP_MASK,		/* Masque d'affichage */
 					this,
@@ -54,14 +54,15 @@ MODULE * module = NULL;
 					TRUE
 					);
 
-	if ( CmpFullFileName == "" ) return NULL;
+	if ( CmpFullFileName == wxEmptyString ) return NULL;
 
-	if ( (dest = fopen(CmpFullFileName.GetData(),"rt") ) == NULL )
-		{
-		sprintf(Line,"File <%s> not found",CmpFullFileName.GetData());
-		DisplayError(this, Line) ;
+	if ( (dest = wxFopen(CmpFullFileName, wxT("rt")) ) == NULL )
+	{
+		wxString msg;
+		msg.Printf( _("File <%s> not found"), CmpFullFileName.GetData());
+		DisplayError(this, msg) ;
 		return NULL;
-		}
+	}
 
 	/* Lecture Entete */
 	GetLine(dest, Line,  &NbLine);
@@ -106,20 +107,22 @@ void WinEDA_ModuleEditFrame::Export_Module(MODULE* ptmod, bool createlib)
 Genere 1 fichier type Empreinte a partir de la description du module sur PCB
 */
 {
-wxString FullFileName, Mask("*");
+wxString FullFileName, Mask( wxT("*") );
 char Line[1025];
 FILE * dest;
+wxString msg, path;
 
 	if ( ptmod == NULL ) return;
 
-	ptmod->m_LibRef = ptmod->m_Reference->GetText();
+	ptmod->m_LibRef = ptmod->m_Reference->m_Text;
 	FullFileName = ptmod->m_LibRef;
 	FullFileName += createlib ? LibExtBuffer : EXT_CMP;
 
 	Mask += createlib ? LibExtBuffer : EXT_CMP;
 
+	if ( createlib ) path = g_RealLibDirBuffer; 
 	FullFileName = EDA_FileSelector( createlib ? _("Create lib") : _("Export Module:"),
-					createlib ? g_RealLibDirBuffer : "",			/* Chemin par defaut */
+					path,				/* Chemin par defaut */
 					FullFileName,		/* nom fichier par defaut */
 					createlib ? LibExtBuffer : EXT_CMP,			/* extension par defaut */
 					Mask,		/* Masque d'affichage */
@@ -128,35 +131,35 @@ FILE * dest;
 					TRUE
 					);
 
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	if ( createlib  && wxFileExists(FullFileName) )
-		{
-		sprintf(Line, _("File %s exists, OK to replace ?"),
+	{
+		msg.Printf( _("File %s exists, OK to replace ?"),
 				FullFileName.GetData());
-		if( ! IsOK(this, Line) ) return;
-		}
+		if( ! IsOK(this, msg) ) return;
+	}
 
 	/* Generation du fichier Empreinte */
-	if ( (dest = fopen(FullFileName.GetData(),"wt") ) == NULL )
-		{
-		sprintf(Line,_("Unable to create <%s>"),FullFileName.GetData()) ;
-		DisplayError(this, Line) ;
+	if ( (dest = wxFopen(FullFileName, wxT("wt")) ) == NULL )
+	{
+		msg.Printf( _("Unable to create <%s>"),FullFileName.GetData()) ;
+		DisplayError(this, msg) ;
 		return ;
-		}
+	}
 
 	fprintf(dest,"%s  %s\n", ENTETE_LIBRAIRIE, DateAndTime(Line));
 	fputs("$INDEX\n",dest);
 
-	fprintf(dest,"%s\n", ptmod->m_LibRef.GetData() );
+	fprintf(dest,"%s\n", CONV_TO_UTF8(ptmod->m_LibRef) );
 	fputs("$EndINDEX\n",dest);
 
 	m_Pcb->m_Modules->WriteDescr(dest);
 
 	fputs("$EndLIBRARY\n",dest);
 	fclose(dest) ;
-	sprintf(Line,"<%s> cree",FullFileName.GetData()) ;
-	DisplayInfo(this, Line) ;
+	msg.Printf( _("Module exported in file <%s>"),FullFileName.GetData()) ;
+	DisplayInfo(this, msg) ;
 }
 
 /**********************************************************/
@@ -168,68 +171,69 @@ int ii, NoFound = 1, LineNum = 0;
 char Line[1024], Name[256];
 wxString NewLib, OldLib;
 FILE * dest, * lib_module;
-wxString CmpName;
+wxString CmpName, msg;
 
 	/* Demande du nom du composant a supprimer */
-	CmpName = Select_1_Module_From_List( this, libname, "", "" );
-	if( CmpName == "" )	return;
+	CmpName = Select_1_Module_From_List( this, libname, wxEmptyString, wxEmptyString );
+	if( CmpName == wxEmptyString )	return;
 
 	/* Confirmation */
-	sprintf(Line,"Ok pour suppression de <%s> dans <%s>",
+	msg.Printf( _("Ok to delete module %s in library %s"),
 				CmpName.GetData(), libname.GetData() );
-	if( !IsOK(this, Line) ) return;
+	if( !IsOK(this, msg) ) return;
 
 	OldLib = libname;
 
-	if ((lib_module = fopen(OldLib.GetData(),"rt"))  == NULL )
-		{
+	if ((lib_module = wxFopen( OldLib, wxT("rt")))  == NULL )
+	{
 		wxString msg;
-		msg = _("Library ") + OldLib + " not found";
-		DisplayError(this, cbuf);
+		msg = _("Library ") + OldLib + _(" not found");
+		DisplayError(this, msg);
 		return;
-		}
+	}
 
 
 	/* lecture entete */
 	GetLine(lib_module,Line, &LineNum) ;
 
 	if(strnicmp( Line,ENTETE_LIBRAIRIE, L_ENTETE_LIB) != 0)
-		{
+	{
 		DisplayError(this, _("Not a Library file"));
 		fclose(lib_module);
 		return;
-		}
+	}
 
 	/* lecture des nom des composants  */
 	while( GetLine(lib_module, Line, &LineNum) )
-		{
+	{
 		if( strnicmp( Line, "$INDEX",6) == 0 )
-			{
+		{
 			while( GetLine(lib_module, Line, &LineNum) )
-				{
+			{
 				StrPurge(Line);
-				if( stricmp(CmpName.GetData(),Line) == 0) /* composant trouve */
-					{
+				msg = CONV_FROM_UTF8(Line);
+				if( CmpName.CmpNoCase(msg) == 0) /* composant trouve */
+				{
 					NoFound = 0; break;
-					}
-				if( strnicmp( Line, "$EndINDEX",9) == 0 ) break;
 				}
+				if( strnicmp( Line, "$EndINDEX",9) == 0 ) break;
 			}
-		if( strnicmp( Line, "$EndINDEX",9) == 0 ) break;
 		}
+		if( strnicmp( Line, "$EndINDEX",9) == 0 ) break;
+	}
 
 	if( NoFound )
-		{
+	{
 		fclose(lib_module);
-		sprintf(cbuf, "Module [%s] non trouve", CmpName.GetData() );
-		DisplayError(this, cbuf);
+		msg.Printf( _("Module [%s] not found"), CmpName.GetData() );
+		DisplayError(this, msg);
 		return ;
-		}
+	}
 
 	/* Creation de la nouvelle librairie */
 	NewLib = OldLib;
 	ChangeFileNameExt(NewLib,FILETMP_EXT);
-	if ((dest = fopen(NewLib.GetData(),"wt")) == NULL ) 
+	if ((dest = wxFopen(NewLib, wxT("wt") )) == NULL ) 
 		{
 		fclose(lib_module) ;
 		wxString msg;
@@ -246,42 +250,44 @@ wxBeginBusyCursor();
 
 	fseek(lib_module,0,0); GetLine(lib_module, Line, &ii);
 	while(GetLine(lib_module,Line, &ii))
-		{
+	{
 		if ( strnicmp(Line,"$M",2 ) == 0 ) break;
 		if ( strnicmp(Line,"$INDEX",6 ) == 0 )
-			{
+		{
 			while(GetLine(lib_module,Line, &ii))
-				{
+			{
 				if ( strnicmp(Line,"$EndINDEX",9 ) == 0 ) break;
 				StrPurge(Line);
-				if( stricmp(Line,CmpName.GetData()) != 0 )
+				msg = CONV_FROM_UTF8(Line);
+				if( CmpName.CmpNoCase(msg) != 0 )
 					 fprintf(dest,"%s\n",Line);
-				}
 			}
-		if ( strnicmp(Line,"$EndINDEX",9 ) == 0 ) break;
 		}
+		if ( strnicmp(Line,"$EndINDEX",9 ) == 0 ) break;
+	}
 
 	fprintf(dest,"$EndINDEX\n");
 
 	/* Copie des modules */
 	while( GetLine(lib_module, Line, &LineNum) )
-		{
+	{
 		StrPurge(Line);
 		if( strnicmp( Line, "$MODULE", 7) == 0 )
-			{
+		{
 			sscanf(Line+7," %s", Name);
-			if( stricmp(Name,CmpName.GetData()) == 0 )
-				{
+			msg = CONV_FROM_UTF8(Name);
+			if( msg.CmpNoCase(CmpName) == 0 )
+			{
 				/* suppression ancien module */
 				while( GetLine(lib_module, Line, &LineNum) )
-					{
+				{
 					if( strnicmp( Line, "$EndMODULE", 9) == 0 ) break;
-					}
-				continue;
 				}
+				continue;
 			}
-		fprintf(dest, "%s\n", Line);
 		}
+		fprintf(dest, "%s\n", Line);
+	}
 
 	fclose(lib_module);
 	fclose(dest) ;
@@ -294,19 +300,21 @@ wxString BakFilename = OldLib;
 
 	if( wxFileExists(BakFilename) ) wxRemoveFile(BakFilename);
 
-	if( rename(OldLib, BakFilename) )
-		{
-		DisplayError(this, "Librairi.cpp: rename .bak err"); return;
-		}
+	if( ! wxRenameFile(OldLib, BakFilename) )
+	{
+		DisplayError(this, wxT("Librairi.cpp: rename .bak err"));
+		return;
+	}
 
 	/* Le fichier temporaire est renommee comme l'ancienne Lib */
-	if( rename(NewLib,OldLib) )
-		{
-		DisplayError(this, "Librairi.cpp: rename err 2"); return;
-		}
+	if( ! wxRenameFile(NewLib,OldLib) )
+	{
+		DisplayError(this, wxT("Librairi.cpp: rename err 2") );
+		return;
+	}
 
-	sprintf(Line, "Delete %s in %s", CmpName.GetData(), OldLib.GetData() ) ;
-	Affiche_Message(Line) ;
+	msg.Printf( _("Component %s deleted in library %s"), CmpName.GetData(), OldLib.GetData() ) ;
+	Affiche_Message(msg) ;
 
 	CreateDocLibrary(OldLib);
 }
@@ -334,9 +342,9 @@ wxString FullFileName = LibName;
 		return;
 	}
 	
-	if ( FullFileName == "" )
+	if ( FullFileName.IsEmpty() )
 	{
-	wxString Mask = "*" + LibExtBuffer;
+	wxString Mask = wxT("*") + LibExtBuffer;
 	FullFileName = EDA_FileSelector( _("Library"),
 					g_RealLibDirBuffer,	/* Chemin par defaut */
 					FullFileName,		/* nom fichier par defaut */
@@ -347,7 +355,7 @@ wxString FullFileName = LibName;
 					TRUE
 					);
 
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 	}
 	
 	bool file_exists = wxFileExists(FullFileName);
@@ -364,7 +372,7 @@ wxString FullFileName = LibName;
 	if ( ! NewModulesOnly || ! file_exists )
 	{
 		FILE * lib_module;
-		if ((lib_module = fopen(FullFileName.GetData(),"w+t"))  == NULL ) 
+		if ((lib_module = wxFopen(FullFileName, wxT("w+t")))  == NULL ) 
 		{
 			wxString msg = _("Unable to create ") + FullFileName;
 			DisplayError(this, msg);
@@ -382,14 +390,14 @@ wxString FullFileName = LibName;
 	Module = (MODULE *) m_Pcb->m_Modules;
 	for( ;Module != NULL; Module = (MODULE *)Module->Pnext) NbModules++;
 	Pas = (float) 100 / NbModules;
-	DisplayActivity(0, "");
+	DisplayActivity(0, wxEmptyString);
 
 	Module = (MODULE *) m_Pcb->m_Modules;
 	for( ii = 1 ;Module != NULL; ii++, Module = (MODULE *)Module->Pnext)
 	{
 		if( Save_1_Module(FullFileName, Module,
 			NewModulesOnly ? FALSE : TRUE, FALSE) == 0 ) break;
-		DisplayActivity((int)( ii * Pas) , "");
+		DisplayActivity((int)( ii * Pas) , wxEmptyString);
 		/* Tst demande d'arret de sauvegarde ( key ESCAPE actionnee ) */
 		if( DrawPanel->m_AbortRequest ) break;
 	}
@@ -423,7 +431,7 @@ bool added = TRUE;
 
 	if ( ! wxFileExists(LibName) )
 	{
-		msg.Printf(Line, _("Library %s not found"), LibName.GetData());
+		msg.Printf( _("Library %s not found"), LibName.GetData());
 		DisplayError(this, msg);
 		return 0;
 	}
@@ -441,10 +449,10 @@ bool added = TRUE;
 		Module->m_LibRef = Name_Cmp;
 	}
 
-	if ((lib_module = fopen(LibName.GetData(),"rt")) == NULL )
+	if ((lib_module = wxFopen(LibName, wxT("rt"))) == NULL )
 	{
-		sprintf(Line, _("Unable to open %s"), LibName.GetData());
-		DisplayError(this, Line);
+		msg.Printf( _("Unable to open %s"), LibName.GetData());
+		DisplayError(this, msg);
 		return 0;
 	}
 
@@ -453,8 +461,8 @@ bool added = TRUE;
 	if(strnicmp( Line,ENTETE_LIBRAIRIE, L_ENTETE_LIB) != 0)
 	{
 		fclose(lib_module) ;
-		sprintf(Line, _("File %s is not a eeschema library"), LibName.GetData());
-		DisplayError(this, Line);
+		msg.Printf( _("File %s is not a eeschema library"), LibName.GetData());
+		DisplayError(this, msg);
 		return(0);
 	}
 
@@ -473,7 +481,8 @@ bool added = TRUE;
 			}
 
 			StrPurge(Line);
-			if( stricmp(Name_Cmp,Line) == 0) /* composant trouve */
+			msg = CONV_FROM_UTF8(Line);
+			if( Name_Cmp.CmpNoCase(msg) == 0) /* composant trouve */
 			{
 				added = FALSE;
 				newmodule = 0;
@@ -495,14 +504,15 @@ bool added = TRUE;
 
 	/* Creation de la nouvelle librairie */
 
-	if ((lib_module = fopen(LibName.GetData(),"rt"))  == NULL )
+	if ((lib_module = wxFopen(LibName, wxT("rt")))  == NULL )
 	{
-		DisplayError(this, "Librairi.cpp: Error oldlib not found"); return(0);
+		DisplayError(this, wxT("Librairi.cpp: Error oldlib not found"));
+		return(0);
 	}
 
 	NewLib = LibName;
 	ChangeFileNameExt(NewLib, FILETMP_EXT);
-	if ((dest = fopen(NewLib.GetData(),"w+t"))  == NULL ) 
+	if ((dest = wxFopen(NewLib, wxT("w+t")))  == NULL ) 
 		{
 		fclose(lib_module) ;
 		msg = _("Unable to create ") + NewLib;
@@ -530,7 +540,7 @@ wxBeginBusyCursor() ;
 				fprintf(dest,"%s\n",Line);
 			}
 		}
-		if(newmodule) fprintf(dest,"%s\n",Name_Cmp.GetData() );
+		if(newmodule) fprintf(dest,"%s\n",CONV_TO_UTF8(Name_Cmp) );
 		if ( strnicmp(Line,"$EndINDEX",0 ) == 0 ) break;
 	}
 
@@ -544,7 +554,8 @@ wxBeginBusyCursor() ;
 		if( strnicmp( Line, "$MODULE", 7) == 0 )
 			{
 			sscanf(Line+7," %s", Name);
-			if( stricmp(Name,Name_Cmp) == 0 )
+			msg = CONV_FROM_UTF8(Name);
+			if( msg.CmpNoCase(Name_Cmp) == 0 )
 				{
 				/* suppression ancien module */
 				while( GetLine(lib_module, Line, &LineNum) )
@@ -573,15 +584,15 @@ wxEndBusyCursor() ;
 
 	if( wxFileExists(OldLib) ) wxRemoveFile(OldLib);
 
-	if ( rename(LibName.GetData(), OldLib.GetData() ) )
-		DisplayError(this, "Librairi.cpp: rename .bak err");
+	if ( ! wxRenameFile(LibName, OldLib ) )
+		DisplayError(this, wxT("Librairi.cpp: rename .bak err") );
 
 	/* Le nouveau fichier librairie est renomme */
-	if ( rename(NewLib.GetData(),LibName.GetData()) )
-		{
-		DisplayError(this, "Librairi.cpp: rename NewLib err");
+	if ( ! wxRenameFile(NewLib,LibName) )
+	{
+		DisplayError(this, wxT("Librairi.cpp: rename NewLib err") );
 		return(0);
-		}
+	}
 
 	CreateDocLibrary(OldLib);
 
@@ -652,7 +663,7 @@ wxPoint newpos;
 	Module->m_Reference->m_Size = ModuleTextSize;
 
 	/* mise a jour de la valeurs */
-	Module->m_Value->m_Text = "VAL**";
+	Module->m_Value->m_Text = wxT("VAL**");
 	Module->m_Value->SetWidth(ModuleTextWidth);
 	Module->m_Value->m_Size = ModuleTextSize;
 
@@ -677,7 +688,7 @@ WinEDAListBox * LibListBox = new WinEDAListBox(this, _("Active Lib:"),
 
 	LibListBox->Destroy();
 
-	SetTitle( _("Module Editor (lib: ") + m_CurrentLib +")" );
+	SetTitle( _("Module Editor (lib: ") + m_CurrentLib + wxT(")") );
 	return;
 }
 
@@ -698,7 +709,7 @@ wxString msg;
 		return(0);
 		}
 
-	if ((lib_module = fopen(LibName.GetData(),"wt"))  == NULL )
+	if ((lib_module = wxFopen(LibName, wxT("wt") ))  == NULL )
 		{
 		msg = _("Unable to create ") + LibName;
 		DisplayError(this, msg);
@@ -738,18 +749,18 @@ FILE * LibMod, *LibDoc;
 	LibDocName = LibName;
 	ChangeFileNameExt(LibDocName, EXT_DOC);
 
-	LibMod = fopen( LibName.GetData(), "rt");
+	LibMod = wxFopen( LibName, wxT("rt") );
 	if ( LibMod == NULL ) return FALSE;
 
 	/* lecture entete librairie*/
 	GetLine(LibMod, Line, NULL, sizeof(Line) -1);
 	if(strnicmp( Line,ENTETE_LIBRAIRIE, L_ENTETE_LIB) != 0)
-		{
+	{
 		fclose(LibMod);
 		return FALSE;
-		}
+	}
 
-	LibDoc = fopen( LibDocName.GetData(), "wt");
+	LibDoc = wxFopen( LibDocName, wxT("wt") );
 	if ( LibDoc == NULL )
 		{
 		fclose( LibMod );
@@ -759,7 +770,7 @@ FILE * LibMod, *LibDoc;
 	fprintf(LibDoc,"  %s\n", DateAndTime(cbuf));
 
 	/* Lecture de la librairie */
-	Name = Doc = KeyWord = "";
+	Name = Doc = KeyWord = wxEmptyString;
 	while( GetLine(LibMod,Line, NULL, sizeof(Line) -1) )
 		{
 		if( Line[0] != '$' ) continue;
@@ -780,28 +791,28 @@ FILE * LibMod, *LibDoc;
 						}
 					}
 				if( Line[0] == 'L' )	/* LibName */
-					Name = StrPurge(Line+3);
+					Name = CONV_FROM_UTF8(StrPurge(Line+3));
 
 				if( Line[0] == 'K' )	/* KeyWords */
-					KeyWord = StrPurge(Line+3);
+					KeyWord = CONV_FROM_UTF8(StrPurge(Line+3));
 
 				if( Line[0] == 'C' )	/* Doc */
-					Doc = StrPurge(Line+3);
+					Doc = CONV_FROM_UTF8(StrPurge(Line+3));
 				}
 
-			if( (Name != "") && ((Doc != "") || (KeyWord != "")) )/* Generation de la doc du composant */
-				{
-				fprintf(LibDoc,"#\n$MODULE %s\n",Name.GetData());
-				fprintf(LibDoc,"Li %s\n",Name.GetData());
-				if( Doc != "")
-					fprintf( LibDoc,"Cd %s\n", Doc.GetData());
+			if( (Name != wxEmptyString) && ((Doc != wxEmptyString) || (KeyWord != wxEmptyString)) )/* Generation de la doc du composant */
+			{
+				fprintf(LibDoc,"#\n$MODULE %s\n",CONV_TO_UTF8(Name));
+				fprintf(LibDoc,"Li %s\n",CONV_TO_UTF8(Name));
+				if( Doc != wxEmptyString)
+					fprintf( LibDoc,"Cd %s\n", CONV_TO_UTF8(Doc));
 
-				if( KeyWord  != "")
-					fprintf( LibDoc,"Kw %s\n", KeyWord.GetData());
+				if( KeyWord  != wxEmptyString)
+					fprintf( LibDoc,"Kw %s\n", CONV_TO_UTF8(KeyWord));
 
 				fprintf( LibDoc,"$EndMODULE\n");
-				}
-			Name = Doc = KeyWord = "";
+			}
+			Name = Doc = KeyWord = wxEmptyString;
 			} /* Fin lecture desc 1 module */
 
 		if( strnicmp( Line,"$INDEX",6) == 0 )

@@ -101,25 +101,25 @@ wxString D_PAD::ReturnStringPadName(void)
 */
 {
 wxString name;
-char text[32];
 
-	ReturnStringPadName(text);
-	name = text;
-
+	ReturnStringPadName(name);
 	return name;
 }
 
 /********************************************/
-void D_PAD::ReturnStringPadName(char * text)
+void D_PAD::ReturnStringPadName(wxString & text)
 /********************************************/
 /* Return pad name as string in a buffer
 */
 {
-	text[0] = m_Padname[0];
-	text[1] = m_Padname[1];
-	text[2] = m_Padname[2];
-	text[3] = m_Padname[3];
-	text[4] = 0;
+int ii;
+	
+	text.Empty();
+	for ( ii = 0; ii < 4; ii++ )
+	{
+		if ( m_Padname[ii] == 0 ) break;
+		text.Append(m_Padname[ii]);
+	}
 }
 
 
@@ -408,17 +408,17 @@ wxPoint shape_pos;
 	if( ! frame->m_DisplayPadNum) return;
 	dx = min(m_Size.x, m_Size.y);	/* dx = taille du texte */
 	if( (dx / zoom) > 12 )	/* Si taille suffisante pour 2 lettres */
-		{
-		char buffer[128];
+	{
+		wxString buffer;
 		ReturnStringPadName(buffer);
-		dy = strlen(buffer);
+		dy = buffer.Len();
 		if ( dy < 2 ) dy = 2;	/* alignement sur textes a 2 lettres */
 		dx = (dx * 9 ) / (dy * 13 );	/* le texte est ajuste pour
 									tenir entierement dans la pastille */
 		DrawGraphicText(panel, DC, wxPoint(ux0, uy0),
 				WHITE, buffer, angle, wxSize(dx, dx),
 				GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
-		}
+	}
 }
 
 /*************************************************/
@@ -508,7 +508,7 @@ int nn, ll;
 				nn = sscanf(PtLine,"%d", &m_NetCode);
 				/* Lecture du netname */
 				ReadDelimitedText(BufLine, PtLine, sizeof(BufLine));
-				m_Netname = StrPurge(BufLine);
+				m_Netname = CONV_FROM_UTF8(StrPurge(BufLine));
 				break;
 
 			case 'P':
@@ -517,7 +517,7 @@ int nn, ll;
 				break;
 
 			default:
-				DisplayError(NULL, "Err Pad: Id inconnu");
+				DisplayError(NULL, wxT("Err Pad: Id inconnu"));
 				return(1);
 			}
 		}
@@ -544,7 +544,7 @@ char * texttype;
 		case OVALE: cshape = 'O'; break;
 		case TRAPEZE: cshape = 'T'; break;
 		default: cshape = 'C';
-			DisplayError(NULL, "Forme Pad inconnue");
+			DisplayError(NULL, wxT("Forme Pad inconnue"));
 			break;
 		}
 	fprintf(File,"Sh \"%.4s\" %c %d %d %d %d %d\n",
@@ -563,13 +563,13 @@ char * texttype;
 		case MECA: texttype = "MECA"; break;
 		default:
 			texttype = "STD";
-			DisplayError(NULL, "attribut Pad inconnu");
+			DisplayError(NULL, wxT("attribut Pad inconnu"));
 			break;
 		}
 	fprintf(File,"At %s N %8.8X\n", texttype, m_Masque_Layer);
 	NbLigne++;
 
-	fprintf(File,"Ne %d \"%s\"\n", m_NetCode,m_Netname.GetData());
+	fprintf(File,"Ne %d \"%s\"\n", m_NetCode,CONV_TO_UTF8(m_Netname));
 	NbLigne++;
 
 	fprintf(File,"Po %d %d\n", m_Pos0.x, m_Pos0.y );
@@ -587,14 +587,17 @@ void D_PAD::Display_Infos(WinEDA_BasePcbFrame * frame)
 {
 int ii;
 MODULE* Module;
-char Line[512];
+wxString Line;
 int pos = 1;
 /* Pad messages */
-wxString Msg_Pad_Shape[6] = {"??? ","Circ","Rect","Oval","trap","spec"} ;
+wxString Msg_Pad_Shape[6] =
+	{ wxT("??? "), wxT("Circ"), wxT("Rect"), wxT("Oval"), wxT("trap"), wxT("spec") } ;
 
-wxString Msg_Pad_Layer[8] = {"??? ","cmp   ","cu    ","cmp+cu ","int    ",
-		"cmp+int ","cu+int ", "all    "} ;
-wxString Msg_Pad_Attribut[5] = {"norm","smd ","conn","hole","????"} ;
+wxString Msg_Pad_Layer[8] =
+	{ wxT("??? "), wxT("cmp   "), wxT("cu    "), wxT("cmp+cu "), wxT("int    "),
+		 wxT("cmp+int "), wxT("cu+int "), wxT("all    ") } ;
+wxString Msg_Pad_Attribut[5] =
+		{ wxT("norm"), wxT("smd "), wxT("conn"), wxT("hole"), wxT("????")} ;
 
 
 	frame->MsgPanel->EraseMsgBox();
@@ -603,7 +606,7 @@ wxString Msg_Pad_Attribut[5] = {"norm","smd ","conn","hole","????"} ;
 	Module = (MODULE *) m_Parent;
 	if(Module)
 		{
-		wxString msg = Module->m_Reference->GetText();
+		wxString msg = Module->m_Reference->m_Text;
 		Affiche_1_Parametre(frame, pos,_("Module"), msg, DARKCYAN) ;
 		ReturnStringPadName(Line);
 		pos += 8;
@@ -615,7 +618,7 @@ wxString Msg_Pad_Attribut[5] = {"norm","smd ","conn","hole","????"} ;
 	/* pour mise au point (peut etre supprimé) : Affichage du numero de Net et sous net */
 	pos += 10;
 #if 0
-	sprintf(Line,"%d.%d ",m_logical_connexion, m_physical_connexion);
+	Line.Printf( wxT("%d.%d "),m_logical_connexion, m_physical_connexion);
 	Affiche_1_Parametre(frame, pos,"L.P",Line,WHITE);
 #endif
 
@@ -627,12 +630,12 @@ wxString Msg_Pad_Attribut[5] = {"norm","smd ","conn","hole","????"} ;
 	Affiche_1_Parametre(frame, pos,_("Layer"),Msg_Pad_Layer[ii], DARKGREEN) ;
 
 	pos += 6;
-	Affiche_1_Parametre(frame, pos,Msg_Pad_Shape[m_PadShape],"", DARKGREEN);
+	Affiche_1_Parametre(frame, pos,Msg_Pad_Shape[m_PadShape],wxEmptyString, DARKGREEN);
 	/* Affichage en couleur diff si pad stack ou non */
 
 	if (m_Attribut & PAD_STACK)
-		Affiche_1_Parametre(frame, -1,"",Msg_Pad_Attribut[m_Attribut&15],RED);
-	else Affiche_1_Parametre(frame, -1,"",Msg_Pad_Attribut[m_Attribut&15], DARKGREEN);
+		Affiche_1_Parametre(frame, -1,wxEmptyString,Msg_Pad_Attribut[m_Attribut&15],RED);
+	else Affiche_1_Parametre(frame, -1,wxEmptyString,Msg_Pad_Attribut[m_Attribut&15], DARKGREEN);
 
 	valeur_param(m_Size.x,Line) ;
 	pos += 6;
@@ -648,10 +651,10 @@ wxString Msg_Pad_Attribut[5] = {"norm","smd ","conn","hole","????"} ;
 	
 	int module_orient = Module ? Module->m_Orient : 0;
 	if( module_orient )
-		sprintf(Line,"%3.1f(+%3.1f)",
+		Line.Printf( wxT("%3.1f(+%3.1f)"),
 			(float)(m_Orient - module_orient) /10, (float)module_orient /10);
 	else
-		sprintf(Line,"%3.1f", (float) m_Orient /10);
+		Line.Printf( wxT("%3.1f"), (float) m_Orient /10);
 	pos += 8;
 	Affiche_1_Parametre(frame, pos,_("Orient"),Line,BLUE);
 

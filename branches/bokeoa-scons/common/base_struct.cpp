@@ -12,10 +12,11 @@
 #include "common.h"
 #include "wxstruct.h"
 #include "base_struct.h"
+#include "grfonte.h"
 
 
 // DrawStructureType names for error messages only:
-static char * DrawStructureTypeName[MAX_STRUCT_TYPE_ID+1]
+static wxChar DrawStructureTypeName[MAX_STRUCT_TYPE_ID+1]
 #ifdef MAIN
  = {
 "Not init",
@@ -69,8 +70,6 @@ static char * DrawStructureTypeName[MAX_STRUCT_TYPE_ID+1]
 
 
 
-/* Police des caracteres de la routine de trace des textes */
-extern char *graphic_fonte_shape[];
 
 enum textbox {
 	ID_TEXTBOX_LIST = 8010
@@ -152,11 +151,11 @@ wxString EDA_BaseStruct::ReturnClassName(void)
 {
 int ii = m_StructType;
 wxString classname;
-	
+
 	if ( (ii < 0) || (ii > MAX_STRUCT_TYPE_ID) )
 		ii = MAX_STRUCT_TYPE_ID;
 	classname = DrawStructureTypeName[ii];
-	
+
 	return classname;
 }
 
@@ -345,16 +344,17 @@ int ii, jj, kk,nbchar, nbpoints, AsciiCode, endcar;
 int k1 , k2 , x0 , y0 ;
 int size_h , size_v , espacement ;
 char f_cod , plume = 'U';
-const char * ptcar, * ptr;
+const wxChar * ptr;
+const SH_CODE * ptcar;
 int ux0, uy0, dx, dy;	// Coord de trace des segments de texte & variables de calcul */
 int cX, cY;				// Centre du texte
 int ox, oy;				// coord de trace du caractere courant
 int coord[1000];			// liste des coord des segments a tracer
 
 	if( m_TextDrawings )	/* pointeur sur la liste des segments de dessin */
-		{
+	{
 		free(m_TextDrawings); m_TextDrawings = 0;
-		}
+	}
 	m_TextDrawingsSize = 0;			/* nombre de segments a dessiner */
 
 	nbchar = m_Text.Length();
@@ -536,18 +536,18 @@ void EDA_Rect::Normalize(void)
 bool EDA_Rect::Inside(const wxPoint & point)
 /*******************************************/
 /* Return TRUE if point is in Rect
-	Accept rect size < 0 
+	Accept rect size < 0
 */
 {
 int rel_posx = point.x - m_Pos.x;
 int rel_posy = point.y - m_Pos.y;
 wxSize size = m_Size;
-	
+
 	if ( size.x < 0 )
 	{
 		size.x = -size.x; rel_posx += size.x;
 	}
-	
+
  	if ( size.y < 0 )
 	{
 		size.y = -size.y; rel_posy += size.y;
@@ -627,7 +627,7 @@ void DrawPickedStruct::DeleteWrapperList(void)
 */
 {
 DrawPickedStruct * wrapp_struct, * next_struct;
-	
+
 	for ( wrapp_struct = Next(); wrapp_struct != NULL; wrapp_struct = next_struct)
 	{
 		next_struct = wrapp_struct->Next();

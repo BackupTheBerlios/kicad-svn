@@ -130,7 +130,7 @@ wxString message, default_text;
 
 	message = wxGetTextFromUser(title, _("Text:"),
 				default_text, frame);
-	if ( message != "" )
+	if ( !message.IsEmpty() )
 	{
 		message.Trim(FALSE);	// Remove blanks at beginning
 		message.Trim(TRUE);		// Remove blanks at end

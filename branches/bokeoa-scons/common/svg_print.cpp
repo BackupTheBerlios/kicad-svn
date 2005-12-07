@@ -107,7 +107,7 @@ wxPoint pos = GetPosition();
 		DrawPanel->PrepareDC(dc);
 		m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
 	}
-	SetToolID(0, wxCURSOR_ARROW,"");
+	SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 
 	pos.x += 10; pos.y += 10;
 WinEDA_PrintSVGFrame frame(this, pos);
@@ -195,7 +195,7 @@ wxString WinEDA_PrintSVGFrame::ReturnFullFileName(void)
 wxString name, ext;
 
 	name = m_Parent->m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(name, ".svg");
+	ChangeFileNameExt(name, wxT(".svg"));
 	return name;
 }
 
@@ -215,7 +215,7 @@ void WinEDA_PrintSVGFrame::SetPenWidth(wxSpinEvent& event)
 		PenMinWidth = WIDTH_MIN_VALUE;
 		wxBell();
 		}
-	m_Buff_Width.Printf("%d", PenMinWidth);
+	m_Buff_Width.Printf(wxT("%d"), PenMinWidth);
 	m_ButtPenWidth->SetValue(m_Buff_Width);
 }
 
@@ -280,7 +280,6 @@ wxPoint old_org;
 wxPoint DrawOffset;	// Offset de trace
 float dpi;
 	
-	wxBusyCursor dummy;
 
 	/* modification des cadrages et reglages locaux */
 	tmp_startvisu = ActiveScreen->m_StartVisu;
@@ -295,23 +294,32 @@ float dpi;
 	ActiveScreen->SetZoom(1);
 	dpi = (float)SheetSize.x * 25.4  /m_ImageXSize_mm;
 
+	WinEDA_DrawPanel * panel = m_Parent->DrawPanel;
+
 wxSVGFileDC dc(FullFileName, SheetSize.x, SheetSize.y, dpi) ;
 
-	GRResetPenAndBrush(&dc);
-	SetPenMinWidth(1);
-	GRForceBlackPen(FALSE);
+	if ( ! dc.Ok() )
+	{
+		DisplayError(this, wxT("SVGprint error: wxSVGFileDC not OK"));
+	}
+	
+	else
+	{
+	EDA_Rect tmp = panel->m_ClipBox;
+		GRResetPenAndBrush(&dc);
+		SetPenMinWidth(1);
+		GRForceBlackPen(FALSE);
+	
+	
+		panel->m_ClipBox.SetX(0);panel->m_ClipBox.SetY(0);
+		panel->m_ClipBox.SetWidth(0x7FFFFF0); panel->m_ClipBox.SetHeight(0x7FFFFF0);
+	
+		g_IsPrinting = TRUE;
+		panel->PrintPage(&dc, m_Print_Sheet_Ref, m_PrintMaskLayer);
+		g_IsPrinting = FALSE;
+		panel->m_ClipBox = tmp;
+	}
 
-WinEDA_DrawPanel * panel = m_Parent->DrawPanel;
-EDA_Rect tmp = panel->m_ClipBox;
-
-	panel->m_ClipBox.SetX(0);panel->m_ClipBox.SetY(0);
-	panel->m_ClipBox.SetWidth(0x7FFFFF0); panel->m_ClipBox.SetY(0x7FFFFF0);
-
-	g_IsPrinting = TRUE;
-	panel->PrintPage(&dc, m_Print_Sheet_Ref, m_PrintMaskLayer);
-	g_IsPrinting = FALSE;
-
-	panel->m_ClipBox = tmp;
 
 	SetPenMinWidth(1);
 

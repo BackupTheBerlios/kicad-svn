@@ -172,7 +172,7 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 					const wxPoint& pos, const wxSize& size) :
 					WinEDA_BasePcbFrame(father, parent, PCB_FRAME, title, pos, size)
 {
-	m_FrameName = "PcbFrame";
+	m_FrameName = wxT("PcbFrame");
 	m_Draw_Axes = TRUE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = g_ShowGrid;		// TRUE pour avoir la grille dessinee
 	m_Draw_Sheet_Ref = TRUE;	// TRUE pour avoir le cartouche dessiné
@@ -383,8 +383,8 @@ int ii, jj;
 			m_SelTrackWidthBox_Changed = FALSE;
 			m_SelTrackWidthBox->Clear();
 			wxString format = _("Track");
-			if ( UnitMetric == INCHES ) format += " %.1f";
-			else format += " %.3f";
+			if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+			else format += wxT(" %.3f");
 			for ( ii = 0; ii < HIST0RY_NUMBER; ii++)
 				{
 				if ( g_DesignSettings.m_TrackWidhtHistory[ii] == 0 ) break;	// Fin de liste
@@ -406,8 +406,8 @@ int ii, jj;
 			m_SelViaSizeBox_Changed = FALSE;
 			m_SelViaSizeBox->Clear();
 			wxString format = _("Via");
-			if ( UnitMetric == INCHES ) format += " %.1f";
-			else format += " %.3f";
+			if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+			else format += wxT(" %.3f");
 			for ( ii = 0; ii < HIST0RY_NUMBER; ii++)
 				{
 				if ( g_DesignSettings.m_ViaSizeHistory[ii] == 0 ) break;	// Fin de liste

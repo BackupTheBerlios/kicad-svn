@@ -5,9 +5,8 @@ LD = gcc
 # Compiler flags.
 CPPFLAGS =  -Wall -O2 `wx-config --cxxflags`
 
-LDFLAGS =  -s
+LDFLAGS = -s
 
-EXTRALIBS = ../common/common.a
 include ../libs.linux
 
 

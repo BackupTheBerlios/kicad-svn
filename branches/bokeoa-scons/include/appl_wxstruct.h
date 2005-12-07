@@ -53,7 +53,7 @@ public:
 									typiquement /usr/local/kicad ou c:\kicad */
 	bool m_Env_Defined;				// TRUE si variable d'environnement KICAD definie
 
-	wxLocale m_Locale;				// Gestion de la localisation
+	wxLocale * m_Locale;				// Gestion de la localisation
 	int m_LanguageId;				// indicateur de choix du langage ( 0 = defaut)
 	wxMenu * m_Language_Menu;		// List menu for languages
 

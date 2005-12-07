@@ -62,7 +62,7 @@ private:
 				const wxString & reference,
 				const wxString & old_name,
 				const wxString & new_name, bool ShowError);
-	MODULE * Change_1_Module(MODULE * Module, const char * new_module, bool ShowError);
+	MODULE * Change_1_Module(MODULE * Module, const wxString& new_module, bool ShowError);
 	void Sel_NewMod_By_Liste(wxCommandEvent& event);
 
 
@@ -130,13 +130,13 @@ int lasty;
 
 	pos.x = 5; pos.y = 20;
 	m_OldModule = new WinEDA_EnterText(this, _("Current Module"),
-			m_CurrentModule ? m_CurrentModule->m_LibRef.GetData() :"",
+			m_CurrentModule ? m_CurrentModule->m_LibRef.GetData() :wxEmptyString,
 			pos, wxSize( 150,-1) );
 	m_OldModule->Enable(FALSE);
 
 	pos.y += m_OldModule->GetDimension().y + 20;
 	m_OldValue = new WinEDA_EnterText(this, _("Current Value"),
-			m_CurrentModule ? m_CurrentModule->m_Value->GetText() :"",
+			m_CurrentModule ? m_CurrentModule->m_Value->m_Text.GetData() :wxEmptyString,
 			pos, wxSize( 150,-1) );
 	m_OldValue->Enable(FALSE);
 
@@ -145,7 +145,7 @@ int lasty;
 			m_OldModule->GetData().GetData(), pos, wxSize( 150,-1) );
 
 	pos.y = lasty + 10;
-	m_WinMsg = new wxTextCtrl(this, -1,"", pos, wxSize(340, 230),
+	m_WinMsg = new wxTextCtrl(this, -1,wxEmptyString, pos, wxSize(340, 230),
 					wxTE_READONLY|wxTE_MULTILINE);
 }
 
@@ -188,76 +188,76 @@ int WinEDA_ExchangeModuleFrame::Maj_ListeCmp(
 wxString FileNameCmp, tmpfile;
 FILE * FichCmp, *NewFile;
 char Line[1024];
-
+wxString msg;
+	
 	if ( old_name == new_name )	return(0);	/* pas de changement de nom */
 
 	/* Calcul nom fichier CMP par changement de l'extension du nom netliste */
-	if ( NetNameBuffer == "" )
+	if ( NetNameBuffer == wxEmptyString )
 		FileNameCmp = m_Parent->m_CurrentScreen->m_FileName;
 	else FileNameCmp = NetNameBuffer;
 	ChangeFileNameExt(FileNameCmp,NetCmpExtBuffer) ;
 
 	// Modification du fichier .cmp correcpondant
-	FichCmp = fopen(FileNameCmp.GetData(),"rt");
+	FichCmp = wxFopen(FileNameCmp, wxT("rt"));
 	if( FichCmp == NULL )
-		{
+	{
 		if ( ShowError )
-			{
-			sprintf(Line, _("file %s not found"), FileNameCmp.GetData());
-			m_WinMsg->WriteText(Line);
-			}
-		return(1);
+		{
+			msg.Printf( _("file %s not found"), FileNameCmp.GetData());
+			m_WinMsg->WriteText(msg);
 		}
+		return(1);
+	}
 
 	/* Analyse du fichier et modif */
 	tmpfile = FileNameCmp;
-	ChangeFileNameExt(tmpfile,".$$$");
-	NewFile = fopen(tmpfile.GetData(),"wt");
+	ChangeFileNameExt(tmpfile, wxT(".$$$"));
+	NewFile = wxFopen(tmpfile, wxT("wt"));
 	if( NewFile == NULL )
-		{
+	{
 		if ( ShowError )
-			{
-			sprintf(Line, _("Unable to create file %s"), tmpfile.GetData());
-			m_WinMsg->WriteText(Line);
-			}
-		return(1);
+		{
+			msg.Printf( _("Unable to create file %s"), tmpfile.GetData());
+			m_WinMsg->WriteText(msg);
 		}
+		return(1);
+	}
 
 	fgets(Line, sizeof(Line), FichCmp);
 	fprintf(NewFile,"Cmp-Mod V01 Genere par PcbNew le %s\n", DateAndTime(Line) );
 
 	bool start_descr = FALSE;
 	while( fgets(Line, sizeof(Line), FichCmp) != NULL )
-		{
+	{
 		if ( strnicmp( Line, "Reference = ", 9 ) == 0 )
-			{
+		{
 			char buf[1024];
 			strcpy( buf, Line + 12);
 			strtok(buf,";\n\r");
-			if ( stricmp( buf , reference.GetData() ) == 0 )
-				{
+			if ( stricmp( buf , CONV_TO_UTF8(reference) ) == 0 )
+			{
 				start_descr = TRUE;
-				}
 			}
+		}
 
 		if ( (strnicmp( Line, "Begin", 5 ) == 0) ||
 			 (strnicmp( Line, "End", 3) == 0) )
-			{
+		{
 			start_descr = FALSE;
-			}
+		}
 
 		if ( start_descr && strnicmp( Line, "IdModule", 8 ) == 0 )
-			{
-			char buf[1024];
-			sprintf(Line + 8,"  = %s;\n", new_name.GetData() );
+		{
+			sprintf(Line + 8,"  = %s;\n", CONV_TO_UTF8(new_name) );
 
-			sprintf(buf, " * in %s\n", FileNameCmp.GetData());
-			m_WinMsg->WriteText(buf);
+			msg.Printf( wxT(" * in %s\n"), FileNameCmp.GetData());
+			m_WinMsg->WriteText(msg);
 
 			start_descr = FALSE;
-			}
-		fputs(Line, NewFile);
 		}
+		fputs(Line, NewFile);
+	}
 
 	fclose(FichCmp);
 	fclose(NewFile);
@@ -282,7 +282,7 @@ void WinEDA_ExchangeModuleFrame::Change_Module(wxCommandEvent& event)
 {
 wxString newmodulename = m_NewModule->GetData();
 
-	if( newmodulename == "" ) return;
+	if( newmodulename == wxEmptyString ) return;
 
 	if( Change_1_Module(m_CurrentModule, newmodulename,TRUE ) )
 		{
@@ -306,7 +306,7 @@ void WinEDA_ExchangeModuleFrame::Change_ModuleId(wxCommandEvent& event)
 	puisque celui ci a ete change!!
 */
 {
-char line[256];
+wxString msg;
 MODULE * PtModule, *PtBack;
 bool change = FALSE;
 wxString newmodulename = m_NewModule->GetData();
@@ -315,25 +315,26 @@ bool check_module_value = FALSE;
 int ShowErr = 5;	// Affiche 5 messages d'err maxi
 
 	if( m_Parent->m_Pcb->m_Modules == NULL ) return;
-	if( newmodulename == "" ) return;
+	if( newmodulename == wxEmptyString ) return;
 
 	lib_reference = m_CurrentModule->m_LibRef;
 	if ( event.GetId() == ID_EXEC_EXCHANGE_ID_MODULE_AND_VALUE )
 		{
 		check_module_value = TRUE;
-		value = m_CurrentModule->m_Value->GetText();
-		sprintf(line,"Change modules <%s> -> <%s> (val = %s)?",
+		value = m_CurrentModule->m_Value->m_Text;
+		msg.Printf( _("Change modules <%s> -> <%s> (val = %s)?"),
 				m_CurrentModule->m_LibRef.GetData(),
-				newmodulename.GetData(), m_CurrentModule->m_Value->GetText() );
+				newmodulename.GetData(),
+				m_CurrentModule->m_Value->m_Text.GetData() );
 		}
 
 	else
 		{
-		sprintf(line,"Change modules <%s> -> <%s> ?",
+		msg.Printf( _("Change modules <%s> -> <%s> ?"),
 				lib_reference.GetData(), newmodulename.GetData() );
 		}
 
-	if( !IsOK(this, line) ) return;
+	if( !IsOK(this, msg) ) return;
 
 	/* Le changement s'effectue a partir du dernier module car la routine
 		Change_1_Module() modifie le dernier module de la liste
@@ -341,20 +342,20 @@ int ShowErr = 5;	// Affiche 5 messages d'err maxi
 
 	PtModule = m_Parent->m_Pcb->m_Modules;
 	for ( ; PtModule != NULL; PtModule = (MODULE*)PtModule->Pnext)
-		{
+	{
 		if(PtModule->Pnext == NULL) break;
-		}
+	}
 
 	/* Ici PtModule pointe le dernier module de la liste */
 	for ( ; PtModule != (MODULE*)m_Parent->m_Pcb; PtModule = PtBack)
 		{
 		MODULE * module;
 		PtBack = (MODULE*)PtModule->Pback;
-		if(stricmp( lib_reference.GetData(), PtModule->m_LibRef.GetData() ) != 0 )
+		if( lib_reference.CmpNoCase(PtModule->m_LibRef) != 0 )
 			continue;
 		if ( check_module_value )
 			{
-			if(stricmp( value.GetData(), PtModule->m_Value->GetText() ) != 0 )
+			if( value.CmpNoCase(PtModule->m_Value->m_Text) != 0 )
 				continue;
 			}
 		module = Change_1_Module(PtModule, newmodulename.GetData(), ShowErr);
@@ -415,7 +416,7 @@ int ShowErr = 5;	// Affiche 5 messages d'err maxi
 
 /******************************************************************/
 MODULE * WinEDA_ExchangeModuleFrame::Change_1_Module(MODULE * PtModule,
-		const char * new_module, bool ShowError)
+		const wxString& new_module, bool ShowError)
 /*******************************************************************/
 /* Routine de changement d'un module:
 	Change le module de numero empr, avec le module de nom new_module
@@ -428,34 +429,34 @@ MODULE * WinEDA_ExchangeModuleFrame::Change_1_Module(MODULE * PtModule,
 		1 si OK
 */
 {
-char namecmp[1024];
-char oldnamecmp[1024];
+wxString namecmp, oldnamecmp;
 MODULE * NewModule;
-char Line[1024];
+wxString Line;
 
 	if(PtModule == NULL) return(NULL);
 
 wxBusyCursor dummy;
 
 	/* Memorisation des parametres utiles de l'ancien module */
-	strcpy( oldnamecmp, PtModule->m_LibRef.GetData() );
-	strcpy( namecmp, new_module);
+	oldnamecmp = PtModule->m_LibRef;
+	namecmp = new_module;
 
 	/* Chargement du module */
-	sprintf(Line,"Change module %s (%s)  ",
-		PtModule->m_Reference->GetText(), oldnamecmp);
+	Line.Printf( _("Change module %s (%s)  "),
+		PtModule->m_Reference->m_Text.GetData(), oldnamecmp.GetData());
 	m_WinMsg->WriteText(Line);
 
-	StrPurge(namecmp);
-	NewModule = m_Parent->Get_Librairie_Module(this, "", namecmp, ShowError);
+	namecmp.Trim(TRUE);
+	namecmp.Trim(FALSE);
+	NewModule = m_Parent->Get_Librairie_Module(this, wxEmptyString, namecmp, ShowError);
 	if( NewModule == NULL)	/* Nouveau module NON trouve, reaffichage de l'ancien */
 		{
-		m_WinMsg->WriteText("No\n");
+		m_WinMsg->WriteText( wxT("No\n"));
 		return(NULL);
 		}
 
 	if ( PtModule == m_CurrentModule ) m_CurrentModule = NewModule;
-	m_WinMsg->WriteText("Ok\n");
+	m_WinMsg->WriteText( wxT("Ok\n"));
 
 	/* Effacement a l'ecran de l'ancien module */
 	PtModule->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR);
@@ -465,7 +466,7 @@ wxBusyCursor dummy;
 	/* Affichage du nouveau module */
 	NewModule->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0),GR_OR);
 
-	Maj_ListeCmp(NewModule->m_Reference->GetText(), oldnamecmp, namecmp, ShowError);
+	Maj_ListeCmp(NewModule->m_Reference->m_Text, oldnamecmp, namecmp, ShowError);
 
 	return(NewModule);
 }
@@ -485,7 +486,7 @@ D_PAD * pt_pad, * pt_old_pad;
 
 	if ( (OldModule->m_StructType != TYPEMODULE) || (NewModule->m_StructType != TYPEMODULE) )
 		{
-		DisplayError(winaff, "WinEDA_BasePcbFrame::Exchange_Module() StuctType error" );
+		DisplayError(winaff, wxT("WinEDA_BasePcbFrame::Exchange_Module() StuctType error" ));
 		}
 
 	NewModule->m_Parent = m_Pcb;
@@ -519,7 +520,7 @@ D_PAD * pt_pad, * pt_old_pad;
 	pt_pad = NewModule->m_Pads;
 	for( ; pt_pad != NULL; pt_pad = (D_PAD*)pt_pad->Pnext)
 		{
-		pt_pad->m_Netname = "";
+		pt_pad->m_Netname = wxEmptyString;
 		pt_pad->m_NetCode = 0;
 		pt_old_pad = OldModule->m_Pads;
 		for( ; pt_old_pad != NULL; pt_old_pad = (D_PAD*)pt_old_pad->Pnext )
@@ -553,8 +554,8 @@ void WinEDA_ExchangeModuleFrame::Sel_NewMod_By_Liste(wxCommandEvent& event)
 {
 wxString newname;
 
-	newname = m_Parent->Select_1_Module_From_List(this, "", "", "");
-	if ( newname != "" )
+	newname = m_Parent->Select_1_Module_From_List(this, wxEmptyString, wxEmptyString, wxEmptyString);
+	if ( newname != wxEmptyString )
 		m_NewModule->SetValue(newname);
 }
 
@@ -563,43 +564,44 @@ wxString newname;
 bool WinEDA_PcbFrame::RecreateCmpFileFromBoard(void)
 /***************************************************/
 {
-wxString FullFileNameCmp;
+wxString FullFileNameCmp, mask;
 FILE * FichCmp;
 char Line[1024];
 MODULE * Module = m_Pcb->m_Modules;
-
+wxString msg;
+	
 	if ( Module == NULL)
-		{
-		DisplayError(this,"No Modules!");
+	{
+		DisplayError(this, _("No Modules!") );
 		return FALSE;
-		}
+	}
 
 	/* Calcul nom fichier CMP par changement de l'extension du nom netliste */
-	if ( NetNameBuffer == "" )
+	if ( NetNameBuffer == wxEmptyString )
 		FullFileNameCmp = m_CurrentScreen->m_FileName;
 	else FullFileNameCmp = NetNameBuffer;
 	ChangeFileNameExt(FullFileNameCmp,NetCmpExtBuffer) ;
 
-	strcpy(Line,"*"); strcat ( Line,NetCmpExtBuffer);
-	FullFileNameCmp = EDA_FileSelector("Cmp files:",
-				"",						/* Chemin par defaut */
+	mask = wxT("*") + NetCmpExtBuffer;
+	FullFileNameCmp = EDA_FileSelector( _("Cmp files:"),
+				wxEmptyString,						/* Chemin par defaut */
 				FullFileNameCmp,	 	/* nom fichier par defaut */
 				NetCmpExtBuffer,		/* extension par defaut */
-				Line,					/* Masque d'affichage */
+				mask,					/* Masque d'affichage */
 				this,
 				wxSAVE,
 				FALSE
 				);
-	if ( FullFileNameCmp == "" ) return FALSE;
+	if ( FullFileNameCmp.IsEmpty() ) return FALSE;
 
 
-	FichCmp = fopen(FullFileNameCmp.GetData(),"wt");
+	FichCmp = wxFopen(FullFileNameCmp, wxT("wt"));
 	if( FichCmp == NULL )
-		{
-		sprintf(Line, "Unable to create file %s", FullFileNameCmp.GetData());
-		DisplayError(this, Line);
+	{
+		msg = _("Unable to create file ") + FullFileNameCmp;
+		DisplayError(this, msg);
 		return FALSE;
-		}
+	}
 
 	fgets(Line, sizeof(Line), FichCmp);
 	fprintf(FichCmp,"Cmp-Mod V01 Genere par PcbNew le %s\n", DateAndTime(Line) );
@@ -609,12 +611,12 @@ MODULE * Module = m_Pcb->m_Modules;
 		fprintf(FichCmp,"\nBeginCmp\n" );
 		fprintf(FichCmp,"TimeStamp = %8.8lX\n", Module->m_TimeStamp);
 		fprintf(FichCmp,"Reference = %s;\n",
-			strlen(Module->m_Reference->GetText()) ?
-					Module->m_Reference->GetText() : "[NoRef]" );
+			! Module->m_Reference->m_Text.IsEmpty() ?
+					CONV_TO_UTF8(Module->m_Reference->m_Text) : "[NoRef]" );
 		fprintf(FichCmp,"ValeurCmp = %s;\n",
-			strlen(Module->m_Value->GetText()) ?
-					Module->m_Value->GetText() : "[NoVal]" );
-		fprintf(FichCmp,"IdModule  = %s;\n", Module->m_LibRef.GetData());
+			!Module->m_Value->m_Text.IsEmpty() ?
+					CONV_TO_UTF8(Module->m_Value->m_Text) : "[NoVal]" );
+		fprintf(FichCmp,"IdModule  = %s;\n", CONV_TO_UTF8(Module->m_LibRef));
 		fprintf(FichCmp,"EndCmp\n" );
 		}
 

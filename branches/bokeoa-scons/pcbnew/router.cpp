@@ -41,28 +41,27 @@ void WinEDA_PcbFrame::GlobalRoute(wxDC * DC)
 #ifdef ROUTER
 FILE * outfile;
 wxString FullFileName, ExecFileName, msg;
-char Line[1024];
 int ii;
 int net_number;
 
 #ifdef __UNIX__
-	ExecFileName = FindKicadFile("anneal");
+	ExecFileName = FindKicadFile(wxT("anneal"));
 #else
-	ExecFileName = FindKicadFile("anneal.exe");
+	ExecFileName = FindKicadFile(wxT("anneal.exe"));
 #endif
 	/* test de la presence du fichier et execution si present */
 	if( ! wxFileExists(ExecFileName) )
 	{
-		sprintf(Line,"routeur <%s> not found", ExecFileName .GetData());
-		DisplayError(this, Line, 20) ;
+		msg.Printf( wxT("File <%s> not found"), ExecFileName.GetData());
+		DisplayError(this, msg, 20) ;
 		return;
 	}
 
 	/* Calcule du nom du fichier intermediaire de communication */
 	FullFileName = m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(FullFileName,".ipt");
+	ChangeFileNameExt(FullFileName,wxT(".ipt"));
 
-	if( (outfile = fopen(FullFileName.GetData(), "wt")) == NULL )
+	if( (outfile = wxFopen(FullFileName, wxT("wt"))) == NULL )
 	{
 		msg = _("Unable to create temporary file ") + FullFileName;
 		DisplayError(this, msg,20);
@@ -135,15 +134,14 @@ int net_number;
 
 	fclose( outfile );
 
-	ExecFileName += " " + FullFileName;
+	ExecFileName += wxT(" ") + FullFileName;
 
 	Affiche_Message(ExecFileName);
 
 	wxExecute(ExecFileName);
 
 #else
-	wxMessageBox("En cours de developpement, non disponible actuellement",
-				"Bientot disponible!");
+	wxMessageBox( wxT("En cours de developpement, non disponible actuellement"));
 #endif
 }
 
@@ -169,35 +167,35 @@ int no_conn = Pcb->m_NbPads+1;	/* valeur incrementee pour indiquer
 	netcode = (*pt_liste_pad)->m_NetCode;
 	nb_pads = 1; plink = 0;
 	for ( ; pt_liste_pad < pt_liste_pad_limite ; )
-		{
+	{
 		/* Recherche de la fin de la liste des pads du net courant */
 		for( pt_end_liste = pt_liste_pad + 1 ; ; pt_end_liste++)
-			{
+		{
 			if (pt_end_liste >= pt_liste_pad_limite ) break ;
 			if ((*pt_end_liste)->m_NetCode != netcode ) break ;
 			nb_pads++;
-			}
+		}
 
 		/* fin de liste trouvee : */
 		if( netcode > 0 )
-			{
+		{
 			int nb_vias, nb_tracks;
 			ReturnNbViasAndTracks(Pcb, netcode, &nb_vias, &nb_tracks);
 			if ( nb_pads < 2 )
-				{
-				char Line[256];
+			{
+				wxString Line;
 				EQUIPOT * equipot = GetEquipot(Pcb, netcode);
-				sprintf(Line,"Warning: %d pad, net %s",
+				Line.Printf( wxT("Warning: %d pad, net %s"),
             					nb_pads, equipot->m_Netname.GetData());
 				DisplayError(NULL, Line,20);
-				}
+			}
 			fprintf(outfile,"r %d %d %d %d %d %d 1 1\n",
 					netcode, nb_pads, nb_vias+nb_pads, nb_tracks, 0,
 					g_DesignSettings.m_CurrentTrackWidth /PSCALE);
-			}
+		}
 
 		for( ;pt_liste_pad < pt_end_liste ; pt_liste_pad++)
-			{
+		{
 			pt_pad = *pt_liste_pad;
 			netcode = pt_pad->m_NetCode;
 			plink = pt_pad->m_physical_connexion;
@@ -287,19 +285,19 @@ int no_conn = Pcb->m_NbPads+1;	/* valeur incrementee pour indiquer
 			/* layers */
 			fprintf(outfile," %d %d\n", pin_min_layer, pin_max_layer);
 
-			}	/* fin generation liste pads pour 1 net */
+		}	/* fin generation liste pads pour 1 net */
 
 		if(netcode)
-			{
+		{
 			GenExistantTracks(Pcb, outfile, netcode, TYPEVIA);
 			GenExistantTracks(Pcb, outfile, netcode, TYPETRACK);
-			}
+		}
 
 		nb_pads = 1;
 		pt_liste_pad = pt_start_liste = pt_end_liste;
 		if(pt_start_liste < pt_liste_pad_limite)
 				netcode = (*pt_start_liste)->m_NetCode ;
-		}
+	}
 }
 
 
@@ -523,11 +521,11 @@ FILE * File;
 
 	/* Calcule du nom du fichier intermediaire de communication */
 	FullFileName = m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(FullFileName, ".trc");
+	ChangeFileNameExt(FullFileName, wxT(".trc"));
 
-	if( (File = fopen(FullFileName.GetData(),"rt")) == NULL )
+	if( (File = wxFopen(FullFileName, wxT("rt"))) == NULL )
 		{
-		msg = "Impossible de trouver le fichier de routage " + FullFileName;
+		msg = _("Unable to find data file ") + FullFileName;
 		DisplayError(this, msg, 20);
 		return;
 		}
@@ -560,7 +558,7 @@ FILE * File;
 
 	fclose(File);
 
-	if( nbtracks == 0 ) DisplayError(this, "Warning: No tracks", 10);
+	if( nbtracks == 0 ) DisplayError(this, wxT("Warning: No tracks"), 10);
 	else
 	  {
 	  m_Pcb->m_Status_Pcb = 0;

@@ -191,7 +191,7 @@ MODULE * Module = (MODULE*) pcb->m_Modules;
 	/* Test for errors */
 	GLenum err = glGetError();
 	if ( err != GL_NO_ERROR )
-		DisplayError(this, "Error in GL commands");
+		DisplayError(this, wxT("Error in GL commands") );
 	return gllist;
 }
 
@@ -341,7 +341,7 @@ bool As3dShape = FALSE;
 
 	for ( ; Struct3D != NULL; Struct3D = (Struct3D_Master *) Struct3D->Pnext )
 	{
-		if ( Struct3D->m_Shape3DName != "" )
+		if ( ! Struct3D->m_Shape3DName.IsEmpty() )
 		{
 			As3dShape = TRUE;
 			Struct3D->ReadData();

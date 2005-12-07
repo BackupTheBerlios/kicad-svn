@@ -33,11 +33,11 @@ public:
 	wxString m_FileName;
 
 public:
-	TreePrjItemData(int tree_id, char * data = NULL) :wxTreeItemData()
-		{
+	TreePrjItemData(int tree_id, const wxString & data) :wxTreeItemData()
+	{
 		m_Id = tree_id;
 		if ( data ) m_FileName = data;
-		}
+	}
 };
 
 
@@ -76,26 +76,26 @@ int id;
 	if ( ! m_TreeProject ) m_TreeProject = new WinEDA_TreePrj(this);
 	else m_TreeProject->DeleteAllItems();
 
-	if (m_Parent->m_PrjFileName == "") Text = "noname";
+	if (m_Parent->m_PrjFileName.IsEmpty() ) Text = wxT("noname");
 	else Text = wxFileNameFromPath(m_Parent->m_PrjFileName);
 
 	id = 0;
 	rootcellule = m_TreeProject->AddRoot(Text, id, id);
 	m_TreeProject->SetItemBold(rootcellule, TRUE);
-	m_TreeProject->SetItemData( rootcellule, new TreePrjItemData(TREE_PROJECT, "") );
+	m_TreeProject->SetItemData( rootcellule, new TreePrjItemData(TREE_PROJECT, wxEmptyString) );
 	m_TreeProject->SetItemFont(rootcellule, *g_StdFont);
 
-	ChangeFileNameExt(Text,"");
+	ChangeFileNameExt(Text, wxEmptyString);
 
 	id++;
 	cellule = m_TreeProject->AppendItem(rootcellule,Text + g_SchExtBuffer, id, id);
-	m_TreeProject->SetItemData( cellule, new TreePrjItemData(TREE_SCHEMA, "") );
+	m_TreeProject->SetItemData( cellule, new TreePrjItemData(TREE_SCHEMA, wxEmptyString) );
 	m_TreeProject->SetItemFont(cellule, *g_StdFont);
 	g_SchematicRootFileName = m_TreeProject->GetItemText(cellule);
 
 	id++;
 	cellule = m_TreeProject->AppendItem(rootcellule,Text + g_BoardExtBuffer, id, id);
-	m_TreeProject->SetItemData( cellule, new TreePrjItemData(TREE_PCB, "") );
+	m_TreeProject->SetItemData( cellule, new TreePrjItemData(TREE_PCB, wxEmptyString) );
 	m_TreeProject->SetItemFont(cellule, *g_StdFont);
 	g_BoardFileName = m_TreeProject->GetItemText(cellule);
 
@@ -143,7 +143,7 @@ wxString FullFileName;
 WinEDA_TreePrj::WinEDA_TreePrj(WinEDA_PrjFrame * parent) :
 	wxTreeCtrl(parent, ID_PROJECT_TREE,
 				wxDefaultPosition, wxDefaultSize,
-                wxTR_HAS_BUTTONS, wxDefaultValidator, "EDATreeCtrl")
+                wxTR_HAS_BUTTONS, wxDefaultValidator, wxT("EDATreeCtrl"))
 {
 	m_Parent = parent;
 	// Make an image list containing small icons

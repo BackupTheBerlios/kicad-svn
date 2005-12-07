@@ -108,7 +108,7 @@ WinEDA_DrawFrame::~WinEDA_DrawFrame(void)
 /****************************************/
 {
 	if ( DrawPanel )	// DrawPanel est NULL en WinEDA3D_DrawFrame
-		m_Parent->m_EDA_Config->Write("AutoPAN", DrawPanel->m_AutoPAN_Enable);
+		m_Parent->m_EDA_Config->Write( wxT("AutoPAN"), DrawPanel->m_AutoPAN_Enable);
 }
 
 
@@ -461,7 +461,7 @@ bool move_mouse_cursor = FALSE;
 			Zoom_Automatique(FALSE);
 			break;
 
-		default: wxMessageBox("WinEDA_DrawFrame::OnZoom switch Error");
+		default: wxMessageBox( wxT("WinEDA_DrawFrame::OnZoom switch Error") );
 			break;
 		}
 	Affiche_Status_Box();
@@ -624,16 +624,16 @@ void WinEDA_DrawFrame::Affiche_Status_Box(void)
 /* Routine d'affichage du zoom et des coord curseur.
 */
 {
-char Line[256];
+wxString Line;
 int dx, dy;
 
 	if (GetScreen() == NULL ) return;
 
 	/* affichage Zoom et coordonnees absolues */
-	sprintf(Line,"Z %d", GetScreen()->GetZoom());
+	Line.Printf(wxT("Z %d"), GetScreen()->GetZoom());
 	SetStatusText(Line, 1);
 
-	sprintf(Line , UnitMetric ? "X %.3f  Y %.3f" : "X %.4f  Y %.4f",
+	Line.Printf( UnitMetric ? wxT("X %.3f  Y %.3f") : wxT("X %.4f  Y %.4f"),
 						To_User_Unit(UnitMetric, GetScreen()->m_Curseur.x,
 						m_InternalUnits),
 						To_User_Unit(UnitMetric, GetScreen()->m_Curseur.y,
@@ -644,7 +644,7 @@ int dx, dy;
 	dx = GetScreen()->m_Curseur.x - GetScreen()->m_O_Curseur.x;
 	dy = GetScreen()->m_Curseur.y - GetScreen()->m_O_Curseur.y;
 
-	sprintf(Line , UnitMetric ? "x %.3f  y %.3f" : "x %.4f  y %.4f",
+	Line.Printf( UnitMetric ? wxT("x %.3f  y %.3f") : wxT("x %.4f  y %.4f"),
 		To_User_Unit(UnitMetric, dx, m_InternalUnits),
 		To_User_Unit(UnitMetric, dy, m_InternalUnits) );
 
@@ -659,7 +659,7 @@ int dx, dy;
 		theta = theta *180 / M_PI;
 
 		ro = sqrt( ((double) dx * dx) + ((double)dy * dy) );
-		sprintf(Line, UnitMetric ? "Ro %.3f Th %.1f" :  "Ro %.4f Th %.1f",
+		Line.Printf( UnitMetric ? wxT("Ro %.3f Th %.1f") : wxT("Ro %.4f Th %.1f"),
 			To_User_Unit(UnitMetric, (int) round(ro), m_InternalUnits),
 				theta) ;
 		SetStatusText(Line, 0);

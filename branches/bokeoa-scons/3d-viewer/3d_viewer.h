@@ -28,7 +28,7 @@
 
 #include "pcbstruct.h"
 
-#define LIB3D_PATH "packages3d/"
+#define LIB3D_PATH wxT("packages3d/")
 
 class Pcb3D_GLCanvas;
 class WinEDA3D_DrawFrame;

@@ -37,16 +37,17 @@ int errorlevel = 0, end;
 int flag_librairie;
 STOREMOD * ItemLib;
 unsigned ii;
+wxString msg;
 	
 	if( BaseListePkg )	/* Liste Deja existante, a supprimer */
-		{
+	{
 		FreeMemoryModules(); BaseListePkg = NULL;
-		}
+	}
 
 	if ( g_LibName_List.GetCount() == 0 ) return -4;
 
 	/* init recherche */
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules"));
 	nblib = 0;
 
 	/* Lecture des Librairies */
@@ -55,10 +56,10 @@ unsigned ii;
 		/* Calcul du nom complet de la librairie */
 		FullLibName = MakeFileName(g_RealLibDirBuffer, g_LibName_List[ii], LibExtBuffer);
 		/* acces a une librairie */
-		if ((name_libmodules = fopen(FullLibName.GetData(),"rt"))  == NULL )
+		if ((name_libmodules = wxFopen(FullLibName, wxT("rt")))  == NULL )
 		{
-			sprintf(cbuf,_("Library file <%s> not found"),FullLibName.GetData());
-			DisplayError(NULL, cbuf, 20);
+			msg.Printf( _("Library file <%s> not found"),FullLibName.GetData());
+			DisplayError(NULL, msg, 20);
 			continue;
 		}
 
@@ -67,9 +68,9 @@ unsigned ii;
 		fgets(buffer,32,name_libmodules) ;
 		if( strncmp(buffer,ENTETE_LIBRAIRIE,L_ENTETE_LIB) != 0 )
 			{
-			sprintf(cbuf,_("Library file <%s> is not a module library"),
+			msg.Printf(_("Library file <%s> is not a module library"),
 					FullLibName.GetData());
-			DisplayError(NULL, cbuf, 20);
+			DisplayError(NULL, msg, 20);
 			fclose(name_libmodules); continue;
 			}
 
@@ -79,29 +80,25 @@ unsigned ii;
 		 /* lecture nom des composants : */
 		end = 0;
 		while( !end && fgets(buffer,255,name_libmodules) != NULL )
-			{
+		{
 			if(strnicmp(buffer,"$INDEX",6) == 0 )
-				{
+			{
 				while( fgets(buffer,255,name_libmodules) != NULL )
-					{
+				{
 					if(strnicmp(buffer,"$EndINDEX",6) == 0 )
 						{ end = 1; break; }
 				
-					ItemLib = (STOREMOD * ) MyZMalloc( sizeof(STOREMOD) );
+					ItemLib = new STOREMOD();
 					ItemLib->Pnext = BaseListePkg;
 					BaseListePkg = ItemLib;
-					ItemLib->Type = STRUCT_MODULE ;
-
-					strncpy(ItemLib->Module,StrPurge(buffer),
-											sizeof(ItemLib->Module)-1);
-					strncpy(ItemLib->LibName,FullLibName.GetData(),
-											sizeof(ItemLib->LibName)-1);
+					ItemLib->m_Module = CONV_FROM_UTF8(StrPurge(buffer));
+					ItemLib->m_LibName = FullLibName;
 
 					nblib++;
-					}
-				if( !end ) errorlevel = -3;
 				}
+				if( !end ) errorlevel = -3;
 			}
+		}
 		fclose(name_libmodules);
 		ReadDocLib(FullLibName );
 	}
@@ -126,7 +123,7 @@ STOREMOD *pt1 , *pt2;
 	pt1 = * ((STOREMOD**)mod1);
 	pt2 = * ((STOREMOD**)mod2);
 
-	ii = StrNumICmp( pt1->Module, pt2->Module );
+	ii = StrNumICmp( pt1->m_Module.GetData(), pt2->m_Module.GetData() );
 	return(ii);
 }
 
@@ -165,12 +162,12 @@ int ii, nb;
 
 	/* Mise a jour du chainage */
 	for( ii = 1; ii <= nb; ii++ )
-		{
+	{
 		Item = bufferptr[ii];
-		Item->Num = ii;
+		Item->m_Num = ii;
 		Item->Pnext = bufferptr[ii+1];
 		Item->Pback = bufferptr[ii-1];
-		}
+	}
 
 	Item = bufferptr[1];
 	MyFree(bufferptr);
@@ -189,14 +186,15 @@ static void ReadDocLib(const wxString & ModLibName )
 */
 {
 STOREMOD * NewMod;
-char Line[1024], *Name;
+char Line[1024];
+wxString ModuleName;
 wxString docfilename;
 FILE * LibDoc;
 
 	docfilename = ModLibName;
 	ChangeFileNameExt(docfilename, EXT_DOC);
 
-	if( (LibDoc = fopen(docfilename.GetData(),"rt")) == NULL ) return;
+	if( (LibDoc = wxFopen(docfilename, wxT("rt"))) == NULL ) return;
 
 	GetLine(LibDoc, Line, NULL, sizeof(Line) -1);
 	if(strnicmp( Line,ENTETE_LIBDOC, L_ENTETE_LIB) != 0) return;
@@ -216,23 +214,23 @@ FILE * LibDoc;
 				switch( Line[0] )
 					{
 					case 'L':	/* LibName */
-						Name = StrPurge(Line+3);
+						ModuleName = CONV_FROM_UTF8(StrPurge(Line+3));
 						NewMod = BaseListePkg;
 						while ( NewMod )
-							{
-							if( strcmp(Name, NewMod->Module ) == 0 ) break;
+						{
+							if( ModuleName = NewMod->m_Module ) break;
 							NewMod = NewMod->Pnext;
-							}
+						}
 						break;
 
 					case 'K':	/* KeyWords */
-						if( NewMod && (! NewMod->KeyWord) )
-							NewMod->KeyWord = strdup(StrPurge(Line+3) );
+						if( NewMod && (! NewMod->m_KeyWord) )
+							NewMod->m_KeyWord = CONV_FROM_UTF8(StrPurge(Line+3) );
 						break;
 
 					case 'C':	/* Doc */
-						if( NewMod && (! NewMod->Doc ) )
-							NewMod->Doc = strdup(StrPurge(Line+3) );
+						if( NewMod && (! NewMod->m_Doc ) )
+							NewMod->m_Doc = CONV_FROM_UTF8(StrPurge(Line+3) );
 						break;
 					}
 				}

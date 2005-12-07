@@ -190,7 +190,8 @@ wxString text;
 	m_Units = units;
 	m_Internal_Unit = internal_unit;
 
-	text = (title == "" ) ? _("Vertex ") : title.GetData();
+	if ( title.IsEmpty()  )	text = _("Vertex ");
+	else text = title;
 	switch ( units )
 	{
 		case INCHES:
@@ -208,21 +209,21 @@ wxString text;
 	new wxStaticText(parent, -1, text, aff_pos, wxSize(-1,-1), 0 );
 
 	aff_pos.y += 14;
-	new wxStaticText(parent, -1, "X:", aff_pos, wxSize(-1,-1), 0 );
+	new wxStaticText(parent, -1, wxT("X:"), aff_pos, wxSize(-1,-1), 0 );
 	aff_pos.x += 20;
-	m_XValueCtrl = new wxTextCtrl(parent, -1, "", aff_pos, wxSize(-1,-1), 0 );
+	m_XValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
 
 	aff_pos.y += m_XValueCtrl->GetSize().y;
 	aff_pos.x -= 20;
-	new wxStaticText(parent, -1, "Y:", aff_pos, wxSize(-1,-1), 0 );
+	new wxStaticText(parent, -1, wxT("Y:"), aff_pos, wxSize(-1,-1), 0 );
 	aff_pos.x += 20;
-	m_YValueCtrl = new wxTextCtrl(parent, -1, "", aff_pos, wxSize(-1,-1), 0 );
+	m_YValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
 
 	aff_pos.y += m_YValueCtrl->GetSize().y;
 	aff_pos.x -= 20;
-	new wxStaticText(parent, -1, "Z:", aff_pos, wxSize(-1,-1), 0 );
+	new wxStaticText(parent, -1, wxT("Z:"), aff_pos, wxSize(-1,-1), 0 );
 	aff_pos.x += 20;
-	m_ZValueCtrl = new wxTextCtrl(parent, -1, "", aff_pos, wxSize(-1,-1), 0 );
+	m_ZValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
 
 	m_WinSize.x = m_XValueCtrl->GetSize().x + aff_pos.x;
 	aff_pos.y += m_ZValueCtrl->GetSize().y;
@@ -250,10 +251,14 @@ S3D_Vertex WinEDA_VertexCtrl::GetValue(void)
 */
 {
 S3D_Vertex value;
+double dtmp;
 
-	value.x = atof(m_XValueCtrl->GetValue().GetData());
-	value.y = atof(m_YValueCtrl->GetValue().GetData());
-	value.z = atof(m_ZValueCtrl->GetValue().GetData());
+	m_XValueCtrl->GetValue().ToDouble(&dtmp);
+	value.x = dtmp;
+	m_YValueCtrl->GetValue().ToDouble(&dtmp);
+	value.y = dtmp;
+	m_ZValueCtrl->GetValue().ToDouble(&dtmp);
+	value.z = dtmp;
 	return value;
 }
 
@@ -263,15 +268,15 @@ void WinEDA_VertexCtrl::SetValue(S3D_Vertex vertex)
 {
 wxString text;
 
-	text.Printf("%f", vertex.x);
+	text.Printf( wxT("%f"), vertex.x);
 	m_XValueCtrl->Clear();
 	m_XValueCtrl->AppendText(text);
 
-	text.Printf("%f", vertex.y);
+	text.Printf(wxT("%f"), vertex.y);
 	m_YValueCtrl->Clear();
 	m_YValueCtrl->AppendText(text);
 
-	text.Printf("%f", vertex.z);
+	text.Printf(wxT("%f"), vertex.z);
 	m_ZValueCtrl->Clear();
 	m_ZValueCtrl->AppendText(text);
 }

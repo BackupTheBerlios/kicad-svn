@@ -35,7 +35,7 @@ MODULE * Module = NULL;
 		/* Calcul du nom complet de la librairie */
 		libname = MakeFileName(g_RealLibDirBuffer, g_LibName_List[ii], LibExtBuffer);
 
-		if ((lib_module = fopen(libname.GetData(),"rt"))  == NULL ) 
+		if ((lib_module = wxFopen(libname, wxT("rt")))  == NULL ) 
 		{
 			continue ;
 		}
@@ -61,7 +61,7 @@ MODULE * Module = NULL;
 				{
 					if( strnicmp( Line,"$EndINDEX",9) == 0 ) break;
 					StrPurge(Line);
-					if( stricmp(Line,CmpName.GetData()) == 0 )
+					if( stricmp(Line, CONV_TO_UTF8(CmpName)) == 0 )
 					{
 						Found = 1; break; /* Trouve! */
 					}
@@ -77,7 +77,7 @@ MODULE * Module = NULL;
 			if( strnicmp( Line, "$MODULE",7) != 0 ) continue;
 			/* Lecture du nom du composant */
 			sscanf(Line+7," %s",Name);
-			if( stricmp(Name,CmpName.GetData()) == 0 )  /* composant localise */
+			if( stricmp(Name,CONV_TO_UTF8(CmpName)) == 0 )  /* composant localise */
 			{
 				Module = new MODULE(m_Pcb);
 				if( Module == NULL ) continue;

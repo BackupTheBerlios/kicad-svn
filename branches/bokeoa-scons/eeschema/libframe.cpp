@@ -64,7 +64,7 @@ WinEDA_LibeditFrame::WinEDA_LibeditFrame(wxWindow * father, WinEDA_App *parent,
 					const wxString & title, const wxPoint& pos, const wxSize& size):
 			WinEDA_DrawFrame(father, LIBEDITOR_FRAME, parent, title, pos,  size)
 {
-	m_FrameName = "LibeditFrame";
+	m_FrameName = wxT("LibeditFrame");
 	m_Draw_Axes = TRUE;				// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;				// TRUE pour avoir la axes dessinee
 
@@ -195,14 +195,14 @@ void WinEDA_LibeditFrame::SetToolbars(void)
 			m_HToolBar->EnableTool(ID_DE_MORGAN_NORMAL_BUTT, g_AsDeMorgan);
 			/* Enable the "get doc" tool */
 			bool enable_dtool = FALSE;
-			if ( CurrentAliasName != "" )
+			if ( ! CurrentAliasName.IsEmpty() )
 			{
 				int AliasLocation = LocateAlias( CurrentLibEntry->m_AliasList, CurrentAliasName);
 				if ( AliasLocation >= 0 )
-					if ( CurrentLibEntry->m_AliasList[AliasLocation+ALIAS_DOC_FILENAME] != "" )
+					if ( ! CurrentLibEntry->m_AliasList[AliasLocation+ALIAS_DOC_FILENAME].IsEmpty() )
 						enable_dtool = TRUE;
 			}
-			else if ( CurrentLibEntry->m_DocFile != "" ) enable_dtool = TRUE;
+			else if ( ! CurrentLibEntry->m_DocFile.IsEmpty() ) enable_dtool = TRUE;
 			if ( enable_dtool ) m_HToolBar->EnableTool(ID_LIBEDIT_VIEW_DOC, TRUE);
 			else m_HToolBar->EnableTool(ID_LIBEDIT_VIEW_DOC, FALSE);
 			m_HToolBar->EnableTool(ID_LIBEDIT_CHECK_PART, TRUE);
@@ -260,16 +260,11 @@ EDA_Rect BoundaryBox;
 	jj = abs (dy / size.y);
 
 	/* determination du zoom existant le plus proche */
-	ii = MAX(ii, jj);
-	for ( bestzoom = 1 ;  bestzoom < 512 ;  bestzoom <<= 1 )
-	{
-		if(bestzoom > ii ) break;
-	}
+	bestzoom = MAX(ii, jj) + 1;
 
 	if ( CurrentLibEntry )
 	{
 		m_CurrentScreen->m_Curseur = BoundaryBox.Centre();
-		m_CurrentScreen->m_Curseur.y = - m_CurrentScreen->m_Curseur.y;
 	}
 	else
 	{
@@ -324,7 +319,7 @@ wxClientDC dc(DrawPanel);
 		default:
 			if ( m_CurrentScreen->ManageCurseur && m_CurrentScreen->ForceCloseManageCurseur )
 				m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
-			SetToolID( 0, wxCURSOR_ARROW, "" );
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString );
 			break;
 	}
 
@@ -414,7 +409,7 @@ wxClientDC dc(DrawPanel);
 			if ( CurrentLibEntry )
 			{
 			wxString docfilename;
-				if ( CurrentAliasName != "" )
+				if ( ! CurrentAliasName.IsEmpty() )
 				{
 					int AliasLocation = LocateAlias( CurrentLibEntry->m_AliasList, CurrentAliasName);
 					if ( AliasLocation >= 0 )
@@ -422,7 +417,7 @@ wxClientDC dc(DrawPanel);
 				}
 				else docfilename = CurrentLibEntry->m_DocFile;
 
-				if ( docfilename != "" )
+				if ( ! docfilename.IsEmpty() )
 					GetAssociatedDocument(this, g_RealLibDirBuffer, docfilename);
 			}
 			break;
@@ -448,7 +443,7 @@ wxClientDC dc(DrawPanel);
 			if ( ii < 0 ) return;
 			LibItemToRepeat = NULL;
 			if ( ii > 0 ) CurrentAliasName = m_SelAliasBox->GetValue();
-			else CurrentAliasName = "";
+			else CurrentAliasName.Empty();
 			ReDrawPanel();
 			}
 			break;
@@ -469,7 +464,7 @@ wxClientDC dc(DrawPanel);
 			{
 				SetToolID( id, wxCURSOR_ARROW, _("Set Pin Opt"));
 				InstallPineditFrame(this, pos);
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			}
 			break;
 
@@ -477,11 +472,11 @@ wxClientDC dc(DrawPanel);
 			if ( m_CurrentScreen->ManageCurseur && m_CurrentScreen->ForceCloseManageCurseur )
 					m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
 			else
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_NO_SELECT_BUTT:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_LIBEDIT_BODY_TEXT_BUTT:
@@ -511,13 +506,13 @@ wxClientDC dc(DrawPanel);
 		case ID_LIBEDIT_IMPORT_BODY_BUTT :
 			SetToolID( id, wxCURSOR_ARROW, _("Import"));
 			LoadOneSymbol(&dc);
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_LIBEDIT_EXPORT_BODY_BUTT :
 			SetToolID( id, wxCURSOR_ARROW, _("Export"));
 			SaveOneSymbol();
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_POPUP_LIBEDIT_END_CREATE_ITEM:
@@ -688,7 +683,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_LibeditFrame::Process_Special_Functions error");
+			DisplayError(this, wxT("WinEDA_LibeditFrame::Process_Special_Functions error"));
 			break;
 	}
 

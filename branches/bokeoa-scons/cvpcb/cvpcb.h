@@ -15,55 +15,65 @@
 #include "colors.h"
 
 // Define print format d to display a schematic component line
-#define CMP_FORMAT "%3d %8.8s - %16.16s : %-.32s"
+#define CMP_FORMAT wxT("%3d %8.8s - %16.16s : %-.32s")
 
 enum TypeOfStruct
 	{
 	STRUCT_NOT_INIT,
-	STRUCT_COMPONANT,
+	STRUCT_COMPONENT,
 	STRUCT_PIN,
 	STRUCT_MODULE,
 	STRUCT_PSEUDOMODULE
 	};
 
-typedef struct StorePin
-	{
-	int Type;				/* Type de la structure */
-	StorePin * Pnext;		/* Chainage avant */
-	int index;				/* variable utilisee selon types de netlistes */
-	int PinType;			/* code type electrique ( Entree Sortie Passive..) */
-	char *PinNet;			/* Pointeur sur le texte nom de net */
-	char PinNum[9];
-	char PinName[17];
-	char Repere[17] ;		/* utilise selon formats de netliste */
-	} STOREPIN;
+class STOREPIN
+{
+public:
+	int m_Type;				/* Type de la structure */
+	STOREPIN * Pnext;		/* Chainage avant */
+	int m_Index;				/* variable utilisee selon types de netlistes */
+	int m_PinType;			/* code type electrique ( Entree Sortie Passive..) */
+	wxString m_PinNet;			/* Pointeur sur le texte nom de net */
+	wxString m_PinNum;
+	wxString m_PinName;
+	wxString m_Repere;		/* utilise selon formats de netliste */
 
-typedef struct StoreCmp
-	{
-	int Type;				/* Type de la structure */
-	StoreCmp * Pnext;		/* Chainage avant */
-	StoreCmp * Pback;		/* Chainage arriere */
-	int Num;				/* Numero d'ordre */
-	int Multi;				/* Nombre d' unites par boitier */
-	STOREPIN * Pins;		/* pointeur sur la liste des Pins */
-	char Reference[17] ;	/* U3, R5  ... */
-	char Valeur[33];		/* 7400, 47K ... */
-	char TimeStamp[9];		/* Signature temporelle ("00000000" si absente) */
-	char Module[33];		/* Nom du module (Package) corresp */
-	char Repere[33];		/* utilise selon formats de netliste */
-	} STORECMP;
+	STOREPIN(void);
+} ;
 
-typedef struct StoreMod
-	{
-	int Type;				/* Type de la structure */
-	StoreMod * Pnext;		/* Chainage avant */
-	StoreMod * Pback;		/* Chainage arriere */
-	char Module[33] ;		/* Nom du module */
-	char LibName[33] ;		/* Nom de la librairie contenant ce module */
-	int Num ;				/* Numero d'ordre pour affichage sur la liste */
-	char * Doc;				/* Doc associee */
-	char * KeyWord;			/* Mots cles associes */
-	} STOREMOD;
+class STORECMP
+{
+public:
+	int m_Type;				/* Type de la structure */
+	STORECMP * Pnext;		/* Chainage avant */
+	STORECMP * Pback;		/* Chainage arriere */
+	int m_Num;				/* Numero d'ordre */
+	int m_Multi;				/* Nombre d' unites par boitier */
+	STOREPIN * m_Pins;		/* pointeur sur la liste des Pins */
+	wxString m_Reference;		/* U3, R5  ... */
+	wxString m_Valeur;		/* 7400, 47K ... */
+	wxString m_TimeStamp;		/* Signature temporelle ("00000000" si absente) */
+	wxString m_Module;		/* Nom du module (Package) corresp */
+	wxString m_Repere;		/* utilise selon formats de netliste */
+
+	STORECMP(void);
+	~STORECMP(void);
+} ;
+
+class STOREMOD
+{
+public:
+	int m_Type;				/* Type de la structure */
+	STOREMOD * Pnext;		/* Chainage avant */
+	STOREMOD * Pback;		/* Chainage arriere */
+	wxString m_Module;		/* Nom du module */
+	wxString m_LibName;		/* Nom de la librairie contenant ce module */
+	int m_Num ;				/* Numero d'ordre pour affichage sur la liste */
+	wxString m_Doc;			/* Doc associee */
+	wxString m_KeyWord;		/* Mots cles associes */
+
+	STOREMOD(void);
+};
 
 
 eda_global STOREMOD * BaseListePkg;
@@ -87,12 +97,12 @@ eda_global wxString FFileName;
 /* Gestion des noms des librairies */
 eda_global wxString g_EquivExtBuffer
 #ifdef MAIN
-(".equ")
+( wxT(".equ") )
 #endif
 ;
 eda_global wxString g_ExtCmpBuffer
 #ifdef MAIN
- (".cmp")
+ ( wxT(".cmp") )
 #endif
 ;
 
@@ -111,7 +121,7 @@ eda_global int ListModIsModified;		/* Flag != 0 si modif liste des lib modules *
 
 eda_global char alim[1024];
 
-eda_global char CurrentPkg[256];	/* nom du module selectionne */
+eda_global wxString g_CurrentPkg;	/* nom du module selectionne */
 
 eda_global int nbcomp ;					/* nombre de composants trouves */
 eda_global int nblib  ;					/* nombre d'empreintes trouv‚es */
@@ -125,7 +135,7 @@ eda_global wxString NetDirBuffer;
 
 eda_global wxString ExtRetroBuffer
 #ifdef MAIN
- (".stf")
+ ( wxT(".stf") )
 #endif
 ;
 

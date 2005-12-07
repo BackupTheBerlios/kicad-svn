@@ -318,7 +318,7 @@ int * ptpoly;
 			break;
 
 		default:
-			DisplayError(this, "SymbolBeginDrawItem Internal err: Id error");
+			DisplayError(this, wxT("SymbolBeginDrawItem Internal err: Id error"));
 			return NULL;
 		}
 
@@ -391,7 +391,7 @@ int * ptpoly;
 			Text->m_Pos.x = m_CurrentScreen->m_Curseur.x;
 			Text->m_Pos.y = - m_CurrentScreen->m_Curseur.y;
 			EditSymbolText(NULL, Text);
-			if ( Text->m_Text == "" )
+			if ( Text->m_Text.IsEmpty() )
 			{
 				delete Text;
 				CurrentDrawItem = NULL;
@@ -728,7 +728,7 @@ void WinEDA_LibeditFrame::EndDrawGraphicItem(wxDC * DC)
 	{
 		if (StateDrawArc == 1 )	/* Trace d'arc en cours: doit etre termine */
 		{
-			DisplayError(this, "Arc in progress..", 10 ); return;
+			DisplayError(this, wxT("Arc in progress.."), 10 ); return;
 		}
 		else
 		{

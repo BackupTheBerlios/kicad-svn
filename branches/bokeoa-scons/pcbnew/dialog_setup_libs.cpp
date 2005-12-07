@@ -86,7 +86,7 @@ WinEDA_ConfigFrame * CfgFrame = new WinEDA_ConfigFrame(this, pos);
 #define Y_SIZE 380
 WinEDA_ConfigFrame::WinEDA_ConfigFrame(WinEDA_PcbFrame *parent,
 		const wxPoint& framepos):
-		wxDialog(parent, -1, "", framepos, wxSize(X_SIZE, Y_SIZE),
+		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(X_SIZE, Y_SIZE),
 		DIALOG_STYLE )
 {
 wxPoint pos;
@@ -161,7 +161,8 @@ wxString text;
 
 	pos.y += m_TextLibDir->GetDimension().y + 25;
 	wxString DocModuleFileName =
-		EDA_Appl->m_EDA_CommonConfig->Read("module_doc_file", "pcbnew/footprints.pdf");
+		EDA_Appl->m_EDA_CommonConfig->Read( wxT("module_doc_file"),
+				wxT("pcbnew/footprints.pdf"));
 	m_TextHelpModulesFileName = new WinEDA_EnterText(this,
 				_("Module Doc File:"),  DocModuleFileName,
 				pos, size);
@@ -188,9 +189,9 @@ void WinEDA_ConfigFrame::SetNewOptions(void)
 /********************************************/
 {
 	g_UserLibDirBuffer = m_TextLibDir->GetData();
-	EDA_Appl->m_EDA_CommonConfig->Write("module_doc_file",
+	EDA_Appl->m_EDA_CommonConfig->Write( wxT("module_doc_file"),
 			m_TextHelpModulesFileName->GetData());
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 }
 
 
@@ -230,7 +231,7 @@ void WinEDA_ConfigFrame::LibInsertFct(wxCommandEvent& event)
 {
 int ii;
 wxString fullfilename, ShortLibName;
-wxString mask ="*";
+wxString mask = wxT("*");
 
 	ii = m_ListLibr->GetSelection();
 	if ( ii < 0 ) ii = 0;
@@ -241,11 +242,11 @@ wxString mask ="*";
 
 	SetNewOptions();
 	mask += LibExtBuffer;
-	g_RealLibDirBuffer.Replace("\\","/");
+	g_RealLibDirBuffer.Replace( wxT("\\"), wxT("/"));
 
 	fullfilename = EDA_FileSelector( _("library files:"),
 				g_RealLibDirBuffer,			/* Chemin par defaut */
-				"",					/* nom fichier par defaut */
+				wxEmptyString,					/* nom fichier par defaut */
 				LibExtBuffer,		/* extension par defaut */
 				mask,				/* Masque d'affichage */
 				this,
@@ -253,7 +254,7 @@ wxString mask ="*";
 				TRUE
 				);
 
-	if ( fullfilename == "" ) return;
+	if ( fullfilename.IsEmpty() ) return;
 
 	ShortLibName =
 		MakeReducedFileName(fullfilename, g_RealLibDirBuffer, LibExtBuffer);

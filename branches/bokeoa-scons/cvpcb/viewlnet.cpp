@@ -30,7 +30,7 @@ $1N30;J2_8^2,Q1^2,Q2^2,Q3^2,Q4^2,Q5^2,Q6^2,Q7^2,R21^2,R22^2,R23^2,R24^2,R25^2,
 #include "protos.h"
 
 /* routines locales : */
-static void GenPin( STORECMP *BaseCmp, char *CmpName, char *PinNum, char *PinNet);
+static void GenPin( STORECMP *BaseCmp,char *CmpName, char *PinNum, char *PinNet);
 static int GenListeComposants(FILE * PkgFile);
 
 /* Variables Locales */
@@ -60,7 +60,7 @@ wxString msg;
 	/* Tst de la presence du fichier principal Netliste, et son format:
 		Si format = PCBNEW, appel de rdorcad
 	*/
-	source = fopen(FFileName.GetData(),"rt");
+	source = wxFopen(FFileName, wxT("rt") );
 	if (source == 0)
 		 {
 		 msg = _("File not found ") + FFileName;
@@ -91,7 +91,7 @@ wxString msg;
 	ChangeFileNameExt(PkgFileName, PkgInExtBuffer);
 
 	/* Ouverture du fichier .pkg */
-	source = fopen(PkgFileName.GetData(),"rt");
+	source = wxFopen(PkgFileName, wxT("rt"));
 	if (source == 0)
 	{
 		msg = _("File not found ") + PkgFileName;
@@ -106,7 +106,7 @@ wxString msg;
 	BaseListeCmp = TriListeComposantss( BaseListeCmp, nbcomp);
 
 	/* Ouverture du fichier netliste */
-	source = fopen(FFileName.GetData(),"rt");
+	source = wxFopen(FFileName, wxT("rt"));
 	if (source == 0)
 	{
 		msg = _("File not found ") + FFileName;
@@ -133,8 +133,8 @@ wxString msg;
 		NetName[ii] = 0; if ( *Text == ';' ) Text++;
 		if( NetName[0] == 0 )
 			{
-			sprintf(cbuf,"Err. Pin Name ligne %s",Line);
-			DisplayError(this, cbuf, 20);
+			msg.Printf( wxT("Err. Pin Name ligne %s"),Line);
+			DisplayError(this, msg, 20);
 			}
 
 		/* Lecture des attributions de pins */
@@ -154,8 +154,8 @@ wxString msg;
 			*Data = 0;
 			if( (PinName[0] == 0 ) || (PinName[0] == 0 ) )
 				{
-				sprintf(cbuf,"Err. Pin Name ligne %s",Line);
-				DisplayError(this, cbuf, 20); break;
+				msg.Printf( wxT("Err. Pin Name ligne %s"),Line);
+				DisplayError(this, msg, 20); break;
 				}
 			GenPin( BaseListeCmp, RefName, PinName, NetName);
 			if ( *Text == ',' ) /* Autre element a traiter, ou nouvelle */
@@ -190,39 +190,37 @@ static void GenPin( STORECMP *BaseCmp, char * CmpName,
 {
 STORECMP *Cmp;
 STOREPIN * Pin;
-
+wxString StrCmpName = CONV_FROM_UTF8(CmpName);
+	
 	/* Recherche du composant */
 	Cmp = BaseCmp;
 	for( ; Cmp != NULL; Cmp = Cmp->Pnext )
-		{
-		if( stricmp(Cmp->Reference, CmpName) == 0 ) break;
-		}
+	{
+		if( Cmp->m_Reference.CmpNoCase(StrCmpName) == 0 ) break;
+	}
 
 	if( Cmp == NULL )
-		{
-		sprintf( cbuf, _("Component [%s] not found in .pkg file"), CmpName);
-		DisplayError(NULL, cbuf, 1);
+	{
+		wxString msg;
+		msg.Printf( _("Component [%s] not found in .pkg file"), CmpName);
+		DisplayError(NULL, msg, 1);
 		return;
-		}
+	}
 
 	/* Creation de la Pin */
-	Pin = (STOREPIN *)MyZMalloc( sizeof(STOREPIN) );
-	Pin->Type = STRUCT_PIN;
-	Pin->Pnext = Cmp->Pins; Cmp->Pins = Pin;
-	strncpy( Pin->PinNum, PinNum, sizeof(Pin->PinNum) -1 );
-	Pin->PinNet = strdup(PinNet);
+	Pin = new STOREPIN();
+	Pin->Pnext = Cmp->m_Pins; Cmp->m_Pins = Pin;
+	Pin->m_PinNum = CONV_FROM_UTF8(PinNum);
+	Pin->m_PinNet = CONV_FROM_UTF8(PinNet);
 }
 
 
-	/******************************************/
-	/* int GenListeComposants(FILE * PkgFile) */
-	/******************************************/
-
+/******************************************/
+static int GenListeComposants(FILE * PkgFile)
+/******************************************/
 /* Cree la liste des composants cites dans le fichier .pkg
 	Retourne le nombre de composants
 */
-
-static int GenListeComposants(FILE * PkgFile)
 {
 int ii, LineNum, NbComp;
 char Line[1024], *Text;
@@ -262,21 +260,20 @@ STORECMP * Cmp;
 			{
 			/* Lecture du nom du composant */
 			for( ii = 0; ii < 80; ii++, Text++)
-				{
+			{
 				if( *Text <= ' ' ) break;
 				if( *Text == ',' ) break;
 				Name[ii] = *Text;
-				}
+			}
 			Name[ii] = 0;
-			Cmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
-			Cmp->Type = STRUCT_COMPONANT;
+			Cmp = new STORECMP();
 			Cmp->Pnext = BaseListeCmp;
 			BaseListeCmp = Cmp;
 			NbComp++ ;
-			strncpy( Cmp->Reference, StrPurge(Name), sizeof(Cmp->Reference) -1);
-			strncpy(Cmp->Valeur, StrPurge(Valeur), sizeof(Cmp->Valeur) -1);
-			strncpy(Cmp->Module, StrPurge(Package), sizeof(Cmp->Valeur) -1);
-			memset(Cmp->TimeStamp,'0', 8);
+			Cmp->m_Reference = CONV_FROM_UTF8( StrPurge(Name) );
+			Cmp->m_Valeur = CONV_FROM_UTF8( StrPurge(Valeur) );
+			Cmp->m_Module = CONV_FROM_UTF8( StrPurge(Package) );
+			Cmp->m_TimeStamp = wxT("00000000");
 
 			if ( *Text == ',' ) /* Autre element a traiter, ou nouvelle */
 								/* ligne a lire ( continuation de ligne ) */

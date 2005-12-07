@@ -73,13 +73,13 @@ int TEXTE_PCB::ReadTextePcbDescr(FILE * File, int * LineNum)
 char text[1024], Line[1024];
 int dummy;
 
-	while(  GetLine(File, Line, LineNum ) != NULL )
+	while( GetLine(File, Line, LineNum ) != NULL )
 	{
 		if(strnicmp(Line,"$EndTEXTPCB",11) == 0) return 0;
 		if( strncmp(Line,"Te", 2) == 0 )	/* Texte */
 		{
 			ReadDelimitedText(text, Line+2, sizeof(text) );
-			m_Text = text;
+			m_Text = CONV_FROM_UTF8(text);
 			continue;
 		}
 		if( strncmp(Line,"Po", 2) == 0 )
@@ -111,7 +111,7 @@ int TEXTE_PCB::WriteTextePcbDescr(FILE * File)
 {
 	if( GetState(DELETED) ) return(0);
 
-	if(m_Text == "" ) return(0);
+	if(m_Text.IsEmpty() ) return(0);
 	fprintf( File,"$TEXTPCB\n");
 	fprintf( File,"Te \"%s\"\n",m_Text.GetData());
 	fprintf( File,"Po %d %d %d %d %d %d\n",

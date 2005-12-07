@@ -96,8 +96,8 @@ wxClientDC dc(this);
 	else pos.x = old_pos_X;
 
 	
-	if(texte_H != "") dc.DrawText(texte_H.GetData(), pos.x, pos.y);
-	if(texte_L != "")
+	if( !texte_H.IsEmpty()) dc.DrawText(texte_H.GetData(), pos.x, pos.y);
+	if( !texte_L.IsEmpty())
 	{
 		DrawSize = GetClientSize();
 		pos.y = DrawSize.y - FontSizeInPixels.y;

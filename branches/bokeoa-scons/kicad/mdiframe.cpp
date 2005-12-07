@@ -30,7 +30,7 @@ WinEDA_MainFrame::WinEDA_MainFrame(WinEDA_App * eda_app,
 wxString msg;
 wxSize clientsize;
 
-	m_FrameName = "KicadFrame";
+	m_FrameName = wxT("KicadFrame");
 	m_VToolBar = NULL;
 	m_LeftWin = NULL;
 	m_BottomWin = NULL;
@@ -66,7 +66,7 @@ int dims[3] = { -1, -1, 100};
 	m_BottomWin->SetAlignment(wxLAYOUT_BOTTOM);
 	m_BottomWin->SetSashVisible(wxSASH_TOP, TRUE);
 
-	m_DialogWin = new wxTextCtrl(m_BottomWin, ID_MAIN_DIALOG, "",
+	m_DialogWin = new wxTextCtrl(m_BottomWin, ID_MAIN_DIALOG, wxEmptyString,
 				wxDefaultPosition, wxDefaultSize,
 				wxTE_MULTILINE|
 				wxSUNKEN_BORDER|
@@ -81,9 +81,9 @@ int dims[3] = { -1, -1, 100};
 
 	CreateCommandToolbar();
 
-char line[1024];
+wxString line;
 	msg = wxGetCwd();
-	sprintf(line,_("Ready\nWorking dir: %s\n"), msg.GetData());
+	line.Printf( _("Ready\nWorking dir: %s\n"), msg.GetData());
 	PrintMsg(line);
 }
 
@@ -121,14 +121,14 @@ int dy = 0;
 	GetClientSize(&w, &h);
 
 	switch (event.GetId())
-		{
+	{
 		case ID_LEFT_FRAME:
 			{
 			m_LeftWin->SetDefaultSize(wxSize(event.GetDragRect().width, -1));
             break;
 			}
 
-	  case ID_BOTTOM_FRAME:
+		case ID_BOTTOM_FRAME:
 			{
 			dy = event.GetDragRect().height;
 			m_BottomWin->SetDefaultSize(wxSize(-1, dy));
@@ -136,14 +136,14 @@ int dy = 0;
 			break;
 			}
 
-	  case ID_MAIN_COMMAND:
+		case ID_MAIN_COMMAND:
 			{
 			dy = event.GetDragRect().height;
 			m_CommandWin->SetDefaultSize(wxSize(-1, dy));
 			m_BottomWin->SetDefaultSize(wxSize(-1, h - dy));
 			break;
 			}
-		}
+	}
 	wxLayoutAlgorithm layout;
     layout.LayoutFrame(this);
 
@@ -156,7 +156,7 @@ void WinEDA_MainFrame::OnSize(wxSizeEvent& event)
 /************************************************/
 {
 	if (m_CommandWin && m_BottomWin)
-		{
+	{
 		int w, h, dy;
 		wxSize bsize, hsize;
 		GetClientSize(&w, &h);
@@ -164,13 +164,13 @@ void WinEDA_MainFrame::OnSize(wxSizeEvent& event)
 		hsize = m_CommandWin->GetSize();
 		dy = h - hsize.y;
 		if ( dy < 50 )
-			{
+		{
 			dy = 50;
 			hsize.y = h - dy;
-			}
+		}
 		m_CommandWin->SetDefaultSize(wxSize(-1, hsize.y));
 		m_BottomWin->SetDefaultSize(wxSize(-1, dy));
-		};
+	};
 
 	wxLayoutAlgorithm layout;
 	layout.LayoutFrame(this);
@@ -242,7 +242,7 @@ int id = event.GetId();
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_MainFrame::Process_Special_Functions error");
+			DisplayError(this, wxT("WinEDA_MainFrame::Process_Special_Functions error"));
 			break;
 		}
 }
@@ -285,29 +285,29 @@ wxString FullFileName = m_PrjFileName;
 		case ID_TO_EDITOR:
 		{
 			wxString editorname = GetEditorName();
-			if ( editorname != "" )
-				ExecuteFile(this, editorname, "");
+			if ( !editorname.IsEmpty() )
+				ExecuteFile(this, editorname, wxEmptyString);
 		}
 			break;
 
 		case ID_BROWSE_AN_SELECT_FILE:
 			{
 			FullFileName = EDA_FileSelector( _("Load file:"),
-					".",		  	/* Chemin par defaut */
-					"",				/* nom fichier par defaut */
-					".*",			/* extension par defaut */
-					"*.*",			/* Masque d'affichage */
+					wxT("."),		  	/* Chemin par defaut */
+					wxEmptyString,		/* nom fichier par defaut */
+					wxT(".*"),			/* extension par defaut */
+					wxT("*.*"),			/* Masque d'affichage */
 					this,
 					wxOPEN,
 					TRUE
 					);
-			if ( FullFileName != "" )
+			if ( ! FullFileName.IsEmpty() )
 				{
 				wxString fullnamewithquotes;
-				fullnamewithquotes = "\"" + FullFileName;
-				fullnamewithquotes += "\"";
+				fullnamewithquotes = wxT("\"") + FullFileName;
+				fullnamewithquotes += wxT("\"");
 				wxString editorname = GetEditorName();
-				if ( editorname != "" )
+				if ( ! editorname.IsEmpty() )
 					ExecuteFile(this, editorname, fullnamewithquotes);
 				}
 			}
@@ -317,25 +317,25 @@ wxString FullFileName = m_PrjFileName;
 		{
 			wxString mask;
 #ifdef __WINDOWS__
-			mask = "*.exe";
+			mask = wxT("*.exe");
 #endif
 			FullFileName = EDA_FileSelector( _("Prefered Editor:"),
 					wxPathOnly(g_EditorName),	/* Default path */
 					g_EditorName,			/* default filename */
-					"",						/* default filename extension */
-					mask,						/* filter for filename list */
+					wxEmptyString,			/* default filename extension */
+					mask,					/* filter for filename list */
 					NULL,					/* parent frame */
 					wxOPEN,					/* wxSAVE, wxOPEN ..*/
 					TRUE					/* true = keep the current path */
 					);
-			if ( (FullFileName != "" ) && EDA_Appl->m_EDA_CommonConfig)
+			if ( ( !FullFileName.IsEmpty() ) && EDA_Appl->m_EDA_CommonConfig)
 			{
 				g_EditorName = FullFileName;
-				EDA_Appl->m_EDA_CommonConfig->Write("Editor", g_EditorName);
+				EDA_Appl->m_EDA_CommonConfig->Write(wxT("Editor"), g_EditorName);
 			}
 		}
 			break;
-		default: DisplayError(this, "WinEDA_MainFrame::Process_Fct Internal Error");
+		default: DisplayError(this, wxT("WinEDA_MainFrame::Process_Fct Internal Error"));
 			break;
 		}
 

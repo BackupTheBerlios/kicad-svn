@@ -257,7 +257,7 @@ int ItemsCount = 0, MustDoPlace = 0;
 	switch( GetScreen()->BlockLocate.m_Command )
 		{
 		case  BLOCK_IDLE:
-			DisplayError(this, "Error in HandleBlockPLace");
+			DisplayError(this, wxT("Error in HandleBlockPLace") );
 			break;
 
 		case BLOCK_DRAG: /* Drag */
@@ -325,7 +325,7 @@ int ItemsCount = 0, MustDoPlace = 0;
 		GetScreen()->ManageCurseur = NULL;
 		GetScreen()->ForceCloseManageCurseur = NULL;
 		GetScreen()->m_CurrentItem = NULL;
-		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, "" );
+		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, wxEmptyString );
 		DrawPanel->Refresh(TRUE);
 	}
 
@@ -348,7 +348,7 @@ bool err = FALSE;
 	if(GetScreen()->ManageCurseur == NULL)
 	{
 		err = TRUE;
-		DisplayError(this, "HandleBlockPLace : ManageCurseur = NULL" );
+		DisplayError(this, wxT("HandleBlockPLace : ManageCurseur = NULL") );
 	}
 
 	GetScreen()->BlockLocate.m_State = STATE_BLOCK_STOP;
@@ -403,7 +403,7 @@ bool err = FALSE;
 	GetScreen()->m_CurrentItem = NULL;
 	DrawPanel->Refresh(TRUE);
 
-	SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, "" );
+	SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, wxEmptyString );
 }
 
 

@@ -100,11 +100,11 @@ TRACK * NewTrack;
 		{
 		case TYPETRACK:
 		case TYPEVIA:
-			DisplayActivity(PerCent, "Tracks:" );
+			DisplayActivity(PerCent, wxT("Tracks:") );
 			break;
 
 		case TYPEZONE:
-			DisplayActivity(PerCent, "Zones:" );
+			DisplayActivity(PerCent, wxT("Zones:") );
 			break;
 		}
 #endif
@@ -155,17 +155,17 @@ TRACK * NewTrack;
 				{
 				case TYPETRACK:
 				case TYPEVIA:
-					DisplayActivity(PerCent, "Tracks:" );
+					DisplayActivity(PerCent, wxT("Tracks:") );
 					break;
 
 				case TYPEZONE:
-					DisplayActivity(PerCent, "Zones:" );
+					DisplayActivity(PerCent, wxT("Zones:") );
 					break;
 				}
 #endif
 			}
 		}
-	DisplayError(this, "Fin de fichier inattendue");
+	DisplayError(this, _("Error: Unexpected end of file !") );
 	return(-ii);
 }
 
@@ -294,7 +294,7 @@ BASE_SCREEN * screen = m_CurrentScreen;
 int WinEDA_BasePcbFrame::ReadSetup(FILE * File, int * LineNum)
 /*************************************************************/
 {
-char Line[256], *data;
+char Line[1024], *data;
 
 	while(  GetLine(File, Line, LineNum ) != NULL )
 	{
@@ -560,15 +560,15 @@ bool WriteSheetDescr(BASE_SCREEN * screen, FILE * File)
 
 	fprintf(File,"$SHEETDESCR\n");
 	fprintf(File,"Sheet %s %d %d\n",
-					sheet->m_Name.GetData(), sheet->m_Size.x,sheet->m_Size.y);
-	fprintf(File,"Title \"%s\"\n",screen->m_Title.GetData());
-	fprintf(File,"Date \"%s\"\n",screen->m_Date.GetData());
-	fprintf(File,"Rev \"%s\"\n",screen->m_Revision.GetData());
-	fprintf(File,"Comp \"%s\"\n",screen->m_Company.GetData());
-	fprintf(File,"Comment1 \"%s\"\n",screen->m_Commentaire1.GetData());
-	fprintf(File,"Comment2 \"%s\"\n",screen->m_Commentaire2.GetData());
-	fprintf(File,"Comment3 \"%s\"\n",screen->m_Commentaire3.GetData());
-	fprintf(File,"Comment4 \"%s\"\n",screen->m_Commentaire4.GetData());
+					CONV_TO_UTF8(sheet->m_Name), sheet->m_Size.x,sheet->m_Size.y);
+	fprintf(File,"Title \"%s\"\n", CONV_TO_UTF8(screen->m_Title));
+	fprintf(File,"Date \"%s\"\n", CONV_TO_UTF8(screen->m_Date));
+	fprintf(File,"Rev \"%s\"\n", CONV_TO_UTF8(screen->m_Revision));
+	fprintf(File,"Comp \"%s\"\n", CONV_TO_UTF8(screen->m_Company));
+	fprintf(File,"Comment1 \"%s\"\n", CONV_TO_UTF8(screen->m_Commentaire1));
+	fprintf(File,"Comment2 \"%s\"\n", CONV_TO_UTF8(screen->m_Commentaire2));
+	fprintf(File,"Comment3 \"%s\"\n", CONV_TO_UTF8(screen->m_Commentaire3));
+	fprintf(File,"Comment4 \"%s\"\n", CONV_TO_UTF8(screen->m_Commentaire4));
 
 	fprintf(File,"$EndSHEETDESCR\n\n");
 	return TRUE;
@@ -594,7 +594,7 @@ char Line[1024], buf[1024], * text;
 			int ii;
 			for( ii = 0; sheet != NULL; ii++, sheet = SheetList[ii])
 				{
-				if( stricmp(sheet->m_Name, text) == 0 )
+				if( stricmp( CONV_TO_UTF8(sheet->m_Name), text) == 0 )
 					{
 					screen->m_CurrentSheet = sheet;
 					if ( sheet == &g_Sheet_user )
@@ -613,56 +613,56 @@ char Line[1024], buf[1024], * text;
 		if( strnicmp(Line,"Title",2) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Title = buf;
+			screen->m_Title = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Date",2) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Date = buf;
+			screen->m_Date = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Rev",2) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Revision = buf;
+			screen->m_Revision = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Comp",4) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Company = buf;
+			screen->m_Company = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Comment1",8) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Commentaire1 = buf;
+			screen->m_Commentaire1 = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Comment2",8) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Commentaire2 = buf;
+			screen->m_Commentaire2 = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Comment3",8) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Commentaire3 = buf;
+			screen->m_Commentaire3 = CONV_FROM_UTF8(buf);
 			continue;
 			}
 
 		if( strnicmp(Line,"Comment4",8) == 0 )
 			{
 			ReadDelimitedText( buf, Line, 256);
-			screen->m_Commentaire4 = buf;
+			screen->m_Commentaire4 = CONV_FROM_UTF8(buf);
 			continue;
 			}
 		}
@@ -781,7 +781,7 @@ EQUIPOT * LastEquipot = NULL, * Equipot;
 			LastModule = Module;
 			nbmod++;
 #ifdef PCBNEW
-			DisplayActivity((int)( Pas * nbmod), "Modules:");
+			DisplayActivity((int)( Pas * nbmod), wxT("Modules:"));
 #endif
 			Module->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR);
 			continue;
@@ -916,7 +916,7 @@ EQUIPOT * LastEquipot = NULL, * Equipot;
 			}
 		}
 
-	Affiche_Message("");
+	Affiche_Message(wxEmptyString);
 
 #ifdef PCBNEW
 	Compile_Ratsnest(DC, TRUE);
@@ -968,7 +968,7 @@ MODULE * Module;
 	for(ii = 0; Equipot != NULL; ii++, Equipot = (EQUIPOT*) Equipot->Pnext)
 		{
 		Equipot->WriteEquipotDescr(File);
-		DisplayActivity((int)( Pas * ii ), "Equipot:" );
+		DisplayActivity((int)( Pas * ii ), wxT("Equipot:") );
 		}
 
 	Pas = 100.0; if(NbModules) Pas /= NbModules;
@@ -976,7 +976,7 @@ MODULE * Module;
 	for( ii = 1 ; Module != NULL; Module = (MODULE*)Module->Pnext, ii++)
 		{
 		Module->WriteDescr(File);
-		DisplayActivity((int)(ii * Pas) , "Modules:");
+		DisplayActivity((int)(ii * Pas) , wxT("Modules:"));
 		}
 
 
@@ -1008,7 +1008,7 @@ MODULE * Module;
 				break;
 
 			default:
-				DisplayError(this, "Type Draw Item Inconnu");
+				DisplayError(this, wxT("Unknown Draw Type"));
 				break;
 			}
 		}
@@ -1018,14 +1018,14 @@ MODULE * Module;
 	if( m_Pcb->m_NbSegmTrack) Pas /= (m_Pcb->m_NbSegmTrack);
 	fprintf(File,"$TRACK\n");
 	PtSegm = m_Pcb->m_Track;
-	DisplayActivity(0, "Tracks:");
+	DisplayActivity(0, wxT("Tracks:"));
 	for( nseg = 0, ii = 0; PtSegm != NULL; ii++, PtSegm = (TRACK*) PtSegm->Pnext)
 		{
 		((TRACK*) PtSegm)->WriteTrackDescr(File);
 		if ( nseg != (int)( ii * Pas) )
 			{
 			nseg = (int)( ii * Pas);
-			DisplayActivity(nseg, "Tracks:");
+			DisplayActivity(nseg, wxT("Tracks:"));
 			}
 		}
 	fprintf(File,"$EndTRACK\n");
@@ -1035,14 +1035,14 @@ MODULE * Module;
 	ii = m_Pcb->m_NbSegmZone;
 	Pas = 100.0; if(ii) Pas /= ii;
 	PtSegm = m_Pcb->m_Zone;
-	DisplayActivity(0, "Zones:");
+	DisplayActivity(0, wxT("Zones:"));
 	for( nseg = 0, ii = 0; PtSegm != NULL; ii++, PtSegm = (TRACK*) PtSegm->Pnext)
 		{
 		((TRACK*) PtSegm)->WriteTrackDescr(File);
 		if ( nseg != (int)( ii * Pas) )
 			{
 			nseg = (int)( ii * Pas);
-			DisplayActivity(nseg, "Zones:");
+			DisplayActivity(nseg, wxT("Zones:"));
 			}
 		}
 
@@ -1051,7 +1051,7 @@ MODULE * Module;
 
 	wxEndBusyCursor();
 
-	Affiche_Message("");
+	Affiche_Message(wxEmptyString);
 	return 1;
 }
 #endif

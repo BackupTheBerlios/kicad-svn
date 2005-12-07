@@ -52,7 +52,7 @@ void DeleteStructure( void * GenericStructure )
 EDA_BaseStruct * PtStruct, *PtNext, *PtBack;
 int IsDeleted;
 int typestruct;
-char Line[256];
+wxString msg;
 
 	PtStruct = (EDA_BaseStruct *) GenericStructure;
 	if( PtStruct == NULL) return ;
@@ -66,7 +66,7 @@ char Line[256];
 	switch( typestruct )
 		{
 		case TYPE_NOT_INIT:
-			DisplayError(NULL, "DeleteStruct: Type Structure Non Initialise");
+			DisplayError(NULL, wxT("DeleteStruct: Type Structure Non Initialise"));
 			break;
 
 		 case PCB_EQUIPOT_STRUCT_TYPE:
@@ -165,9 +165,9 @@ char Line[256];
 		case TYPEPCB:
 
 		default:
-			sprintf(Line," DeleteStructure: Type %d Inattendu",
+			msg.Printf( wxT(" DeleteStructure: Type %d Inattendu"),
 										PtStruct->m_StructType);
-			DisplayError(NULL, Line);
+			DisplayError(NULL, msg);
 			break;
 		}
 }

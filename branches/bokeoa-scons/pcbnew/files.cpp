@@ -27,14 +27,14 @@ wxString msg;
 	{
 		GetScreen()->ForceCloseManageCurseur(this, &dc);
 	}
-	SetToolID(0, wxCURSOR_ARROW,"");
+	SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 
 	switch (id)
 		{
 		case ID_MENU_LOAD_FILE:
 		case ID_LOAD_FILE:
 			Clear_Pcb(&dc, TRUE);
-			LoadOnePcbFile("", &dc, FALSE);
+			LoadOnePcbFile(wxEmptyString, &dc, FALSE);
 			ReCreateAuxiliaryToolbar();
 		break;
 
@@ -49,7 +49,7 @@ wxString msg;
 			else
 			{
 				filename = oldfilename;
-				ChangeFileNameExt(filename, ".000");
+				ChangeFileNameExt(filename, wxT(".000"));
 			}
 			if ( ! wxFileExists(filename) )
 			{
@@ -72,13 +72,13 @@ wxString msg;
 
 		case ID_MENU_APPEND_FILE:
 		case ID_APPEND_FILE:
-			LoadOnePcbFile("", &dc, TRUE);
+			LoadOnePcbFile(wxEmptyString, &dc, TRUE);
 			break;
 
 		case ID_MENU_NEW_BOARD:
 		case ID_NEW_BOARD:
 			Clear_Pcb(&dc, TRUE);
-			GetScreen()->m_FileName.Printf("%s%cnoname%s",
+			GetScreen()->m_FileName.Printf( wxT("%s%cnoname%s"),
 					wxGetCwd().GetData(), DIR_SEP, PcbExtBuffer.GetData());
 			SetTitle(GetScreen()->m_FileName);
 			break;
@@ -106,14 +106,14 @@ wxString msg;
 			break;
 
 		case ID_MENU_SAVE_BOARD_AS:
-			SavePcbFile("");
+			SavePcbFile(wxEmptyString);
 			break;
 
 		case ID_PCB_GEN_CMP_FILE:
 			RecreateCmpFileFromBoard();
 			break;
 
-		default: DisplayError(this, "File_io Internal Error"); break;
+		default: DisplayError(this, wxT("File_io Internal Error") ); break;
 		}
 }
 
@@ -131,9 +131,9 @@ int WinEDA_PcbFrame::LoadOnePcbFile(const wxString & FullFileName, wxDC * DC, bo
 */
 {
 int ii;
-char Line[1024];
 FILE * source;
-
+wxString msg;
+	
 	ActiveScreen = GetScreen();
 
 	if( GetScreen()->IsModify() &&  !Append )
@@ -147,25 +147,25 @@ FILE * source;
 
 	if( Append )
 		{
-		GetScreen()->m_FileName = "";
+		GetScreen()->m_FileName = wxEmptyString;
 		GetScreen()->SetModify();
 		m_Pcb->m_Status_Pcb = 0;
 		}
 
-	if( FullFileName == "")
+	if( FullFileName == wxEmptyString)
 		{
-		strcpy(Line,"*"); strcat ( Line,PcbExtBuffer);
+		msg = wxT("*") + PcbExtBuffer;
 		wxString FileName =
 			EDA_FileSelector(_("Board files:"),
-					"",						/* Chemin par defaut */
+					wxEmptyString,						/* Chemin par defaut */
 					GetScreen()->m_FileName,	 	/* nom fichier par defaut */
 					PcbExtBuffer,			/* extension par defaut */
-					Line,					/* Masque d'affichage */
+					msg,					/* Masque d'affichage */
 					this,
 					wxOPEN,
 					FALSE
 					);
-			if ( FileName == "" ) return FALSE;
+			if ( FileName == wxEmptyString ) return FALSE;
 			GetScreen()->m_FileName = FileName;
 		}
 
@@ -175,23 +175,23 @@ FILE * source;
 	/* Lecture Fichier PCB */
 	/////////////////////////
 
-	source = fopen(GetScreen()->m_FileName.GetData(),"rt");
+	source = wxFopen(GetScreen()->m_FileName,wxT("rt"));
 	if (source == NULL)
-		{
-		sprintf(cbuf,_("File <%s> not found"),GetScreen()->m_FileName.GetData()) ;
-		DisplayError(this, cbuf) ;
+	{
+		msg.Printf(_("File <%s> not found"),GetScreen()->m_FileName.GetData()) ;
+		DisplayError(this, msg) ;
 		return(0);
-		}
+	}
 
 
 	/* Lecture de l'entete et TEST si PCB format ASCII */
 	GetLine(source, cbuf, &ii );
 	if( strncmp( cbuf, "PCBNEW-BOARD",12) != 0)
-		{
+	{
 		fclose(source);
-		DisplayError(this, "Fichier de Type inconnu");
+		DisplayError(this, wxT("Unknown file type"));
 		return(0);
-		}
+	}
 
 	SetTitle(GetScreen()->m_FileName);
 	SetLastProject(GetScreen()->m_FileName);
@@ -219,7 +219,7 @@ FILE * source;
 	if(	Append )
 		{
 		GetScreen()->SetModify();
-		GetScreen()->m_FileName.Printf( "%s%cnoname%s",
+		GetScreen()->m_FileName.Printf( wxT("%s%cnoname%s"),
 			wxGetCwd().GetData(), DIR_SEP, PcbExtBuffer.GetData());
 		}
 
@@ -245,11 +245,11 @@ wxString old_name, FullFileName, msg;
 bool saveok = TRUE;
 FILE * dest;
 
-	if( FileName == "" )
+	if( FileName == wxEmptyString )
 		{
-		msg = "*" + PcbExtBuffer;
+		msg = wxT("*") + PcbExtBuffer;
 		FullFileName = EDA_FileSelector(_("Board files:"),
-					"",						/* Chemin par defaut */
+					wxEmptyString,						/* Chemin par defaut */
 					GetScreen()->m_FileName,	 	/* nom fichier par defaut */
 					PcbExtBuffer,			/* extension par defaut */
 					msg,					/* Masque d'affichage */
@@ -257,7 +257,7 @@ FILE * dest;
 					wxSAVE,
 					FALSE
 					);
-			if ( FullFileName == "" ) return FALSE;
+			if ( FullFileName == wxEmptyString ) return FALSE;
 			GetScreen()->m_FileName = FullFileName;
 		}
 	else GetScreen()->m_FileName = FileName;
@@ -269,11 +269,11 @@ FILE * dest;
 		}
 
 	/* Calcul du nom du fichier a creer */
-	FullFileName = MakeFileName("", GetScreen()->m_FileName, PcbExtBuffer);
+	FullFileName = MakeFileName(wxEmptyString, GetScreen()->m_FileName, PcbExtBuffer);
 
 	/* Calcul du nom du fichier de sauvegarde */
 	old_name = FullFileName;
-	ChangeFileNameExt(old_name,".000");
+	ChangeFileNameExt(old_name,wxT(".000"));
 
 	/* Changement du nom de l'ancien fichier s'il existe */
 	if ( wxFileExists(FullFileName) )
@@ -290,11 +290,11 @@ FILE * dest;
 
 	else
 		{
-		old_name = ""; saveok = FALSE;
+		old_name = wxEmptyString; saveok = FALSE;
 		}
 
 	/* Sauvegarde de l'ancien fichier */
-	dest = fopen(FullFileName.GetData(),"wt");
+	dest = wxFopen(FullFileName, wxT("wt"));
 	if (dest == 0)
 		{
 		msg = _("Unable to create ") + FullFileName;
@@ -316,14 +316,14 @@ FILE * dest;
 	if( saveok )
 	{
 		msg = _("Backup file: ") + old_name;
-		Affiche_1_Parametre(this, 1,msg, "", CYAN);
+		Affiche_1_Parametre(this, 1,msg, wxEmptyString, CYAN);
 	}
 
 	if ( dest )	msg = _("Write Board file: ");
 	else msg = _("Failed to create ");
 	msg += FullFileName;
 
-	Affiche_1_Parametre(this, 1,"",msg, CYAN);
+	Affiche_1_Parametre(this, 1,wxEmptyString,msg, CYAN);
 	g_SaveTime = time(NULL);	/* Reset delai pour sauvegarde automatique */
 	GetScreen()->ClrModify();
 	return TRUE;

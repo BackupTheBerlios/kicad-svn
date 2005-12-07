@@ -105,12 +105,10 @@ wxMenuBar * menuBar = GetMenuBar();
 			_("&Module report"), _("Create a pcb report (footprint report)") );
 	    item->SetBitmap(tools_xpm);
 		submenuexport->Append(item);
-		item = new wxMenuItem(m_FilesMenu, ID_GEN_EXPORT_FILE, _("E&xport"), _("Export board"),
-					wxITEM_NORMAL, submenuexport);
-	    item->SetBitmap(export_xpm);
-		m_FilesMenu->Append(item);
+		ADD_MENUITEM_WITH_HELP_AND_SUBMENU(m_FilesMenu, submenuexport,
+			ID_GEN_EXPORT_FILE, _("E&xport"), _("Export board"), export_xpm);
 
-		// Add archine footprints menu
+		// Add archive footprints menu
 		m_FilesMenu->AppendSeparator();
 		wxMenu * submenuarchive = new wxMenu();
 		item = new wxMenuItem(submenuarchive, ID_MENU_ARCHIVE_NEW_MODULES,
@@ -123,12 +121,10 @@ wxMenuBar * menuBar = GetMenuBar();
 				_("Archive all footprints  in a library(old lib will be deleted)") );
 	    item->SetBitmap(library_xpm);
 		submenuarchive->Append(item);
-		item = new wxMenuItem(m_FilesMenu, ID_MENU_ARCHIVE_MODULES,
+		ADD_MENUITEM_WITH_HELP_AND_SUBMENU(m_FilesMenu, submenuarchive,
+				ID_MENU_ARCHIVE_MODULES,
 				_("Archive footprints"),
-				_("Archive or Add footprints in a library file"),
-				wxITEM_NORMAL, submenuarchive);
-	    item->SetBitmap(library_xpm);
-		m_FilesMenu->Append(item);
+				_("Archive or Add footprints in a library file"), library_xpm);
 
 		// Add exit menu
 		m_FilesMenu->AppendSeparator();
@@ -142,7 +138,7 @@ wxMenuBar * menuBar = GetMenuBar();
 		int max_file = m_Parent->m_LastProjectMaxCount;
 		for ( ii = 0; ii < max_file; ii++ )
 		{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 		}
 
@@ -304,7 +300,7 @@ wxMenuBar * menuBar = GetMenuBar();
 		}
 		for ( ii = 0; ii < max_file; ii++ )
 		{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 		}
 	}

@@ -434,7 +434,7 @@ int dx, dy;
 
 			case DRAW_PICK_ITEM_STRUCT_TYPE : break;
 
-			default: DisplayError(NULL, "Internal Err: StructType ??"); break;
+			default: DisplayError(NULL, wxT("Internal Err: StructType ??")); break;
 			}
 		}
 	return FALSE;
@@ -451,7 +451,7 @@ bool DrawStructInBox(int x1, int y1, int x2, int y2,
 {
 int i, *Points, xt1, yt1, xt2, yt2, NumOfPoints2;
 int dx, dy;
-char Line[80];
+wxString msg;
 
 	switch (DrawStruct->m_StructType)
 		{
@@ -600,10 +600,10 @@ char Line[80];
 		case DRAW_PICK_ITEM_STRUCT_TYPE : break;
 
 		default:
-			sprintf(Line,
-					"DrawStructInBox: Internal Err: StructType ? (=%d)",
+			msg.Printf(
+					wxT("DrawStructInBox: Internal Err: StructType ? (=%d)"),
 					DrawStruct->m_StructType );
-			DisplayError(NULL, Line );
+			DisplayError(NULL, msg );
 			break;
 		}
 
@@ -723,7 +723,7 @@ int seuil;
 
 	if ( LibEntry->Type != ROOT )
 		{
-		DisplayError(NULL, "Error in LocateDrawItem: Entry is ALIAS");
+		DisplayError(NULL, wxT("Error in LocateDrawItem: Entry is ALIAS"));
 		return(NULL);
 		}
 
@@ -815,7 +815,7 @@ int seuil;
 				{
 				LibDrawText * Text = (LibDrawText *) DrawItem;
 				if( (masque & LOCATE_COMPONENT_GRAPHIC_TEXT_DRAW_TYPE) == 0) break;
-				ii = strlen(Text->m_Text); if ( ii < 2 ) ii = 2;
+				ii = Text->m_Text.Len(); if ( ii < 2 ) ii = 2;
 				dx = (Text->m_Size.x * ii) / 2;
 				dy = Text->m_Size.y / 2;
 				if(Text->m_Horiz == TEXT_ORIENT_VERT)
@@ -967,7 +967,7 @@ int x1, y1, x2, y2;
 
 	if ( Entry->Type != ROOT )
 	{
-		DisplayError(NULL, "LocatePin() error: Entry is ALIAS");
+		DisplayError(NULL, wxT("LocatePin() error: Entry is ALIAS"));
 		return(NULL);
 	}
 
@@ -1052,16 +1052,16 @@ EDA_SchComponentStruct * LibItem = NULL;
 LibDrawPin * Pin = NULL;
 
 	for(DrawStruct = DrawList; DrawStruct != NULL; DrawStruct = DrawStruct->Pnext )
-		{
+	{
 		if( DrawStruct->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 					continue;
 		LibItem = (EDA_SchComponentStruct *) DrawStruct;
-		Entry = FindLibPart( LibItem->m_ChipName, "", FIND_ROOT);
+		Entry = FindLibPart( LibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 		if( Entry == NULL ) continue;
 		Pin = (LibDrawPin *) LocatePin(RefPos, Entry, LibItem->m_Multi,
 							LibItem->m_Convert, LibItem);
 		if( Pin ) break;
-		}
+	}
 	if ( libpart ) *libpart = LibItem;
 	return Pin;
 }

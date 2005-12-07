@@ -368,7 +368,6 @@ void WinEDA_SchematicFrame::RepeatDrawItem(wxDC *DC)
 		Les labels termines par un nombre seront incrementes 
 */
 {
-char Line[256];
 int ox = 0, oy = 0;
 
 	if( g_ItemToRepeat == NULL ) return;
@@ -398,9 +397,7 @@ int ox = 0, oy = 0;
 			STRUCT->m_Pos.x += g_RepeatStep.x; ox = STRUCT->m_Pos.x;
 			STRUCT->m_Pos.y += g_RepeatStep.y; oy = STRUCT->m_Pos.y;
 			/*** Increment du numero de label ***/
-			strcpy(Line,STRUCT->m_Text.GetData());
-			IncrementLabelMember(Line);
-			STRUCT->m_Text = Line;
+			IncrementLabelMember(STRUCT->m_Text);
 			break;
 
  
@@ -411,9 +408,7 @@ int ox = 0, oy = 0;
 			STRUCT->m_Pos.x += g_RepeatStep.x; ox = STRUCT->m_Pos.x;
 			STRUCT->m_Pos.y += g_RepeatStep.y; oy = STRUCT->m_Pos.y;
 			/*** Increment du numero de label ***/
-			strcpy(Line,STRUCT->m_Text.GetData());
-			IncrementLabelMember(Line);
-			STRUCT->m_Text = Line;
+			IncrementLabelMember(STRUCT->m_Text);
 			break;
 
 
@@ -424,9 +419,7 @@ int ox = 0, oy = 0;
 			STRUCT->m_Pos.x += g_RepeatStep.x; ox = STRUCT->m_Pos.x;
 			STRUCT->m_Pos.y += g_RepeatStep.y; oy = STRUCT->m_Pos.y;
 			/*** Increment du numero de label ***/
-			strcpy(Line,STRUCT->m_Text.GetData());
-			IncrementLabelMember(Line);
-			STRUCT->m_Text = Line;
+			IncrementLabelMember(STRUCT->m_Text);
 			break;
 
 		case DRAW_SEGMENT_STRUCT_TYPE:
@@ -449,7 +442,7 @@ int ox = 0, oy = 0;
 
 		default:
 			g_ItemToRepeat = NULL;
-			DisplayError(this, "Repeat Type Error", 10);
+			DisplayError(this, wxT("Repeat Type Error"), 10);
 			break;
 		}
 
@@ -466,22 +459,26 @@ int ox = 0, oy = 0;
 
 
 /******************************************/
-void IncrementLabelMember(char * Line)
+void IncrementLabelMember(wxString & name)
 /******************************************/
 /* Routine incrementant les labels, c'est a dire pour les textes finissant
 par un nombre, ajoutant <RepeatDeltaLabel> a ce nombre
 */
 {
-char * strnum;
-int ii;
+int ii, nn;
+long number = 0;
+	
+ 	ii = name.Len() - 1; nn = 0;
+	if( !isdigit(name.GetChar(ii)) ) return;
 
- 	strnum = Line + strlen(Line) - 1;
-	if( !isdigit(*strnum) ) return;
-
-	while( (strnum >= Line) && isdigit(*strnum) ) strnum--;
-	strnum++;	/* pointe le debut de la chaine des digits */
-	ii = atoi(strnum) + g_RepeatDeltaLabel;
-	sprintf(strnum, "%d", ii);
+	while( (ii > 0) && isdigit(name.GetChar(ii)) ) { ii--; nn++ ; }
+	ii++;	/* digits are starting at ii position */
+wxString litt_number = name.Right(nn);
+	if ( litt_number.ToLong(&number) )
+	{
+		number += g_RepeatDeltaLabel;
+		name.Remove(ii); name << number;
+	}
 }
 
 /***************************************************************************/

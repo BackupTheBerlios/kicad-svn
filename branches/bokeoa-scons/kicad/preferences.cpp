@@ -43,7 +43,7 @@ int id = event.GetId();
 			break;
 		}
 
-		default: DisplayError(this, "WinEDA_MainFrame::Process_Preferences Internal Error");
+		default: DisplayError(this, wxT("WinEDA_MainFrame::Process_Preferences Internal Error") );
 			break;
 	}
 }

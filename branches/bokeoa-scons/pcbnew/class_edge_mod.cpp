@@ -295,7 +295,7 @@ int  NbLigne = 0, ii, *ptr;
 			break;
 
 		default:
-			DisplayError(NULL, "Type Edge Module inconnu");
+			DisplayError(NULL, wxT("Type Edge Module inconnu") );
 			break;
 	}
 
@@ -339,7 +339,7 @@ char Buf[1024];
 			break;
 		default:
 			wxString msg;
-			msg.Printf( "Unknown EDGE_MODULE type <%s>" , Line);
+			msg.Printf( wxT("Unknown EDGE_MODULE type <%s>") , Line);
 			DisplayError(NULL, msg);
 			error = 1;
 			break;

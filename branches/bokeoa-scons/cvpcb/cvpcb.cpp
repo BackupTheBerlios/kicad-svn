@@ -17,7 +17,7 @@
 
 #include "id.h"
 
-wxString Main_Title = "Cvpcb 16-sep-05";
+wxString Main_Title = wxT("Cvpcb 01-dec-05");
 
 // Create a new application object
 IMPLEMENT_APP(WinEDA_App)
@@ -34,7 +34,7 @@ wxString msg;
 wxString currCWD = wxGetCwd();
 
 	EDA_Appl = this;
-	InitEDA_Appl("cvpcb");
+	InitEDA_Appl( wxT("cvpcb") );
 
     if ( m_Checker && m_Checker->IsAnotherRunning() ) 
     { 
@@ -45,7 +45,7 @@ wxString currCWD = wxGetCwd();
 	GetSettings();					// read current setup
 
 	wxSetWorkingDirectory(currCWD); // mofifie par GetSetting
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 
 	if(argc > 1 )
 		{
@@ -53,7 +53,7 @@ wxString currCWD = wxGetCwd();
 		NetNameBuffer = argv[1];
 		}
 
-	if (NetInNameBuffer != "" )
+	if ( ! NetInNameBuffer.IsEmpty() )
 		wxSetWorkingDirectory( wxPathOnly(NetInNameBuffer) );
 	DrawBgColor = BLACK;
 
@@ -61,7 +61,7 @@ wxString currCWD = wxGetCwd();
 
 	m_CvpcbFrame = new WinEDA_CvpcbFrame(this, Main_Title);
 
-	msg.Printf( "Modules: %d", nblib);
+	msg.Printf( wxT("Modules: %d"), nblib);
 	m_CvpcbFrame->SetStatusText(msg,2);
 
 	// Show the frame
@@ -72,7 +72,7 @@ wxString currCWD = wxGetCwd();
 	listlib();
 	m_CvpcbFrame->BuildModListBox();
 
-	if( NetInNameBuffer != "" ) /* nom de fichier passe a la commande */
+	if( ! NetInNameBuffer.IsEmpty() ) /* nom de fichier passe a la commande */
 		{
 		FFileName = MakeFileName(NetDirBuffer,
 							NetInNameBuffer, NetInExtBuffer);
@@ -81,7 +81,7 @@ wxString currCWD = wxGetCwd();
 		}
 	else		/* Mise a jour du titre de la fenetre principale */
 		{
- 		msg.Printf( "%s {%s%c} [no file]",
+ 		msg.Printf( wxT("%s {%s%c} [no file]"),
 			Main_Title.GetData(), wxGetCwd().GetData(), DIR_SEP);
 		m_CvpcbFrame->SetTitle(msg);
 		}

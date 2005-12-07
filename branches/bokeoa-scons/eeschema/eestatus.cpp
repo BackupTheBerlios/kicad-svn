@@ -92,7 +92,7 @@ void WinEDA_SchematicFrame::InstallConfigFrame(const wxPoint & pos)
 /********************************************************************/
 WinEDA_ConfigFrame::WinEDA_ConfigFrame(WinEDA_SchematicFrame *parent,
 		const wxPoint& framepos):
-		wxDialog(parent, -1, "", framepos, wxSize(X_SIZE, Y_SIZE),
+		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(X_SIZE, Y_SIZE),
 		DIALOG_STYLE )
 /*****************************************************************/
 /* Constructeur de WinEDA_ConfigFrame: la fenetre de config des librairies
@@ -199,7 +199,7 @@ void WinEDA_ConfigFrame::ChangeSetup(void)
 /*******************************************/
 {
 	g_UserLibDirBuffer = LibDirCtrl->GetData();
-	SetRealLibraryPath("library");
+	SetRealLibraryPath( wxT("library") );
 }
 
 
@@ -245,10 +245,10 @@ wxString FullLibName,ShortLibName, Mask;
 		if( g_LibName_List.GetCount() != 0 ) ii ++;	/* Add after selection */
 	}
 
-	Mask = "*" + g_LibExtBuffer;
+	Mask = wxT("*") + g_LibExtBuffer;
 	FullLibName = EDA_FileSelector( _("Library files:"),
 				g_RealLibDirBuffer,		/* Chemin par defaut */
-				"",					/* nom fichier par defaut */
+				wxEmptyString,					/* nom fichier par defaut */
 				g_LibExtBuffer,		/* extension par defaut */
 				Mask,				/* Masque d'affichage */
 				this,
@@ -256,7 +256,7 @@ wxString FullLibName,ShortLibName, Mask;
 				TRUE
 				);
 
-	if ( FullLibName == "" ) return;
+	if ( FullLibName.IsEmpty() ) return;
 
 	ShortLibName = MakeReducedFileName(FullLibName,g_RealLibDirBuffer,g_LibExtBuffer);
 
@@ -297,7 +297,7 @@ void WinEDA_ConfigFrame::CreateListFormatsNetListes(const wxPoint & pos)
 
 {
 wxString Net_Select[] =
-	{"&PcbNew", "&OrcadPcb2", "&CadStar", "&Spice", "Other"};
+	{ wxT("&PcbNew"), wxT("&OrcadPcb2"), wxT("&CadStar"), wxT("&Spice"), wxT("Other")};
 
 	m_NetFormatBox = new wxRadioBox(this, FORMAT_NETLIST,
 						_("NetList Formats:"),

@@ -15,7 +15,7 @@
 #define LIB_VERSION_MINOR 3
 #define LIBFILE_IDENT "EESchema-LIBRARY Version"  /* Must be at the lib file start. */
 #define DOCFILE_IDENT "EESchema-DOCLIB  Version 2.0"  /* Must be at the doc file start. */
-#define DOC_EXT ".dcm"		/* extension des fichiers de documentation */
+#define DOC_EXT wxT(".dcm")		/* extension des fichiers de documentation */
 
 #define TARGET_PIN_DIAM 12		/* Diam cercle des extremites des pins */
 
@@ -90,20 +90,20 @@ typedef enum {		/* Type des Pins. si modif: modifier tableau des mgs suivant */
 } ElectricPinType;
 
 /* Messages d'affichage du type electrique */
-eda_global char * MsgPinElectricType[]
+eda_global wxChar * MsgPinElectricType[]
 #ifdef MAIN
 	= {
-	"input",
-	"output",
-	"BiDi",
-	"3state",
-	"passive",
-	"unspc",
-	"power_in",
-	"power_out",
-	"openCol",
-	"openEm",
-	"?????"
+	wxT("input"),
+	wxT("output"),
+	wxT("BiDi"),
+	wxT("3state"),
+	wxT("passive"),
+	wxT("unspc"),
+	wxT("power_in"),
+	wxT("power_out"),
+	wxT("openCol"),
+	wxT("openEm"),
+	wxT("?????")
 	}
 #endif
 	;
@@ -202,7 +202,8 @@ public:
 	void Display_Infos(WinEDA_DrawFrame * frame);
 	wxPoint ReturnPinEndPoint(void);
 	int ReturnPinDrawOrient(int TransMat[2][2]);
-	void ReturnPinStringNum(char * buffer);
+	void ReturnPinStringNum(wxString & buffer);
+	void SetPinNumFromString(wxString & buffer);
 	void DrawPinTexts(WinEDA_DrawPanel * panel, wxDC * DC,
 				wxPoint & pin_pos, int orient,
 				int TextInside, bool DrawPinNum, bool DrawPinName,
@@ -341,7 +342,7 @@ public:
 	LibrEntryOptions m_Options;	// special features (i.e. Entry is a POWER)
 
 public:
-	LibCmpEntry(LibrEntryType CmpType, const char * CmpName);
+	LibCmpEntry(LibrEntryType CmpType, const wxChar * CmpName);
 	virtual ~LibCmpEntry(void);
     bool WriteDescr( FILE * File );
 };
@@ -364,7 +365,7 @@ public:
 	long m_LastDate;				// Last change Date
 
 public:
-	EDA_LibComponentStruct( const char * CmpName);
+	EDA_LibComponentStruct( const wxChar * CmpName);
 	EDA_Rect GetBoundaryBox( int Unit, int Convert);	/* return Box around the part. */
 	~EDA_LibComponentStruct( void );
 	void SortDrawItems(void);
@@ -376,7 +377,7 @@ public:
 	wxString m_RootName;		/* Part name pour le composant de reference */
 
 public:
-	EDA_LibCmpAliasStruct( const char * CmpName, const char * CmpRootName);
+	EDA_LibCmpAliasStruct( const wxChar * CmpName, const wxChar * CmpRootName);
 	~EDA_LibCmpAliasStruct(void);
 };
 

@@ -200,9 +200,10 @@ public:
 	void Clear_D_CODE_Data(void);
 };
 
-eda_global char *g_GERBER_Tool_Type[6]
+eda_global wxChar *g_GERBER_Tool_Type[6]
 #ifdef MAIN
- = {"????","Rond","Rect","Line","Oval","Macro"}
+ = { wxT("????"), wxT("Rond"), wxT("Rect"), wxT("Line"), wxT("Oval"), wxT("Macro")
+	}
 #endif
 ;
 

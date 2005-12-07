@@ -104,8 +104,10 @@ int x, y;
 
 	// Grid:
 	pos.x = 10; pos.y = 10;
-wxString grid_select_inches[4] = { "0.005", "0.010", "0.025", "0.050" };
-wxString grid_select_mm[4] = { "0.156", "0.3125", "0.625", "1.27" };
+wxString grid_select_inches[4] =
+	{ wxT("0.005"), wxT("0.010"), wxT("0.025"), wxT("0.050") };
+wxString grid_select_mm[4] =
+	{ wxT("0.156"), wxT("0.3125"), wxT("0.625"), wxT("1.27") };
 	m_Grid = new wxRadioBox( this, ID_SELECT_GRID,
 			UnitMetric ? _("Grid (mm):") : _("Grid (inches):"),
 			pos, wxDefaultSize, 4,
@@ -118,7 +120,7 @@ wxString grid_select_mm[4] = { "0.156", "0.3125", "0.625", "1.27" };
 	// Options:
 wxString opt_select[3] = { _("Include Pads"), _("Thermal"), _("Exclude Pads") };
 	pos.x += x + 10;
-	m_FillOpt = new wxRadioBox( this, ID_SELECT_OPT, _("Grid:"),
+	m_FillOpt = new wxRadioBox( this, ID_SELECT_OPT, _("Pad options:"),
 			pos, wxDefaultSize, 3, opt_select, 1);
 	if ( Zone_Exclude_Pads)
 		{
@@ -216,8 +218,8 @@ wxString Msg( _("New zone segment width: ") );
 	if ( Zone == NULL ) return;
 
 	f_new_width = To_User_Unit(UnitMetric, Zone->m_Width, GetScreen()->GetInternalUnits());
-	Line.Printf("%.4f", f_new_width);
-	Msg += UnitMetric ? "(mm)" : "(\")";
+	Line.Printf(wxT("%.4f"), f_new_width);
+	Msg += UnitMetric ? wxT("(mm)") : wxT("(\")");
 	if ( Get_Message(Msg, Line, this) != 0 ) return;
 
 	w_tmp = g_DesignSettings.m_CurrentTrackWidth;
@@ -376,26 +378,26 @@ static void Display_Zone_Netname(WinEDA_PcbFrame *frame)
 */
 {
 EQUIPOT * pt_equipot;
-char line[1024];
+wxString line;
 
 	pt_equipot = frame->m_Pcb->m_Equipots;
 
 	if( g_HightLigth_NetCode > 0 )
-		{
+	{
 		for( ; pt_equipot != NULL; pt_equipot = (EQUIPOT*)pt_equipot->Pnext)
-			{
+		{
 			if( pt_equipot->m_NetCode == g_HightLigth_NetCode) break;
-			}
-		if( pt_equipot )
-			{
-			sprintf(line,"Zone: Net[%d] <%s>",g_HightLigth_NetCode,
-												pt_equipot->m_Netname.GetData());
-			}
-		else sprintf(line,"Zone: NetCode[%d], Equipot non trouvee",
-												g_HightLigth_NetCode);
 		}
+		if( pt_equipot )
+		{
+			line.Printf( wxT("Zone: Net[%d] <%s>"),g_HightLigth_NetCode,
+												pt_equipot->m_Netname.GetData());
+		}
+		else line.Printf( wxT("Zone: NetCode[%d], Equipot not found"),
+												g_HightLigth_NetCode);
+	}
 
-	else strcpy(line,"Zone: pas de net selectionne");
+	line  = _("Zone: No net selected");
 
 	frame->Affiche_Message(line);
 }
@@ -614,7 +616,7 @@ wxString msg;
 	MsgPanel->EraseMsgBox();
 	if ( m_Pcb->ComputeBoundaryBox() == FALSE )
 		{
-		DisplayError(this, "Board is empty!", 10);
+		DisplayError(this, wxT("Board is empty!"), 10);
 		return;
 		}
 wxPoint curs_pos = GetScreen()->m_Curseur;
@@ -656,16 +658,16 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	Nb_Sides = ONE_SIDE;
 	if( Board.InitBoard() < 0)
 		{
-		DisplayError(this, "Pas de memoire pour generation de zones");
+		DisplayError(this, wxT("Mo memory for creating zones"));
 		return;
 		}
 
-	sprintf(cbuf,"%d",Ncols);
-	Affiche_1_Parametre(this, 1, "Cols",cbuf,GREEN);
-	sprintf(cbuf,"%d",Nrows);
-	Affiche_1_Parametre(this, 7, "Lines",cbuf,GREEN);
- 	sprintf(cbuf,"%d", Board.m_MemSize / 1024 );
-	Affiche_1_Parametre(this, 14, "Mem(Ko)",cbuf,CYAN);
+	msg.Printf( wxT("%d"),Ncols);
+	Affiche_1_Parametre(this, 1, wxT("Cols"),msg,GREEN);
+	msg.Printf( wxT("%d"),Nrows);
+	Affiche_1_Parametre(this, 7, wxT("Lines"),msg,GREEN);
+ 	msg.Printf( wxT("%d"), Board.m_MemSize / 1024 );
+	Affiche_1_Parametre(this, 14, wxT("Mem(Ko)"),msg,CYAN);
 
 	lay_tmp_BOTTOM = Route_Layer_BOTTOM;
 	lay_tmp_TOP = Route_Layer_TOP;
@@ -679,7 +681,7 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 		pt_equipot = GetEquipot(m_Pcb, g_HightLigth_NetCode);
 		if( pt_equipot == NULL)
 			{
-			if(g_HightLigth_NetCode > 0 ) DisplayError(this, "Equipot Erreur");
+			if(g_HightLigth_NetCode > 0 ) DisplayError(this, wxT("Equipot Error"));
 			}
 		else msg = pt_equipot->m_Netname;
 		}
@@ -722,8 +724,8 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	ii = 1; jj = 1;
 	while( ii )
 		{
-		sprintf(cbuf,"%d", jj++ );
-		Affiche_1_Parametre(this, 50, "Iter.",cbuf,CYAN);
+		msg.Printf( wxT("%d"), jj++ );
+		Affiche_1_Parametre(this, 50, wxT("Iter."),msg,CYAN);
 		ii = Propagation(this);
 		}
 
@@ -746,9 +748,9 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 		faisant des obsctacles sur la matrice de routage */
 	ii = 0;
 	if( Zone_Exclude_Pads ) ii = FORCE_PADS;
-	Affiche_1_Parametre(this, 42, "GenZone","",RED);
+	Affiche_1_Parametre(this, 42, wxT("GenZone"),wxEmptyString,RED);
 	PlaceCells(m_Pcb, g_HightLigth_NetCode, ii);
-	Affiche_1_Parametre(this, -1, "",_("Ok"),RED);
+	Affiche_1_Parametre(this, -1, wxEmptyString, _("Ok"),RED);
 
 	/* Trace des limites de la zone sur la matrice de routage
 	(a pu etre detruit par PlaceCells()) : */
@@ -773,8 +775,8 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	ii = 1; jj = 1;
 	while( ii )
 		{
-		sprintf(cbuf,"%d", jj++ );
-		Affiche_1_Parametre(this, 50, "Iter.",cbuf,CYAN);
+		msg.Printf( wxT("%d"), jj++ );
+		Affiche_1_Parametre(this, 50, wxT("Iter."),msg,CYAN);
 		ii = Propagation(this);
 		}
 
@@ -825,9 +827,10 @@ int Ymin = frame->m_Pcb->m_BoundaryBox.m_Pos.y;
 SEGZONE * pt_track;
 int layer = frame->GetScreen()->m_Active_Layer;
 int nbsegm = 0;
-
+wxString msg;
+	
 	/* balayage Gauche-> droite */
-	Affiche_1_Parametre(frame, 64, "Segm H","0",BROWN);
+	Affiche_1_Parametre(frame, 64, wxT("Segm H"), wxT("0"),BROWN);
 	for( row = 0; row < Nrows ; row++)
 		{
 		old_cell = 0;
@@ -859,11 +862,11 @@ int nbsegm = 0;
 				}
 			old_cell = current_cell;
 			}
-		sprintf(cbuf,"%d",nbsegm);
-		Affiche_1_Parametre(frame, -1, "",cbuf,BROWN);
+		msg.Printf( wxT("%d"),nbsegm);
+		Affiche_1_Parametre(frame, -1, wxEmptyString,msg,BROWN);
 		}
 
-	Affiche_1_Parametre(frame, 72, "Segm V", "0",BROWN);
+	Affiche_1_Parametre(frame, 72, wxT("Segm V"), wxT("0"),BROWN);
 	for( col = 0; col < Ncols ; col++)
 		{
 		old_cell = 0;
@@ -894,8 +897,8 @@ int nbsegm = 0;
 				}
 			old_cell = current_cell;
 			}
-		sprintf(cbuf,"%d",nbsegm);
-		Affiche_1_Parametre(frame, -1, "",cbuf,BROWN);
+		msg.Printf( wxT("%d"),nbsegm);
+		Affiche_1_Parametre(frame, -1, wxEmptyString,msg,BROWN);
 		}
 }
 
@@ -928,10 +931,11 @@ long current_cell, old_cell_H;
 int long * pt_cell_V;
 int nbpoints = 0;
 #define NO_CELL_ZONE (HOLE | CELL_is_EDGE | CELL_is_ZONE)
-
-	Affiche_1_Parametre(frame, 57, "Passe",cbuf,CYAN);
+wxString msg;
+	
+	Affiche_1_Parametre(frame, 57, wxT("Detect"),msg,CYAN);
 	/* balayage Gauche-> droite de Haut->bas */
-	Affiche_1_Parametre(frame, -1, "","1",CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString, wxT("1"),CYAN);
 
 	// Reservation memoire pour stockahe de 1 ligne ou une colonne de cellules
 	nn = MAX(Nrows, Ncols) * sizeof(*pt_cell_V);
@@ -958,7 +962,7 @@ int nbpoints = 0;
 		}
 
 	/* balayage Droite-> gauche de Haut->bas */
-	Affiche_1_Parametre(frame, -1, "","2",CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString, wxT("2"),CYAN);
 	memset(pt_cell_V, 0, nn);
 	for( row = 0; row < Nrows ; row++)
 		{
@@ -981,7 +985,7 @@ int nbpoints = 0;
 		}
 
 	/* balayage Bas->Haut de Droite->gauche */
-	Affiche_1_Parametre(frame, -1, "","3",CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString, wxT("3"),CYAN);
 	memset(pt_cell_V, 0, nn);
 	for( col = Ncols -1 ; col >= 0 ; col--)
 		{
@@ -1004,7 +1008,7 @@ int nbpoints = 0;
 		}
 
 	/* balayage  Bas->Haut de Gauche->Droite*/
-	Affiche_1_Parametre(frame, -1, "","4",CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString, wxT("4"),CYAN);
 	memset(pt_cell_V, 0, nn);
 	for( col = 0 ; col < Ncols ; col++)
 		{
@@ -1047,13 +1051,14 @@ TRACK * pt_track, * loctrack;
 int angle;
 int cX, cY, dx, dy;
 int sommet[4][2];
-
+wxString msg;
+	
 	if( frame->m_Pcb->m_Zone == NULL ) return FALSE;	/* pas de zone */
 	if( frame->m_Pcb->m_Zone->m_TimeStamp != TimeStamp ) /* c'est une autre zone */
 		return FALSE;
 
 	/* Calcul du nombre de pads a traiter et affichage */
-	Affiche_1_Parametre(frame, 50, "NPads","    ",CYAN);
+	Affiche_1_Parametre(frame, 50, wxT("NPads"),wxT("    "),CYAN);
 	pt_liste_pad = (LISTE_PAD*) frame->m_Pcb->m_Pads;
 	for ( ii = 0, Npads = 0; ii < frame->m_Pcb->m_NbPads; ii++, pt_liste_pad++)
 		{
@@ -1064,10 +1069,10 @@ int sommet[4][2];
 		if( (pt_pad->m_Masque_Layer & g_TabOneLayerMask[layer]) == 0 ) continue;
 		Npads++;
 		}
-	sprintf(cbuf,"%d", Npads );
-	Affiche_1_Parametre(frame, -1, "",cbuf,CYAN);
+	msg.Printf( wxT("%d"), Npads );
+	Affiche_1_Parametre(frame, -1, wxEmptyString,msg,CYAN);
 
-	Affiche_1_Parametre(frame, 57, "Pads","     ",CYAN);
+	Affiche_1_Parametre(frame, 57, wxT("Pads"), wxT("     "),CYAN);
 	pt_liste_pad = (LISTE_PAD*) frame->m_Pcb->m_Pads;
 	for ( ii = 0, Npads = 0; ii < frame->m_Pcb->m_NbPads; ii++, pt_liste_pad++)
 		{
@@ -1079,8 +1084,8 @@ int sommet[4][2];
 		if( (pt_pad->m_Masque_Layer & g_TabOneLayerMask[layer]) == 0 ) continue;
 
 		/* traitement du pad en cours */
-		Npads++; sprintf(cbuf,"%d", Npads );
-		Affiche_1_Parametre(frame, -1, "",cbuf,CYAN);
+		Npads++; msg.Printf( wxT("%d"), Npads );
+		Affiche_1_Parametre(frame, -1, wxEmptyString,msg,CYAN);
 		cX = pt_pad->m_Pos.x;	cY = pt_pad->m_Pos.y;
 		dx = pt_pad->m_Size.x / 2;
 		dy = pt_pad->m_Size.y / 2;

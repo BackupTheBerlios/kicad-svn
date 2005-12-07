@@ -58,7 +58,7 @@ wxString FullFileName;
 
 	NewLib = NULL;
 
-	f = fopen(FullLibName, "rt");
+	f = wxFopen(FullLibName, wxT("rt") );
 	if (f == NULL)
 	{
 		wxString msg;
@@ -125,13 +125,13 @@ LibraryStruct *nextlib, *lib = g_LibraryList;
 	{
 		LibName = g_LibName_List[ii];
 
-		if( LibName == "") continue;
+		if( LibName.IsEmpty() ) continue;
 		FullLibName = MakeFileName(g_RealLibDirBuffer, LibName, g_LibExtBuffer);
-		msg = "Loading " + FullLibName;
+		msg = wxT("Loading ") + FullLibName;
 		if ( LoadLibraryName(frame, FullLibName, LibName) )
-			msg += " OK";
+			msg += wxT(" OK");
 		else
-			msg += " ->Error";
+			msg += wxT(" ->Error");
 		frame->PrintMsg( msg );
 	}
 	
@@ -151,7 +151,7 @@ LibraryStruct *nextlib, *lib = g_LibraryList;
 	for (ii = 0; ii < g_LibName_List.GetCount(); ii++)
 	{
 		if ( jj >= NumOfLibs ) break;
-		lib = FindLibrary(g_LibName_List[ii].GetData());
+		lib = FindLibrary(g_LibName_List[ii]);
 		if ( lib )
 		{
 			lib->m_Flags = 1;
@@ -187,7 +187,7 @@ LibraryStruct *Lib, *TempLib;
 
 	if (NumOfLibs == 0)
 	{
-		DisplayError(frame, "No libraries are loaded",20);
+		DisplayError(frame, wxT("No libraries are loaded"),20);
 		return;
 	}
 
@@ -213,17 +213,17 @@ LibraryStruct *Lib, *TempLib;
 }
 
 /******************************/
-const char **GetLibNames(void)
+const wxChar **GetLibNames(void)
 /******************************/
 /* Routine to return pointers to all library names.
 	User is responsible to deallocate memory
 */
 {
 int ii, NumOfLibs = NumOfLibraries();
-const char **Names;
+const wxChar **Names;
 LibraryStruct *Lib;
 
-	Names = (const char **) MyZMalloc(sizeof(char *) * (NumOfLibs + 1));
+	Names = (const wxChar **) MyZMalloc(sizeof(wxChar *) * (NumOfLibs + 1));
 	for (ii = 0, Lib = g_LibraryList; Lib != NULL; Lib = Lib->m_Pnext, ii++)
 	{
 		Names[ii] = Lib->m_Name.GetData();
@@ -236,11 +236,11 @@ LibraryStruct *Lib;
 
 /*****************************************************************************
 * Routine to compare two EDA_LibComponentStruct for the PriorQue module.		 *
-* Comparison is based on Part name.											 *
+* Comparison (insensitive  case) is based on Part name.											 *
 *****************************************************************************/
 int LibraryEntryCompare(EDA_LibComponentStruct *LE1, EDA_LibComponentStruct *LE2)
 {
-	return stricmp(LE1->m_Name.m_Text, LE2->m_Name.m_Text);
+	return LE1->m_Name.m_Text.CmpNoCase(LE2->m_Name.m_Text);
 }
 
 /*****************************************************************************
@@ -260,19 +260,19 @@ wxBusyCursor ShowWait;		// Display a Busy Cursor..
 
 	if ( GetLine(libfile, Line, &LineNum, sizeof(Line) ) == NULL)
 		{
-		msg = _("File <") + Library->m_Name + ("> is empty!");
+		msg = _("File <") + Library->m_Name + _("> is empty!");
 		DisplayError(frame, msg);
 		return NULL;
 		}
 
 	if( strnicmp(Line, LIBFILE_IDENT, 10) != 0)
 		{
-		msg = _("File <") + Library->m_Name + ("> is NOT EESCHEMA library!");
+		msg = _("File <") + Library->m_Name + _("> is NOT EESCHEMA library!");
 		DisplayError(frame, msg);
 		return NULL;
 		}
 
-	if ( Library ) Library->m_Header = Line;
+	if ( Library ) Library->m_Header = CONV_FROM_UTF8(Line);
 
 	PQInit(&PQ);
 	PQCompFunc((PQCompFuncType) LibraryEntryCompare);
@@ -321,14 +321,14 @@ int unused;
 char  *p, *Name, *Prefix = NULL;
 EDA_LibComponentStruct *LibEntry = NULL;
 bool Res;
-
+wxString Msg;
 
 	p = strtok(Line, " \t\r\n");
 
 	if (strcmp(p, "DEF") != 0)
 	{
-		sprintf(Line, "DEF command expected in line %d, aborted.", *LineNum);
-		DisplayError(frame, Line);
+		Msg.Printf( wxT("DEF command expected in line %d, aborted."), *LineNum);
+		DisplayError(frame, Msg);
 		return NULL;
 	}
 
@@ -349,8 +349,8 @@ bool Res;
 		(p = strtok(NULL, " \t\n")) == NULL ||		/* m_UnitCount: */
 		sscanf(p, "%d", &LibEntry->m_UnitCount) != 1 )
 		{
-			sprintf(Line, "Wrong DEF format in line %d, skipped.",*LineNum);
-			DisplayError(frame, Line);
+			Msg.Printf( wxT("Wrong DEF format in line %d, skipped."),*LineNum);
+			DisplayError(frame, Msg);
 			while (GetLine(f, Line, LineNum, 1024) )
 				{
 				p = strtok(Line, " \t\n");
@@ -365,19 +365,19 @@ bool Res;
 		LibEntry->m_DrawPinName = (drawname == 'N') ? FALSE : TRUE;
 		/* Copy part name and prefix. */
 		strupper(Name);
-		if(Name[0] != '~') LibEntry->m_Name.m_Text = Name;
+		if(Name[0] != '~') LibEntry->m_Name.m_Text = CONV_FROM_UTF8(Name);
 		else
 		{
-			LibEntry->m_Name.m_Text = &Name[1];
+			LibEntry->m_Name.m_Text = CONV_FROM_UTF8(&Name[1]);
 			LibEntry->m_Name.m_Attributs |= TEXT_NO_VISIBLE;
 		}
 
 		if (strcmp(Prefix, "~") == 0)
 		{
-			LibEntry->m_Prefix.m_Text = "";
+			LibEntry->m_Prefix.m_Text.Empty();
 			LibEntry->m_Prefix.m_Attributs |= TEXT_NO_VISIBLE;
 		}
-		else LibEntry->m_Prefix.m_Text = Prefix;
+		else LibEntry->m_Prefix.m_Text = CONV_FROM_UTF8(Prefix);
 			
 		// Copy optional infos
 		if ( (p = strtok(NULL, " \t\n")) != NULL ) // m_UnitSelectionLocked param
@@ -424,15 +424,14 @@ bool Res;
 
 		else
 		{
-			sprintf(Line, "Undefined command \"%s\" in line %d, skipped.", p, * LineNum);
-			frame->PrintMsg(Line);
+			Msg.Printf( wxT("Undefined command \"%s\" in line %d, skipped."), p, * LineNum);
+			frame->PrintMsg(Msg);
 		}
 
 		/* Fin analyse de la ligne ou block: test de l'info lue */
 		if (!Res)
 		{			/* Something went wrong there. */
-			char Msg[80];
-			sprintf(Msg," Error Line %d, Library not loaded", *LineNum);
+			Msg.Printf( wxT(" Error Line %d, Library not loaded"), *LineNum);
 			DisplayError(frame, Msg);
 			delete LibEntry;
 			return NULL;
@@ -458,7 +457,7 @@ char *p, Buffer[256], BufName[256],
 		 PinNum[256],
 		 chartmp[256], chartmp1[256],
 		ctmp;
-char MsgLine[256];
+wxString MsgLine;
 bool Error = FALSE;
 LibEDA_BaseStruct *Tail = NULL,
 					*New = NULL,
@@ -468,7 +467,7 @@ LibEDA_BaseStruct *Tail = NULL,
 		{
 		if (GetLine(f, Line, LineNum, 1024 ) == NULL)
 			{
-			DisplayError(frame, "File ended prematurely");
+			DisplayError(frame, wxT("File ended prematurely"));
 			return Head;
 			}
 
@@ -545,8 +544,8 @@ LibEDA_BaseStruct *Tail = NULL,
                 Text->m_Size.y = Text->m_Size.x;
 				if (!Error)
 					{	/* Convert '~' to spaces. */
-					Text->m_Text = Buffer;
-					Text->m_Text.Replace("~"," ");	// Les espaces sont restitués
+					Text->m_Text = CONV_FROM_UTF8(Buffer);
+					Text->m_Text.Replace(wxT("~"), wxT(" "));	// Les espaces sont restitués
 					}
 				}
 				break;
@@ -586,7 +585,7 @@ LibEDA_BaseStruct *Tail = NULL,
 				strncpy((char*)&Pin->m_PinNum, PinNum, 4);
 				Error = (i != 11 && i != 12);
 
-				Pin->m_PinName = BufName;
+				Pin->m_PinName = CONV_FROM_UTF8(BufName);
 
 				jj = *chartmp & 255;
 				switch(jj)
@@ -612,7 +611,7 @@ LibEDA_BaseStruct *Tail = NULL,
 					case 'E':
 						Pin->m_PinType = PIN_OPENEMITTER; break;
 					default:
-						 sprintf(MsgLine,"Unknown Pin Type [%c] line %d",
+						MsgLine.Printf( wxT("Unknown Pin Type [%c] line %d"),
 										jj, *LineNum);
 						 DisplayError(frame, MsgLine);
 					}
@@ -628,7 +627,7 @@ LibEDA_BaseStruct *Tail = NULL,
 						case 'L': Pin->m_PinShape |= LOWLEVEL_IN; break;
 						case 'V': Pin->m_PinShape |= LOWLEVEL_OUT; break;
 						default:
-							sprintf(MsgLine,"Unknown Pin Shape [%c] line %d",
+							MsgLine.Printf( wxT("Unknown Pin Shape [%c] line %d"),
 												Buffer[jj], *LineNum);
 							DisplayError(frame, MsgLine); break;
 						}
@@ -675,23 +674,23 @@ LibEDA_BaseStruct *Tail = NULL,
 				break;
 
 			default:
-				sprintf(Line, "Undefined DRAW command in line %d, aborted.",
+				MsgLine.Printf( wxT("Undefined DRAW command in line %d, aborted."),
 								*LineNum);
-				DisplayError(frame, Line);
+				DisplayError(frame, MsgLine);
 				return Head;
 			}
 
 		if (Error)
 			{
-			sprintf(Line, "Error in %c DRAW command in line %d, aborted.",
+			MsgLine.Printf( wxT("Error in %c DRAW command in line %d, aborted."),
 							Line[0], *LineNum);
-			DisplayError(frame, Line);
+			DisplayError(frame, MsgLine);
 			delete New;
 			/* FLush till end of draw: */
 			do  {
 				if (GetLine(f, Line, LineNum, 1024  ) == NULL)
 					{
-					DisplayError(frame, "File ended prematurely");
+					DisplayError(frame, wxT("File ended prematurely") );
 					return Head;
 					}
 				}  while (strncmp(Line, "ENDDRAW", 7) != 0);
@@ -715,7 +714,7 @@ LibEDA_BaseStruct *Tail = NULL,
 /*****************************************************************************
 * Routine to find the library given its name.								 *
 *****************************************************************************/
-LibraryStruct *FindLibrary(const char *Name)
+LibraryStruct *FindLibrary(const wxString & Name)
 {
 LibraryStruct *Lib = g_LibraryList;
 
@@ -811,7 +810,7 @@ LibDrawField * Field = NULL;
 	Field->m_Orient = orient;
 	if( draw == FALSE ) Field->m_Attributs |= TEXT_NO_VISIBLE;
 	Field->m_Size.x = Field->m_Size.y = size;
-	Field->m_Text = Text;
+	Field->m_Text= CONV_FROM_UTF8(Text);
 	Field->m_HJustify = hjustify;
 	Field->m_VJustify = vjustify;
 	return(TRUE);
@@ -825,14 +824,15 @@ static bool AddAliasNames(EDA_LibComponentStruct *LibEntry, char * line)
 	names are separated by spaces
 */
 {
-char * name;
-	
-	name = strtok(line, " \t\r\n");
+char * text;
+wxString name;	
+	text = strtok(line, " \t\r\n");
 
-	while ( name )
+	while ( text )
 	{
+		name = CONV_FROM_UTF8(text);
 		LibEntry->m_AliasList.Add(name);
-		name = strtok(NULL, " \t\r\n");
+		text = strtok(NULL, " \t\r\n");
 	}
 	return( TRUE );
 }
@@ -871,56 +871,58 @@ int LineNum = 0;
 char Line[1024], *Name, *Text;
 EDA_LibComponentStruct * Entry;
 FILE * f;
-
-	f = fopen(FullDocLibName.GetData(), "rt");
+wxString msg;
+	
+	f = wxFopen(FullDocLibName, wxT("rt") );
 	if (f == NULL) return(0);
 
 	if ( GetLine(f, Line, &LineNum, sizeof(Line) ) == NULL)
-		{	/* pas de lignes utiles */
+	{	/* pas de lignes utiles */
 		fclose(f);
 		return 0;
-		}
+	}
 
 	if( strnicmp(Line, DOCFILE_IDENT, 10) != 0)
-		{
-		DisplayError(frame, "File is NOT EESCHEMA doclib!");
+	{
+		DisplayError(frame, wxT("File is NOT EESCHEMA doclib!") );
 		fclose(f);
 		return 0;
-		}
+	}
 
 	while (GetLine(f, Line, &LineNum, sizeof(Line)) )
-		{
+	{
 		if (strncmp(Line, "$CMP",4) != 0)
-			{
-			sprintf(Line, "$CMP command expected in line %d, aborted.", LineNum);
-			DisplayError(frame, Line);
+		{
+			msg.Printf( wxT("$CMP command expected in line %d, aborted."), LineNum);
+			DisplayError(frame, msg);
 			fclose(f);
 			return 0;
-			}
+		}
 
 		/* Read one $CMP/$ENDCMP part entry from library: */
 		Name = strtok(Line + 5,"\n\r");
-		Entry = FindLibPart(Name,Libname,FIND_ALIAS);
+		wxString cmpname; cmpname = CONV_FROM_UTF8(Name);
+		Entry = FindLibPart(cmpname.GetData(),Libname,FIND_ALIAS);
 		while( GetLine(f, Line, &LineNum, sizeof(Line)) )
-			{
+		{
 			if( strncmp(Line, "$ENDCMP",7) == 0) break;
 			Text = strtok(Line + 2,"\n\r");
 			switch ( Line[0] )
-				{
+			{
 				case 'D':
-					if(Entry) Entry->m_Doc = Text;
+					if(Entry) Entry->m_Doc = CONV_FROM_UTF8(Text);
 			   	break;
 
 				case 'K':
-					if(Entry) Entry->m_KeyWord = Text;
+					if(Entry) Entry->m_KeyWord = CONV_FROM_UTF8(Text);
 					break;
 
 				case 'F':
-					if(Entry) Entry->m_DocFile = Text;
+					if(Entry) Entry->m_DocFile = CONV_FROM_UTF8(Text);
 					break;
-				}
 			}
 		}
+	}
 	fclose(f);
 	return 1;
 }

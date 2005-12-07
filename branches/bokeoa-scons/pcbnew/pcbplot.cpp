@@ -120,7 +120,7 @@ int ii, jj, bottom = V_SIZE;
 	m_Plot_Sheet_Ref = NULL;
 
 	pos.x = 360; pos.y = 5;
-wxString fmtmsg[4] = { "HPGL", "GERBER", "Postscript", "Postscript A4" };
+wxString fmtmsg[4] = { wxT("HPGL"), wxT("GERBER"), wxT("Postscript"), wxT("Postscript A4") };
 	m_PlotFormatOpt = new wxRadioBox(this, ID_SEL_PLOT_FORMAT,
 			_("Plot Format"), pos, wxSize(-1,-1),
 			4, fmtmsg, 1, wxRA_SPECIFY_COLS);
@@ -192,8 +192,8 @@ wxString fmtmsg[4] = { "HPGL", "GERBER", "Postscript", "Postscript A4" };
 	m_XScaleAdjust = m_YScaleAdjust = 1.0;
 	if ( m_Parent->m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_Parent->m_EDA_Config->Read("PlotXFineScaleAdj", &m_XScaleAdjust);
-		m_Parent->m_Parent->m_EDA_Config->Read("PlotYFineScaleAdj", &m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read(wxT("PlotXFineScaleAdj"), &m_XScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read(wxT("PlotYFineScaleAdj"), &m_YScaleAdjust);
 	}
 	pos.y += Button->GetSize().y + 15;
 	m_FineAdjustXscaleOpt = new WinEDA_DFloatValueCtrl(this, _("X Scale Adjust"), m_XScaleAdjust, pos);
@@ -450,8 +450,8 @@ void WinEDA_PlotFrame::SaveOptPlot(wxCommandEvent & event)
 	m_YScaleAdjust = m_FineAdjustYscaleOpt->GetValue();
 	if ( m_Parent->m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_Parent->m_EDA_Config->Write("PlotXFineScaleAdj", m_XScaleAdjust);
-		m_Parent->m_Parent->m_EDA_Config->Write("PlotYFineScaleAdj", m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PlotXFineScaleAdj"), m_XScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PlotYFineScaleAdj"), m_YScaleAdjust);
 	}
 }
 
@@ -489,20 +489,20 @@ wxString ext;
 		Scale_Y *= m_YScaleAdjust;
 
 	BaseFileName = m_Parent->GetScreen()->m_FileName;
-	ChangeFileNameExt( BaseFileName, "-" );
+	ChangeFileNameExt( BaseFileName, wxT("-") );
 
 	switch ( m_PlotFormat)
 		{
 		case PLOT_FORMAT_POST:
-			ext = ".ps";
+			ext = wxT(".ps");
 			break;
 
 		case PLOT_FORMAT_GERBER:
-			ext = ".pho";
+			ext = wxT(".pho");
 			break;
 
 		case PLOT_FORMAT_HPGL:
-			ext = ".plt";
+			ext = wxT(".plt");
 			break;
 		}
 

@@ -22,6 +22,8 @@ void Affiche_Infos_PCB_Texte(WinEDA_BasePcbFrame * frame, TEXTE_PCB* pt_texte)
 		pointeur de la description du texte
 */
 {
+wxString msg;
+	
 	frame->MsgPanel->EraseMsgBox();
 	if ( pt_texte == NULL ) return;
 
@@ -35,23 +37,23 @@ void Affiche_Infos_PCB_Texte(WinEDA_BasePcbFrame * frame, TEXTE_PCB* pt_texte)
 					ReturnPcbLayerName(pt_texte->m_Layer),
 					g_DesignSettings.m_LayerColor[pt_texte->m_Layer]  & MASKCOLOR);
 
-	Affiche_1_Parametre(frame, 36,_("Mirror"),"",GREEN) ;
+	Affiche_1_Parametre(frame, 36,_("Mirror"),wxEmptyString,GREEN) ;
 	if( (pt_texte->m_Miroir & 1) )
-			Affiche_1_Parametre(frame, -1,"",_("No"), DARKGREEN) ;
-	else	Affiche_1_Parametre(frame, -1,"",_("Yes"), DARKGREEN) ;
+			Affiche_1_Parametre(frame, -1,wxEmptyString,_("No"), DARKGREEN) ;
+	else	Affiche_1_Parametre(frame, -1,wxEmptyString,_("Yes"), DARKGREEN) ;
 
 
-	sprintf(cbuf,"%.1f",(float)pt_texte->m_Orient/10 );
-	Affiche_1_Parametre(frame, 43,_("Orient"),cbuf, DARKGREEN) ;
+	msg.Printf( wxT("%.1f"),(float)pt_texte->m_Orient/10 );
+	Affiche_1_Parametre(frame, 43,_("Orient"),msg, DARKGREEN) ;
 
-	valeur_param(pt_texte->m_Width,cbuf) ;
-	Affiche_1_Parametre(frame, 50,_("Width"),cbuf,MAGENTA) ;
+	valeur_param(pt_texte->m_Width, msg) ;
+	Affiche_1_Parametre(frame, 50,_("Width"),msg,MAGENTA) ;
 
-	valeur_param(pt_texte->m_Size.x,cbuf) ;
-	Affiche_1_Parametre(frame, 60,_("H Size"),cbuf,RED) ;
+	valeur_param(pt_texte->m_Size.x, msg) ;
+	Affiche_1_Parametre(frame, 60, _("H Size"),msg,RED) ;
 
-	valeur_param(pt_texte->m_Size.y,cbuf);
-	Affiche_1_Parametre(frame, 70,_("V Size"),cbuf,RED) ;
+	valeur_param(pt_texte->m_Size.y, msg);
+	Affiche_1_Parametre(frame, 70,_("V Size"),msg,RED) ;
 }
 
 /************************************************************************/
@@ -65,50 +67,49 @@ void Affiche_Infos_E_Texte(WinEDA_BasePcbFrame * frame, MODULE* Module,
 */
 {
 wxString text_type_msg[3] = {_("Ref."),_("Value"),_("Text")};
-char Line[1024];
+wxString msg, Line;
 int ii;
 
 	frame->MsgPanel->EraseMsgBox();
 
-	strcpy(Line,Module->m_Reference->GetText());
-	Line[8] = 0;
-	Affiche_1_Parametre(frame, 1,"Module", Line,  DARKCYAN) ;
+	Line = Module->m_Reference->m_Text;
+	Affiche_1_Parametre(frame, 1, _("Module"), Line,  DARKCYAN) ;
 
-	strncpy(Line,pt_texte->GetText(),8) ; Line[8] = 0 ;
+	Line = pt_texte->m_Text;
 	Affiche_1_Parametre(frame, 10,_("Text"),Line,YELLOW) ;
 
 	ii = pt_texte->m_Type; if (ii > 2) ii = 2;
 	Affiche_1_Parametre(frame, 20,_("Type"),text_type_msg[ii], DARKGREEN) ;
 
-	Affiche_1_Parametre(frame, 25,_("Display"),"", DARKGREEN);
+	Affiche_1_Parametre(frame, 25,_("Display"),wxEmptyString, DARKGREEN);
 	if(pt_texte->m_NoShow)
-		 Affiche_1_Parametre(frame, -1,"",_("No"), DARKGREEN);
-	else Affiche_1_Parametre(frame, -1,"",_("Yes"), DARKGREEN);
+		 Affiche_1_Parametre(frame, -1,wxEmptyString, _("No"), DARKGREEN);
+	else Affiche_1_Parametre(frame, -1,wxEmptyString, _("Yes"), DARKGREEN);
 
 	ii = pt_texte->m_Layer;
 	if ( ii <= 28)
 		Affiche_1_Parametre(frame, 28,_("Layer"),ReturnPcbLayerName(ii), DARKGREEN);
 	else
-		{
-		sprintf(cbuf,"%d", ii);
-		Affiche_1_Parametre(frame, 28,_("Layer"),cbuf, DARKGREEN) ;
-		}
+	{
+		msg.Printf( wxT("%d"), ii);
+		Affiche_1_Parametre(frame, 28,_("Layer"), msg, DARKGREEN) ;
+	}
 
-	strcpy(cbuf," Yes");
-	if( (pt_texte->m_Miroir & 1) ) strcpy(cbuf," No");
-	Affiche_1_Parametre(frame, 36,_("Mirror"),cbuf, DARKGREEN) ;
+	msg = wxT(" Yes");
+	if( (pt_texte->m_Miroir & 1) ) msg = wxT(" No");
+	Affiche_1_Parametre(frame, 36,_("Mirror"),msg, DARKGREEN) ;
 
-	sprintf(cbuf,"%.1f",(float)pt_texte->m_Orient / 10 );
-	Affiche_1_Parametre(frame, 42,_("Orient"),cbuf, DARKGREEN) ;
+	msg.Printf( wxT("%.1f"),(float)pt_texte->m_Orient / 10 );
+	Affiche_1_Parametre(frame, 42,_("Orient"),msg, DARKGREEN) ;
 
-	valeur_param(pt_texte->m_Width,cbuf) ;
-	Affiche_1_Parametre(frame, 48,_("Width"),cbuf, DARKGREEN) ;
+	valeur_param(pt_texte->m_Width, msg) ;
+	Affiche_1_Parametre(frame, 48,_("Width"),msg, DARKGREEN) ;
 
-	valeur_param(pt_texte->m_Size.x,cbuf) ;
-	Affiche_1_Parametre(frame, 56,_("H Size"),cbuf,RED) ;
+	valeur_param(pt_texte->m_Size.x,msg) ;
+	Affiche_1_Parametre(frame, 56,_("H Size"),msg,RED) ;
 
-	valeur_param(pt_texte->m_Size.y,cbuf);
-	Affiche_1_Parametre(frame, 64,_("V Size"),cbuf,RED) ;
+	valeur_param(pt_texte->m_Size.y,msg);
+	Affiche_1_Parametre(frame, 64,_("V Size"),msg,RED) ;
 
 }
 
@@ -139,7 +140,7 @@ int text_pos;
 			msg = _("Zone"); break;
 
 		default:
-			msg = "????"; break;
+			msg = wxT("????"); break;
 		}
 	text_pos = 1;
 	Affiche_1_Parametre(frame, text_pos,_("Type"),msg, DARKCYAN);
@@ -152,33 +153,33 @@ int text_pos;
 		{
 		EQUIPOT * equipot = GetEquipot( frame->m_Pcb, pt_piste->m_NetCode);
 		if ( equipot )
-			{
+		{
 			msg = equipot->m_Netname;
-			}
-		else msg = "<noname>";
+		}
+		else msg = wxT("<noname>");
 		Affiche_1_Parametre(frame, text_pos,_("NetName"),msg,RED) ;
 
 		/* Affiche net code :*/
-		sprintf(cbuf,"%d .%d",pt_piste->m_NetCode, pt_piste->m_Sous_Netcode);
+		msg.Printf( wxT("%d .%d"),pt_piste->m_NetCode, pt_piste->m_Sous_Netcode);
 		text_pos += 18;
-		Affiche_1_Parametre(frame, text_pos,_("NetCode"),cbuf,RED) ;
+		Affiche_1_Parametre(frame, text_pos,_("NetCode"),msg,RED) ;
 		}
 
 	else
 		{
-		Affiche_1_Parametre(frame, text_pos, _("Segment"),"",RED) ;
+		Affiche_1_Parametre(frame, text_pos, _("Segment"),wxEmptyString,RED) ;
 		if(pt_piste->m_Shape == S_CIRCLE)
-			Affiche_1_Parametre(frame, -1,"",_("Circle"),RED) ;
-		else Affiche_1_Parametre(frame, -1,"",_("Standard"),RED) ;
+			Affiche_1_Parametre(frame, -1,wxEmptyString,_("Circle"),RED) ;
+		else Affiche_1_Parametre(frame, -1,wxEmptyString,_("Standard"),RED) ;
 		}
 
 
 	/* Affiche les flags Status piste */
-	strcpy(cbuf,". . ");
-	if(pt_piste->GetState(SEGM_FIXE) ) cbuf[0] = 'F';
-	if(pt_piste->GetState(SEGM_AR) ) cbuf[2] = 'A';
+	msg = wxT(". . ");
+	if(pt_piste->GetState(SEGM_FIXE) ) msg[0] = 'F';
+	if(pt_piste->GetState(SEGM_AR) ) msg[2] = 'A';
 	text_pos = 42;
-	Affiche_1_Parametre(frame, text_pos,_("Stat"),cbuf,MAGENTA);
+	Affiche_1_Parametre(frame, text_pos,_("Stat"), msg,MAGENTA);
 
 	/* Affiche Layer(s) */
 	if ( pt_piste->m_StructType == TYPEVIA)
@@ -186,7 +187,7 @@ int text_pos;
 		SEGVIA * Via = (SEGVIA *) pt_piste;
 		int top_layer, bottom_layer;
 		Via->ReturnLayerPair(&top_layer, &bottom_layer);
-		msg = ReturnPcbLayerName(top_layer, TRUE) + "/" + ReturnPcbLayerName(bottom_layer, TRUE);
+		msg = ReturnPcbLayerName(top_layer, TRUE) + wxT("/") + ReturnPcbLayerName(bottom_layer, TRUE);
 		}
 	else msg = ReturnPcbLayerName(pt_piste->m_Layer);
 
@@ -194,21 +195,21 @@ int text_pos;
 	Affiche_1_Parametre(frame, text_pos, _("Layer"), msg, BROWN) ;
 
 	/* Affiche Epaisseur */
-	valeur_param((unsigned)(pt_piste->m_Width), cbuf) ;
+	valeur_param((unsigned)(pt_piste->m_Width), msg) ;
 	text_pos += 11;
 	if (pt_piste->m_StructType == TYPEVIA )	// Display Diam and Drill values
 	{
-		Affiche_1_Parametre(frame, text_pos,_("Diam"),cbuf, DARKCYAN);
+		Affiche_1_Parametre(frame, text_pos,_("Diam"), msg, DARKCYAN);
 
 		int drill_value = (pt_piste->m_Drill >= 0 ) ?
 			pt_piste->m_Drill : g_DesignSettings.m_ViaDrill;
-		valeur_param((unsigned)drill_value, cbuf);
+		valeur_param((unsigned)drill_value, msg);
 		text_pos += 8;
-		wxString title =  _("Drill");
-		if ( g_DesignSettings.m_ViaDrill >= 0 ) title += "*";
-		Affiche_1_Parametre(frame, text_pos,_("Drill"),cbuf, RED);
+		wxString title = _("Drill");
+		if ( g_DesignSettings.m_ViaDrill >= 0 ) title += wxT("*");
+		Affiche_1_Parametre(frame, text_pos,_("Drill"),msg, RED);
 	}
-	else Affiche_1_Parametre(frame, text_pos,_("Width"),cbuf, DARKCYAN) ;
+	else Affiche_1_Parametre(frame, text_pos,_("Width"),msg, DARKCYAN) ;
 }
 
 /************************************************************/
@@ -218,32 +219,33 @@ void Affiche_Infos_DrawSegment(WinEDA_BasePcbFrame * frame,
 /* Affiche les caract principales d'un segment type drawind PCB en bas d'ecran */
 {
 int itype;
-
+wxString msg;
+	
 	frame->MsgPanel->EraseMsgBox();
 
 	itype = DrawSegment->m_Type & 0x0F;
 
-	strcpy(cbuf,"DRAWING");
-	if( DrawSegment->m_StructType == TYPECOTATION ) strcpy(cbuf,"COTATION");
+	msg = wxT("DRAWING");
+	if( DrawSegment->m_StructType == TYPECOTATION ) msg = wxT("COTATION");
 
-	Affiche_1_Parametre(frame, 1,_("Type"),cbuf, DARKCYAN) ;
+	Affiche_1_Parametre(frame, 1,_("Type"),msg, DARKCYAN) ;
 
-	Affiche_1_Parametre(frame, 16,_("Shape"),"",RED) ;
+	Affiche_1_Parametre(frame, 16,_("Shape"),wxEmptyString,RED) ;
 	if(DrawSegment->m_Shape == S_CIRCLE)
-		Affiche_1_Parametre(frame, -1,"",_("Circle"),RED) ;
+		Affiche_1_Parametre(frame, -1,wxEmptyString,_("Circle"),RED) ;
 	else if (DrawSegment->m_Shape == S_ARC)
-		{
-		Affiche_1_Parametre(frame, -1,"","  arc  ",RED) ;
-		sprintf(cbuf,"%d",DrawSegment->m_Angle);
-		Affiche_1_Parametre(frame, 32," l.arc ",cbuf,RED) ;
-		}
-	else Affiche_1_Parametre(frame, -1,"","segment",RED) ;
+	{
+		Affiche_1_Parametre(frame, -1,wxEmptyString, _("  Arc  "),RED) ;
+		msg.Printf( wxT("%d"),DrawSegment->m_Angle);
+		Affiche_1_Parametre(frame, 32, wxT(" l.arc "), msg,RED) ;
+	}
+	else Affiche_1_Parametre(frame, -1, wxEmptyString, _("Segment"),RED) ;
 
-	Affiche_1_Parametre(frame, 48,_("Layer"),ReturnPcbLayerName(DrawSegment->m_Layer),BROWN) ;
+	Affiche_1_Parametre(frame, 48, _("Layer"),ReturnPcbLayerName(DrawSegment->m_Layer),BROWN) ;
 
 	/* Affiche Epaisseur */
-	valeur_param((unsigned)(DrawSegment->m_Width), cbuf) ;
-	Affiche_1_Parametre(frame, 60,_("Width"),cbuf, DARKCYAN) ;
+	valeur_param((unsigned)(DrawSegment->m_Width), msg) ;
+	Affiche_1_Parametre(frame, 60,_("Width"), msg, DARKCYAN) ;
 }
 
 
@@ -254,18 +256,18 @@ void Affiche_Infos_Segment_Module(WinEDA_BasePcbFrame * frame,
 /* Affiche en bas d'ecran les caract du Segment contour d'un module
 	Les parametres du module doivent etre a jour*/
 {
-char bufcar[256];
+wxString bufcar;
 
 	if(Module == NULL) return;
 
 	frame->MsgPanel->EraseMsgBox();
 
-	Affiche_1_Parametre(frame, 1,_("Seg"),"", DARKCYAN) ;
-	Affiche_1_Parametre(frame, 5 ,_("Module"),Module->m_Reference->GetText() , DARKCYAN) ;
+	Affiche_1_Parametre(frame, 1,_("Seg"),wxEmptyString, DARKCYAN) ;
+	Affiche_1_Parametre(frame, 5 ,_("Module"),Module->m_Reference->m_Text, DARKCYAN) ;
 
-	Affiche_1_Parametre(frame, 14,_("Value"),Module->m_Value->GetText(),BLUE) ;
+	Affiche_1_Parametre(frame, 14,_("Value"),Module->m_Value->m_Text, BLUE) ;
 
-	sprintf(bufcar, "%8.8lX", Module->m_TimeStamp) ;
+	bufcar.Printf( wxT("%8.8lX"), Module->m_TimeStamp) ;
 	Affiche_1_Parametre(frame, 24,_("TimeStamp"),bufcar,BROWN) ;
 
 	Affiche_1_Parametre(frame, 34,_("Mod Layer"),ReturnPcbLayerName(Module->m_Layer),RED);
@@ -292,11 +294,11 @@ void Affiche_Infos_Status_Pcb(WinEDA_BasePcbFrame * frame)
 {
 int nb_vias = 0, ii;
 EDA_BaseStruct * Struct;
-char txt[128];
+wxString txt;
 
 	frame->MsgPanel->EraseMsgBox();
 
-	sprintf(txt,"%d",frame->m_Pcb->m_NbPads);
+	txt.Printf( wxT("%d"),frame->m_Pcb->m_NbPads);
 	Affiche_1_Parametre(frame, POS_AFF_NBPADS,_("Pads"),txt, DARKGREEN) ;
 
 	for( ii= 0, Struct = frame->m_Pcb->m_Track; Struct != NULL; Struct = Struct->Pnext)
@@ -305,22 +307,22 @@ char txt[128];
 		if(Struct->m_StructType == TYPEVIA) nb_vias++ ;
 		}
 
-	sprintf(txt,"%d",nb_vias);
+	txt.Printf( wxT("%d"),nb_vias);
 	Affiche_1_Parametre(frame, POS_AFF_NBVIAS,_("Vias"),txt, DARKGREEN) ;
 
-	sprintf(txt,"%d",frame->m_Pcb->GetNumNodes() );
+	txt.Printf( wxT("%d"),frame->m_Pcb->GetNumNodes() );
 	Affiche_1_Parametre(frame, POS_AFF_NBNODES,_("Nodes"),txt, DARKCYAN) ;
 
-	sprintf(txt,"%d",frame->m_Pcb->m_NbLinks);
+	txt.Printf( wxT("%d"),frame->m_Pcb->m_NbLinks);
 	Affiche_1_Parametre(frame, POS_AFF_NBLINKS,_("Links"),txt, DARKGREEN) ;
 
-	sprintf(txt,"%d",frame->m_Pcb->m_NbNets);
+	txt.Printf( wxT("%d"),frame->m_Pcb->m_NbNets);
 	Affiche_1_Parametre(frame, POS_AFF_NBNETS,_("Nets"),txt,RED) ;
 
-	sprintf(txt,"%d",frame->m_Pcb->m_NbLinks - frame->m_Pcb->GetNumNoconnect());
+	txt.Printf( wxT("%d"),frame->m_Pcb->m_NbLinks - frame->m_Pcb->GetNumNoconnect());
 	Affiche_1_Parametre(frame, POS_AFF_NBCONNECT,_("Connect"),txt, DARKGREEN) ;
 
-	sprintf(txt,"%d",frame->m_Pcb->GetNumNoconnect());
+	txt.Printf( wxT("%d"),frame->m_Pcb->GetNumNoconnect());
 	Affiche_1_Parametre(frame, POS_AFF_NBNOCONNECT,_("NoConn"),txt,BLUE) ;
 }
 
@@ -331,7 +333,7 @@ void Affiche_Infos_Equipot(int netcode, WinEDA_BasePcbFrame * frame)
 {
 int nb_vias = 0, ii;
 EDA_BaseStruct * Struct;
-char txt[128];
+wxString txt;
 MODULE * module;
 D_PAD * pad;
 EQUIPOT * equipot;
@@ -342,9 +344,9 @@ EQUIPOT * equipot;
 	if ( equipot )
 		Affiche_1_Parametre(frame, 1,_("Net Name"),equipot->m_Netname,RED) ;
 	else
-		Affiche_1_Parametre(frame, 1,_("No Net (not connected)"), "", RED) ;
+		Affiche_1_Parametre(frame, 1,_("No Net (not connected)"), wxEmptyString, RED) ;
 
-	sprintf(txt,"%d", netcode);
+	txt.Printf( wxT("%d"), netcode);
 	Affiche_1_Parametre(frame, 30,_("Net Code"),txt,RED) ;
 
 	for ( ii = 0, module = frame->m_Pcb->m_Modules; module != 0;
@@ -356,7 +358,7 @@ EQUIPOT * equipot;
 			}
 		}
 
-	sprintf(txt,"%d",ii);
+	txt.Printf( wxT("%d"),ii);
 	Affiche_1_Parametre(frame, 40,_("Pads"),txt, DARKGREEN) ;
 
 	for( ii= 0, Struct = frame->m_Pcb->m_Track; Struct != NULL; Struct = Struct->Pnext)
@@ -366,7 +368,7 @@ EQUIPOT * equipot;
 			if ( ((SEGVIA*)Struct)->m_NetCode == netcode ) nb_vias++ ;
 		}
 
-	sprintf(txt,"%d",nb_vias);
+	txt.Printf( wxT("%d"),nb_vias);
 	Affiche_1_Parametre(frame, 50,_("Vias"),txt, BLUE) ;
 }
 

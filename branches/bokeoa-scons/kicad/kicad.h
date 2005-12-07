@@ -10,7 +10,7 @@
 /* Message de presentation */
 eda_global wxString Main_Title
 #ifdef MAIN
- = "KiCad (15-oct-2005)"
+ = wxT("KiCad (24-nov-2005)")
 #endif
 ;
 
@@ -102,10 +102,10 @@ eda_global wxString g_BoardFileName;
 eda_global bool UnitMetric;
 
 #ifdef MAIN
-wxString g_SchExtBuffer(".sch");
-wxString g_BoardExtBuffer(".brd");
-wxString g_NetlistExtBuffer(".net");
-wxString g_GerberExtBuffer(".pho");
+wxString g_SchExtBuffer(wxT(".sch"));
+wxString g_BoardExtBuffer(wxT(".brd"));
+wxString g_NetlistExtBuffer(wxT(".net"));
+wxString g_GerberExtBuffer(wxT(".pho"));
 #else
 eda_global wxString g_SchExtBuffer;
 eda_global wxString g_BoardExtBuffer;

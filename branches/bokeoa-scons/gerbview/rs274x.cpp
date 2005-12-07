@@ -280,8 +280,9 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 			m_Current_File = fopen(Line,"rt");
 			if (m_Current_File == 0)
 			{
-				sprintf(cbuf,"fichier <%s> non trouve",Line) ;
-				DisplayError(NULL, cbuf, 10);
+				wxString msg;
+				msg.Printf( wxT("fichier <%s> non trouve"),Line);
+				DisplayError(NULL, msg, 10);
 				ok = FALSE;
 				m_Current_File = m_FilesList[m_FilesPtr];
 				break;
@@ -406,7 +407,7 @@ int macro_type = 0;
 		text ++;
 	}
 
-wxMessageBox(macro_name, "macro name");
+wxMessageBox(macro_name, wxT("macro name"));
 	text = buff;
 	fgets(buff,255,gerber_file);
 

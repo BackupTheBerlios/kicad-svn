@@ -13,10 +13,10 @@
 #include "pcbplot.h"
 #include "trigo.h"
 
+#include "grfonte.h"
+
 #include "protos.h"
 
-
-extern char *graphic_fonte_shape[128] ;  /* voir grfonte.h : tableau des formes des caracteres */
 
 /* Fonctions locales */
 static void Plot_Edges_Modules(BOARD * pcb, int format_plot, int masque_layer);
@@ -38,7 +38,8 @@ MODULE* Module;
 D_PAD * pt_pad;
 TEXTE_MODULE * pt_texte;
 EDA_BaseStruct * PtStruct;
-
+wxString msg;
+	
 	/* Trace du contour du PCB et des Elements du  type Drawings Pcb */
 	PtStruct = m_Pcb->m_Drawings;
 	for( ; PtStruct != NULL; PtStruct = PtStruct->Pnext )
@@ -69,7 +70,7 @@ EDA_BaseStruct * PtStruct;
 				break;
 
 			default:
-				DisplayError(this, "Plot_Serigraphie() error: unexpected m_StructType");
+				DisplayError(this, wxT("Plot_Serigraphie() error: unexpected m_StructType"));
 				break;
 			}
 		}
@@ -81,7 +82,7 @@ EDA_BaseStruct * PtStruct;
 	if(PlotPadsOnSilkLayer || Plot_Pads_All_Layers)
 		{
 		nb_items = 0 ;
-		Affiche_1_Parametre(this, 56,"Pads","",GREEN) ;
+		Affiche_1_Parametre(this, 56, wxT("Pads"),wxEmptyString,GREEN) ;
 		Module = m_Pcb->m_Modules;
 		for( ; Module != NULL ; Module = (MODULE *) Module->Pnext )
 			{
@@ -186,14 +187,14 @@ EDA_BaseStruct * PtStruct;
 							}
 						break ;
 					}
-				nb_items++; sprintf(cbuf,"%d",nb_items) ;
-				Affiche_1_Parametre(this, 56,"",cbuf,GREEN) ;
+				nb_items++; msg.Printf( wxT("%d"),nb_items) ;
+				Affiche_1_Parametre(this, 56,wxEmptyString,msg,GREEN) ;
 				}
 			}
 		} /* Fin Sequence de trace des Pads */
 
 	/* Trace Textes MODULES */
-	nb_items = 0; Affiche_1_Parametre(this, 64,"TxtMod","",LIGHTBLUE) ;
+	nb_items = 0; Affiche_1_Parametre(this, 64, wxT("TxtMod"),wxEmptyString,LIGHTBLUE) ;
 
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ; Module = (MODULE *) Module->Pnext )
@@ -217,16 +218,16 @@ EDA_BaseStruct * PtStruct;
 		{
 			PlotTextModule(Module->m_Reference);
 			nb_items++ ;
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 64,"",cbuf,LIGHTBLUE) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 64,wxEmptyString,msg,LIGHTBLUE) ;
 		}
 
 		if( trace_val )
 		{
 			PlotTextModule(Module->m_Value);
 			nb_items++ ;
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 64,"",cbuf,LIGHTBLUE) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 64,wxEmptyString,msg,LIGHTBLUE) ;
 		}
 
 		pt_texte = (TEXTE_MODULE *) Module->m_Drawings;
@@ -241,8 +242,8 @@ EDA_BaseStruct * PtStruct;
 				continue;
 			PlotTextModule(pt_texte);
 			nb_items++ ;
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 64,"",cbuf,LIGHTBLUE) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 64,wxEmptyString,msg,LIGHTBLUE) ;
 		}
 	}
 }
@@ -267,7 +268,7 @@ int orient, epaisseur, no_miroir;
 
 	if ( no_miroir == 0 ) size.y = -size.y;		// Text is mirrored
 
-	Plot_1_texte(format_plot, pt_texte->GetText(),pt_texte->GetLength(),
+	Plot_1_texte(format_plot, pt_texte->m_Text,
 					orient, epaisseur,
 					pos.x, pos.y, size.x, size.y);
 }
@@ -373,11 +374,12 @@ void Plot_Edges_Modules(BOARD * pcb, int format_plot, int masque_layer)
 int nb_items;				/* Pour affichage activite: nbr modules traites */
 MODULE * Module;
 EDGE_MODULE * PtEdge;
-
+wxString msg;
+	
 	nb_items = 0 ;
 	Module = pcb->m_Modules;
 	for( ; Module != NULL ; Module = (MODULE *) Module->Pnext )
-		{
+	{
 		PtEdge = (EDGE_MODULE*) Module->m_Drawings;
 		for ( ;PtEdge != NULL; PtEdge = (EDGE_MODULE*)PtEdge->Pnext)
 		{
@@ -387,8 +389,8 @@ EDGE_MODULE * PtEdge;
 		}
 		/* Affichage du nombre de modules traites */
 		nb_items++ ;
-		sprintf(cbuf,"%d",nb_items) ;
-		}
+		msg.Printf( wxT("%d"),nb_items) ;
+	}
 }
 
 /**************************************************************/
@@ -481,7 +483,7 @@ void PlotTextePcb(TEXTE_PCB * pt_texte, int format_plot,int masque_layer)
 /****************************************************************************/
 /* Trace 1 Texte type PCB , c.a.d autre que les textes sur modules */
 {
-int nbcodes, no_miroir, orient, epaisseur;
+int no_miroir, orient, epaisseur;
 wxPoint pos;
 wxSize size;
 
@@ -489,8 +491,6 @@ wxSize size;
 	if( (g_TabOneLayerMask[pt_texte->m_Layer] & masque_layer) == 0 ) return ;
 
 	/* calcul des parametres du texte :*/
-	nbcodes = pt_texte->GetLength();
-
 	size = pt_texte->m_Size;
 	pos = pt_texte->m_Pos;
 	orient = pt_texte->m_Orient;
@@ -499,12 +499,12 @@ wxSize size;
 
 	if ( no_miroir == FALSE) size.x = - size.x;
 
-	Plot_1_texte(format_plot, pt_texte->m_Text,nbcodes,orient,
+	Plot_1_texte(format_plot, pt_texte->m_Text,orient,
 							epaisseur, pos.x, pos.y, size.x, size.y);
 }
 
 /**********************************************************************/
-void Plot_1_texte(int format_plot,const char * ptr,int nbcodes, int angle,
+void Plot_1_texte(int format_plot,const wxString & Text, int angle,
 					int epaisseur, int cX,int cY,int size_h,int size_v,
 					bool centreX, bool centreY)
 /***********************************************************************/
@@ -519,10 +519,11 @@ void Plot_1_texte(int format_plot,const char * ptr,int nbcodes, int angle,
 int kk = 0, k1 , k2, end ;
 int espacement;
 char f_cod , plume ;
-const char * ptcar = 0 ;
+const SH_CODE * ptcar;
 int ox,oy,fx,fy;			/* Coord de debut et fin des segments a tracer */
 int sx, sy;					/* coord du debut du caractere courant */
-
+int nbcodes = Text.Len();
+	
 	espacement = ((10 * size_h) / 9) + ( (size_h >= 0 ) ? epaisseur : - epaisseur);
 
 	/* calcul de la position du debut du texte */
@@ -532,9 +533,10 @@ int sx, sy;					/* coord du debut du caractere courant */
 	else sy = cY;
 
 	/* trace du texte */
-	while(kk++ < nbcodes)
-		{
-		ptcar = graphic_fonte_shape[(*ptr) & 127] ; /* ptcar pointe la description
+	for( ; kk < nbcodes; kk++)
+	{
+		int code = Text.GetChar(kk) & 0xFF;
+		ptcar = graphic_fonte_shape[code] ; /* ptcar pointe la description
 											du caractere a dessiner */
 
 		plume = 'U'; ox = sx; oy = sy;
@@ -542,10 +544,10 @@ int sx, sy;					/* coord du debut du caractere courant */
 		fx = ox; fy = oy;
 
 		for(end = 0; end == 0; ptcar++)
-			{
-			f_cod = *ptcar ; /* get code n de la forme selectionnee */
+		{
+			f_cod = * ptcar;	/* get code n de la forme selectionnee */
 			switch(f_cod)
-				{
+			{
 				case 'X' : end = 1;/* fin du caractere */
 					break;
 
@@ -579,15 +581,15 @@ int sx, sy;					/* coord du debut du caractere courant */
 								PlotFilledSegmentPS(wxPoint(ox,oy), wxPoint(fx,fy), epaisseur) ;
 								break;
 
-							}
 						}
+					}
 					ox = fx; oy = fy;
-				} /* fin switch decodade matrice de forme */
+			} /* fin switch decodade matrice de forme */
 
-			} /* end boucle for = end trace de 1 caractere */
+		} /* end boucle for = end trace de 1 caractere */
 
-		ptr++ ; sx += espacement;
-		} /* end trace du texte */
+		sx += espacement;
+	} /* end trace du texte */
 }
 
 
@@ -597,8 +599,8 @@ void Affiche_erreur( int nb_err)
 /* Affiche le nombre d'erreurs commises ( segments traces avec plume trop grosse
  ou autres */
 {
-	sprintf(cbuf,"%d",nb_err) ;
-//	Affiche_1_Parametre(this, 30,"Err",cbuf,GREEN) ;
+//	sprintf(msg,"%d",nb_err) ;
+//	Affiche_1_Parametre(this, 30,"Err",msg,GREEN) ;
 }
 
 

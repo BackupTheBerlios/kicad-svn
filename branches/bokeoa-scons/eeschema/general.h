@@ -14,10 +14,9 @@
 #define EESCHEMA_VERSION 1
 
 #define SCHEMATIC_HEAD_STRING "Schematic File Version"
-#define EESCHEMA_FILE_STAMP "EESchema"
+#define EESCHEMA_FILE_STAMP  "EESchema"
 #define NULL_STRING "_NONAME_"
 
-#define L_LEN_MIN FILE_NAME_LEN
 #define MAX_PIN_INFO	10
 
 #ifndef TRUE
@@ -53,7 +52,7 @@
 extern wxString Main_Title;
 eda_global wxString g_DefaultSchematicFileName
 #ifdef MAIN
-("noname.sch")
+ (wxT("noname.sch"))
 #endif
 ;
 
@@ -247,11 +246,11 @@ est le curseur sur grille ou le curseur a deplacement fin hors grille */
 eda_global wxString g_NetNameBuffer;
 
 #ifdef MAIN
-wxString g_NetCmpExtBuffer(".cmp");
-wxString g_SymbolExtBuffer(".sym");
-wxString g_NetExtBuffer(".net");
-wxString g_SchExtBuffer(".sch");
-wxString g_LibExtBuffer(".lib");
+wxString g_NetCmpExtBuffer( wxT(".cmp") );
+wxString g_SymbolExtBuffer( wxT(".sym") );
+wxString g_NetExtBuffer( wxT(".net") );
+wxString g_SchExtBuffer( wxT(".sch") );
+wxString g_LibExtBuffer( wxT(".lib") );
 #else
 eda_global wxString g_NetCmpExtBuffer;
 eda_global wxString g_SymbolExtBuffer;

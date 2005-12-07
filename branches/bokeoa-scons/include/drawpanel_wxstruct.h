@@ -143,14 +143,14 @@ public:
 };
 
 
-/****************************************/
-/* Classe de Description d'un affichage */
-/****************************************/
+/*******************************************************************/
+/* Class to handle how to draw a screen (a board, a schematic ...) */
+/*******************************************************************/
 class BASE_SCREEN: public EDA_BaseStruct
 {
 public:
 	int m_Type;						/* indicateur: type d'ecran */
-	WinEDA_DrawFrame * m_FrameSource;	// Used to get useful dat (internal units ...)
+	WinEDA_DrawFrame * m_FrameSource;	// Used to get useful datas (internal units ...)
 	wxPoint m_DrawOrg;				/* offsets pour tracer le circuit sur l'ecran */
 	wxPoint m_Curseur;				/* Coordonnes du curseur sur grille SCH en unites reelles. */
 	wxPoint m_O_Curseur;			/* Memorisation Coordonnes du curseur en
@@ -164,8 +164,9 @@ public:
 										navigation dans la hierarchie */
 	bool m_Center;					// TRUE: coord algebriques, FALSE: coord >= 0
 	int m_GridColor;
+	bool m_FirstRedraw;
 
-	/* gestion du curseur et de la souris */
+	/* Cursor management (shape, editing functions) */
 	void (*ManageCurseur)(WinEDA_DrawPanel * panel, wxDC * DC, bool erase); /* Fonction d'affichage sur deplacement souris
 									si erase : effacement ancien affichage */
 	void (*ForceCloseManageCurseur)(WinEDA_DrawFrame * frame,wxDC * DC); /* Fonction de fermeture forcée
@@ -180,7 +181,7 @@ public:
 	int m_UndoRedoCountMax;			/* undo/Redo command Max depth */	
 	EDA_BaseStruct * m_CurrentItem;	/* Current selected object */
 
-	/* Gestion des blocs */
+	/* block control */
 	DrawBlockStruct BlockLocate;	/* Bock description for block commands */
 
 	/* Page description */

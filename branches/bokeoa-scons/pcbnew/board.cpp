@@ -331,7 +331,8 @@ D_PAD * pt_pad;
 int r1,r2, c1,c2, current_net_code;
 CHEVELU * pt_ch;
 int demi_pas = pas_route /2;
-
+wxString msg;
+	
 	InitWork(); /* clear work list */
 	Ntotal = 0;
 	for ( ii = Pcb->GetNumRatsnests(); ii > 0 ; ii-- , pt_rats++)
@@ -348,17 +349,17 @@ int demi_pas = pas_route /2;
 		r1 = (pt_pad->m_Pos.y - Pcb->m_BoundaryBox.m_Pos.y + demi_pas ) / pas_route;
 		if( r1 < 0 || r1 >= Nrows)
 			{
-			sprintf(cbuf,"erreur : row = %d ( padY %d pcbY %d) ", r1,
+			msg.Printf( wxT("erreur : row = %d ( padY %d pcbY %d) "), r1,
 						pt_pad->m_Pos.y, Pcb->m_BoundaryBox.m_Pos.y);
-			DisplayError(NULL, cbuf);
+			DisplayError(NULL, msg);
 			return(0);
 			}
 		c1 = (pt_pad->m_Pos.x - Pcb->m_BoundaryBox.m_Pos.x + demi_pas ) / pas_route;
 		if( c1 < 0 || c1 >= Ncols)
 			{
-			sprintf(cbuf,"erreur : col = %d ( padX %d pcbX %d) ", c1,
+			msg.Printf( wxT("erreur : col = %d ( padX %d pcbX %d) "), c1,
 						pt_pad->m_Pos.x, Pcb->m_BoundaryBox.m_Pos.x);
-			DisplayError(NULL, cbuf);
+			DisplayError(NULL, msg);
 			return(0);
 			}
 
@@ -367,17 +368,17 @@ int demi_pas = pas_route /2;
 		r2 = (pt_pad->m_Pos.y - Pcb->m_BoundaryBox.m_Pos.y + demi_pas ) / pas_route;
 		if( r2 < 0 || r2 >= Nrows)
 			{
-			sprintf(cbuf,"erreur : row = %d ( padY %d pcbY %d) ", r2,
+			msg.Printf( wxT("erreur : row = %d ( padY %d pcbY %d) "), r2,
 						pt_pad->m_Pos.y, Pcb->m_BoundaryBox.m_Pos.y);
-			DisplayError(NULL, cbuf);
+			DisplayError(NULL, msg);
 			return(0);
 			}
 		c2 = (pt_pad->m_Pos.x - Pcb->m_BoundaryBox.m_Pos.x + demi_pas ) / pas_route;
 		if( c2 < 0 || c2 >= Ncols)
 			{
-			sprintf(cbuf,"erreur : col = %d ( padX %d pcbX %d) ", c2,
+			msg.Printf( wxT("erreur : col = %d ( padX %d pcbX %d) "), c2,
 						pt_pad->m_Pos.x, Pcb->m_BoundaryBox.m_Pos.x);
-			DisplayError(NULL, cbuf);
+			DisplayError(NULL, msg);
 			return(0);
 			}
 

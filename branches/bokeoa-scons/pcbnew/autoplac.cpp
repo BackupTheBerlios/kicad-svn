@@ -106,7 +106,7 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 			break;
 
 		case  PLACE_INCREMENTAL:
-			if( ! IsOK(this, "Footprints NOT PLACED will be moved") )
+			if( ! IsOK(this, _("Footprints NOT PLACED will be moved")) )
 				return;
 			break;
 	}
@@ -186,7 +186,7 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 	while( (Module = PickModule(this, DC) ) != NULL )
 	{
 		float BestScore;
-		DisplayActivity((int)(activ * Pas) , "" ); activ++;
+		DisplayActivity((int)(activ * Pas) , wxEmptyString ); activ++;
 
 		/* Affichage du remplissage: surface de placement, obstacles, penalites */
 		DrawInfoPlace(DC);
@@ -368,7 +368,8 @@ int WinEDA_PcbFrame::GenPlaceBoard(void)
 int jj, ii;
 int NbCells;
 EDA_BaseStruct * PtStruct;
-
+wxString msg;
+	
 	Board.UnInitBoard();
 
 	if( ! SetBoardBoundaryBoxFromEdgesOnly() )
@@ -393,24 +394,24 @@ EDA_BaseStruct * PtStruct;
 	NbCells = Ncols * Nrows;
 
 	MsgPanel->EraseMsgBox();
-	sprintf(cbuf,"%d",Ncols);
-	Affiche_1_Parametre(this, 1, _("Cols"),cbuf,GREEN);
-	sprintf(cbuf,"%d",Nrows);
-	Affiche_1_Parametre(this, 7, _("Lines"),cbuf,GREEN);
-	sprintf(cbuf,"%d",NbCells);
-	Affiche_1_Parametre(this, 14, _("Cells."),cbuf,YELLOW);
+	msg.Printf( wxT("%d"),Ncols);
+	Affiche_1_Parametre(this, 1, _("Cols"),msg,GREEN);
+	msg.Printf( wxT("%d"),Nrows);
+	Affiche_1_Parametre(this, 7, _("Lines"),msg,GREEN);
+	msg.Printf( wxT("%d"),NbCells);
+	Affiche_1_Parametre(this, 14, _("Cells."),msg,YELLOW);
 
 	/* Choix du nombre de faces de placement */
 	Nb_Sides = TWO_SIDES;
 
-	Affiche_1_Parametre(this, 22, "S", ( Nb_Sides == TWO_SIDES ) ? "2" : "1",WHITE);
+	Affiche_1_Parametre(this, 22, wxT("S"), ( Nb_Sides == TWO_SIDES ) ? wxT("2") : wxT("1"), WHITE);
 
 	/* Creation du mapping du board */
 	Board.InitBoard();
 
 	/* Affichage de la memoire utilisee */
-	sprintf(cbuf,"%d", Board.m_MemSize / 1024 );
-	Affiche_1_Parametre(this, 24, "Mem(Ko)",cbuf,CYAN);
+	msg.Printf( wxT("%d"), Board.m_MemSize / 1024 );
+	Affiche_1_Parametre(this, 24, wxT("Mem(Ko)"),msg,CYAN);
 
 	Route_Layer_BOTTOM = CMP_N;
  	if( Nb_Sides == TWO_SIDES )	Route_Layer_BOTTOM = CUIVRE_N;
@@ -453,8 +454,8 @@ EDA_BaseStruct * PtStruct;
 	ii = 1, jj = 1;
 	while( ii )
 	{
-		sprintf(cbuf,"%d", jj++ );
-		Affiche_1_Parametre(this, 50, _("Loop"),cbuf,CYAN);
+		msg.Printf( wxT("%d"), jj++ );
+		Affiche_1_Parametre(this, 50, _("Loop"),msg,CYAN);
 		ii = Propagation(this);
 	}
 
@@ -591,7 +592,7 @@ bool TstOtherSide;
 	Dessine_Silouhette_Module(DrawPanel, DC, Module);
 
 	mincout = -1.0;
-	Affiche_Message("Score ??, pos ??");
+	Affiche_Message(wxT("Score ??, pos ??") );
 
 	for ( ; CurrPosition.x < m_Pcb->m_BoundaryBox.GetRight() - fx;
 			CurrPosition.x += pas_route )
@@ -618,7 +619,7 @@ bool TstOtherSide;
 
 		for ( ; CurrPosition.y < m_Pcb->m_BoundaryBox.GetBottom() - fy;
 				 CurrPosition.y += pas_route )
-			{
+		{
 			/* effacement des traces */
 			Dessine_Silouhette_Module(DrawPanel, DC, Module);
 			if (DisplayChevelu)	Compute_Ratsnest_PlaceModule(DC);
@@ -630,7 +631,7 @@ bool TstOtherSide;
 			Dessine_Silouhette_Module(DrawPanel, DC, Module);
 			Penalite = TstModuleOnBoard(m_Pcb, Module, TstOtherSide );
 			if( Penalite >= 0 )	/* c a d si le module peut etre place */
-				{
+			{
 				error = 0;
 				build_ratsnest_module(DC, Module);
 				cout = Compute_Ratsnest_PlaceModule(DC);
@@ -638,19 +639,20 @@ bool TstOtherSide;
 				Score = cout + (float) Penalite;
 
 				if( (mincout >= Score ) || (mincout < 0 ) )
-					{
+				{
 					LastPosOK = CurrPosition;
 					mincout = Score;
-					sprintf(cbuf,"Score %d, pos %3.4f, %3.4f",
+					wxString msg;
+					msg.Printf( wxT("Score %d, pos %3.4f, %3.4f"),
 							(int)mincout,
 							(float)LastPosOK.x /10000, (float)LastPosOK.y /10000);
-					Affiche_Message(cbuf);
-					}
+					Affiche_Message(msg);
 				}
+			}
 			if( DisplayChevelu ) Compute_Ratsnest_PlaceModule(DC);
 			DisplayChevelu = 0;
-			}
 		}
+	}
 
 	Dessine_Silouhette_Module(DrawPanel, DC, Module);	/* effacement du dernier trace */
 	if (DisplayChevelu) Compute_Ratsnest_PlaceModule(DC);

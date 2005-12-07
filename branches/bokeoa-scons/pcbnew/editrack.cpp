@@ -31,12 +31,13 @@ void WinEDA_PcbFrame::DisplayTrackSettings(void)
 */
 {
 wxString msg;
-char buftrc[256], bufvia[256];
+wxString buftrc, bufvia;
 
 	valeur_param(g_DesignSettings.m_CurrentTrackWidth, buftrc);
 	valeur_param(g_DesignSettings.m_CurrentViaSize, bufvia);
-	msg.Printf( _("Track Width: %s   Vias Size : %s"), buftrc, bufvia);
-	Affiche_Message( (char*)msg.GetData());
+	msg.Printf( _("Track Width: %s   Vias Size : %s"),
+			buftrc.GetData(), bufvia.GetData());
+	Affiche_Message( msg);
 	m_SelTrackWidthBox_Changed = TRUE;
 	m_SelViaSizeBox_Changed = TRUE;
 }
@@ -601,7 +602,7 @@ int l1, l2 , nb_segm;
 				pt_segm->m_Layer = pt_segm->m_Param;
 				}
 			Trace_Une_Piste(DrawPanel, DC, pt_track, nb_segm, GR_OR);
-			DisplayError(this, "Drc erreur, operation annulee", 10);
+			DisplayError(this, _("Drc error, cancelled"), 10);
 			return;
 			}
 		}

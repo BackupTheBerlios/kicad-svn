@@ -67,14 +67,7 @@ wxSize size;
 	size =  DrawPanel->GetClientSize();
 	ii = (dx + (size.x/2)) / size.x;
 	jj = (dy + (size.y/2)) / size.y;
-	bestzoom = MAX(ii, jj);
-
-	/* determination du zoom existant le plus proche */
-	for (ii = 1 ; ii <= 2048 ; ii <<= 1 )
-		{
-		if(ii >= bestzoom) break;
-		}
-	bestzoom = ii;
+	bestzoom = MAX(ii, jj) + 1;
 
 	m_CurrentScreen->m_Curseur = m_Pcb->m_BoundaryBox.Centre();
 

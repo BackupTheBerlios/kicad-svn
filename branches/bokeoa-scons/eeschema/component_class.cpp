@@ -27,7 +27,6 @@ DrawPartStruct::DrawPartStruct( DrawStructureType struct_type, const wxPoint & p
 /***********************************************************************************/
 {
 	m_Pos = pos;
-	m_ChipName = NULL;
 	m_TimeStamp = 0;
 }
 
@@ -35,7 +34,6 @@ DrawPartStruct::DrawPartStruct( DrawStructureType struct_type, const wxPoint & p
 DrawPartStruct::~DrawPartStruct(void)
 /************************************/
 {
-	if ( m_ChipName ) free(m_ChipName);
 }
 
 /*******************************************************************/
@@ -74,7 +72,7 @@ int ii;
 EDA_Rect EDA_SchComponentStruct::GetBoundaryBox( void )
 /**********************************************************************/
 {
-EDA_LibComponentStruct * Entry = FindLibPart(m_ChipName, "", FIND_ROOT);
+EDA_LibComponentStruct * Entry = FindLibPart(m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 EDA_Rect BoundaryBox;
 int x0, xm, y0, ym;
 	/* Get the basic Boundary box */
@@ -123,10 +121,10 @@ void EDA_SchComponentStruct::ClearAnnotation(void)
 	while ( isdigit(m_Field[REFERENCE].m_Text.Last() ) )
 		m_Field[REFERENCE].m_Text.RemoveLast();
 	if ( m_Field[REFERENCE].m_Text.Last() != '?' )
-		m_Field[REFERENCE].m_Text += "?";
+		m_Field[REFERENCE].m_Text.Append('?');
 
 EDA_LibComponentStruct *Entry;
-	Entry = FindLibPart(m_ChipName,"",FIND_ROOT);
+	Entry = FindLibPart(m_ChipName.GetData(),wxEmptyString,FIND_ROOT);
 
 	if ( !Entry || ! Entry->m_UnitSelectionLocked )
 		m_Multi = 1;
@@ -140,7 +138,7 @@ EDA_SchComponentStruct * new_item = new EDA_SchComponentStruct( m_Pos );
 int ii;
 
 	new_item->m_Multi = m_Multi;
-	new_item->m_ChipName = strdup(m_ChipName);
+	new_item->m_ChipName = m_ChipName;
 	new_item->m_FlagControlMulti = m_FlagControlMulti;
 	new_item->m_Convert = m_Convert;
 	new_item->m_Transform[0][0] = m_Transform[0][0];
@@ -262,7 +260,7 @@ bool Transform = FALSE;
 
 		default:
 			Transform = FALSE;
-			DisplayError(NULL, "SetRotateMiroir() error: ill value");
+			DisplayError(NULL, wxT("SetRotateMiroir() error: ill value") );
 			break;
 		}
 
@@ -398,10 +396,10 @@ void PartTextStruct::PartTextCopy(PartTextStruct * target)
 bool PartTextStruct::IsVoid(void)
 /*********************************/
 /* return True if The field is void, i.e.:
-	contains "" or "~"
+	contains wxEmptyString or "~"
 */
 {
-	if ( m_Text.IsEmpty() || m_Text == "~" ) return TRUE;
+	if ( m_Text.IsEmpty() || m_Text == wxT("~") ) return TRUE;
 	return FALSE;
 }
 
@@ -432,7 +430,8 @@ EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 	dx = m_Size.x * textlen;
 	if ( m_FieldId == REFERENCE )	// Real Text can be U1 or U1A
 	{
-		EDA_LibComponentStruct *Entry = FindLibPart(DrawLibItem->m_ChipName,"",FIND_ROOT);
+		EDA_LibComponentStruct *Entry =
+			FindLibPart(DrawLibItem->m_ChipName.GetData(),wxEmptyString,FIND_ROOT);
 		if ( Entry && (Entry->m_UnitCount > 1) )
 			dx = m_Size.x * (textlen + 1 );	// because U1 is U1A or U1B ...
 	}

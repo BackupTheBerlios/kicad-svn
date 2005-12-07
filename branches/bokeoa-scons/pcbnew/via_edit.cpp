@@ -99,7 +99,7 @@ TRACK * via_struct ;
 			break;
 		
 		default:
-			DisplayError( this, "WinEDA_PcbFrame::Via_Edition() error: unknown command");
+			DisplayError( this, wxT("WinEDA_PcbFrame::Via_Edition() error: unknown command"));
 			break;
 	}
 	DrawPanel->MouseToCursorSchema();

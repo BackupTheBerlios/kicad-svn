@@ -9,6 +9,7 @@ LIBVIEWER3D = ../3d-viewer/3d-viewer.a
 # DEPEND = cvpcb.h ../include/pcbstruct.h
 
 OBJECTS = $(TARGET).o \
+			class_cvpcb.o\
             memoire.o \
 			cvframe.o\
 			listboxes.o\

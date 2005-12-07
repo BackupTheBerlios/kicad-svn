@@ -11,6 +11,7 @@
 #include "fctsys.h"
 
 #include "common.h"
+#include "macros.h"
 
 
 #include "3d_struct.h"
@@ -26,7 +27,7 @@ wxString fullfilename;
 FILE * file;
 int LineNum = 0;
 
-	if ( m_Shape3DName == "" )
+	if ( m_Shape3DName.IsEmpty() )
 	{
 		return 1;
 	}
@@ -34,14 +35,14 @@ int LineNum = 0;
 	fullfilename =  g_RealLibDirBuffer + LIB3D_PATH;
 	fullfilename += m_Shape3DName;
 #if defined (__WINDOWS__)
-	fullfilename.Replace("/","\\");
+	fullfilename.Replace(UNIX_STRING_DIR_SEP,WIN_STRING_DIR_SEP);
 #else
 #if defined (__UNIX__)
-	fullfilename.Replace("\\","/");
+	fullfilename.Replace(WIN_STRING_DIR_SEP,UNIX_STRING_DIR_SEP);
 #endif
 #endif
 
-	file = fopen ( fullfilename, "rt" );
+	file = wxFopen( fullfilename, wxT("rt") );
 	if ( file == NULL )
 	{
 		return -1;
@@ -86,19 +87,21 @@ ou du type:
         material USE yellow
 */
 {
-char line[512], * text, * command, * mat_name;
+char line[512], * text, * command;
+wxString mat_name;
 S3D_Material * material = NULL;
 
 	// Lecture de la commande:
 	command = strtok(NULL, " \t\n\r");
-	mat_name = strtok(NULL, " \t\n\r");
+	text = strtok(NULL, " \t\n\r");
+	mat_name = CONV_FROM_UTF8(text);
 	if ( stricmp(command, "USE") == 0 )
 	{
 
 		for ( material = m_Materials; material != NULL;
-					material = (S3D_Material *)material->Pnext)
+					material = (S3D_Material *) material->Pnext)
 		{
-			if( material->m_Name == mat_name )
+			if ( material->m_Name == mat_name)
 			{
 				material->SetMaterial();
 				return 1;
@@ -276,7 +279,7 @@ double * ReadCoordsList(FILE * file, char * text_buffer, int * bufsize, int *Lin
           0.707107 -9.38186e-7 0.707107]
 		}
 
-	Return the coordinate list 
+	Return the coordinate list
 	text_buffer contains the first line of this node :
        "coord Coordinate { point ["
  */
@@ -289,7 +292,7 @@ bool StartData = FALSE;
 bool EndData = FALSE;
 bool EndNode = FALSE;
 char string_num[512];
-	
+
 	text = text_buffer;
 	while ( !EndNode )
 	{
@@ -312,12 +315,12 @@ char string_num[512];
 				case '}':
 					EndNode = TRUE;
 					break;
-				
+
 				case ']':
 				case '\t':
 				case ' ':
 				case ',':
-					jj = 0; 
+					jj = 0;
 					if ( ! StartData || !HasData) break;
 					data_list[ii] = atof(from_point(string_num));
 					string_num[jj] = 0;
@@ -334,7 +337,7 @@ char string_num[512];
 						EndData = TRUE;
 					}
 					break;
-				
+
 				default:
 					if ( ! StartData ) break;
 					if ( jj >= sizeof(string_num) ) break;
@@ -346,7 +349,7 @@ char string_num[512];
 			text++;
 		}
 	}
-	
+
 	if ( data_list )
 		data_list = (double *) realloc(data_list, (ii * sizeof(double)) );
 	if ( bufsize ) *bufsize = ii;
@@ -406,7 +409,7 @@ int * index = NULL;
 			}
 			continue;
 		}
-		
+
 		if ( stricmp (text, "coord" ) == 0 )
 		{
 			int coord_number;

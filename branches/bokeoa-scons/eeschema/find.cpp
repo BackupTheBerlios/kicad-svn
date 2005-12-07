@@ -251,7 +251,7 @@ wxString msg, WildText;
 
 	else
 	{
-		Affiche_Message("");
+		Affiche_Message(wxEmptyString);
 		msg = _("Marker Not Found");
 		DisplayError(NULL,msg, 10);
 	}
@@ -271,7 +271,7 @@ int id = event.GetId();
 
 	if( id == FIND_SHEET ) m_Parent->FindSchematicItem(m_NewTextCtrl->GetData(), 0);
 	else if( id == FIND_HIERARCHY ) m_Parent->FindSchematicItem(m_NewTextCtrl->GetData(), 1);
-	else if( id == FIND_NEXT ) m_Parent->FindSchematicItem("", 2);
+	else if( id == FIND_NEXT ) m_Parent->FindSchematicItem(wxEmptyString, 2);
 
 	Close();
 }
@@ -435,7 +435,7 @@ wxString msg, WildText;
 
 	else
 	{
-		Affiche_Message("");
+		Affiche_Message(wxEmptyString);
 		msg = WildText + _(" Not Found");
 		DisplayError(this,msg, 10);
 	}
@@ -451,13 +451,13 @@ void WinEDA_FindFrame::LocatePartInLibs(wxCommandEvent& event)
 */
 {
 wxString Text, FindList;
-const char ** ListNames;
+const wxChar ** ListNames;
 LibraryStruct *Lib = NULL;
 EDA_LibComponentStruct * LibEntry;
 bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 	
 	Text = m_NewTextCtrl->GetData();
-	if ( Text == "" )
+	if ( Text.IsEmpty() )
 	{
 		Close(); return;
 	}
@@ -478,7 +478,7 @@ bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 	bool IsLibCache;
 		Lib = FindLibrary(ListNames[ii]);
 		if ( Lib == NULL ) break;
-		if ( Lib->m_Name.Contains(".cache") ) IsLibCache = TRUE;
+		if ( Lib->m_Name.Contains( wxT(".cache")) ) IsLibCache = TRUE;
 		else IsLibCache = FALSE;
 		LibEntry = (EDA_LibComponentStruct *) PQFirst(&Lib->m_Entries, FALSE);
 		while( LibEntry )
@@ -487,7 +487,7 @@ bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 			{
 				nbitems ++;
 				if ( ! IsLibCache ) FoundInLib = TRUE;
-				if ( FindList != "" ) FindList += "\n";
+				if ( ! FindList.IsEmpty() ) FindList += wxT("\n");
 				FindList << _("Found ")
 						+ LibEntry->m_Name.m_Text
 						+ _(" in lib ") + Lib->m_Name;
@@ -500,14 +500,14 @@ bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 	
 	if ( ! FoundInLib )
 	{
-		if ( nbitems ) FindList = "\n" + Text + _(" found only in cache");
+		if ( nbitems ) FindList = wxT("\n") + Text + _(" found only in cache");
 		else FindList = Text + _(" not found");
 		FindList += _("\nExplore All Libraries?");
 		if ( IsOK(this, FindList) )
 		{
-			FindList = "";
+			FindList.Empty();
 			ExploreAllLibraries(Text, FindList);
-			if ( FindList == "" ) DisplayInfo(this, _("Nothing found") );
+			if ( FindList.IsEmpty() ) DisplayInfo(this, _("Nothing found") );
 			else DisplayInfo(this, FindList);
 		}
 	}
@@ -526,12 +526,12 @@ FILE * file;
 int nbitems = 0, LineNum = 0;
 char Line[2048], *name;
 	
-	FullFileName = MakeFileName(g_RealLibDirBuffer, "*", g_LibExtBuffer);
+	FullFileName = MakeFileName(g_RealLibDirBuffer, wxT("*"), g_LibExtBuffer);
 	
 	FullFileName = wxFindFirstFile(FullFileName);
-	while ( FullFileName != "" )
+	while ( ! FullFileName.IsEmpty() )
 	{
-		file = fopen(FullFileName.GetData(), "rt");
+		file = wxFopen(FullFileName, wxT("rt"));
 		if (file == NULL) continue;
  
 		while (GetLine(file, Line, &LineNum, sizeof(Line)) )
@@ -540,11 +540,12 @@ char Line[2048], *name;
 			{ /* Read one DEF part from library: DEF 74LS00 U 0 30 Y Y 4 0 N */
 				strtok(Line, " \t\r\n");
 				name = strtok(NULL, " \t\r\n");
-				if( WildCompareString(wildmask, name, FALSE) )
+				wxString st_name = CONV_FROM_UTF8(name);
+				if( WildCompareString(wildmask, st_name, FALSE) )
 				{
 					nbitems ++;
-					if ( FindList != "" ) FindList += "\n";
-					FindList << _("Found ") << name
+					if ( ! FindList.IsEmpty() ) FindList += wxT("\n");
+					FindList << _("Found ") << CONV_FROM_UTF8(name)
 							<< _(" in lib ") << FullFileName;
 				}
 			}
@@ -553,11 +554,12 @@ char Line[2048], *name;
 				strtok(Line, " \t\r\n");
 				while ( (name = strtok(NULL, " \t\r\n")) != NULL )
 				{
-					if( WildCompareString(wildmask, name, FALSE) )
+					wxString st_name = CONV_FROM_UTF8(name);
+					if( WildCompareString( wildmask, st_name, FALSE) )
 					{
 						nbitems ++;
-						if ( FindList != "" ) FindList += "\n";
-						FindList << _("Found ") << name
+						if ( ! FindList.IsEmpty() ) FindList += wxT("\n");
+						FindList << _("Found ") << CONV_FROM_UTF8(name)
 								<< _(" in lib ") << FullFileName;
 					}
 				}

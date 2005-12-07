@@ -67,7 +67,7 @@ int net_code;
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_PcbFrame::UnDeleteItem(): unexpected Struct type");
+			DisplayError(this, wxT("WinEDA_PcbFrame::UnDeleteItem(): unexpected Struct type"));
 			break;
 		}
 }

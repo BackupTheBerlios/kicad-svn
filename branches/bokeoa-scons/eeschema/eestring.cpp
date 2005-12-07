@@ -19,7 +19,7 @@ extern void Move_Plume( wxPoint pos, int plume ); // see plot.cpp
 /*****************************************************************************/
 void PutTextInfo(WinEDA_DrawPanel * panel, wxDC * DC,
 					int Orient, const wxPoint& Pos, const wxSize& Size,
-					const char *Str, int DrawMode, int color)
+					const wxString & Str, int DrawMode, int color)
 /*****************************************************************************/
 /* Put out a string, always centered to the given position, with given
 	orientation, taking into account current zoom factor.
@@ -47,8 +47,8 @@ void LibDrawPin::DrawPinTexts(WinEDA_DrawPanel * panel, wxDC * DC,
 /* DrawMode = GR_OR, XOR ... */
 {
 int ii, x, y, x1, y1, dx, dy, len;
-char StringPinNum[80];
-char PinText[256];
+wxString StringPinNum;
+wxString PinText;
 int PinTextBarPos[256];
 int PinTextBarCount;
 int NameColor, NumColor;
@@ -74,8 +74,7 @@ wxSize PinNumSize(m_SizeNum,m_SizeNum);
 		case PIN_RIGHT: x1 += m_PinLen; break;
 	}
 
-	const char * textsrc = m_PinName.GetData();
-	char * textdest = PinText;
+	const wxChar * textsrc = m_PinName.GetData();
 	float fPinTextPitch = PinNameSize.x * 1.1;
 	/* Do we need to invert the string? Is this string has only "~"? */
 	PinTextBarCount = 0; PinTxtLen = 0;
@@ -88,7 +87,7 @@ wxSize PinNumSize(m_SizeNum,m_SizeNum);
 		}
 		else
 		{
-			*(textdest++) = * textsrc;
+			PinText.Append(* textsrc);
 			PinTxtLen ++;
 		}
 		
@@ -97,7 +96,6 @@ wxSize PinNumSize(m_SizeNum,m_SizeNum);
 	
 	PinTxtLen = (int) (fPinTextPitch * PinTxtLen);
 	PinTextBarPos[PinTextBarCount] = PinTxtLen;	// Needed if no end '~'
-	*textdest = 0;
 	
 	if (PinText[0] == 0) DrawPinName = FALSE;
 
@@ -290,8 +288,8 @@ void LibDrawPin::PlotPinTexts(wxPoint & pin_pos, int orient,
 {
 int dx, len, start;
 int ii , x, y, x1, y1, cte;
-char StringPinNum[MAX_PIN_INFO];
-char PinText[256];
+wxString StringPinNum;
+wxString PinText;
 int PinTextBarPos[256];
 int PinTextBarCount;
 int NameColor, NumColor;
@@ -315,8 +313,7 @@ bool plot_color = (g_PlotFormat == PLOT_FORMAT_POST) && g_PlotPSColorOpt;
 		case PIN_RIGHT: x1 += m_PinLen; break;
 	}
 
-	const char * textsrc = m_PinName.GetData();
-	char * textdest = PinText;
+	const wxChar * textsrc = m_PinName.GetData();
 	float fPinTextPitch = PinNameSize.x * 1.1;
 	/* Do we need to invert the string? Is this string has only "~"? */
 	PinTextBarCount = 0; PinTxtLen = 0;
@@ -329,7 +326,7 @@ bool plot_color = (g_PlotFormat == PLOT_FORMAT_POST) && g_PlotPSColorOpt;
 		}
 		else
 		{
-			*(textdest++) = * textsrc;
+			PinText.Append(* textsrc);
 			PinTxtLen ++;
 		}
 		
@@ -338,7 +335,6 @@ bool plot_color = (g_PlotFormat == PLOT_FORMAT_POST) && g_PlotPSColorOpt;
 	
 	PinTxtLen = (int) (fPinTextPitch * PinTxtLen);
 	PinTextBarPos[PinTextBarCount] = PinTxtLen;	// Needed if no end '~'
-	*textdest = 0;
 	
 	if (PinText[0] == 0) DrawPinName = FALSE;
 

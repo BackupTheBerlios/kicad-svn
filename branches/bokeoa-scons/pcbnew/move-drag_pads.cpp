@@ -209,7 +209,7 @@ int rX, rY;
 
 	/* Mise a jour des caract de la pastille : */
 	Import_Pad_Settings(Pad, NULL);
-	Pad->m_Netname = "";
+	Pad->m_Netname.Empty();
 
 	Pad->m_Pos = GetScreen()->m_Curseur;
 	rX = Pad->m_Pos.x - Module->m_Pos.x;
@@ -242,15 +242,15 @@ void WinEDA_BasePcbFrame::DeletePad(D_PAD* Pad, wxDC * DC)
 /* Routine de suppression d'une pastille sur le module selectionne */
 {
 MODULE * Module;
-char line[1024];
+wxString line;
 
 	if ( Pad == NULL ) return;
 
 	Module = (MODULE*) Pad->m_Parent;
 	Module->m_LastEdit_Time = time(NULL);
 
-	sprintf(line, "Delete Pad (module %s %s) ",
-		Module->m_Reference->GetText(),Module->m_Value->GetText() );
+	line.Printf( _("Delete Pad (module %s %s) "),
+		Module->m_Reference->m_Text.GetData(),Module->m_Value->m_Text.GetData() );
 	if( ! IsOK(this, line) ) return ;
 
 	m_Pcb->m_Status_Pcb = 0 ;

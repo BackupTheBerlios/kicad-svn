@@ -1349,12 +1349,10 @@ void GRSetTextFgColor(wxDC * DC, wxFont *, int Color)
 
 
 /*****************************************************************************/
-/* void GRGetTextExtent(wxDC * DC, chat * Text, long * width, long * height) */
+void GRGetTextExtent(wxDC * DC, const wxChar * Text, long * width, long * height)
 /*****************************************************************************/
-
 /* donne la taille du rectangle d'encadrement du texte Text
 */
-void GRGetTextExtent(wxDC * DC, char * Text, long * width, long * height)
 {
 long w = 0, h = 0;
 

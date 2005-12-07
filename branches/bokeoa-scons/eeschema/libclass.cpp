@@ -105,7 +105,7 @@ char Line[1024], * text, * data;
 */
 
 /********************************************************************/
-LibCmpEntry::LibCmpEntry(LibrEntryType CmpType, const char * CmpName):
+LibCmpEntry::LibCmpEntry(LibrEntryType CmpType, const wxChar * CmpName):
 		EDA_BaseStruct(LIBCOMPONENT_STRUCT_TYPE)
 /********************************************************************/
 {
@@ -121,9 +121,9 @@ LibCmpEntry::~LibCmpEntry(void)
 }
 
 
-	/***************************/
+	/*******************************/
 	/* class EDA_LibCmpAliasStruct */
-	/***************************/
+	/*******************************/
 
 /* Decrit un alias d'un composant standard en librairie
 	Un alias est identique au composant standard
@@ -131,11 +131,11 @@ LibCmpEntry::~LibCmpEntry(void)
 	Le gain de place en memoire est important
 */
 
-EDA_LibCmpAliasStruct:: EDA_LibCmpAliasStruct( const char * CmpName,
-				const char * CmpRootName):
+EDA_LibCmpAliasStruct:: EDA_LibCmpAliasStruct( const wxChar * CmpName,
+				const wxChar * CmpRootName):
 	LibCmpEntry(ALIAS, CmpName)
 {
-	if ( CmpRootName == NULL) m_RootName = "";
+	if ( CmpRootName == NULL) m_RootName.Empty();
 	else m_RootName = CmpRootName;
 }
 
@@ -144,13 +144,13 @@ EDA_LibCmpAliasStruct::~EDA_LibCmpAliasStruct(void)
 }
 
 
-	/****************************/
+	/********************************/
 	/* class EDA_LibComponentStruct */
-	/****************************/
+	/********************************/
 
 /* This is a standard component  (in library)
 */
-EDA_LibComponentStruct:: EDA_LibComponentStruct( const char * CmpName):
+EDA_LibComponentStruct:: EDA_LibComponentStruct( const wxChar * CmpName):
 	LibCmpEntry(ROOT, CmpName)
 {
 	m_Drawings = NULL;
@@ -460,16 +460,39 @@ int t1, t2;
 }
 
 
-/************************************************/
-void LibDrawPin::ReturnPinStringNum(char * buffer)
-/************************************************/
-/* fill the buffer with pin num as a string (null terminated)
+/****************************************************/
+void LibDrawPin::ReturnPinStringNum(wxString & buffer)
+/****************************************************/
+/* fill the buffer with pin num as a wxString
 	Pin num is coded as a long
 	Used to print/draw the pin num
 */
 {
-	strncpy(buffer, (char*)&m_PinNum,4);
-	buffer[4]=0;
+char ascii_buf[5];
+	
+	strncpy(ascii_buf, (char*)&m_PinNum,4);
+	ascii_buf[4]=0;
+
+	buffer = CONV_FROM_UTF8(ascii_buf);
+}
+/****************************************************/
+void LibDrawPin::SetPinNumFromString(wxString & buffer)
+/****************************************************/
+/* fill the buffer with pin num as a wxString
+	Pin num is coded as a long
+	Used to print/draw the pin num
+*/
+{
+char ascii_buf[4];
+unsigned ii, len = buffer.Len();
+	
+	ascii_buf[0] = ascii_buf[1] = ascii_buf[2] = ascii_buf[3] = 0;
+	if ( len > 4 ) len = 4;
+	for ( ii = 0; ii < len; ii ++ )
+	{
+		ascii_buf[ii] = buffer.GetChar(ii) & 0xFF;
+	}
+	strncpy((char*)&m_PinNum, ascii_buf, 4);
 }
 
 /*************************************/

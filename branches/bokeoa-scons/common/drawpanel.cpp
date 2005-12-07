@@ -61,7 +61,7 @@ WinEDA_DrawPanel::WinEDA_DrawPanel(WinEDA_DrawFrame *parent, int id,
 	m_IgnoreMouseEvents = FALSE;
 
 	if ( m_Parent->m_Parent->m_EDA_Config )
-		m_AutoPAN_Enable = m_Parent->m_Parent->m_EDA_Config->Read("AutoPAN", TRUE);
+		m_AutoPAN_Enable = m_Parent->m_Parent->m_EDA_Config->Read(wxT("AutoPAN"), TRUE);
 	m_AutoPAN_Request = FALSE;
 	m_Block_Enable = FALSE;
 	m_PanelDefaultCursor = m_PanelCursor = wxCURSOR_ARROW;
@@ -742,7 +742,7 @@ int kbstat = 0;
 				if ( event.MiddleIsDown() )	cmd_type |= MOUSE_MIDDLE;
 				if ( ! m_Parent->HandleBlockBegin(&DC, cmd_type, m_CursorStartPos) )
 				{	// error
-					m_Parent->DisplayToolMsg("WinEDA_DrawPanel::OnMouseEvent() Block Error");
+					m_Parent->DisplayToolMsg( wxT("WinEDA_DrawPanel::OnMouseEvent() Block Error") );
 				}
 				else
 				{
@@ -858,7 +858,7 @@ BASE_SCREEN * Screen = GetScreen();
 			Screen->ForceCloseManageCurseur(m_Parent, &DC);
 			SetCursor(m_PanelCursor = m_PanelDefaultCursor);
 		}
-		else m_Parent->SetToolID(0, m_PanelCursor = m_PanelDefaultCursor = wxCURSOR_ARROW, "");
+		else m_Parent->SetToolID(0, m_PanelCursor = m_PanelDefaultCursor = wxCURSOR_ARROW, wxEmptyString);
 	}
 
 	m_Parent->GeneralControle(&DC, MouseBoardPos);

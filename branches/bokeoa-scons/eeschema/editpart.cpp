@@ -115,7 +115,7 @@ void InstallCmpeditFrame(WinEDA_SchematicFrame * parent, wxPoint & pos,
 	parent->DrawPanel->m_IgnoreMouseEvents = TRUE;
 	if ( cmp->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 	{
-		DisplayError( parent, "InstallCmpeditFrame() error: This struct is not a component");
+		DisplayError( parent, wxT("InstallCmpeditFrame() error: This struct is not a component") );
 	}
 	else
 	{
@@ -146,7 +146,7 @@ int ii;
 	m_Parent = parent;
 	m_Cmp = cmp;
 	cmp_pos = m_Cmp->m_Pos;
-	m_LibEntry = FindLibPart(m_Cmp->m_ChipName, "", FIND_ROOT);
+	m_LibEntry = FindLibPart(m_Cmp->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 
 	if ( m_LibEntry == NULL )
 		{
@@ -236,7 +236,7 @@ int ii;
 							pos, 200, TRUE);
 		field_pos.x = m_Cmp->m_Field[ii].m_Pos.x - cmp_pos.x;
 		field_pos.y = m_Cmp->m_Field[ii].m_Pos.y - cmp_pos.y;
-		if ( m_Cmp->m_Field[ii].m_Text == "" ) // Field non initialisé, set pos a 0,0)
+		if ( m_Cmp->m_Field[ii].m_Text == wxEmptyString ) // Field non initialisé, set pos a 0,0)
 			field_pos = wxPoint(0,0);
 		FieldPosition[ii] = new WinEDA_PositionCtrl( m_PanelField[ii], _("Pos"),
 							field_pos,
@@ -296,7 +296,7 @@ wxString list_units[NB_MAX_UNIT];
 	m_SelectUnit->GetSize(&ii, &jj);
 	pos.x += ii + 5; postmp = pos;
 
-wxString list_orient[4] = { "0", "+90", "180", "-90"};
+wxString list_orient[4] = { wxT("0"), wxT("+90"), wxT("180"), wxT("-90") };
 	pos.x += 45; pos.y = 15;
 	m_OrientUnit = new wxRadioBox(m_PanelBasic, -1, _("Orient:"),
 				pos, wxSize(-1,-1), 4, list_orient, 1);
@@ -360,12 +360,12 @@ wxString newname;
 
 	newname = m_RefInLib->GetData();
 	newname.MakeUpper();
-	newname.Replace(" ","_");
+	newname.Replace(wxT(" "), wxT("_"));
 
 	if ( newname.IsEmpty() ) DisplayError(this, _("No Component Name!"));
 	else if ( newname.CmpNoCase(m_Cmp->m_ChipName) )
 	{
-		if ( FindLibPart(newname, "", FIND_ALIAS) == NULL )
+		if ( FindLibPart(newname.GetData(), wxEmptyString, FIND_ALIAS) == NULL )
 		{
 			wxString msg;
 			msg.Printf(  _("Component [%s] not found!"), newname.GetData() );
@@ -373,8 +373,7 @@ wxString newname;
 		}
 		else	// Changement de composant!
 		{
-			free (m_Cmp->m_ChipName);
-			m_Cmp->m_ChipName = strdup(newname.GetData());
+			m_Cmp->m_ChipName = newname;
 		}
 	}
 
@@ -421,15 +420,15 @@ wxString newname;
 	{
 		if( ii == REFERENCE )	// la reference ne peut etre vide
 		{
-			if ( strlen(FieldTextCtrl[ii]->GetText()) )
+			if ( ! FieldTextCtrl[ii]->GetText().IsEmpty() )
 				m_Cmp->m_Field[ii].m_Text = FieldTextCtrl[ii]->GetText();
 		}
 		else if( ii == VALUE )	// la valeur ne peut etre vide et ne peut etre change sur un POWER
 		{
-		EDA_LibComponentStruct *Entry = FindLibPart(m_Cmp->m_ChipName, "", FIND_ROOT);
+		EDA_LibComponentStruct *Entry = FindLibPart(m_Cmp->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 			if( Entry && (Entry->m_Options == ENTRY_POWER) )
 				m_Cmp->m_Field[ii].m_Text = m_Cmp->m_ChipName;
-			else if ( strlen(FieldTextCtrl[ii]->GetText()) )
+			else if ( ! FieldTextCtrl[ii]->GetText().IsEmpty() )
 			{
 					m_Cmp->m_Field[ii].m_Text = FieldTextCtrl[ii]->GetText();
 			}
@@ -469,7 +468,7 @@ EDA_LibComponentStruct *Entry;
 	CurrentField = Field;
 	if ( Field == NULL ) return;
 
-	if(Field->m_Text == "")
+	if(Field->m_Text == wxEmptyString)
 		{
 		DisplayError(this, _("No Field to move"), 10);
 		return;
@@ -479,8 +478,8 @@ EDA_LibComponentStruct *Entry;
 	Multiflag = 0;
 	if( Field->m_FieldId == REFERENCE )
 		{
-		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName,
-							"", FIND_ROOT);
+		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName.GetData(),
+							wxEmptyString, FIND_ROOT);
 		if( Entry  != NULL )
 			{
 			if ( Entry->m_UnitCount > 1 ) Multiflag = 1;
@@ -510,8 +509,8 @@ EDA_LibComponentStruct *Entry;
 	FieldNumber = Field->m_FieldId;
 	if( FieldNumber == VALUE )
 	{
-		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName,
-							"", FIND_ROOT);
+		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName.GetData(),
+							wxEmptyString, FIND_ROOT);
 		if( Entry && (Entry->m_Options == ENTRY_POWER) )
 		{
 			DisplayInfo(this,
@@ -523,8 +522,8 @@ EDA_LibComponentStruct *Entry;
 	flag = 0;
 	if( FieldNumber == REFERENCE )
 	{
-		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName,
-							"", FIND_ROOT);
+		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName.GetData(),
+							wxEmptyString, FIND_ROOT);
 		if( Entry != NULL )
 		{
 			if ( Entry->m_UnitCount > 1 ) flag = 1;
@@ -559,7 +558,7 @@ EDA_LibComponentStruct *Entry;
 		}
 		else
 		{
-			Field->m_Text = "~";
+			Field->m_Text = wxT("~");
 		}
 	}
 
@@ -626,14 +625,14 @@ int FieldNumber, flag;
 EDA_LibComponentStruct *Entry;
 
 	if (Field == NULL ) return;
-	if (Field->m_Text == "" ) return;
+	if (Field->m_Text == wxEmptyString ) return;
 
 	FieldNumber = Field->m_FieldId;
 	flag = 0;
 	if( FieldNumber == REFERENCE )
 		{
-		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName,
-							"", FIND_ROOT);
+		Entry = FindLibPart( ((EDA_SchComponentStruct*)Field->m_Parent)->m_ChipName.GetData(),
+							wxEmptyString, FIND_ROOT);
 		if( Entry != NULL )
 			{
 			if ( Entry->m_UnitCount > 1 ) flag = 1;
@@ -664,8 +663,8 @@ EDA_LibComponentStruct *Entry;
 	flag = 0;
 	if( FieldNumber == REFERENCE )
 		{
-		Entry = FindLibPart( ((EDA_SchComponentStruct*)m_Parent)->m_ChipName,
-							"", FIND_ROOT);
+		Entry = FindLibPart( ((EDA_SchComponentStruct*)m_Parent)->m_ChipName.GetData(),
+							wxEmptyString, FIND_ROOT);
 		if( Entry != NULL )
 			{
 			if ( Entry->m_UnitCount > 1 ) flag = 1;
@@ -692,7 +691,7 @@ int flag = 0;
 
 	if( DrawLibItem == NULL ) return;
 
-	Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+	Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 	if ( Entry == NULL ) return;
 
 	if ( Entry->m_UnitCount > 1 ) flag = 1;
@@ -724,7 +723,7 @@ int flag = 0;
 
 	if( DrawLibItem == NULL ) return;
 
-	Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+	Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 	if ( Entry == NULL ) return;
 	if ( Entry->m_UnitCount > 1 ) flag = 1;
 
@@ -756,7 +755,7 @@ EDA_LibComponentStruct *Entry;
 
 	if ( m_Cmp == NULL ) return;
 
-	Entry = FindLibPart(m_Cmp->m_ChipName, "", FIND_ROOT);
+	Entry = FindLibPart(m_Cmp->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 
 	if( Entry == NULL) return;
 

@@ -28,7 +28,7 @@
 /* fonctions importees */
 
 /* fonctions locales */
-static bool WriteDiagnosticERC(const char * FullFileName);
+static bool WriteDiagnosticERC(const wxString & FullFileName);
 static void Diagnose(WinEDA_DrawPanel * panel, wxDC * DC,
 				ObjetNetListStruct * NetItemRef,
 				ObjetNetListStruct * NetItemTst, int MinConnexion, int Diag);
@@ -53,34 +53,34 @@ static int WriteFichierERC = FALSE;
 #define ERR 2
 #define UNC 3
 
-static char * CommentERC_H[] =
+static wxChar * CommentERC_H[] =
 {
-	"Input Pin....",
-	"Output Pin...",
-	"BiDi Pin.....",
-	"3 State Pin..",
-	"Passive Pin..",
-	"Unspec Pin...",
-	"Power IN Pin.",
-	"PowerOUT Pin.",
-	"Open Coll....",
-	"Open Emit....",
-	"No Conn......",
+	wxT("Input Pin...."),
+	wxT("Output Pin..."),
+	wxT("BiDi Pin....."),
+	wxT("3 State Pin.."),
+	wxT("Passive Pin.."),
+	wxT("Unspec Pin..."),
+	wxT("Power IN Pin."),
+	wxT("PowerOUT Pin."),
+	wxT("Open Coll...."),
+	wxT("Open Emit...."),
+	wxT("No Conn......"),
 	NULL
 };
-static char * CommentERC_V[] =
+static wxChar * CommentERC_V[] =
 {
-	"Input Pin",
-	"Output Pin",
-	"BiDi Pin",
-	"3 State Pin",
-	"Passive Pin",
-	"Unspec Pin",
-	"Power IN Pin",
-	"PowerOUT Pin",
-	"Open Coll",
-	"Open Emit",
-	"No Conn",
+	wxT("Input Pin"),
+	wxT("Output Pin"),
+	wxT("BiDi Pin"),
+	wxT("3 State Pin"),
+	wxT("Passive Pin"),
+	wxT("Unspec Pin"),
+	wxT("Power IN Pin"),
+	wxT("PowerOUT Pin"),
+	wxT("Open Coll"),
+	wxT("Open Emit"),
+	wxT("No Conn"),
 	NULL
 };
 
@@ -207,7 +207,7 @@ void InstallErcFrame(WinEDA_DrawFrame *parent, wxPoint & pos)
 
 
 #define H_SIZE 430
-#define V_SIZE 325
+#define V_SIZE 335
 /*******************************************************************************/
 WinEDA_ErcFrame::WinEDA_ErcFrame(WinEDA_DrawFrame *parent, wxPoint& framepos):
 		wxDialog(parent, -1, _("EESchema Erc"), framepos, wxSize(H_SIZE, V_SIZE),
@@ -461,19 +461,19 @@ wxClientDC dc(m_Parent->DrawPanel);
 	{
 		wxString ErcFullFileName;
 		ErcFullFileName = ScreenSch->m_FileName;
-		ChangeFileNameExt(ErcFullFileName, ".erc");
+		ChangeFileNameExt(ErcFullFileName, wxT(".erc"));
 		ErcFullFileName = EDA_FileSelector(_("ERC file:"),
-					"",					/* Chemin par defaut */
+					wxEmptyString,					/* Chemin par defaut */
 					ErcFullFileName,	/* nom fichier par defaut */
-					".erc",				/* extension par defaut */
-					"*.erc",			/* Masque d'affichage */
+					wxT(".erc"),				/* extension par defaut */
+					wxT("*.erc"),			/* Masque d'affichage */
 					this,
 					wxSAVE,
 					TRUE
 					);
-		if ( ErcFullFileName == "") return;
+		if ( ErcFullFileName.IsEmpty()) return;
 
-		if ( WriteDiagnosticERC(ErcFullFileName.GetData()) )
+		if ( WriteDiagnosticERC(ErcFullFileName) )
 		{
 			Close(TRUE);
 			wxString editorname = GetEditorName();
@@ -585,15 +585,14 @@ static void Diagnose(WinEDA_DrawPanel * panel, wxDC * DC,
 */
 {
 DrawMarkerStruct * Marker = NULL;
-char Line[256];
-const char * DiagLevel;
+wxString DiagLevel;
 SCH_SCREEN * screen;
 int ii, jj;
 
 	if( Diag == OK ) return;
 
 	/* Creation du nouveau marqueur type Erreur ERC */
-	Marker = new DrawMarkerStruct(NetItemRef->m_Start, "");
+	Marker = new DrawMarkerStruct(NetItemRef->m_Start, wxEmptyString);
 	Marker->m_Type = MARQ_ERC;
 	Marker->m_MarkFlags = WAR;
 	screen = NetItemRef->m_Window;
@@ -607,13 +606,12 @@ int ii, jj;
 		if( (NetItemRef->m_Type == NET_GLOBLABEL) ||
 			(NetItemRef->m_Type == NET_GLOBBUSLABELMEMBER) )
 			{
-			sprintf(Line,_("Warning GLabel %s not connected to SheetLabel"),
+			Marker->m_Comment.Printf( _("Warning GLabel %s not connected to SheetLabel"),
 					NetItemRef->m_Label);
 			}
-		else sprintf(Line,_("Warning SheetLabel %s not connected to GLabel"),
+		else Marker->m_Comment.Printf( _("Warning SheetLabel %s not connected to GLabel"),
 					NetItemRef->m_Label);
 
-		Marker->m_Comment = Line;
 		if( screen == panel->GetScreen() ) RedrawOneStruct(panel, DC, Marker, GR_COPY);
 		return;
 		}
@@ -624,8 +622,7 @@ int ii, jj;
 		{
 		if( MinConn == NOC )	/* 1 seul element dans le net */
 			{
-			sprintf(Line,_("Warning Pin %s Unconnected"), MsgPinElectricType[ii]);
-			Marker->m_Comment = Line;
+			Marker->m_Comment.Printf( _("Warning Pin %s Unconnected"), MsgPinElectricType[ii]);
 			if( screen == panel->GetScreen() )
 				RedrawOneStruct(panel, DC, Marker, GR_COPY);
 			return;
@@ -633,9 +630,9 @@ int ii, jj;
 
 		if( MinConn == NOD )	/* pas de pilotage du net */
 			{
-			sprintf(Line,_("Warning Pin %s not drived (Net %d)"),
+			Marker->m_Comment.Printf(
+				_("Warning Pin %s not drived (Net %d)"),
 				MsgPinElectricType[ii], NetItemRef->m_NetCode);
-			Marker->m_Comment = Line;
 			if( screen == panel->GetScreen() )
 				RedrawOneStruct(panel, DC, Marker, GR_COPY);
 			return;
@@ -643,9 +640,8 @@ int ii, jj;
 
 		if( Diag == UNC )
 			{
-			sprintf(Line,
+			Marker->m_Comment.Printf( 
                 _("Warning More than 1 Pin connected to UnConnect symbol") );
-			Marker->m_Comment = Line;
 			if( screen == panel->GetScreen() )
 				RedrawOneStruct(panel, DC, Marker, GR_COPY);
 			return;
@@ -654,24 +650,24 @@ int ii, jj;
 		}
 
 	if( NetItemTst )		 /* Erreur entre 2 pins */
-		{
+	{
 		jj = NetItemTst->m_ElectricalType;
 		DiagLevel = _("Warning");
 		if(Diag == ERR)
-			{
+		{
 			DiagLevel = _("Error");
 			Marker->m_MarkFlags = ERR;
 			g_EESchemaVar.NbWarningErc--;
-			}
+		}
 
 
-		sprintf(Line,_("%s: Pin %s connected to Pin %s (net %d)"), DiagLevel,
+		Marker->m_Comment.Printf( _("%s: Pin %s connected to Pin %s (net %d)"), DiagLevel.GetData(),
 					 MsgPinElectricType[ii],
 					 MsgPinElectricType[jj], NetItemRef->m_NetCode);
-		Marker->m_Comment = Line;
+
 		if( screen == panel->GetScreen() )
 			RedrawOneStruct(panel, DC, Marker, GR_COPY);
-		}
+	}
 }
 
 
@@ -757,7 +753,7 @@ int ref_elect_type, jj, erc = OK, local_minconn;
 
 
 /********************************************************/
-static bool WriteDiagnosticERC(const char * FullFileName)
+static bool WriteDiagnosticERC(const wxString & FullFileName)
 /*********************************************************/
 /* Genere le fichier des diagnostics
 */
@@ -768,19 +764,22 @@ DrawMarkerStruct * Marker;
 char Line[256];
 static FILE * OutErc;
 DrawSheetStruct * Sheet;
-
-	if( (OutErc = fopen( FullFileName, "wt")) == NULL ) return FALSE;
+wxString msg;
+	
+	if( (OutErc = wxFopen( FullFileName, wxT("wt"))) == NULL ) return FALSE;
 
 	DateAndTime(Line);
-	fprintf( OutErc, _("ERC control (%s)\n"), Line);
+	msg = _("ERC control");
+	fprintf( OutErc, "%s (%s)\n", CONV_TO_UTF8(msg), Line);
 
 	for( Window = ScreenSch; Window != NULL; Window = (SCH_SCREEN*)Window->Pnext )
 		{
 		Sheet = (DrawSheetStruct *) Window->m_Parent;
 
-		fprintf( OutErc, _("\n***** Sheet %d (%s)\n"),
+		msg.Printf( _("\n***** Sheet %d (%s)\n"),
 							Window->m_SheetNumber,
 							Sheet ? Sheet->m_Field[VALUE].m_Text.GetData() : _("Root"));
+		fprintf( OutErc, "%s", CONV_TO_UTF8(msg));
 
 		DrawStruct = Window->EEDrawList;
 		for ( ; DrawStruct != NULL; DrawStruct = DrawStruct->Pnext)
@@ -792,13 +791,15 @@ DrawSheetStruct * Sheet;
 			Marker = (DrawMarkerStruct * ) DrawStruct;
 			if( Marker->m_Type != MARQ_ERC ) continue;
 			/* Write diag marqueur */
-			fprintf( OutErc, _("ERC: %s (X= %2.3f inches, Y= %2.3f inches\n"),
-								 Marker->GetComment(),
+			msg.Printf( _("ERC: %s (X= %2.3f inches, Y= %2.3f inches\n"),
+								 Marker->GetComment().GetData(),
 								 (float)Marker->m_Pos.x / 1000,
 								 (float)Marker->m_Pos.y / 1000);
+			fprintf( OutErc, "%s", CONV_TO_UTF8(msg));
 			}
 		}
-	fprintf( OutErc, _("\n >> Errors ERC: %d\n"), g_EESchemaVar.NbErrorErc);
+	msg.Printf( _("\n >> Errors ERC: %d\n"), g_EESchemaVar.NbErrorErc);
+	fprintf( OutErc, "%s", CONV_TO_UTF8(msg));
 	fclose ( OutErc );
 
 	return TRUE;

@@ -6,9 +6,9 @@
 #define eda_global extern
 #endif
 
-#define GROUP "/eeschema"
-#define GROUPCOMMON "/common"
-#define GROUPLIB "libraries"
+#define GROUP wxT("/eeschema")
+#define GROUPCOMMON wxT("/common")
+#define GROUPLIB wxT("libraries")
 
 #include "netlist.h"	/* Definitions generales liees au calcul de netliste */
 
@@ -19,26 +19,24 @@ extern int PenMinWidth;
 
 #define INSETUP TRUE
 
-//extern PARAM_CFG_INT UserLibDirBufCfg;
-
 
 static PARAM_CFG_WXSTRING UserLibDirBufCfg
 	(
-	"LibDir",		  		/* identification */
+	wxT("LibDir"),		  		/* identification */
 	&g_UserLibDirBuffer 	/* Adresse du parametre */
 	);
 
 
 static PARAM_CFG_LIBNAME_LIST LibNameBufCfg
 (
-	"LibName",			/* identification */
+	wxT("LibName"),			/* identification */
 	&g_LibName_List,	/* Adresse du parametre */
 	GROUPLIB			/* Groupe */
 );
 
 static PARAM_CFG_INT NetFormatCfg
 (
-	"NetFmt",			/* identification */
+	wxT("NetFmt"),			/* identification */
 	&g_NetFormat,			/* Adresse du parametre */
 	NET_TYPE_PCBNEW,	/* Valeur par defaut */
 	NET_TYPE_NOT_INIT, NET_TYPE_MAX-1	/* Valeurs extremes */
@@ -47,7 +45,7 @@ static PARAM_CFG_INT NetFormatCfg
 static PARAM_CFG_INT UnitCfg
 (
 	INSETUP,
-	"Unite",			/* identification */
+	wxT("Unite"),			/* identification */
 	&UnitMetric,	 	/* Adresse du parametre */
 	0,					/* Valeur par defaut */
 	0, 1				/* Valeurs extremes */
@@ -56,7 +54,7 @@ static PARAM_CFG_INT UnitCfg
 static PARAM_CFG_INT CursorShapeCfg
 (
 	INSETUP,
-	"CuShape",			/* identification */
+	wxT("CuShape"),			/* identification */
 	&g_CursorShape,	/* Adresse du parametre */
 	0,					/* Valeur par defaut */
 	0, 1				/* Valeurs extremes */
@@ -65,7 +63,7 @@ static PARAM_CFG_INT CursorShapeCfg
 static PARAM_CFG_INT ShowGridCfg
 (
 	INSETUP,
-	"ShGrid",			/* identification */
+	wxT("ShGrid"),			/* identification */
 	&g_ShowGrid,	 		/* Adresse du parametre */
 	0, 1,				/* Valeurs extremes */
 	1					/* Valeur par defaut */
@@ -74,7 +72,7 @@ static PARAM_CFG_INT ShowGridCfg
 static PARAM_CFG_SETCOLOR DrawBgColorCfg
 (
 	INSETUP,
-	"BgColor",			/* identification */
+	wxT("BgColor"),			/* identification */
 	&DrawBgColor,	 	/* Adresse du parametre */
 	WHITE				/* Valeur par defaut */
 );
@@ -82,7 +80,7 @@ static PARAM_CFG_SETCOLOR DrawBgColorCfg
 static PARAM_CFG_SETCOLOR ColorLayerWireCfg
 (
 	INSETUP,
-	"ColWire",				/* identification */
+	wxT("ColWire"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_WIRE],		/* Adresse du parametre */
 	GREEN					/* Valeur par defaut */
 );
@@ -90,7 +88,7 @@ static PARAM_CFG_SETCOLOR ColorLayerWireCfg
 static PARAM_CFG_SETCOLOR ColorLayerBusCfg
 (
 	INSETUP,
-	"ColorBus",				/* identification */
+	wxT("ColorBus"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_BUS],		/* Adresse du parametre */
 	BLUE					/* Valeur par defaut */
 );
@@ -98,7 +96,7 @@ static PARAM_CFG_SETCOLOR ColorLayerBusCfg
 static PARAM_CFG_SETCOLOR ColorLayerJunctionCfg
 (
 	INSETUP,
-	"ColorConn",				/* identification */
+	wxT("ColorConn"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_JUNCTION],		/* Adresse du parametre */
 	GREEN					/* Valeur par defaut */
 );
@@ -106,7 +104,7 @@ static PARAM_CFG_SETCOLOR ColorLayerJunctionCfg
 static PARAM_CFG_SETCOLOR ColorLayerLLabelCfg
 (
 	INSETUP,
-	"ColorLlab",				/* identification */
+	wxT("ColorLlab"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_LOCLABEL],		/* Adresse du parametre */
 	BLACK					/* Valeur par defaut */
 );
@@ -114,7 +112,7 @@ static PARAM_CFG_SETCOLOR ColorLayerLLabelCfg
 static PARAM_CFG_SETCOLOR ColorLayerGLabelCfg
 (
 	INSETUP,
-	"ColorGlab",				/* identification */
+	wxT("ColorGlab"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_GLOBLABEL],		/* Adresse du parametre */
 	BROWN					/* Valeur par defaut */
 );
@@ -122,7 +120,7 @@ static PARAM_CFG_SETCOLOR ColorLayerGLabelCfg
 static PARAM_CFG_SETCOLOR ColorLayerPinFunCfg
 (
 	INSETUP,
-	"ColorPinF",				/* identification */
+	wxT("ColorPinF"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_PINFUN],		/* Adresse du parametre */
 	MAGENTA				/* Valeur par defaut */
 );
@@ -130,7 +128,7 @@ static PARAM_CFG_SETCOLOR ColorLayerPinFunCfg
 static PARAM_CFG_SETCOLOR ColorLayerPinNumCfg
 (
 	INSETUP,
-	"ColPinN",				/* identification */
+	wxT("ColPinN"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_PINNUM],		/* Adresse du parametre */
 	RED					/* Valeur par defaut */
 );
@@ -138,7 +136,7 @@ static PARAM_CFG_SETCOLOR ColorLayerPinNumCfg
 static PARAM_CFG_SETCOLOR ColorLayerPinNamCfg
 (
 	INSETUP,
-	"ColorPNam",				/* identification */
+	wxT("ColorPNam"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_PINNAM],		/* Adresse du parametre */
 	CYAN					/* Valeur par defaut */
 );
@@ -146,7 +144,7 @@ static PARAM_CFG_SETCOLOR ColorLayerPinNamCfg
 static PARAM_CFG_SETCOLOR ColorLayerFieldsCfg
 (
 	INSETUP,
-	"ColorField",				/* identification */
+	wxT("ColorField"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_FIELDS],		/* Adresse du parametre */
 	MAGENTA				/* Valeur par defaut */
 );
@@ -154,7 +152,7 @@ static PARAM_CFG_SETCOLOR ColorLayerFieldsCfg
 static PARAM_CFG_SETCOLOR ColorLayerReferenceCfg
 (
 	INSETUP,
-	"ColorRef",			/* identification */
+	wxT("ColorRef"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_REFERENCEPART],	/* Adresse du parametre */
 	CYAN					/* Valeur par defaut */
 );
@@ -162,7 +160,7 @@ static PARAM_CFG_SETCOLOR ColorLayerReferenceCfg
 static PARAM_CFG_SETCOLOR ColorLayerValueCfg
 (
 	INSETUP,
-	"ColorValue",			/* identification */
+	wxT("ColorValue"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_VALUEPART],	/* Adresse du parametre */
 	CYAN					/* Valeur par defaut */
 );
@@ -170,7 +168,7 @@ static PARAM_CFG_SETCOLOR ColorLayerValueCfg
 static PARAM_CFG_SETCOLOR ColorLayerNotesCfg
 (
 	INSETUP,
-	"ColorNote",			/* identification */
+	wxT("ColorNote"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_NOTES],	/* Adresse du parametre */
 	LIGHTBLUE					/* Valeur par defaut */
 );
@@ -178,7 +176,7 @@ static PARAM_CFG_SETCOLOR ColorLayerNotesCfg
 static PARAM_CFG_SETCOLOR ColorLayerBodyCfg
 (
 	INSETUP,
-	"ColorBody",			/* identification */
+	wxT("ColorBody"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_DEVICE],	/* Adresse du parametre */
 	RED					/* Valeur par defaut */
 );
@@ -186,7 +184,7 @@ static PARAM_CFG_SETCOLOR ColorLayerBodyCfg
 static PARAM_CFG_SETCOLOR ColorLayerBodyBackgroundCfg
 (
 	INSETUP,
-	"ColorBodyBg",			/* identification */
+	wxT("ColorBodyBg"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_DEVICE_BACKGROUND],	/* Adresse du parametre */
 	LIGHTYELLOW					/* Valeur par defaut */
 );
@@ -194,7 +192,7 @@ static PARAM_CFG_SETCOLOR ColorLayerBodyBackgroundCfg
 static PARAM_CFG_SETCOLOR ColorLayerNetNameCfg
 (
 	INSETUP,
-	"ColorNetN",			/* identification */
+	wxT("ColorNetN"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_NETNAM],	/* Adresse du parametre */
 	DARKGRAY				/* Valeur par defaut */
 );
@@ -202,7 +200,7 @@ static PARAM_CFG_SETCOLOR ColorLayerNetNameCfg
 static PARAM_CFG_SETCOLOR ColorLayerPinCfg
 (
 	INSETUP,
-	"ColorPin",			/* identification */
+	wxT("ColorPin"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_PIN],	  /* Adresse du parametre */
 	RED						/* Valeur par defaut */
 );
@@ -211,7 +209,7 @@ static PARAM_CFG_SETCOLOR ColorLayerPinCfg
 static PARAM_CFG_SETCOLOR ColorLayerSheetCfg
 (
 	INSETUP,
-	"ColorSheet",			/* identification */
+	wxT("ColorSheet"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_SHEET],	/* Adresse du parametre */
 	MAGENTA					/* Valeur par defaut */
 );
@@ -219,7 +217,7 @@ static PARAM_CFG_SETCOLOR ColorLayerSheetCfg
 static PARAM_CFG_SETCOLOR ColorLayerSheetFileNameCfg
 (
 	INSETUP,
-	"ColorSheetFileName",			/* identification */
+	wxT("ColorSheetFileName"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_SHEETFILENAME],	/* Adresse du parametre */
 	BROWN				/* Valeur par defaut */
 );
@@ -227,7 +225,7 @@ static PARAM_CFG_SETCOLOR ColorLayerSheetFileNameCfg
 static PARAM_CFG_SETCOLOR ColorLayerSheetNameCfg
 (
 	INSETUP,
-	"ColorSheetName",			/* identification */
+	wxT("ColorSheetName"),			/* identification */
 	&g_LayerDescr.LayerColor[LAYER_SHEETNAME],	/* Adresse du parametre */
 	CYAN					/* Valeur par defaut */
 );
@@ -235,7 +233,7 @@ static PARAM_CFG_SETCOLOR ColorLayerSheetNameCfg
 static PARAM_CFG_SETCOLOR ColorLayerSheetLabelCfg
 (
 	INSETUP,
-	"ColorSheetLab",				/* identification */
+	wxT("ColorSheetLab"),				/* identification */
 	&g_LayerDescr.LayerColor[LAYER_SHEETLABEL],	/* Adresse du parametre */
 	BROWN					/* Valeur par defaut */
 );
@@ -243,7 +241,7 @@ static PARAM_CFG_SETCOLOR ColorLayerSheetLabelCfg
 static PARAM_CFG_SETCOLOR ColorLayerNoConnectCfg
 (
 	INSETUP,
-	"ColorNoCo",					/* identification */
+	wxT("ColorNoCo"),					/* identification */
 	&g_LayerDescr.LayerColor[LAYER_NOCONNECT],	/* Adresse du parametre */
 	BLUE						/* Valeur par defaut */
 );
@@ -251,7 +249,7 @@ static PARAM_CFG_SETCOLOR ColorLayerNoConnectCfg
 static PARAM_CFG_SETCOLOR ColorLayerErcWarnCfg
 (
 	INSETUP,
-	"ColorErcW",					/* identification */
+	wxT("ColorErcW"),					/* identification */
 	&g_LayerDescr.LayerColor[LAYER_ERC_WARN],	/* Adresse du parametre */
 	GREEN						/* Valeur par defaut */
 );
@@ -259,7 +257,7 @@ static PARAM_CFG_SETCOLOR ColorLayerErcWarnCfg
 static PARAM_CFG_SETCOLOR ColorLayerErcErrCfg
 (
 	INSETUP,
-	"ColorErcE",					/* identification */
+	wxT("ColorErcE"),					/* identification */
 	&g_LayerDescr.LayerColor[LAYER_ERC_ERR],	/* Adresse du parametre */
 	RED						/* Valeur par defaut */
 );
@@ -267,7 +265,7 @@ static PARAM_CFG_SETCOLOR ColorLayerErcErrCfg
 static PARAM_CFG_INT PlotMarginCfg
 (
 	INSETUP,
-	"Pltmarg",			/* identification */
+	wxT("Pltmarg"),			/* identification */
 	&g_PlotMargin,			/* Adresse du parametre */
 	300,				/* Valeur par defaut */
 	0,10000				/* Valeurs extremes */
@@ -275,7 +273,7 @@ static PARAM_CFG_INT PlotMarginCfg
 
 static PARAM_CFG_INT HPGLSpeed
 (
-	"HPGLSpd",				/* identification */
+	wxT("HPGLSpd"),				/* identification */
 	&g_HPGL_Pen_Descr.m_Pen_Speed,				/* Adresse du parametre */
 	20,						/* Valeur par defaut */
 	2,45					/* Valeurs extremes */
@@ -283,7 +281,7 @@ static PARAM_CFG_INT HPGLSpeed
 
 static PARAM_CFG_INT HPGLDiam
 (
-	"HPGLDm",				/* identification */
+	wxT("HPGLDm"),				/* identification */
 	&g_HPGL_Pen_Descr.m_Pen_Diam,				/* Adresse du parametre */
 	15,						/* Valeur par defaut */
 	1,150					/* Valeurs extremes */
@@ -291,7 +289,7 @@ static PARAM_CFG_INT HPGLDiam
 
 static PARAM_CFG_INT HPGLPenNum
 (
-	"HPGLNum",				/* identification */
+	wxT("HPGLNum"),				/* identification */
 	&g_HPGL_Pen_Descr.m_Pen_Num,				/* Adresse du parametre */
 	1,						/* Valeur par defaut */
 	1,8						/* Valeurs extremes */
@@ -299,134 +297,134 @@ static PARAM_CFG_INT HPGLPenNum
 
 static PARAM_CFG_INT PlotSheetOffsetX_A4
 (
-	"offX_A4",					/* identification */
+	wxT("offX_A4"),					/* identification */
 	&g_Sheet_A4.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A4
 (
-	"offY_A4",				/* identification */
+	wxT("offY_A4"),				/* identification */
 	&g_Sheet_A4.m_Offset.y	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetX_A3
 (
-	"offX_A3",				/* identification */
+	wxT("offX_A3"),				/* identification */
 	&g_Sheet_A3.m_Offset.x	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A3
 (
-	"offY_A3",				/* identification */
+	wxT("offY_A3"),				/* identification */
 	&g_Sheet_A3.m_Offset.y	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetX_A2
 (
-	"offX_A2",				/* identification */
+	wxT("offX_A2"),				/* identification */
 	&g_Sheet_A2.m_Offset.x	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A2
 (
-	"offY_A2",				/* identification */
+	wxT("offY_A2"),				/* identification */
 	&g_Sheet_A2.m_Offset.y	/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_A1
 (
-	"offX_A1",				/* identification */
+	wxT("offX_A1"),				/* identification */
 	&g_Sheet_A1.m_Offset.x	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A1
 (
-	"offY_A1",				/* identification */
+	wxT("offY_A1"),				/* identification */
 	&g_Sheet_A1.m_Offset.y	/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_A0
 (
-	"offX_A0",				/* identification */
+	wxT("offX_A0"),				/* identification */
 	&g_Sheet_A0.m_Offset.x	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A0
 (
-	"offY_A0",				/* identification */
+	wxT("offY_A0"),				/* identification */
 	&g_Sheet_A0.m_Offset.y	/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_A 
 (
-	"offX_A",				/* identification */
+	wxT("offX_A"),				/* identification */
 	&g_Sheet_A.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_A 
 (
-	"offY_A",				/* identification */
+	wxT("offY_A"),				/* identification */
 	&g_Sheet_A.m_Offset.y		/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_B 
 (
-	"offX_B",				/* identification */
+	wxT("offX_B"),				/* identification */
 	&g_Sheet_B.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_B 
 (
-	"offY_B",				/* identification */
+	wxT("offY_B"),				/* identification */
 	&g_Sheet_B.m_Offset.y		/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_C 
 (
-	"offX_C",				/* identification */
+	wxT("offX_C"),				/* identification */
 	&g_Sheet_C.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_C 
 (
-	"offY_C",				/* identification */
+	wxT("offY_C"),				/* identification */
 	&g_Sheet_C.m_Offset.y		/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_D 
 (
-	"offX_D",				/* identification */
+	wxT("offX_D"),				/* identification */
 	&g_Sheet_D.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_D 
 (
-	"offY_D",				/* identification */
+	wxT("offY_D"),				/* identification */
 	&g_Sheet_D.m_Offset.y		/* Adresse du parametre */
 );
 
 
 static PARAM_CFG_INT PlotSheetOffsetX_E 
 (
-	"offX_E",				/* identification */
+	wxT("offX_E"),				/* identification */
 	&g_Sheet_E.m_Offset.x		/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT PlotSheetOffsetY_E 
 (
-	"offY_E",				/* identification */
+	wxT("offY_E"),				/* identification */
 	&g_Sheet_E.m_Offset.y			/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT CfgRepeatDeltaX 
 (
-	"RptD_X",				/* identification */
+	wxT("RptD_X"),				/* identification */
 	&g_RepeatStep.x,			/* Adresse du parametre */
 	0,						/* Valeur par defaut */
 	-1000,+1000 			/* Valeurs extremes */
@@ -434,7 +432,7 @@ static PARAM_CFG_INT CfgRepeatDeltaX
 
 static PARAM_CFG_INT CfgRepeatDeltaY 
 (
-	"RptD_Y",				/* identification */
+	wxT("RptD_Y"),				/* identification */
 	&g_RepeatStep.y,			/* Adresse du parametre */
 	100,					/* Valeur par defaut */
 	-1000,+1000				/* Valeurs extremes */
@@ -442,7 +440,7 @@ static PARAM_CFG_INT CfgRepeatDeltaY
 
 static PARAM_CFG_INT CfgRepeatDeltaLabel 
 (
-	"RptLab",				/* identification */
+	wxT("RptLab"),				/* identification */
 	&g_RepeatDeltaLabel,		/* Adresse du parametre */
 	1,						/* Valeur par defaut */
 	-10,+10					/* Valeurs extremes */
@@ -450,7 +448,7 @@ static PARAM_CFG_INT CfgRepeatDeltaLabel
 
 static PARAM_CFG_INT CfgPenMinWidth
 (
-	"PenMin",					/* identification */
+	wxT("PenMin"),					/* identification */
 	&PenMinWidth,				/* Adresse du parametre */
 	30,							/* Valeur par defaut */
 	5, 100						/* Valeurs extremes */
@@ -458,13 +456,13 @@ static PARAM_CFG_INT CfgPenMinWidth
 
 static PARAM_CFG_WXSTRING CfgSimulatorCommandLine
 (
-	"SimCmd",				/* identification */
+	wxT("SimCmd"),				/* identification */
 	&g_SimulatorCommandLine	/* Adresse du parametre */
 );
 
 static PARAM_CFG_INT OptNetListUseNamesCfg
 (
-	"UseNetN",				/* identification */
+	wxT("UseNetN"),				/* identification */
 	&g_OptNetListUseNames,	/* Adresse du parametre */
 	0,						/* Valeur par defaut */
 	0, 1					/* Valeurs extremes */

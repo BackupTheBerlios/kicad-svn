@@ -1,6 +1,6 @@
-	/****************/
-	/* edaappl.ccpp */
-	/****************/
+	/***************/
+	/* edaappl.cpp */
+	/***************/
 /*
 	 ROLE: methodes relative a la classe winEDA_App, communes
 	 aux environements window et linux
@@ -65,6 +65,7 @@ WinEDA_App::WinEDA_App(void)
 	m_Env_Defined = FALSE;
 	m_LanguageId = wxLANGUAGE_DEFAULT;
 	m_Language_Menu = NULL;
+	m_Locale = NULL;
 
 	/* Init de variables globales d'interet general: */
 	g_FloatSeparator = '.';		// Nombres flottants = 0.1 par exemple
@@ -89,6 +90,7 @@ WinEDA_App::~WinEDA_App(void)
 	delete DrawPen;
 	delete DrawBrush;
 	if ( m_Checker ) delete m_Checker;
+	delete m_Locale;
 }
 
 /**************************************************/
@@ -98,7 +100,7 @@ void WinEDA_App::InitEDA_Appl(const wxString & name)
 wxString ident;
 wxString EnvLang;
 
-	ident = name + "-" + wxGetUserId();
+	ident = name + wxT("-") + wxGetUserId();
     m_Checker = new wxSingleInstanceChecker(ident);
 
 #if 0
@@ -117,25 +119,25 @@ wxString EnvLang;
 
 	/* Init environnement
 	(KICAD definit le chemin de kicad ex: set KICAD=d:\kicad) */
-	m_Env_Defined = wxGetEnv("KICAD", &m_KicadEnv);
+	m_Env_Defined = wxGetEnv( wxT("KICAD"), &m_KicadEnv);
 	if ( m_Env_Defined )	// m_KicadEnv doit finir par "/" ou "\"
 	{
-		m_KicadEnv.Replace("\\", "/");
-		if ( m_KicadEnv.Last() != '/' ) m_KicadEnv += "/";
+		m_KicadEnv.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
+		if ( m_KicadEnv.Last() != '/' ) m_KicadEnv += UNIX_STRING_DIR_SEP;
 	}
 
 	/* Prepare On Line Help */
-	m_HelpFileName = name + ".html";
+	m_HelpFileName = name + wxT(".html");
 
 	// Init parametres pour configuration
-	SetVendorName("kicad");
+	SetVendorName(wxT("kicad"));
 	SetAppName(name);
 	m_EDA_Config = new wxConfig(name);
-	m_EDA_CommonConfig = new wxConfig("kicad_common");
+	m_EDA_CommonConfig = new wxConfig(wxT("kicad_common"));
 
 	/* Creation des outils de trace */
-	DrawPen = new wxPen("GREEN", 1, wxSOLID);
-	DrawBrush = new wxBrush("BLACK", wxTRANSPARENT);
+	DrawPen = new wxPen( wxT("GREEN"), 1, wxSOLID);
+	DrawBrush = new wxBrush(wxT("BLACK"), wxTRANSPARENT);
 
 	/* Creation des fontes utiles */
 	g_StdFontPointSize = FONT_DEFAULT_SIZE;
@@ -158,7 +160,7 @@ wxString EnvLang;
 	SetBinDir();
 
 	// Internationalisation: chargement du Dictionnaire de kicad
-	m_EDA_CommonConfig->Read("Language", &m_LanguageId, wxLANGUAGE_DEFAULT);
+	m_EDA_CommonConfig->Read(wxT("Language"), &m_LanguageId, wxLANGUAGE_DEFAULT);
 
 bool succes = SetLanguage(TRUE);
 	if ( ! succes )
@@ -179,14 +181,14 @@ void WinEDA_App::InitOnLineHelp(void)
 {
 wxString fullfilename = FindKicadHelpPath();
 
-	fullfilename += "kicad.hhp";
+	fullfilename += wxT("kicad.hhp");
 	if ( wxFileExists(fullfilename) )
 		{
 		m_HtmlCtrl = new wxHtmlHelpController(wxHF_TOOLBAR |
 				wxHF_CONTENTS | wxHF_PRINT | wxHF_OPEN_FILES
 				/*| wxHF_SEARCH */);
 		m_HtmlCtrl->UseConfig(m_EDA_Config);
-		m_HtmlCtrl->SetTitleFormat("Kicad Help");
+		m_HtmlCtrl->SetTitleFormat( wxT("Kicad Help") );
 		m_HtmlCtrl->AddBook(fullfilename);
 		}
 }
@@ -208,31 +210,33 @@ bool WinEDA_App::SetBinDir(void)
 	il faut le retrouver par la commande "which <filename> si aucun
 	chemin n'est donne */
 FILE * ftmp;
-int ii;
+
+#define TMP_FILE "/tmp/kicad.tmp"
 char Line[1024];
 char FileName[1024];
-#define TMP_FILE "/tmp/kicad.tmp"
+wxString str_arg0;
+int ii;
 
-	Line[0] = 0;
-	if( strchr(argv[0],'/') == NULL ) /* pas de chemin */
-		{
-		sprintf(FileName,"which %s > %s", argv[0], TMP_FILE);
-		Line[0] = 0;
+	FileName[0] = 0;
+	str_arg0 = argv[0];
+	if( strchr( (const char *)argv[0],'/') == NULL ) /* pas de chemin */
+	{
+		sprintf( FileName, "which %s > %s", CONV_TO_UTF8(str_arg0), TMP_FILE);
 		ii = system(FileName);
 		if( (ftmp = fopen(TMP_FILE, "rt")) != NULL )
-			{
+		{
 			fgets(Line,1000,ftmp);
 			fclose(ftmp);
 			remove(TMP_FILE);
-			}
 		}
-	else strcpy(Line, argv[0]);
-	m_BinDir = Line;
+	m_BinDir = CONV_FROM_UTF8(Line);
+	}
+	else  m_BinDir = argv[0];
 #else
 	m_BinDir = argv[0];
 #endif
 
-	m_BinDir.Replace("\\", "/");
+	m_BinDir.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
 	while ( m_BinDir.Last() != '/' ) m_BinDir.RemoveLast();
 
 	return TRUE;
@@ -252,8 +256,8 @@ unsigned ii;
 
 	if ( m_EDA_CommonConfig )
 	{
-		m_LanguageId = m_EDA_CommonConfig->Read("Language", wxLANGUAGE_DEFAULT);
-		g_EditorName = m_EDA_CommonConfig->Read("Editor");
+		m_LanguageId = m_EDA_CommonConfig->Read(wxT("Language"), wxLANGUAGE_DEFAULT);
+		g_EditorName = m_EDA_CommonConfig->Read(wxT("Editor"));
 	}
 
 	if ( ! m_EDA_Config ) return;
@@ -261,38 +265,38 @@ unsigned ii;
 
 	for ( ii = 0; ii < 10; ii++ )
 	{
-	Ident = "LastProject"; if ( ii ) Ident << ii;
+	Ident = wxT("LastProject"); if ( ii ) Ident << ii;
 	if( m_EDA_Config->Read(Ident, &Line) )
 		m_LastProject.Add(Line);
 	}
 
-	g_StdFontPointSize = m_EDA_Config->Read("SdtFontSize", FONT_DEFAULT_SIZE);
-	g_SmallFontPointSize = m_EDA_Config->Read("SmallFontSize", (FONT_DEFAULT_SIZE * 70) / 100);
-	g_DialogFontPointSize = m_EDA_Config->Read("DialogFontSize", FONT_DEFAULT_SIZE);
-	g_FixedFontPointSize = m_EDA_Config->Read("DialogFontSize", FONT_DEFAULT_SIZE);
+	g_StdFontPointSize = m_EDA_Config->Read(wxT("SdtFontSize"), FONT_DEFAULT_SIZE);
+	g_SmallFontPointSize = m_EDA_Config->Read(wxT("SmallFontSize"), (FONT_DEFAULT_SIZE * 70) / 100);
+	g_DialogFontPointSize = m_EDA_Config->Read(wxT("DialogFontSize"), FONT_DEFAULT_SIZE);
+	g_FixedFontPointSize = m_EDA_Config->Read(wxT("DialogFontSize"), FONT_DEFAULT_SIZE);
 
-	Line = m_EDA_Config->Read("SdtFontType", "");
-	if ( Line != "" ) g_StdFont->SetFaceName(Line);
-	ii = m_EDA_Config->Read("SdtFontStyle", wxNORMAL);
+	Line = m_EDA_Config->Read(wxT("SdtFontType"), wxEmptyString);
+	if ( ! Line.IsEmpty() ) g_StdFont->SetFaceName(Line);
+	ii = m_EDA_Config->Read(wxT("SdtFontStyle"), wxNORMAL);
 	g_StdFont->SetStyle(ii);
-	ii = m_EDA_Config->Read("SdtFontWeight", wxNORMAL);
+	ii = m_EDA_Config->Read(wxT("SdtFontWeight"), wxNORMAL);
 	g_StdFont->SetWeight(ii);
 	g_StdFont->SetPointSize(g_StdFontPointSize);
 
 	g_SmallFont->SetPointSize(g_SmallFontPointSize);
 
-	ii = m_EDA_Config->Read("DialogFontWeight", wxNORMAL);
+	ii = m_EDA_Config->Read(wxT("DialogFontWeight"), wxNORMAL);
 	g_StdFont->SetWeight(ii);
 	g_DialogFont->SetPointSize(g_DialogFontPointSize);
 
 	g_FixedFont->SetPointSize(g_FixedFontPointSize);
 
 
-	if( m_EDA_Config->Read("WorkingDir", &Line) )
+	if( m_EDA_Config->Read(wxT("WorkingDir"), &Line) )
 		{
 		if ( wxDirExists(Line) ) wxSetWorkingDirectory(Line);
 		}
-	m_EDA_Config->Read("BgColor", &DrawBgColor);
+	m_EDA_Config->Read( wxT("BgColor"), &DrawBgColor);
 }
 
 
@@ -304,34 +308,34 @@ de la fenetre du logiciel xxx (eeschema, cvpcb ou pcbnew)
 */
 {
 unsigned int ii;
-char Line[80];
 
 
 	if( m_EDA_Config == NULL ) return;
 
-	m_EDA_Config->Write("SdtFontSize", g_StdFontPointSize);
-	m_EDA_Config->Write("SdtFontType", g_StdFont->GetFaceName());
-	m_EDA_Config->Write("SdtFontStyle", g_StdFont->GetStyle());
-	m_EDA_Config->Write("SdtFontWeight", g_StdFont->GetWeight());
+	m_EDA_Config->Write(wxT("SdtFontSize"), g_StdFontPointSize);
+	m_EDA_Config->Write(wxT("SdtFontType"), g_StdFont->GetFaceName());
+	m_EDA_Config->Write(wxT("SdtFontStyle"), g_StdFont->GetStyle());
+	m_EDA_Config->Write(wxT("SdtFontWeight"), g_StdFont->GetWeight());
 
-	m_EDA_Config->Write("SmallFontSize", g_SmallFontPointSize);
+	m_EDA_Config->Write(wxT("SmallFontSize"), g_SmallFontPointSize);
 
-	m_EDA_Config->Write("DialogFontSize", g_DialogFontPointSize);
-	m_EDA_Config->Write("DialogFontWeight", g_DialogFont->GetWeight());
+	m_EDA_Config->Write(wxT("DialogFontSize"), g_DialogFontPointSize);
+	m_EDA_Config->Write(wxT("DialogFontWeight"), g_DialogFont->GetWeight());
 
-	m_EDA_Config->Write("FixedFontSize", g_FixedFontPointSize);
+	m_EDA_Config->Write(wxT("FixedFontSize"), g_FixedFontPointSize);
 
-	m_EDA_Config->Write("WorkingDir", wxGetCwd());
+	m_EDA_Config->Write(wxT("WorkingDir"), wxGetCwd());
 
 	for( ii = 0; ii < 10; ii++ )
-		{
-		if ( ii ) sprintf(Line,"LastProject%d", ii);
-		else strcpy(Line,"LastProject");
+	{
+		wxString msg = wxT("LastProject");
+		if ( ii ) msg << ii;
+
 		if ( ii < m_LastProject.GetCount() )
-			m_EDA_Config->Write(Line, m_LastProject[ii]);
+			m_EDA_Config->Write(msg, m_LastProject[ii]);
 		else
-			m_EDA_Config->Write(Line, "");
-		}
+			m_EDA_Config->Write(msg, wxEmptyString);
+	}
 }
 
 /*********************************************/
@@ -342,28 +346,31 @@ bool WinEDA_App::SetLanguage(bool first_time)
 	and are named kicad.mo
 */
 {
-wxString DictionaryName("kicad");	// dictionary file name without extend (full name is kicad.mo)
-wxString BaseDictionaryPath("internat");	// Real path is kicad/internat/xx_XX or kicad/internat/xx
+wxString DictionaryName( wxT("kicad"));	// dictionary file name without extend (full name is kicad.mo)
+wxString BaseDictionaryPath( wxT("internat"));	// Real path is kicad/internat/xx_XX or kicad/internat/xx
+wxString dic_path;
 
-	m_Locale.Init(m_LanguageId);
-	if ( first_time )
-	{
-	wxString dic_path = ReturnKicadDatasPath() + BaseDictionaryPath;
-		m_Locale.AddCatalogLookupPathPrefix(dic_path);
-	}
-	else
+	if ( m_Locale != NULL ) delete m_Locale;
+	m_Locale = new wxLocale();
+	m_Locale->Init(m_LanguageId);
+	dic_path = ReturnKicadDatasPath() + BaseDictionaryPath;
+	m_Locale->AddCatalogLookupPathPrefix(dic_path);
+
+	if ( ! first_time )
 	{
 		if ( m_EDA_CommonConfig )
-			m_EDA_CommonConfig->Write("Language", m_LanguageId);
+			m_EDA_CommonConfig->Write( wxT("Language"), m_LanguageId);
 	}
-	if ( ! m_Locale.IsLoaded(DictionaryName) ) m_Locale.AddCatalog(DictionaryName);
+
+	if ( ! m_Locale->IsLoaded(DictionaryName) )
+		m_Locale->AddCatalog(DictionaryName);
 	SetLanguageList(NULL);
 
 
 	if ( atof("0,1") ) g_FloatSeparator = ','; // Nombres flottants = 0,1
 	else  g_FloatSeparator = '.';
 
-	return m_Locale.IsOk();
+	return m_Locale->IsOk();
 }
 
 
@@ -425,38 +432,38 @@ wxMenuItem * item;
 	{
 		m_Language_Menu = new wxMenu;
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_DEFAULT,
-				_("Default"), "", wxITEM_CHECK );
+				_("Default"), wxEmptyString, wxITEM_CHECK );
 		SETBITMAPS(lang_def_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_ENGLISH,
-			"English", "", wxITEM_CHECK);
+			wxT("English"), wxEmptyString, wxITEM_CHECK);
 		SETBITMAPS(lang_en_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_FRENCH,
-			_("French"), "", wxITEM_CHECK);
+			_("French"), wxEmptyString, wxITEM_CHECK);
 		SETBITMAPS(lang_fr_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_SPANISH,
-			_("Spanish"), "", wxITEM_CHECK);
+			_("Spanish"), wxEmptyString, wxITEM_CHECK);
 		SETBITMAPS(lang_es_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_PORTUGUESE,
-			_("Portuguese"), "", wxITEM_CHECK);
+			_("Portuguese"), wxEmptyString, wxITEM_CHECK);
 		SETBITMAPS(lang_pt_xpm);
 		m_Language_Menu->Append(item);
 
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_ITALIAN,
-			_("Italian"), "", wxITEM_CHECK);
+			_("Italian"), wxEmptyString, wxITEM_CHECK);
 //		SETBITMAPS(apply_xpm, lang_it_xpm);	TODO
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_DUTCH,
-			_("Dutch"), "", wxITEM_CHECK);
+			_("Dutch"), wxEmptyString, wxITEM_CHECK);
 //		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
 		m_Language_Menu->Append(item);
 
@@ -509,7 +516,7 @@ wxMenuItem * item;
 	{
 		ADD_MENUITEM_WITH_HELP_AND_SUBMENU(MasterMenu, m_Language_Menu,
 			ID_LANGUAGE_CHOICE,  _("Language"),
-			"For test only, use Default setup for normal use",
+			wxT("For test only, use Default setup for normal use"),
 			language_xpm);
 	}
 	return m_Language_Menu;

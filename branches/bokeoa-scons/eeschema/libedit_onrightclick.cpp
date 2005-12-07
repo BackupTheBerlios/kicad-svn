@@ -196,7 +196,7 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_LibeditFrame::OnRightClick Error: unknown StructType %d",
+				 wxT("WinEDA_LibeditFrame::OnRightClick Error: unknown StructType %d"),
 				DrawEntry->m_StructType);
 			DisplayError(this, msg );
 			CurrentDrawItem = NULL;

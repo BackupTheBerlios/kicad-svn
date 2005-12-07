@@ -25,6 +25,8 @@ CHEVELU* ptmp;
 MODULE * Module = NULL;
 D_PAD * Pad = NULL;
 int autoroute_net_code = -1;
+wxString msg;
+
 
 	Route_Layer_TOP = GetScreen()->m_Route_Layer_TOP;
 	Route_Layer_BOTTOM = GetScreen()->m_Route_Layer_BOTTOM;
@@ -146,8 +148,8 @@ int autoroute_net_code = -1;
 	InitWork();	/* Libere la memoire de la liste des connexions a router */
 	Board.UnInitBoard();  /* Libere la memoire BitMap */
 	stop = time( NULL ) - start;
-	sprintf(cbuf,"time = %d second%s", stop, (stop == 1) ? "" : "s" );
-	Affiche_Message(cbuf);
+	msg.Printf( wxT("time = %d second%s"), stop, (stop == 1) ? wxT("") : wxT("s") );
+	Affiche_Message(msg);
 }
 
 /************************************************/

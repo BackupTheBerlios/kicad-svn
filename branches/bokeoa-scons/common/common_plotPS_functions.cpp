@@ -9,7 +9,7 @@
 #include "base_struct.h"
 #include "common.h"
 #include "plot_common.h"
-
+#include "macros.h"
 
 // Variables partagees avec Common plot Postscript Routines
 extern wxPoint LastPenPosition;
@@ -213,7 +213,7 @@ for drawings (page - margins) in mils (0.001 inch)
 {
 wxString msg;
 char Line[1024];
-char *PSMacro[] = {
+const char *PSMacro[] = {
 "/line {\n",
 "    newpath\n",
 "    moveto\n",
@@ -237,24 +237,25 @@ time_t time1970 = time(NULL);
 
 	/* Print boundary box en 1/72 pouce, box is in mils */
 	#define CONV_SCALE (MIL_TO_INCH * 72)
-	msg.Printf("%%%%BoundingBox: %d %d %d %d\n",
+	sprintf( Line, "%%%%BoundingBox: %d %d %d %d\n",
 		(int)(BBox[1]*CONV_SCALE), (int)(BBox[0]*CONV_SCALE),
 		(int)(BBox[3]*CONV_SCALE), (int)(BBox[2]*CONV_SCALE));
-	fputs(msg.GetData(),PlotOutputFile);
+	fputs(Line, PlotOutputFile);
 
-	msg = "%%Title: " + FileName + "\n";
-	fputs(msg.GetData(),PlotOutputFile);
+	sprintf( Line, "%%%%Title: %s\n", CONV_TO_UTF8(FileName) );
+	fputs(Line, PlotOutputFile);
 
-	msg = "%%Creator: " + Creator +"\n";
-	fputs(msg.GetData(),PlotOutputFile);
+	sprintf( Line, "%%%%Creator: %s_n", CONV_TO_UTF8(Creator) );
+	fputs(Line, PlotOutputFile);
 
-	msg = "%%CreationDate: "; msg += ctime(&time1970);
-	fputs(msg.GetData(),PlotOutputFile);
+	sprintf( Line, "%%%%CreationDate: %s\n", ctime(&time1970) );
+	fputs(Line, PlotOutputFile);
 
-	msg = "%%DocumentPaperSizes: " + SheetPS->m_Name + "\n";
-	fputs(msg.GetData(),PlotOutputFile);
+	sprintf( Line, "%%%%DocumentPaperSizes: %s\n", CONV_TO_UTF8(SheetPS->m_Name) );
+	fputs(Line, PlotOutputFile);
 
-	fputs("%%Orientation: Landscape\n%%Pages:  (atend)\n%%EndComments\n",PlotOutputFile);
+	sprintf( Line, "%%%%Orientation: Landscape\n%%%%EndComments\n");
+	fputs(Line, PlotOutputFile);
 
 	for (ii = 0; PSMacro[ii] != NULL; ii++)
 	{

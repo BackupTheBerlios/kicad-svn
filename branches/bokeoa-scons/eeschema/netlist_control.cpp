@@ -15,8 +15,8 @@
 
 
 // ID for configuration:
-#define CUSTOM_NETLIST_TITLE "CustomNetlistTitle"
-#define CUSTOM_NETLIST_COMMAND "CustomNetlistCommand"
+#define CUSTOM_NETLIST_TITLE wxT("CustomNetlistTitle")
+#define CUSTOM_NETLIST_COMMAND wxT("CustomNetlistCommand")
 
 /* Routines locales */
 
@@ -74,7 +74,7 @@ EDA_NoteBookPage::EDA_NoteBookPage(wxNotebook* parent, const wxString & title,
 	{
 		wxPoint pos;
 		pos.x = 5; pos.y = 15;
-		new wxStaticBox(this, -1," Options : ", pos, wxSize(210, 50));
+		new wxStaticBox(this, -1, _(" Options : "), pos, wxSize(210, 50));
 
 		pos.x = 10; pos.y += 20;
 		m_IsCurrentFormat = new wxCheckBox(this, idCheckBox,
@@ -182,15 +182,15 @@ int ii;
 	// Add panels
 
 	// Add Panel FORMAT PCBNEW
-	m_PanelNetType[PANELPCBNEW] = new EDA_NoteBookPage(m_NoteBook, "Pcbnew", NET_TYPE_PCBNEW,
+	m_PanelNetType[PANELPCBNEW] = new EDA_NoteBookPage(m_NoteBook, wxT("Pcbnew"), NET_TYPE_PCBNEW,
 		ID_CURRENT_FORMAT_IS_DEFAULT, ID_CREATE_NETLIST);
 
 	// Add Panel FORMAT ORCADPCB2
-	m_PanelNetType[PANELORCADPCB2] = new EDA_NoteBookPage(m_NoteBook, "OrcadPCB2", NET_TYPE_ORCADPCB2,
+	m_PanelNetType[PANELORCADPCB2] = new EDA_NoteBookPage(m_NoteBook, wxT("OrcadPCB2"), NET_TYPE_ORCADPCB2,
 		ID_CURRENT_FORMAT_IS_DEFAULT, ID_CREATE_NETLIST);
 
 	// Add Panel FORMAT CADSTAR
-	m_PanelNetType[PANELCADSTAR] = new EDA_NoteBookPage(m_NoteBook, "CadStar", NET_TYPE_CADSTAR,
+	m_PanelNetType[PANELCADSTAR] = new EDA_NoteBookPage(m_NoteBook, wxT("CadStar"), NET_TYPE_CADSTAR,
 		ID_CURRENT_FORMAT_IS_DEFAULT, ID_CREATE_NETLIST);
 
 	// Add Panel spice
@@ -210,7 +210,7 @@ void WinEDA_NetlistFrame::InstallPageSpice(void)
 wxPoint pos;
 wxButton * Button;
 	
-	m_PanelNetType[PANELSPICE] = new EDA_NoteBookPage(m_NoteBook, "Spice", NET_TYPE_SPICE, 0, 0);
+	m_PanelNetType[PANELSPICE] = new EDA_NoteBookPage(m_NoteBook, wxT("Spice"), NET_TYPE_SPICE, 0, 0);
 
 	pos.x = 10; pos.y = 5;
 	m_PanelNetType[PANELSPICE]->m_IsCurrentFormat = new wxCheckBox(m_PanelNetType[PANELSPICE],ID_CURRENT_FORMAT_IS_DEFAULT,
@@ -259,14 +259,14 @@ wxPoint pos;
 EDA_NoteBookPage * CurrPage;
 
 	CustomCount = CUSTOMPANEL_COUNTMAX;
-	previoustitle = "dummy_title";
+	previoustitle = wxT("dummy_title");
 	for ( ii = 0; ii < CustomCount; ii++ )
 	{
 		msg = CUSTOM_NETLIST_TITLE; msg << ii+1;
 		title = m_Parent->m_Parent->m_EDA_Config->Read(msg);
 		
 		// Install the panel only if it is the first non initialised
-		if ( (title == "") && ( previoustitle =="" ) ) break;
+		if ( (title.IsEmpty()) && ( previoustitle.IsEmpty() ) ) break;
 
 		previoustitle = title;
 		CurrPage = m_PanelNetType[PANELCUSTOMBASE + ii] =
@@ -351,21 +351,21 @@ EDA_NoteBookPage * CurrPage;
 	switch ( g_NetFormat )
 	{	
 		case NET_TYPE_SPICE:
-			FileExt = ".cir";
+			FileExt = wxT(".cir");
 			break;
 		case NET_TYPE_CADSTAR:
-			FileExt = ".frp";
+			FileExt = wxT(".frp");
 			break;
 		default:
 			FileExt = g_NetExtBuffer;
 			break;
 	}
 
-	Mask = "*" + FileExt + "*";
+	Mask = wxT("*") + FileExt + wxT("*");
 	ChangeFileNameExt(FullFileName, FileExt);
 
 	FullFileName = EDA_FileSelector( _("Netlist files:"),
-					"",					/* Chemin par defaut */
+					wxEmptyString,					/* Chemin par defaut */
 					FullFileName,		/* nom fichier par defaut */
 					FileExt,		  	/* extension par defaut */
 					Mask,				/* Masque d'affichage */
@@ -373,7 +373,7 @@ EDA_NoteBookPage * CurrPage;
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	m_Parent->MsgPanel->EraseMsgBox();
 
@@ -388,7 +388,7 @@ EDA_NoteBookPage * CurrPage;
 	BuildNetList(m_Parent, ScreenSch);
 	if ( CurrPage->m_CommandStringCtrl)
 		g_NetListerCommandLine = CurrPage->m_CommandStringCtrl->GetData();
-	else g_NetListerCommandLine = "";
+	else g_NetListerCommandLine.Empty();
 		
 	switch (g_NetFormat)
 	{
@@ -425,7 +425,7 @@ wxString msg, Command;
 	{
 		EDA_NoteBookPage * CurrPage = m_PanelNetType[ii + PANELCUSTOMBASE];
 		if ( CurrPage == NULL ) break;
-		msg = "Custom"; msg << ii+1;
+		msg = wxT("Custom"); msg << ii+1;
 		if ( CurrPage->m_TitleStringCtrl )
 		{
 			wxString title = CurrPage->m_TitleStringCtrl->GetData();
@@ -462,9 +462,9 @@ wxString NetlistFullFileName, ExecFile, CommandLine;
 
 	/* Calcul du nom du fichier netlist */
 	NetlistFullFileName = ScreenSch->m_FileName;
-	ChangeFileNameExt(NetlistFullFileName, ".cir");
+	ChangeFileNameExt(NetlistFullFileName, wxT(".cir"));
 	AddDelimiterString(NetlistFullFileName);
-	CommandLine += " " + NetlistFullFileName;
+	CommandLine += wxT(" ") + NetlistFullFileName;
 
 	ExecuteFile(this, ExecFile, CommandLine);
 }

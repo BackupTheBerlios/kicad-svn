@@ -51,7 +51,7 @@ wxPoint pos;
 			break;
 
 		default:
-			DisplayError(this,"WinEDA_GerberFrame::Process_Config internal error");
+			DisplayError(this, wxT("WinEDA_GerberFrame::Process_Config internal error"));
 		}
 }
 
@@ -67,14 +67,14 @@ bool Read_Config(void)
 	Retourne un pointeur su le message d'erreur a afficher
 */
 {
-	g_Prj_Config_Filename_ext = ".cnf";
-	EDA_Appl->ReadProjectConfig("gerbview", GROUP, ParamCfgList, FALSE);
+	g_Prj_Config_Filename_ext = wxT(".cnf");
+	EDA_Appl->ReadProjectConfig( wxT("gerbview"), GROUP, ParamCfgList, FALSE);
 
 	/* Inits autres variables */
 	if (ScreenPcb) ScreenPcb->SetGrid(TmpGrid);
-	if ( g_PhotoFilenameExt == "") g_PhotoFilenameExt = ".pho";
-	if ( g_DrillFilenameExt == "") g_DrillFilenameExt = ".drl";
-	if ( g_PenFilenameExt == "") g_PenFilenameExt = ".pen";
+	if ( g_PhotoFilenameExt.IsEmpty() ) g_PhotoFilenameExt = wxT(".pho");
+	if ( g_DrillFilenameExt.IsEmpty() ) g_DrillFilenameExt = wxT(".drl");
+	if ( g_PenFilenameExt.IsEmpty() ) g_PenFilenameExt = wxT(".pen");
 
 	return TRUE;
 }
@@ -89,15 +89,15 @@ void WinEDA_GerberFrame::Update_config(void)
 */
 {
 wxString FullFileName;
-wxString mask("*"),
+wxString mask( wxT("*") ),
 	
-	g_Prj_Config_Filename_ext = ".cnf";
+	g_Prj_Config_Filename_ext = wxT(".cnf";)
 	mask += g_Prj_Config_Filename_ext;
-	FullFileName = "gerbview";
+	FullFileName = wxT("gerbview");
 	ChangeFileNameExt( FullFileName, g_Prj_Config_Filename_ext );
 
 	FullFileName = EDA_FileSelector(_("Save config file"),
-					"",				/* Chemin par defaut */
+					wxEmptyString,				/* Chemin par defaut */
 					FullFileName,		/* nom fichier par defaut */
 					g_Prj_Config_Filename_ext,	/* extension par defaut */
 					mask,				/* Masque d'affichage */
@@ -105,7 +105,7 @@ wxString mask("*"),
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	/* ecriture de la configuration */
 	EDA_Appl->WriteProjectConfig(FullFileName, GROUP, ParamCfgList);

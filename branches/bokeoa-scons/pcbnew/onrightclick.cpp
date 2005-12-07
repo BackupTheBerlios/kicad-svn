@@ -104,7 +104,7 @@ double value;
 				else
 					msg.Printf(_("Track %.3f"), value);
 
-		trackwidth->Append(ID_POPUP_PCB_SELECT_WIDTH1 + ii, msg, "", TRUE);
+		trackwidth->Append(ID_POPUP_PCB_SELECT_WIDTH1 + ii, msg, wxEmptyString, TRUE);
 		if( g_DesignSettings.m_TrackWidhtHistory[ii] == g_DesignSettings.m_CurrentTrackWidth )
 			trackwidth->Check( ID_POPUP_PCB_SELECT_WIDTH1 + ii, TRUE);
 		}
@@ -118,7 +118,7 @@ double value;
 				msg.Printf(_("Via %.1f"), value * 1000);
 			else
 				msg.Printf(_("Via %.3f"), value);
-		trackwidth->Append(	ID_POPUP_PCB_SELECT_VIASIZE1 + ii, msg, "", TRUE);
+		trackwidth->Append(	ID_POPUP_PCB_SELECT_VIASIZE1 + ii, msg, wxEmptyString, TRUE);
 		if( g_DesignSettings.m_ViaSizeHistory[ii] == g_DesignSettings.m_CurrentViaSize )
 			trackwidth->Check( ID_POPUP_PCB_SELECT_VIASIZE1 + ii, TRUE);
 	}
@@ -385,16 +385,16 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 		case TYPEPCB:
 		case PCB_EQUIPOT_STRUCT_TYPE:
 			msg.Printf(
-				"WinEDA_PcbFrame::OnRightClick Error: illegal DrawType %d",
+				wxT("WinEDA_PcbFrame::OnRightClick Error: illegal DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(this, (char*)msg.GetData() );
+			DisplayError(this, msg );
 			break;
 
 		default:
 			msg.Printf(
-				"WinEDA_PcbFrame::OnRightClick Error: unknown DrawType %d",
+				wxT("WinEDA_PcbFrame::OnRightClick Error: unknown DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(this, (char*)msg.GetData() );
+			DisplayError(this, msg );
 			break;
 		}
 	PopMenu->AppendSeparator();
@@ -610,8 +610,8 @@ int flags = Track->m_Flags;
 	track_mnu = new wxMenu;
 	ADD_MENUITEM_WITH_SUBMENU( PopMenu, track_mnu,
 			ID_POPUP_PCB_SETFLAGS_TRACK_MNU, _("Set Flags"), Flag_xpm);
-	track_mnu->Append(ID_POPUP_PCB_LOCK_ON_TRACKSEG, _("Locked: Yes"), "", TRUE);
-	track_mnu->Append(ID_POPUP_PCB_LOCK_OFF_TRACKSEG, _("Locked: No"), "", TRUE);
+	track_mnu->Append(ID_POPUP_PCB_LOCK_ON_TRACKSEG, _("Locked: Yes"), wxEmptyString, TRUE);
+	track_mnu->Append(ID_POPUP_PCB_LOCK_OFF_TRACKSEG, _("Locked: No"), wxEmptyString, TRUE);
 	if( Track->GetState(SEGM_FIXE) )
 		track_mnu->Check( ID_POPUP_PCB_LOCK_ON_TRACKSEG, TRUE);
 	else track_mnu->Check( ID_POPUP_PCB_LOCK_OFF_TRACKSEG, TRUE);

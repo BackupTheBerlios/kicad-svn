@@ -22,7 +22,7 @@ static wxString Current_PadNetName;
 #define NBORIENT 5
 static wxString orient_list[NBORIENT] =
 {
- "0", "90", "-90", "180", "User"
+ wxT("0"), wxT("90"), wxT("-90"), wxT("180"), wxT("User")
 };
 
 
@@ -35,7 +35,8 @@ int CodeShape[NBSHAPES] = /* forme des pads  */
 
 #define NBTYPES 5
 static wxString type_list[NBTYPES] =	// Type des pads
-{ "Standard", "SMD", "Conn", "Hole", "Mechanical"
+{
+	wxT("Standard"), wxT("SMD"), wxT("Conn"), wxT("Hole"), wxT("Mechanical")
 };
 
 int CodeType[NBTYPES] =
@@ -302,43 +303,43 @@ wxString shape_list[NBSHAPES] =
 
 	// Selection des couches cuivre :
 	pos.x += 130; pos.y = 80;
-	m_PadLayerCu = new wxCheckBox(this, -1, "Copper layer", pos);
+	m_PadLayerCu = new wxCheckBox(this, -1, wxT("Copper layer"), pos);
 
 	pos.y += 20;
-	m_PadLayerCmp = new wxCheckBox(this, -1, "Comp layer", pos);
+	m_PadLayerCmp = new wxCheckBox(this, -1, wxT("Comp layer"), pos);
 
 	pos.y += 25;
-	m_PadLayerAdhCmp = new wxCheckBox(this, -1, "Adhesive Cmp", pos);
+	m_PadLayerAdhCmp = new wxCheckBox(this, -1, wxT("Adhesive Cmp"), pos);
 
 	pos.y += 20;
-	m_PadLayerAdhCu = new wxCheckBox(this, -1, "Adhesive Copper", pos);
+	m_PadLayerAdhCu = new wxCheckBox(this, -1, wxT("Adhesive Copper"), pos);
 
 	pos.y += 20;
-	m_PadLayerPateCmp = new wxCheckBox(this, -1, "Solder paste Cmp", pos);
+	m_PadLayerPateCmp = new wxCheckBox(this, -1, wxT("Solder paste Cmp"), pos);
 
 	pos.y += 20;
-	m_PadLayerPateCu = new wxCheckBox(this, -1, "Solder paste Copper", pos);
+	m_PadLayerPateCu = new wxCheckBox(this, -1, wxT("Solder paste Copper"), pos);
 
 	pos.y += 20;
-	m_PadLayerSilkCmp = new wxCheckBox(this, -1, "Silkscreen Cmp", pos);
+	m_PadLayerSilkCmp = new wxCheckBox(this, -1, wxT("Silkscreen Cmp"), pos);
 
 	pos.y += 20;
-	m_PadLayerSilkCu = new wxCheckBox(this, -1, "Silkscreen Copper", pos);
+	m_PadLayerSilkCu = new wxCheckBox(this, -1, wxT("Silkscreen Copper"), pos);
 
 	pos.y += 20;
-	m_PadLayerMaskCmp = new wxCheckBox(this, -1, "Solder mask Cmp", pos);
+	m_PadLayerMaskCmp = new wxCheckBox(this, -1, wxT("Solder mask Cmp"), pos);
 
 	pos.y += 20;
-	m_PadLayerMaskCu = new wxCheckBox(this, -1, "Solder mask Copper", pos);
+	m_PadLayerMaskCu = new wxCheckBox(this, -1, wxT("Solder mask Copper"), pos);
 
 	pos.y += 20;
-	m_PadLayerECO1 = new wxCheckBox(this, -1, "E.C.O.1 layer", pos);
+	m_PadLayerECO1 = new wxCheckBox(this, -1, wxT("E.C.O.1 layer"), pos);
 
 	pos.y += 20;
-	m_PadLayerECO2 = new wxCheckBox(this, -1, "E.C.O.2 layer", pos);
+	m_PadLayerECO2 = new wxCheckBox(this, -1, wxT("E.C.O.2 layer"), pos);
 
 	pos.y += 20;
-	m_PadLayerDraft = new wxCheckBox(this, -1, "Draft layer", pos);
+	m_PadLayerDraft = new wxCheckBox(this, -1, wxT("Draft layer"), pos);
 
 	if ( CurrentPad ) SetPadLayersList(CurrentPad->m_Masque_Layer);
 	else PadTypeSelected();
@@ -510,7 +511,7 @@ long PadLayerMask;
 		CurrentPad->m_Orient = g_Pad_Master.m_Orient + Module->m_Orient;
 		CurrentPad->SetPadName(g_Current_PadName);
 		CurrentPad->m_Netname = Current_PadNetName;
-		if ( Current_PadNetName == "" ) CurrentPad->m_NetCode = 0;
+		if ( Current_PadNetName.IsEmpty() ) CurrentPad->m_NetCode = 0;
 
 		switch ( CurrentPad->m_PadShape )
 		{

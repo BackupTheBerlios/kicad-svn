@@ -71,7 +71,6 @@ int ii, jj, xg , yg, ipas, gxpas, gypas;
 wxSize PageSize;
 wxPoint pos, ref;
 int color;
-char Line[256];
 WorkSheet * WsItem;
 int conv_unit = screen->GetInternalUnits()/1000;
 wxString msg;
@@ -128,43 +127,41 @@ void (*FctPlume)(wxPoint pos, int state);
 	ipas = (xg - ref.x) / PAS_REF;
 	gxpas = ( xg - ref.x) / ipas;
 	for ( ii = ref.x + gxpas, jj = 1; ipas > 0 ; ii += gxpas , jj++, ipas--)
-		{
-		sprintf(Line,"%d",jj);
+	{
+		msg.Empty(); msg << jj;
 		if( ii < xg - PAS_REF/2 )
-			{
+		{
 			pos.x = ii * conv_unit; pos.y = ref.y * conv_unit;
 			FctPlume(pos, 'U');
 			pos.x = ii * conv_unit; pos.y = (ref.y + GRID_REF_W) * conv_unit;
 			FctPlume(pos,'D');
-			}
+		}
 		pos.x = (ii - gxpas/2) * conv_unit;
 		pos.y = (ref.y + GRID_REF_W/2)  * conv_unit;
 		PlotGraphicText(format_plot, pos, color,
-					Line, TEXT_ORIENT_HORIZ,text_size,
+					msg, TEXT_ORIENT_HORIZ,text_size,
 					GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
 
 		if( ii < xg - PAS_REF/2 )
-			{
+		{
 			pos.x = ii * conv_unit; pos.y = yg * conv_unit;
 			FctPlume(pos,'U');
 			pos.x = ii * conv_unit; pos.y = (yg - GRID_REF_W) * conv_unit;
 			FctPlume(pos,'D');
-			}
+		}
 		pos.x = (ii - gxpas/2) * conv_unit;
 		pos.y = (yg - GRID_REF_W/2)  * conv_unit;
 		PlotGraphicText(format_plot, pos, color,
-					Line, TEXT_ORIENT_HORIZ,text_size,
+					msg, TEXT_ORIENT_HORIZ,text_size,
 					GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
-		}
+	}
 
 	/* Trace des reperes selon l'axe Y */
 	ipas = (yg - ref.y) / PAS_REF;
 	gypas = ( yg - ref.y) / ipas;
 	for ( ii = ref.y + gypas, jj = 0; ipas > 0 ; ii += gypas , jj++, ipas--)
 	{
-		if( jj < 26 ) Line[0] = jj + 'A';
-		else Line[0] = 'a' + jj - 26;
-		Line[1] = 0;
+		msg.Empty(); msg << jj;
 		if( ii < yg - PAS_REF/2 )
 		{
 			pos.x = ref.x * conv_unit; pos.y = ii * conv_unit;
@@ -175,7 +172,7 @@ void (*FctPlume)(wxPoint pos, int state);
 		pos.x = (ref.x + GRID_REF_W/2) * conv_unit;
 		pos.y = (ii - gypas/2) * conv_unit;
 		PlotGraphicText(format_plot, pos, color,
-					Line, TEXT_ORIENT_HORIZ,text_size,
+					msg, TEXT_ORIENT_HORIZ,text_size,
 					GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
 
 		if( ii < yg - PAS_REF/2 )
@@ -187,7 +184,7 @@ void (*FctPlume)(wxPoint pos, int state);
 		}
 		pos.x = (xg - GRID_REF_W/2) * conv_unit;
 		pos.y = (ii - gypas/2) * conv_unit;
-		PlotGraphicText(format_plot, pos, color, Line, TEXT_ORIENT_HORIZ,text_size,
+		PlotGraphicText(format_plot, pos, color, msg, TEXT_ORIENT_HORIZ,text_size,
 					GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
 	}
 
@@ -203,7 +200,7 @@ void (*FctPlume)(wxPoint pos, int state);
 		pos.x = (ref.x - WsItem->posx) * conv_unit;
 		pos.y = (ref.y - WsItem->posy) * conv_unit;
 		if(WsItem->Legende) msg = WsItem->Legende;
-		else msg = "";
+		else msg.Empty();
 		switch( WsItem->type )
 		{
 			case WS_DATE:
@@ -218,14 +215,12 @@ void (*FctPlume)(wxPoint pos, int state);
 				msg += g_ProductName;
 				break;
 
-
 			case WS_SIZESHEET:
 				msg += screen->m_CurrentSheet->m_Name;
 				break;
 
-
 			case WS_IDENTSHEET:
-				msg << screen->m_SheetNumber << "/" << screen->m_NumberOfSheet;
+				msg << screen->m_SheetNumber << wxT("/") << screen->m_NumberOfSheet;
 				break;
 
 			case WS_NAMECOMP:
@@ -264,7 +259,7 @@ void (*FctPlume)(wxPoint pos, int state);
 				break;
 
 		}
-		if ( msg != "" )
+		if ( ! msg.IsEmpty() )
 		{
 			PlotGraphicText(format_plot, pos, color,
 					msg.GetData(), TEXT_ORIENT_HORIZ,text_size,

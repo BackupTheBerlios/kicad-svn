@@ -44,7 +44,7 @@ END_EVENT_TABLE()
 
 
 WinEDAListBox::WinEDAListBox( wxWindow * parent, const wxString & title,
-						const char ** itemlist,
+						const wxChar ** itemlist,
 						const wxString & reftext,
 						void(* movefct)(wxString & Text),
 						const wxColour & colour):
@@ -53,7 +53,7 @@ WinEDAListBox::WinEDAListBox( wxWindow * parent, const wxString & title,
 {
 wxPoint pos;
 wxSize size, Wsize;
-const char ** names;
+const wxChar ** names;
 int ii;
 
 	m_ItemList = itemlist;
@@ -105,7 +105,7 @@ int ii;
 		pos.x = 5; pos.y = Wsize.y + 10;
 		size.x = 220; size.y = 60;
 		Wsize.y = pos.y + size.y;
-		m_WinMsg = new wxTextCtrl(this, -1,"", pos, size,
+		m_WinMsg = new wxTextCtrl(this, -1, wxEmptyString, pos, size,
 					wxTE_READONLY|wxTE_MULTILINE);
 	}
 

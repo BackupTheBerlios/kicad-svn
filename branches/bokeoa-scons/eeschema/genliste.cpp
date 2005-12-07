@@ -24,7 +24,7 @@ typedef struct ListLabel
 
 
 /* fonctions locales */
-static void GenereListeOfItems(wxWindow * frame, const char * FullFileName);
+static void GenereListeOfItems(wxWindow * frame, const wxString & FullFileName);
 static int GenListeGLabels( ListLabel * List );
 static int ListTriComposantByRef(EDA_SchComponentStruct **Objet1,
 									EDA_SchComponentStruct **Objet2);
@@ -110,14 +110,14 @@ wxPoint pos;
 	if ( (framepos.x == -1) && (framepos.x == -1) ) Centre();
 
 	/* Calcul du nom du fichier d'archivage */
-	LibArchiveFileName = MakeFileName("",ScreenSch->m_FileName,"");
+	LibArchiveFileName = MakeFileName(wxEmptyString,ScreenSch->m_FileName,wxEmptyString);
 	/* mise a jour extension  */
 	ChangeFileNameExt(LibArchiveFileName, g_LibExtBuffer);
 
 	/* Calcul du nom du fichier de listage */
-	ListFileName = MakeFileName("",ScreenSch->m_FileName,"");
+	ListFileName = MakeFileName(wxEmptyString,ScreenSch->m_FileName,wxEmptyString);
 	/* mise a jour extension  */
-	ChangeFileNameExt(ListFileName, ".lst");
+	ChangeFileNameExt(ListFileName, wxT(".lst"));
 
 	pos.x = 5; pos.y = 15;
 	new wxStaticBox(this, -1,_(" List items : "), pos, wxSize(230, 120));
@@ -163,14 +163,14 @@ void WinEDA_GenCmpListFrame::ToolsGenListUpdateOpt(void)
 
 void WinEDA_GenCmpListFrame::ToolsGenList(wxCommandEvent& event)
 {
-#define EXT_LIST ".lst"
-wxString mask(""), filename;
+#define EXT_LIST wxT(".lst")
+wxString mask, filename;
 
 	ToolsGenListUpdateOpt();
 
-	mask += EXT_LIST;
+	mask = wxT("*"); mask += EXT_LIST;
 	filename = EDA_FileSelector(_("List of material:"),
-					"",				/* Chemin par defaut (ici dir courante) */
+					wxEmptyString,				/* Chemin par defaut (ici dir courante) */
 					ListFileName,	/* nom fichier par defaut, et resultat */
 					EXT_LIST,		/* extension par defaut */
 					mask,			/* Masque d'affichage */
@@ -178,10 +178,10 @@ wxString mask(""), filename;
 					wxSAVE,
 					TRUE
 					);
-	if ( filename == "" ) return;
+	if ( filename.IsEmpty() ) return;
 	else ListFileName = filename;
 
-	GenereListeOfItems(this, ListFileName.GetData());
+	GenereListeOfItems(this, ListFileName);
 	Close();
 }
 
@@ -194,7 +194,7 @@ void WinEDA_GenCmpListFrame::ToolsExit(wxCommandEvent& event)
 
 
 /***************************************************************************/
-static void GenereListeOfItems(wxWindow * frame, const char * FullFileName)
+static void GenereListeOfItems(wxWindow * frame, const wxString & FullFileName)
 /***************************************************************************/
 /*
 	Routine principale pour la creation des listings ( composants et/ou labels
@@ -202,16 +202,17 @@ static void GenereListeOfItems(wxWindow * frame, const char * FullFileName)
 */
 {
 FILE *f;
-char Line[256];
 EDA_BaseStruct ** List;
 ListLabel * ListOfLabels;
 int NbItems;
-
+char Line[1024];
+wxString msg;
+	
 	/* Creation de la liste des elements */
-	if ((f = fopen(FullFileName, "wt")) == NULL)
+	if ((f = wxFopen(FullFileName, wxT("wt"))) == NULL)
 	{
-		sprintf(Line,"Failed to open file %s",FullFileName);
-		DisplayError(frame, Line);
+		msg = _("Failed to open file "); msg << FullFileName;
+		DisplayError(frame, msg);
 		return;
 	}
 
@@ -221,15 +222,15 @@ int NbItems;
 		List = (EDA_BaseStruct **)
 				MyZMalloc( NbItems * sizeof(EDA_BaseStruct **) );
 		if (List == NULL )
-			{
+		{
 			fclose(f);  return;
-			}
+		}
 
 		GenListeCmp(List);
 
 		/* generation du fichier listing */
 		DateAndTime(Line);
-		fprintf( f, "%s  >> Creation date: %s\n", Main_Title.GetData(), Line );
+		fprintf( f, "%s  >> Creation date: %s\n", CONV_TO_UTF8(Main_Title), Line );
 
 		/* Tri et impression de la liste des composants */
 
@@ -239,16 +240,16 @@ int NbItems;
 		if( (ItemsToList & LIST_SUBCMP) == 0 ) DeleteSubCmp(List, NbItems);
 
 		if( (ItemsToList & LISTCMP_BY_REF) )
-			{
+		{
 			PrintListeCmpByRef(f, List, NbItems);
-			}
+		}
 
 		if( (ItemsToList & LISTCMP_BY_VAL) )
-			{
+		{
 			qsort( List, NbItems, sizeof( EDA_BaseStruct * ),
 					(int(*)(const void*, const void*))ListTriComposantByVal);
 			PrintListeCmpByVal(f, List, NbItems);
-			}
+		}
 		MyFree( List );
 	}
 
@@ -258,37 +259,40 @@ int NbItems;
 
 	NbItems = GenListeGLabels( NULL );
 	if ( NbItems )
-		{
+	{
 		ListOfLabels = (ListLabel *) MyZMalloc( NbItems * sizeof(ListLabel) );
 		if (ListOfLabels == NULL )
-			{
+		{
 			  fclose(f); return;
-			}
+		}
 
 		GenListeGLabels(ListOfLabels);
 
 		/* Tri de la liste */
 		if( (ItemsToList & LIST_HPINS_BY_SHEET) )
-			{
+		{
 			qsort( ListOfLabels, NbItems, sizeof( ListLabel ),
 				(int(*)(const void*, const void*))ListTriGLabelBySheet);
 
-			fprintf( f, _("\n#Glob labels ( order = Sheet Number )\n") );
+			msg = _("\n#Glob labels ( order = Sheet Number )\n");
+			fprintf( f, "%s", CONV_TO_UTF8(msg));
 			PrintListeGLabel(f, ListOfLabels, NbItems);
-			}
+		}
 
 		if( (ItemsToList & LIST_HPINS_BY_NAME) )
-			{
+		{
 			qsort( ListOfLabels, NbItems, sizeof( ListLabel ),
 				(int(*)(const void*, const void*))ListTriGLabelByVal);
 
-			fprintf( f, _("\n#Glob labels ( order = Alphab. )\n") );
+			msg = _("\n#Glob labels ( order = Alphab. )\n");
+			fprintf( f, "%s", CONV_TO_UTF8(msg));
 			PrintListeGLabel(f, ListOfLabels, NbItems);
-			}
-		MyFree( ListOfLabels );
 		}
+		MyFree( ListOfLabels );
+	}
 
-	fprintf( f, _("\n#End List\n") );
+	msg = _("\n#End List\n");
+	fprintf( f, "%s", CONV_TO_UTF8(msg));
 	fclose(f);
 }
 
@@ -340,9 +344,9 @@ BASE_SCREEN * screen = ScreenSch;
 /*********************************************/
 static int GenListeGLabels( ListLabel * List )
 /*********************************************/
-/* Routine de generation de la liste des elements utiles du dessin
-	Si List == NULL: comptage des elements
-	Sinon remplissage de la liste
+/* Count the Glabels, or fill the list Listwith Glabel pointers 
+	If List == NULL: Item count only
+	Else fill list of Glabels
 */
 {
 int ii = 0;
@@ -351,46 +355,46 @@ DrawSheetLabelStruct *SheetLabel;
 BASE_SCREEN * screen = ScreenSch;
 
 	for( ; screen != NULL ; screen = (BASE_SCREEN*)screen->Pnext )
-		{
+	{
 		DrawList = screen->EEDrawList;
 		while ( DrawList )
-			{
+		{
 			switch( DrawList->m_StructType )
-				{
+			{
 				case DRAW_GLOBAL_LABEL_STRUCT_TYPE :
 					if( List )
-						{
+					{
 						List->m_StructType = DRAW_TEXT_STRUCT_TYPE;
 						List->m_SheetNumber = screen->m_SheetNumber;
 						List->m_Label = DrawList; List++;
-						}
+					}
 					ii++;
 					break;
 				
 				case DRAW_SHEET_STRUCT_TYPE :
-					{
+				{
 					#define Sheet ((DrawSheetStruct * ) DrawList)
 					SheetLabel= Sheet->m_Label;
 					while( SheetLabel != NULL )
-						{
+					{
 						if ( List )
-							{
+						{
 							List->m_StructType = DRAW_SHEETLABEL_STRUCT_TYPE;
 							List->m_SheetNumber = screen->m_SheetNumber;
 							List->m_Label = SheetLabel;
 							List++;
-							}
+						}
 						ii++;
 						SheetLabel = (DrawSheetLabelStruct*)(SheetLabel->Pnext);
-						}
-					break;
 					}
+					break;
+				}
 
 				default: break;
-				}
-			DrawList = DrawList->Pnext;
 			}
+			DrawList = DrawList->Pnext;
 		}
+	}
 	return ( ii );
 }
 
@@ -575,10 +579,11 @@ EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *DrawLibItem;
 EDA_LibComponentStruct *Entry;
 char NameCmp[80];
-
-	fprintf( f, _("\n#Cmp ( order = Reference )") );
-	if ( (ItemsToList & LIST_SUBCMP) ) fprintf( f, " (with SubCmp)");
-	fprintf( f, "\n");
+wxString msg;
+	
+	msg = _("\n#Cmp ( order = Reference )");
+	if ( (ItemsToList & LIST_SUBCMP) ) msg << _(" (with SubCmp)");
+	fprintf( f, "%s\n", CONV_TO_UTF8(msg));
 
 	for ( ii = 0; ii < NbItems; ii++ )
 		{
@@ -591,15 +596,16 @@ char NameCmp[80];
 		if( DrawLibItem->m_Field[REFERENCE].m_Text[0] == '#' ) continue;
 
 		Multi = 0; Unit = ' ';
-		Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+		Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 		if( Entry ) Multi = Entry->m_UnitCount;
 		if( (Multi > 1 ) && ( ItemsToList & LIST_SUBCMP ) )
 			 Unit = DrawLibItem->m_Multi + 'A' - 1;
 
-		sprintf( NameCmp,"%s%c",DrawLibItem->m_Field[REFERENCE].m_Text.GetData(), Unit);
+		sprintf( NameCmp,"%s%c", CONV_TO_UTF8(DrawLibItem->m_Field[REFERENCE].m_Text),
+			Unit);
 		fprintf(f, "| %-10.10s %-12.12s",
-							NameCmp,
-							DrawLibItem->m_Field[VALUE].m_Text.GetData());
+					NameCmp,
+					CONV_TO_UTF8(DrawLibItem->m_Field[VALUE].m_Text));
 
 		if ( (ItemsToList & LIST_SUBCMP) )
 			{
@@ -609,12 +615,13 @@ char NameCmp[80];
 				sheetname = ((DrawSheetStruct*)screen->m_Parent)->m_Field[VALUE].m_Text.GetData();
 			else sheetname = _("Root");
 			fprintf(f, "   (Sheet %.2d: \"%s\")", DrawLibItem->m_FlagControlMulti,
-					sheetname.GetData());
+					CONV_TO_UTF8(sheetname));
 			}
 
 		fprintf(f,"\n");
 		}
-	fprintf( f, _("#End Cmp\n") );
+	msg = _("#End Cmp\n");
+	fprintf(f, CONV_TO_UTF8(msg));
 	return(0);
 }
 
@@ -622,15 +629,17 @@ char NameCmp[80];
 int PrintListeCmpByVal( FILE * f, EDA_BaseStruct ** List, int NbItems )
 /**********************************************************************/
 {
-int ii, Multi, Unit;
+int ii, Multi;
+wxChar Unit;
 EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *DrawLibItem;
 EDA_LibComponentStruct *Entry;
-char NameCmp[80];
-
-	fprintf( f, _("\n#Cmp ( order = Value )") );
-	if ( (ItemsToList & LIST_SUBCMP) ) fprintf( f, " (with SubCmp)");
-	fprintf( f, "\n");
+wxString msg;
+	
+	msg = _("\n#Cmp ( order = Value )");
+	if ( (ItemsToList & LIST_SUBCMP) ) msg <<  _(" (with SubCmp)");
+	msg << wxT("\n");
+	fprintf(f, CONV_TO_UTF8(msg));
 
 	for ( ii = 0; ii < NbItems; ii++ )
 		{
@@ -643,24 +652,25 @@ char NameCmp[80];
 		if( DrawLibItem->m_Field[REFERENCE].m_Text[0] == '#' ) continue;
 
 		Multi = 0; Unit = ' ';
-		Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+		Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 		if( Entry ) Multi = Entry->m_UnitCount;
 		if( (Multi > 1 ) && ( ItemsToList & LIST_SUBCMP ) )
 			 Unit = DrawLibItem->m_Multi + 'A' - 1;
-		sprintf( NameCmp,"%s%c",DrawLibItem->m_Field[REFERENCE].m_Text.GetData(),
-				Unit);
+		msg = DrawLibItem->m_Field[REFERENCE].m_Text;
+		msg.Append(Unit);
 
 		fprintf(f, "| %-12.12s %-10.10s",
-							DrawLibItem->m_Field[VALUE].m_Text.GetData(),
-							NameCmp );
+					CONV_TO_UTF8(DrawLibItem->m_Field[VALUE].m_Text),
+					CONV_TO_UTF8(msg) );
 		if ( (ItemsToList & LIST_SUBCMP) )
-			{
+		{
 			fprintf(f, "   (Sheet %.2d)", DrawLibItem->m_FlagControlMulti);
-			}
+		}
 
 		fprintf(f,"\n");
-		}
-	fprintf( f, _("#End Cmp\n") );
+	}
+	msg = _("#End Cmp\n");
+	fprintf(f, CONV_TO_UTF8(msg));
 	return(0);
 }
 
@@ -673,40 +683,48 @@ int ii, jj;
 DrawGlobalLabelStruct *DrawTextItem;
 DrawSheetLabelStruct * DrawSheetLabel;
 ListLabel * LabelItem;
-
+wxString msg;
+	
 	for ( ii = 0; ii < NbItems; ii++ )
-		{
+	{
 		LabelItem = & List[ii];
 
 		switch( LabelItem->m_StructType )
-			{
+		{
 			case DRAW_GLOBAL_LABEL_STRUCT_TYPE :
 				DrawTextItem = (DrawGlobalLabelStruct *)(LabelItem->m_Label);
-				fprintf(f,
+				msg.Printf(
                         _("> %-28.28s Global        (Sheet %.2d) pos: %3.3f, %3.3f\n"),
 							DrawTextItem->m_Text.GetData(),
 							LabelItem->m_SheetNumber,
 							(float)DrawTextItem->m_Pos.x / 1000,
 							(float)DrawTextItem->m_Pos.y / 1000);
-				break;
+				
+				fprintf(f, CONV_TO_UTF8(msg));
+ 				break;
 
 			case DRAW_SHEETLABEL_STRUCT_TYPE :
+			{
 				DrawSheetLabel = (DrawSheetLabelStruct *) LabelItem->m_Label;
 				jj = DrawSheetLabel->m_Shape;
 				if ( jj < 0 ) jj = NET_TMAX; if ( jj > NET_TMAX ) jj = 4;
-				fprintf(f,
+				wxString labtype = CONV_FROM_UTF8(SheetLabelType[jj]);
+				msg.Printf(
                         _("> %-28.28s Sheet %-7.7s (Sheet %.2d) pos: %3.3f, %3.3f\n"),
 							DrawSheetLabel->m_Text.GetData(),
-							SheetLabelType[jj],
+							labtype.GetData(),
 							LabelItem->m_SheetNumber,
 							(float)DrawSheetLabel->m_Pos.x / 1000,
 							(float)DrawSheetLabel->m_Pos.y / 1000);
-				 break;
+				fprintf(f, CONV_TO_UTF8(msg));
+			}
+				break;
 
 			default: break;
-			}
 		}
-	fprintf( f, _("#End labels\n") );
-	return(0);
+	}
+	msg = _("#End labels\n");
+	fprintf(f, CONV_TO_UTF8(msg));
+ 	return(0);
 }
 

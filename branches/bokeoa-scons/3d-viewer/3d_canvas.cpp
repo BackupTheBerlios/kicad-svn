@@ -63,7 +63,7 @@ END_EVENT_TABLE()
 /*************************************************************************/
 Pcb3D_GLCanvas::Pcb3D_GLCanvas(WinEDA3D_DrawFrame *parent, wxWindowID id,
 			int* gl_attrib):
-  wxGLCanvas(parent, id, wxPoint(-1,-1), wxSize(-1,-1), 0, "Pcb3D_glcanvas", gl_attrib)
+  wxGLCanvas(parent, id, wxPoint(-1,-1), wxSize(-1,-1), 0, wxT("Pcb3D_glcanvas"), gl_attrib)
 /*************************************************************************/
 {
 	m_init = FALSE;
@@ -362,13 +362,13 @@ void Pcb3D_GLCanvas::DisplayStatus(void)
 /***************************************/
 {
 wxString msg;
-	msg.Printf("dx %3.2f", Draw3d_dx);
+	msg.Printf(wxT("dx %3.2f"), Draw3d_dx);
 	m_Parent->SetStatusText(msg,1);
 
-	msg.Printf("dy %3.2f", Draw3d_dy);
+	msg.Printf(wxT("dy %3.2f"), Draw3d_dy);
 	m_Parent->SetStatusText(msg,2);
 
-	msg.Printf("View: %3.1f", 45 * g_Parm_3D_Visu.m_Zoom);
+	msg.Printf(wxT("View: %3.1f"), 45 * g_Parm_3D_Visu.m_Zoom);
 	m_Parent->SetStatusText(msg,3);
 }
 
@@ -512,29 +512,29 @@ void Pcb3D_GLCanvas::TakeScreenshot(wxCommandEvent & event)
 wxString FullFileName;
 wxString file_ext, mask;
 bool fmt_is_jpeg = FALSE;
-	
+
 	if ( event.GetId() == ID_MENU_SCREENCOPY_JPEG ) fmt_is_jpeg = TRUE;
 	if ( event.GetId() != ID_TOOL_SCREENCOPY_TOCLIBBOARD )
 	{
-		file_ext = fmt_is_jpeg ? ".jpg" : ".png";
-		mask = "*" + file_ext;
+		file_ext = fmt_is_jpeg ? wxT(".jpg") : wxT(".png";)
+		mask = wxT("*") + file_ext;
 		FullFileName = m_Parent->m_Parent->GetScreen()->m_FileName;
 		ChangeFileNameExt(FullFileName,file_ext);
-		
+
 		FullFileName =
-			EDA_FileSelector(_("3D Image filename:"),
-					"",					/* Chemin par defaut */
-					FullFileName,	 /* nom fichier par defaut */
+			EDA_FileSelector( _("3D Image filename:"),
+					wxEmptyString,		/* Chemin par defaut */
+					FullFileName,		/* nom fichier par defaut */
 					file_ext,			/* extension par defaut */
 					mask,				/* Masque d'affichage */
 					this,
 					wxSAVE,
 					TRUE
 					);
-		if ( FullFileName == "" ) return;
+		if ( FullFileName.IsEmpty() ) return;
 	}
 	wxSize image_size = GetClientSize();
-	wxClientDC dc(this);	
+	wxClientDC dc(this);
 	wxBitmap bitmap(image_size.x, image_size.y );
 	wxMemoryDC memdc;
     memdc.SelectObject( bitmap );
@@ -548,7 +548,7 @@ bool fmt_is_jpeg = FALSE;
 		if (wxTheClipboard->Open())
 		{
 			if ( !wxTheClipboard->SetData(dobjBmp) )
-				wxLogError(_T("Failed to copy image to clipboard"));
+				wxLogError( _T("Failed to copy image to clipboard"));
 			wxTheClipboard->Flush();	/* the data on clipboard
 					will stay available after the application exits */
 			wxTheClipboard->Close();
@@ -558,11 +558,11 @@ bool fmt_is_jpeg = FALSE;
 	else
 	{
 		wxImage image = bitmap.ConvertToImage();
-	
+
 		if ( !image.SaveFile( FullFileName,
 				fmt_is_jpeg ? wxBITMAP_TYPE_JPEG : wxBITMAP_TYPE_PNG))
 			wxLogError(wxT("Can't save file"));
-	
+
 		image.Destroy();
 	}
 }

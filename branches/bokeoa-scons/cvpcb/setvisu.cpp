@@ -20,48 +20,47 @@ void WinEDA_CvpcbFrame::CreateScreenCmp(void)
 */
 {
 int ii, ModSel;
-char NamePkg[256], Line[512];
+wxString msg;
 STOREMOD * Module = NULL;
 bool IsNew = FALSE;
 
 	ModSel = m_ListMod->GetSelection();
-	*NamePkg = 0;
 
 	if( ModSel >= 0 )
-		{
+	{
 		Module = BaseListePkg;
 		for( ii = 0; Module != NULL; Module = Module->Pnext, ii++ )
-			{
+		{
 			if (ii == ModSel) break;
-			}
 		}
+	}
 
 
 	if ( DrawFrame == NULL)
-		{
-		DrawFrame = new WinEDA_DisplayFrame(this, m_Parent, "module",
+	{
+		DrawFrame = new WinEDA_DisplayFrame(this, m_Parent, _("Module"),
 						wxPoint(0,0) , wxSize(600,400) );
 		IsNew = TRUE;
-		}
+	}
 	else DrawFrame->Maximize(FALSE);
 
 	DrawFrame->SetFocus();	/* Active entree clavier */
 	DrawFrame->Show(TRUE);
 
 	if( Module )
-		{
-		sprintf(Line,"Module: %s", Module->Module);
-		DrawFrame->SetTitle(Line);
-		sprintf(Line,"Lib: %s", Module->LibName);
-		DrawFrame->SetStatusText(Line,0);
+	{
+		msg = _("Module: ") + Module->m_Module;
+		DrawFrame->SetTitle(msg);
+		msg = _("Lib: ") + Module->m_LibName;
+		DrawFrame->SetStatusText(msg, 0);
 		if ( DrawFrame->m_Pcb->m_Modules )
-			{
+		{
 			DeleteStructure( DrawFrame->m_Pcb->m_Modules );
 			DrawFrame->m_Pcb->m_Modules = NULL;
-			}
-		DrawFrame->m_Pcb->m_Modules = DrawFrame->Get_Module(Module->Module);
-		DrawFrame->Zoom_Automatique(FALSE);
 		}
+		DrawFrame->m_Pcb->m_Modules = DrawFrame->Get_Module(Module->m_Module);
+		DrawFrame->Zoom_Automatique(FALSE);
+	}
 
 	else if ( !IsNew )
 	{

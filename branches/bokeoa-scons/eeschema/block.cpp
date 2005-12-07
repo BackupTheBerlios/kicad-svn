@@ -94,14 +94,14 @@ bool err = FALSE;
 	if(GetScreen()->ManageCurseur == NULL)
 		{
 		err = TRUE;
-		DisplayError(this, "HandleBlockPLace : ManageCurseur = NULL" );
+		DisplayError(this, wxT("HandleBlockPLace : ManageCurseur = NULL") );
 		}
 
 	if(GetScreen()->BlockLocate.m_BlockDrawStruct == NULL)
 		{
 		wxString msg;
 		err = TRUE;
-		msg.Printf("HandleBlockPLace : m_BlockDrawStruct = NULL (cmd %d, state %d)",
+		msg.Printf( wxT("HandleBlockPLace : m_BlockDrawStruct = NULL (cmd %d, state %d)"),
 			GetScreen()->BlockLocate.m_Command, GetScreen()->BlockLocate.m_State);
 		DisplayError(this, msg );
 		}
@@ -164,11 +164,11 @@ bool err = FALSE;
 
 	if ( GetScreen()->BlockLocate.m_BlockDrawStruct )
 		{
-		DisplayError(this, "HandleBlockPLace error: DrawStruct != Null" );
+		DisplayError(this, wxT("HandleBlockPLace error: DrawStruct != Null") );
 		GetScreen()->BlockLocate.m_BlockDrawStruct = NULL;
 		}
 
-	SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, "" );
+	SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, wxEmptyString );
 }
 
 /****************************************************/
@@ -204,7 +204,7 @@ bool zoom_command = FALSE;
 	  switch( GetScreen()->BlockLocate.m_Command )
 		{
 		case  BLOCK_IDLE:
-			DisplayError(this, "Error in HandleBlockPLace");
+			DisplayError(this, wxT("Error in HandleBlockPLace") );
 			break;
 
 		case BLOCK_DRAG: /* Drag */
@@ -297,7 +297,7 @@ bool zoom_command = FALSE;
 		GetScreen()->ManageCurseur = NULL;
 		GetScreen()->ForceCloseManageCurseur = NULL;
 		GetScreen()->m_CurrentItem = NULL;
-		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, "" );
+		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, wxEmptyString );
 	}
 
 	if ( zoom_command)
@@ -405,7 +405,7 @@ int ii = 0;
 		GetScreen()->ManageCurseur = NULL;
 		GetScreen()->ForceCloseManageCurseur = NULL;
 		GetScreen()->m_CurrentItem = NULL;
-		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, "" );
+		SetToolID(m_ID_current_state, DrawPanel->m_PanelDefaultCursor, wxEmptyString );
 	}
 
 }
@@ -750,7 +750,7 @@ DrawPickedStruct  *PickedItem, *PickedList = NULL;
 
 	if (g_UnDeleteStackPtr == 0)
 		{
-		DisplayError(this, "No Data to undelete" );
+		DisplayError(this, wxT("No Data to undelete") );
 		return FALSE;
 		}
 
@@ -793,7 +793,7 @@ DrawPickedStruct  *PickedItem, *PickedList = NULL;
 
 	if (g_BlockSaveDataList == NULL)
 	{
-		DisplayError(this, "No struct to paste");
+		DisplayError(this, wxT("No struct to paste") );
 		return;
 	}
 
@@ -1026,7 +1026,7 @@ EDA_BaseStruct *NewDrawStruct = NULL;
 
 	if ( DrawStruct == NULL )
 		{
-		DisplayError(NULL, "CopyStructLocal error: NULL struct");
+		DisplayError(NULL, wxT("CopyStructLocal error: NULL struct") );
 		return NULL;
 		}
 
@@ -1090,8 +1090,8 @@ EDA_BaseStruct *NewDrawStruct = NULL;
 		case SCREEN_STRUCT_TYPE:
 			{
 			wxString msg;
-			msg << "CopyStructLocal error: unexpected StructType " <<
-				DrawStruct->m_StructType << " " << DrawStruct->ReturnClassName();
+			msg << wxT("CopyStructLocal error: unexpected StructType ") <<
+				DrawStruct->m_StructType << wxT(" ") << DrawStruct->ReturnClassName();
 			DisplayError(NULL, msg);
 			}
 			break;
@@ -1379,7 +1379,7 @@ LibDrawPin * Pin;
 	if( DrawLibItem )
 		{
 		NextItem = NULL;
-		if((Entry = FindLibPart(DrawLibItem->m_ChipName,"",FIND_ROOT)) == NULL)
+		if((Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(),wxEmptyString,FIND_ROOT)) == NULL)
 			return(NULL);
 		DEntry = Entry->m_Drawings;
 		Multi = DrawLibItem->m_Multi;

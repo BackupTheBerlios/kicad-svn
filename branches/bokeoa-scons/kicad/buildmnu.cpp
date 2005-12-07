@@ -127,7 +127,7 @@ wxMenuBar * menuBar = GetMenuBar() ;
 		m_FilesMenu->AppendSeparator();
 		for ( ii = 0; ii < 10; ii++ )
 		{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 		}
 
@@ -193,7 +193,7 @@ wxMenuBar * menuBar = GetMenuBar() ;
 		}
 		for ( jj = 0, ii = 0; ii < max_file; ii++ )
 		{
-			if (GetLastProject(ii) == "" ) break;
+			if (GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + jj, GetLastProject(ii) );
 			jj++;
 		}

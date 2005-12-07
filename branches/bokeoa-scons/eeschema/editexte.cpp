@@ -32,7 +32,7 @@ static int TextLabelSize = DEFAULT_SIZE_TEXT;
 #define NBSHAPES 5
 static wxString shape_list[NBSHAPES] =
 {
- "Input", "Output", "Bidi", "TriState", "Passive"
+ wxT("Input"), wxT("Output"), wxT("Bidi"), wxT("TriState"), wxT("Passive")
 };
 
 enum id_Textdit
@@ -78,7 +78,7 @@ WinEDA_TextPropertiesFrame::WinEDA_TextPropertiesFrame(
 				WinEDA_SchematicFrame *parent,
 				DrawTextStruct * CurrentText,
 				const wxPoint & framepos):
-		wxDialog(parent, -1, "", framepos, wxSize(340, 220), DIALOG_STYLE)
+		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(340, 220), DIALOG_STYLE)
 {
 wxPoint pos;
 wxString number;
@@ -119,7 +119,7 @@ wxButton * Button;
 
 	pos.x = 10; pos.y = 35;
 
-	m_TextWin = new WinEDA_GraphicTextCtrl(this, "Text:",
+	m_TextWin = new WinEDA_GraphicTextCtrl(this, wxT("Text:"),
 				CurrentText->m_Text, CurrentText->m_Size.x,
 				UnitMetric , pos, 200);
 	m_TextWin->SetFocus();
@@ -168,9 +168,9 @@ wxString newtext;
 
 	newtext = m_TextWin->GetText();
 
-	if ( newtext != "" ) m_CurrentText->m_Text = newtext;
+	if ( ! newtext.IsEmpty() ) m_CurrentText->m_Text = newtext;
 	else if ( (m_CurrentText->m_Flags & IS_NEW) == 0 )
-		DisplayError(this, "Empty Text!");
+		DisplayError(this, wxT("Empty Text!") );
 
 	m_CurrentText->m_Orient = m_TextOrient->GetSelection();
 	m_CurrentText->m_Size.x = m_CurrentText->m_Size.y = m_TextWin->GetTextSize();
@@ -295,7 +295,7 @@ DrawTextStruct * NewText =  NULL;
 			break;
 
 		default:
-			DisplayError(this, "Editexte: Internal error");
+			DisplayError(this, wxT("Editexte: Internal error") );
 			break;
 		}
 
@@ -428,7 +428,7 @@ void WinEDA_SchematicFrame::ChangeTypeText(DrawTextStruct * Text,
 			break;
 
 		default:
-			DisplayError(this, "ChangeTypeText: Internal error");
+			DisplayError(this, wxT("ChangeTypeText: Internal error") );
 			break;
 		}
 

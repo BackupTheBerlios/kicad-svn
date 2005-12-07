@@ -132,9 +132,9 @@ DrawMarkerStruct * newitem = new DrawMarkerStruct( m_Pos, m_Comment);
 }
 
 
-const char * DrawMarkerStruct::GetComment(void)
+wxString DrawMarkerStruct::GetComment(void)
 {
-	return m_Comment.GetData();
+	return m_Comment;
 }
 
 

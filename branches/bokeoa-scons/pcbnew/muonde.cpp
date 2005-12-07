@@ -43,7 +43,7 @@ This footprint has pad_count pads:
 {
 MODULE * Module;
 int pad_num = 1;
-char Line[256];	
+wxString Line;	
 
 	Module = Create_1_Module(DC, name);
 	if ( Module == NULL ) return NULL;
@@ -77,7 +77,7 @@ char Line[256];
 		pad->m_PadShape = RECT;
 		pad->m_Attribut = SMD;
 		pad->m_Masque_Layer = CMP_LAYER;
-		sprintf(Line, "%d", pad_num);
+		Line.Printf( wxT("%d"), pad_num);
 		pad->SetPadName(Line);
 		pad_num++;
 	}
@@ -139,23 +139,23 @@ bool abort;
 	{
 		case 0:
 			msg = _("Gap");
-			cmp_name = "GAP";
+			cmp_name = wxT("GAP");
 			break;
 
 		case 1:
 			msg = _("Stub");
-			cmp_name = "STUB";
+			cmp_name = wxT("STUB");
 			pad_count = 2;
 			break;
 
 		case 2:
 			msg = _("Arc Stub");
-			cmp_name = "ASTUB";
+			cmp_name = wxT("ASTUB");
 			pad_count = 1;
 			break;
 
 		default:
-			msg = "???";
+			msg = wxT("???");
 			break;
 	}
 	
@@ -165,14 +165,14 @@ wxString value;
 	if( UnitMetric)
 	{
 		fcoeff = 10000.0/25.4 ;
-		value.Printf("%2.4f",gap_size / fcoeff);
-		msg += " (mm):";
+		value.Printf( wxT("%2.4f"),gap_size / fcoeff);
+		msg += _(" (mm):");
 		abort = Get_Message(msg,value, this);
 	}
 	else
 	{
 		fcoeff = 10000.0 ;
-		value.Printf("%2.3f",gap_size / fcoeff);
+		value.Printf( wxT("%2.3f"),gap_size / fcoeff);
 		msg += _(" (inch):");
 		abort = Get_Message(msg, value, this);
 	}
@@ -188,7 +188,7 @@ wxString value;
 	if ( ! abort && (shape_type == 2) )
 	{
 		fcoeff = 10.0 ;
-		value.Printf( "%3.1f",angle / fcoeff);
+		value.Printf( wxT("%3.1f"),angle / fcoeff);
 		msg = _("Angle (0.1deg):");
 		abort = Get_Message(msg, value, this);
 		if ( ! value.ToDouble(&fval) )
@@ -222,7 +222,7 @@ wxString value;
 			break;
 
 		case 1:	//Stub :
-			pt_pad->SetPadName("1");
+			pt_pad->SetPadName( wxT("1"));
 			pt_pad = (D_PAD *) pt_pad->Pnext;
 			pt_pad->m_Pos0.y = -(gap_size + pt_pad->m_Size.y) /2;
 			pt_pad->m_Size.y = gap_size;
@@ -414,10 +414,10 @@ char * param1, *param2;
 int bufsize;
 double * ptbuf;
 	
-	ext = ".txt";
-	mask = "*" + ext;
+	ext = wxT(".txt");
+	mask = wxT("*") + ext;
 	FullFileName = EDA_FileSelector(_("Read descr shape file"),
-					"",			/* Chemin par defaut */
+					wxEmptyString,			/* Chemin par defaut */
 					FullFileName,		/* nom fichier par defaut */
 					ext,				/* extension par defaut */
 					mask,				/* Masque d'affichage */
@@ -425,9 +425,9 @@ double * ptbuf;
 					wxOPEN,
 					TRUE				/* ne change pas de repertoire courant */
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty()) return;
 
-	File = fopen(FullFileName.GetData(), "rt");
+	File = wxFopen(FullFileName, wxT("rt"));
 	
 	if ( File == NULL )
 	{
@@ -541,7 +541,7 @@ WinEDA_SetParamShapeFrame * frame = new WinEDA_SetParamShapeFrame(this, wxPoint(
 		return NULL;
 	}
 	
-	cmp_name = "POLY";
+	cmp_name = wxT("POLY");
 
 	Module = Create_MuWaveBasicShape(NULL, cmp_name, pad_count);	
 	pad1 = Module->m_Pads;
@@ -648,8 +648,8 @@ wxString msg;
 	if( Module == NULL)  return;	/* Module non trouve */
 
 	/* Test si module = gap ( nom commence par GAP, et 2 pastilles) */
-	if(strncmp(Module->m_Reference->GetText(),"GAP",3) != 0) return;
-
+	msg = Module->m_Reference->m_Text.Left(3);
+	if( msg != wxT("GAP") ) return;
 
 	pad = Module->m_Pads;
 	if(pad == NULL )
@@ -672,14 +672,14 @@ wxString msg;
 	if( UnitMetric)
 	{
 		fcoeff = 10000.0/25.4 ;
-		msg.Printf("%2.3f",gap_size / fcoeff);
-		Get_Message("Gap (mm):",msg, this);
+		msg.Printf( wxT("%2.3f"),gap_size / fcoeff);
+		Get_Message( _("Gap (mm):"),msg, this);
 	}
 	else
 	{
 		fcoeff = 10000.0 ;
-		msg.Printf(cbuf,"%2.4f",gap_size / fcoeff);
-		Get_Message("Gap (inch):",msg, this);
+		msg.Printf( wxT("%2.4f"),gap_size / fcoeff);
+		Get_Message( _("Gap (inch):"),msg, this);
 	}
 
 	if ( ! msg.IsEmpty() )

@@ -164,7 +164,7 @@ wxString color_opt[] =
 	pos.x = 6; pos.y += m_Plot_Sheet_Ref->GetSize().y + 8;
 	new wxStaticText(this, -1, _("Messages :"), pos);
 	pos.y += 15;
-	m_MsgBox = new wxTextCtrl(this, -1, "", pos, wxSize(SIZE_X - 20, 200),
+	m_MsgBox = new wxTextCtrl(this, -1, wxEmptyString, pos, wxSize(SIZE_X - 20, 200),
 			wxTE_MULTILINE | wxTE_READONLY);
 
 	pos.y += m_MsgBox->GetSize().y;
@@ -202,7 +202,7 @@ int Select_PlotAll = FALSE;
 	if( event.GetId() == ID_PLOT_PS_ALL_EXECUTE ) Select_PlotAll = TRUE;
 
 	Genere_PS(Select_PlotAll, PS_SizeSelect);
-	m_MsgBox->AppendText("*****\n");
+	m_MsgBox->AppendText( wxT("*****\n"));
 }
 
 
@@ -251,9 +251,9 @@ wxPoint plot_offset;
 		wxSplitPath(screen->m_FileName.GetData(), (wxString*) NULL,
 				&ShortFileName, (wxString*) NULL);
 		wxString dirbuf = wxGetCwd() + STRING_DIR_SEP;
-		if( ShortFileName != "" )
-			PlotFileName = MakeFileName(dirbuf, ShortFileName, ".ps");
-		else PlotFileName = MakeFileName(dirbuf, g_DefaultSchematicFileName, ".ps");
+		if( ! ShortFileName.IsEmpty() )
+			PlotFileName = MakeFileName(dirbuf, ShortFileName, wxT(".ps"));
+		else PlotFileName = MakeFileName(dirbuf, g_DefaultSchematicFileName, wxT(".ps"));
 
 		PlotOneSheetPS(PlotFileName,screen, RealSheet, BBox, plot_offset);
 		screen = (BASE_SCREEN*)screen->Pnext;
@@ -274,11 +274,11 @@ EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *DrawLibItem;
 int x1=0, y1=0, x2=0, y2=0, layer;
 
-	PlotOutput = fopen(FileName,"wt");
+	PlotOutput = wxFopen(FileName, wxT("wt"));
 	if (PlotOutput == NULL)
 	{
-		Line = "\n** ";
-		Line += _("Unable to create ") + FileName + " **\n\n";
+		Line = wxT("\n** ");
+		Line += _("Unable to create ") + FileName + wxT(" **\n\n");
 		m_MsgBox->AppendText(Line);
 		wxBell();
 		return ;
@@ -291,7 +291,7 @@ int x1=0, y1=0, x2=0, y2=0, layer;
 	SetDefaultLineWidthPS( s_DefaultPenWidth);
 
 	/* Init : */
-	PrintHeaderPS(PlotOutput, "EESchema-PS", FileName, BBox);
+	PrintHeaderPS(PlotOutput, wxT("EESchema-PS"), FileName, BBox);
 	InitPlotParametresPS(plot_offset, sheet, 1.0, 1.0);
 
 	if ( m_Plot_Sheet_Ref->GetValue() )
@@ -399,6 +399,6 @@ int x1=0, y1=0, x2=0, y2=0, layer;
 	/* fin */
 	CloseFilePS(PlotOutput);
 
-	m_MsgBox->AppendText("Ok\n");
+	m_MsgBox->AppendText( wxT("Ok\n"));
 }
 

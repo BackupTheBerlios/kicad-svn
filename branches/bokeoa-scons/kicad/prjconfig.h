@@ -8,13 +8,13 @@
 
 static PARAM_CFG_WXSTRING SchematicRootFileNameCfg
 (
-	"RootSch",			  /* identification */
+	wxT("RootSch"),			  /* identification */
 	&g_SchematicRootFileName /* Adresse du parametre */
 );
 
 static PARAM_CFG_WXSTRING BoardFileNameCfg
 (
-	"BoardNm",		/* identification */
+	wxT("BoardNm"),		/* identification */
 	&g_BoardFileName	/* Adresse du parametre */
 );
 

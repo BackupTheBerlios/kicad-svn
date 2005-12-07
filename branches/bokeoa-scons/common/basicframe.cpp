@@ -69,13 +69,13 @@ int Ypos_min;
 
 	if( m_Parent->m_EDA_Config )
 	{
-		text = m_FrameName + "Pos_x";
+		text = m_FrameName + wxT("Pos_x");
 		m_Parent->m_EDA_Config->Read(text, &m_FramePos.x);
-		text = m_FrameName + "Pos_y";
+		text = m_FrameName + wxT("Pos_y");
 		m_Parent->m_EDA_Config->Read(text, &m_FramePos.y);
-		text = m_FrameName + "Size_x";
+		text = m_FrameName + wxT("Size_x");
 		m_Parent->m_EDA_Config->Read(text, &m_FrameSize.x, 600);
-		text = m_FrameName + "Size_y";
+		text = m_FrameName + wxT("Size_y");
 		m_Parent->m_EDA_Config->Read(text, &m_FrameSize.y, 400);
 	}
 
@@ -103,13 +103,13 @@ wxString text;
 	m_FrameSize = GetSize();
 	m_FramePos = GetPosition();
 
-	text = m_FrameName + "Pos_x";
+	text = m_FrameName + wxT("Pos_x");
 	m_Parent->m_EDA_Config->Write(text, (long)m_FramePos.x);
-	text = m_FrameName + "Pos_y";
+	text = m_FrameName + wxT("Pos_y");
 	m_Parent->m_EDA_Config->Write(text, (long)m_FramePos.y);
-	text = m_FrameName + "Size_x";
+	text = m_FrameName + wxT("Size_x");
 	m_Parent->m_EDA_Config->Write(text, (long)m_FrameSize.x);
-	text = m_FrameName + "Size_y";
+	text = m_FrameName + wxT("Size_y");
 	m_Parent->m_EDA_Config->Write(text, (long)m_FrameSize.y);
 }
 
@@ -148,14 +148,14 @@ void WinEDA_BasicFrame::SetLastProject(const wxString & FullFileName)
 {
 unsigned ii;
 
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	//suppression d'une ancienne trace eventuelle du meme fichier
 	for ( ii = 0; ii < m_Parent->m_LastProject.GetCount(); )
 	{
-		if(m_Parent->m_LastProject[ii] == "") break;
+		if(m_Parent->m_LastProject[ii].IsEmpty() ) break;
 #ifdef __WINDOWS__
-		if (stricmp( m_Parent->m_LastProject[ii].GetData(),FullFileName ) == 0 )
+		if ( m_Parent->m_LastProject[ii].CmpNoCase(FullFileName) == 0 )
 #else
 		if ( m_Parent->m_LastProject[ii] == FullFileName )
 #endif
@@ -188,7 +188,7 @@ wxString WinEDA_BasicFrame::GetLastProject(int rang)
 {
 	if ( rang < 0 ) rang = 0;
 	if ( (unsigned) rang >= m_Parent->m_LastProject.GetCount() )
-		return wxString("");
+		return wxEmptyString;
 	return m_Parent->m_LastProject[rang];
 }
 

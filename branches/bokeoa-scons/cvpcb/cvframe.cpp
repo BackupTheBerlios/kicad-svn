@@ -23,7 +23,7 @@
 WinEDA_CvpcbFrame::WinEDA_CvpcbFrame(WinEDA_App *parent, const wxString & title ):
 		WinEDA_BasicFrame(NULL, CVPCB_FRAME, parent, title, wxDefaultPosition, wxDefaultSize )
 {
-	m_FrameName = "CvpcbFrame";
+	m_FrameName = wxT("CvpcbFrame");
 	m_ListCmp = NULL;
 	m_ListMod = NULL;
 	DrawFrame = NULL;
@@ -133,22 +133,22 @@ void WinEDA_CvpcbFrame::OnCloseWindow(wxCloseEvent & Event)
 /**********************************************************/
 {
 	if( modified )
-		{
-		if( !IsOK(this, "Les donnees modifiees vont etre perdues, Exit ?" ) )
+	{
+		if( !IsOK(this, _("New changes are nor saved, Exit anyway") ) )
 			return;
-		}
+	}
 
 	// Close the help frame
 	if ( m_Parent->m_HtmlCtrl )
-		{
+	{
 		if ( m_Parent->m_HtmlCtrl->GetFrame() ) // returns NULL if no help frame active
 			m_Parent->m_HtmlCtrl->GetFrame()->Close(TRUE);
-		}
+	}
 
-	if ( NetInNameBuffer != "" )
-		{
+	if ( ! NetInNameBuffer.IsEmpty() )
+	{
 		SetLastProject(NetInNameBuffer);
-		}
+	}
 
 	FreeMemoryModules();
 	FreeMemoryComponants();
@@ -181,16 +181,16 @@ int ii, selection;;
 	selection= m_ListCmp->GetSelection();
 	if(selection < 0) selection = 0;
 	for (ii = 0 ; Composant != NULL; Composant = Composant->Pnext)
-		{
-		if( (strlen(Composant->Module) == 0 ) &&
-			(ii > selection) )break;
+	{
+		if( Composant->m_Module.IsEmpty() && (ii > selection) )
+			break;
 		ii++;
-		}
+	}
 
 	if ( Composant == NULL )
-		{
+	{
 		wxBell(); ii = selection;
-		}
+	}
 
 	if ( BaseListeCmp ) m_ListCmp->SetSelection(ii);
 }
@@ -213,18 +213,18 @@ int ii, selection;
 		}
 
 	for ( ; Composant != NULL ; Composant = Composant->Pback)
-		{
-		if( (strlen(Composant->Module) == 0 ) && (ii != selection) )
+	{
+		if( Composant->m_Module.IsEmpty() && (ii != selection) )
 			break;
 		ii--;
-		}
+	}
 
 	if ( Composant == NULL )
-		{
+	{
 		wxBell(); ii = selection;
-		}
+	}
 
-		if ( BaseListeCmp ) m_ListCmp->SetSelection(ii);
+	if ( BaseListeCmp ) m_ListCmp->SetSelection(ii);
 }
 
 
@@ -234,8 +234,8 @@ void WinEDA_CvpcbFrame::SaveQuitCvpcb(wxCommandEvent& event)
 {
 wxString Mask, FullFileName;
 
-	Mask = "*" + NetExtBuffer;
-	if ( NetNameBuffer != "" )
+	Mask = wxT("*") + NetExtBuffer;
+	if ( ! NetNameBuffer.IsEmpty() )
 	{
 		FullFileName = NetNameBuffer;
 		ChangeFileNameExt(FullFileName, NetExtBuffer);
@@ -250,7 +250,7 @@ wxString Mask, FullFileName;
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	FFileName = FullFileName;
 	NetNameBuffer = FullFileName;
@@ -269,15 +269,15 @@ void WinEDA_CvpcbFrame::DelAssociations(wxCommandEvent& event)
 {
 int ii;
 STORECMP * Composant;
-char Line[256];
+wxString Line;
 
 	if( IsOK(this, _("Delete selections")) )
 		{
 		Composant = BaseListeCmp;
-		CurrentPkg[0] = 0;
+		g_CurrentPkg.Empty();
 		for ( ii = 0; Composant != NULL; Composant = Composant->Pnext, ii++)
 			{
-			Composant->Module[0] = 0;
+			Composant->m_Module.Empty();
 			m_ListCmp->SetSelection(ii);
 			SetNewPkg();
 			}
@@ -285,7 +285,7 @@ char Line[256];
 		composants_non_affectes	= nbcomp;
 		}
 
-	sprintf(Line,_("Componants: %d (free: %d)"), nbcomp, composants_non_affectes);
+	Line.Printf( _("Componants: %d (free: %d)"), nbcomp, composants_non_affectes);
 	SetStatusText(Line,1);
 }
 
@@ -302,7 +302,7 @@ wxString fullfilename;
 wxString oldfilename;
 bool newfile;
 
-	if ( NetInNameBuffer != "" )
+	if ( ! NetInNameBuffer.IsEmpty() )
 		{
 		oldfilename = NetInNameBuffer;
 		}
@@ -324,11 +324,11 @@ bool newfile;
 			break;
 		}
 	newfile = ReadInputNetList(fullfilename);
-	if (newfile && (oldfilename != "" ) )
-		{
+	if (newfile &&  ! oldfilename.IsEmpty() )
+	{
 		SetLastProject(NetInNameBuffer);
 		ReCreateMenuBar();
-		}
+	}
 }
 
 
@@ -369,8 +369,8 @@ int id = event.GetId();
 void WinEDA_CvpcbFrame::DisplayDocFile(wxCommandEvent & event)
 /*************************************************************/
 {
-			wxString msg = FindKicadHelpPath();
-			msg += "pcbnew/footprints.pdf";
-			GetAssociatedDocument(this, "", msg);
+	wxString msg = FindKicadHelpPath();
+	msg += wxT("pcbnew/footprints.pdf");
+	GetAssociatedDocument(this, wxEmptyString, msg);
 }
 

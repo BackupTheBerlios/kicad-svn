@@ -5,10 +5,6 @@ it is compiled with make.
 
 kicad needs wxWidgets (the multi platform G.U.I.)
 
-Current build uses:
-wxGTK-2.6.1 (Linux) (small problem with 2.6.2, with UTF8 option, in non english languages)
-wxMSW-2.6.2 (Windows) and mingw
-
 unzip sources in a working directory.
 This will create the directory "kicad-dev".
 
@@ -39,7 +35,8 @@ make install ( libGL.a et libGLU.a are copied in /usr/local/lib, and header in /
 kicad compilation:
 in kicad-dev:
  Have a look to libs.linux (you can edit this file if you have problems)
- Currently libs.linux uses wxWidgets 2.6.1 build with script "mybuild_wxWidgets_linux.txt"
+ Currently libs.linux uses wxWidgets 2.6.2 build with script "mybuild_wxWidgets_linux.txt"
+ or  "mybuild_wxWidgets_linux_unicode.txt"
  run make -f makefile.gtk
 
 Windows compilation:
@@ -54,9 +51,10 @@ Under msys:
 	of msys.)
 	
 Build wxWidgets:
-	-> currently, my used version is 2.6.0 **with the patch installed!** (problems in 2.6.1)
-	you can copy wxWidgets_windows.txt in wxWidgets directory an run
-	sh wxWidgets_linux.txt and make
+	-> currently, my build version is 2.6.2, with or without unicode support
+	you can copy wxWidgets_windows.txt or wxWidgets_windows_unicode.txt
+	in wxWidgets directory an run sh wxWidgets_linux.txt (or wxWidgets_windows_unicode.txt)
+	and make
 
 	In include/wx/setup.h, check (and edit if needed) the defines :
 	#define WXWIN_COMPATIBILITY_2_4 0
@@ -79,7 +77,7 @@ Under msys:
 Patch wxWidgets (wxGTK version)
 *************************************************************************************
 patch for Arcs drawings  (correct draw arcs)
-wxGTK-2.6.1/src/gtk/dcclient.cpp
+wxGTK-2.6.0/src/gtk/dcclient.cpp
 line 604
         if (m_pen.GetStyle() != wxTRANSPARENT)
         {
@@ -102,7 +100,7 @@ must be
 
 
 Patch for printing (correct line ends )
-wxGTK-2.6.1/src/generic/dcpsg.cpp
+wxGTK-2.6.0/src/generic/dcpsg.cpp
 line 1619
 	PsPrint( "%%EndProlog\n" );
 

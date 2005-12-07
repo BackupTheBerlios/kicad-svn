@@ -38,7 +38,7 @@ int id = event.GetId();
 			SaveEEFile(NULL, FILE_SAVE_NEW);
 			break;
 
-		default: DisplayError(this, "WinEDA_SchematicFrame::Save_File Internal Error");
+		default: DisplayError(this, wxT("WinEDA_SchematicFrame::Save_File Internal Error"));
 			break;
 	}
 }
@@ -54,12 +54,12 @@ bool WinEDA_SchematicFrame::LoadOneSheet(SCH_SCREEN * screen, const wxString & F
 		ClearProjectDrawList(screen);
 	}
 
-	if( FullFileName == "")
+	if( FullFileName.IsEmpty())
 	{
 		wxString filename, mask;
-		mask = "*" + g_SchExtBuffer;
+		mask = wxT("*") + g_SchExtBuffer;
 		filename = EDA_FileSelector( _("Schematic files:"),
-					"",		  				/* Chemin par defaut */
+					wxEmptyString,		  				/* Chemin par defaut */
 					screen->m_FileName,		/* nom fichier par defaut */
 					g_SchExtBuffer,		  	/* extension par defaut */
 					mask,					/* Masque d'affichage */
@@ -67,7 +67,7 @@ bool WinEDA_SchematicFrame::LoadOneSheet(SCH_SCREEN * screen, const wxString & F
 					wxOPEN,
 					FALSE
 					);
-		if ( filename == "" ) return FALSE;
+		if ( filename.IsEmpty() ) return FALSE;
 		else screen->m_FileName = filename;
 	}
 
@@ -101,10 +101,10 @@ wxString LibArchiveFileName;
 	frame->m_CurrentScreen = ActiveScreen = screen_tmp;
 
 	/* Creation du fichier d'archivage composants en repertoire courant */
-	LibArchiveFileName = MakeFileName("",ScreenSch->m_FileName,"");
-	ChangeFileNameExt(LibArchiveFileName, "");
+	LibArchiveFileName = MakeFileName(wxEmptyString,ScreenSch->m_FileName,wxEmptyString);
+	ChangeFileNameExt(LibArchiveFileName, wxEmptyString);
 	/* mise a jour extension  */
-	LibArchiveFileName += ".cache" + g_LibExtBuffer;
+	LibArchiveFileName += wxT(".cache") + g_LibExtBuffer;
 	LibArchive(frame, LibArchiveFileName);
 
 }
@@ -127,7 +127,7 @@ int Nb = 0;
 			if (Phead->m_StructType == DRAW_LIB_ITEM_STRUCT_TYPE)
 			{
 				DrawPartStruct * Cmp = (DrawPartStruct *) Phead;
-				if ( Cmp->m_Field[VALUE].m_Text[0] != '#' ) Nb++;
+				if ( Cmp->m_Field[VALUE].m_Text.GetChar(0) != '#' ) Nb++;
 			}
 		}
 		Window = (BASE_SCREEN*)Window->Pnext;

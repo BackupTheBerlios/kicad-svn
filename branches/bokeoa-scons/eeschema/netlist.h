@@ -76,9 +76,8 @@ public:
 	IsConnectType m_FlagOfConnection;
 	int m_SheetNumber;		/* Sheet number for this item */
 	int m_NumInclude;		/* Numero de sous schema correpondant a la sheet (Gestion des GLabels et Pin Sheet)*/
-	int m_PinNum;			/* numero de pin( 4 octets -> 4 codes ascii) */
-	const char * m_Label;	/* Tous types Labels:pointeur sur la chaine de
-							caractere definissant le label */
+	long m_PinNum;			/* numero de pin( 4 octets -> 4 codes ascii) */
+	const wxString * m_Label;	/* Tous types Labels:pointeur sur la wxString definissant le label */
 	wxPoint m_Start, m_End;
 };
 
@@ -106,6 +105,7 @@ eda_global ObjetNetListStruct *g_TabObjNet;
 
 /* Prototypes: */
 void WriteNetList(WinEDA_DrawFrame * frame, const wxString & FileNameNL, bool use_netnames);
+void FreeTabNetList(ObjetNetListStruct * TabNetItems, int NbrNetItems);
 
 
 #endif

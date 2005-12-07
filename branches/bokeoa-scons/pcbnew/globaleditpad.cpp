@@ -214,7 +214,7 @@ bool Edit_Same_Modules = FALSE;
 
 	if ( Module == NULL )
 	{
-		DisplayError(this, "Global_Import_Pad_Settings() Error: NULL module");
+		DisplayError(this, wxT("Global_Import_Pad_Settings() Error: NULL module"));
 		return;
 	}
 

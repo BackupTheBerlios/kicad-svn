@@ -91,6 +91,12 @@ wxString title;
 	DC->SetBackgroundMode(wxTRANSPARENT);
 
 	GetScreen()->Trace_Curseur(DrawPanel, DC); // effacement curseur
+	if ( GetScreen()->m_FirstRedraw )
+	{
+		m_CurrentScreen->SetZoom(BestZoom());
+		GetScreen()->m_FirstRedraw = FALSE;
+	}
+
 	if(GetScreen()->ManageCurseur)
 	{
 		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
@@ -114,12 +120,12 @@ wxString title;
 	GetScreen()->ClrRefreshReq();
 	if( GetScreen()->m_FileName == g_DefaultSchematicFileName )
 	{
-		title.Printf("%s [%s]", Main_Title.GetData(),GetScreen()->m_FileName.GetData());
+		title.Printf( wxT("%s [%s]"), Main_Title.GetData(),GetScreen()->m_FileName.GetData());
 		SetTitle(title);
 	}
 	else
 	{
-		title.Printf("[%s]", GetScreen()->m_FileName.GetData());
+		title.Printf( wxT("[%s]"), GetScreen()->m_FileName.GetData());
 		SetTitle(title);
 	}
 
@@ -132,14 +138,15 @@ void WinEDA_DrawPanel::PrintPage(wxDC * DC, bool Print_Sheet_Ref, int PrintMask)
 BASE_SCREEN * screen, * oldscreen = m_Parent->GetScreen();
 
 	wxBeginBusyCursor();
+		
 
 	screen = m_Parent->m_CurrentScreen = ActiveScreen;
 	RedrawStructList(this,DC, screen->EEDrawList, GR_COPY);
+
 	if ( Print_Sheet_Ref )
 		m_Parent->TraceWorkSheet(DC, screen, 0);
 
 	m_Parent->m_CurrentScreen = oldscreen;
-
 	wxEndBusyCursor();
 }
 
@@ -190,7 +197,7 @@ void RedrawOneStruct(WinEDA_DrawPanel * panel, wxDC * DC,
 		 break;
 
 	case DRAW_SEGMENT_STRUCT_TYPE:
-		 ReEDA_DrawLineStruct(panel, DC, (EDA_DrawLineStruct *) Struct, DrawMode, Color);
+		 Redraw_DrawLineStruct(panel, DC, (EDA_DrawLineStruct *) Struct, DrawMode, Color);
 		 break;
 
 	case DRAW_BUSENTRY_STRUCT_TYPE:
@@ -344,20 +351,20 @@ int color;
 	if( Color > 0 ) txtcolor = Color;
 	else txtcolor = ReturnLayerColor(LAYER_SHEETNAME);
 
-	Text = "Sheet: " + Struct->m_Field[VALUE].m_Text;
+	Text = wxT("Sheet: ") + Struct->m_Field[VALUE].m_Text;
 	DrawGraphicText(panel, DC,
 				wxPoint(Struct->m_Pos.x, Struct->m_Pos.y - 8), txtcolor,
-				Text.GetData(), TEXT_ORIENT_HORIZ, Struct->m_Field[VALUE].m_Size,
+				Text, TEXT_ORIENT_HORIZ, Struct->m_Field[VALUE].m_Size,
 				GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_BOTTOM);
 
 	/* Trace des textes : FileName */
 	if( Color >= 0 ) txtcolor = Color;
 	else txtcolor = ReturnLayerColor(LAYER_SHEETFILENAME);
-	Text = "File: " + Struct->m_Field[SHEET_FILENAME].m_Text;
+	Text = wxT("File: ") + Struct->m_Field[SHEET_FILENAME].m_Text;
 	DrawGraphicText(panel, DC,
 				wxPoint(Struct->m_Pos.x, Struct->m_Pos.y + Struct->m_End.y + 4),
 				txtcolor,
-				Text.GetData(), TEXT_ORIENT_HORIZ, Struct->m_Field[SHEET_FILENAME].m_Size,
+				Text, TEXT_ORIENT_HORIZ, Struct->m_Field[SHEET_FILENAME].m_Size,
 				GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_TOP);
 
 
@@ -372,7 +379,7 @@ int color;
 
 
 /*********************************************************************/
-void ReEDA_DrawLineStruct(WinEDA_DrawPanel * panel,wxDC * DC,
+void Redraw_DrawLineStruct(WinEDA_DrawPanel * panel,wxDC * DC,
 			EDA_DrawLineStruct *Struct, int DrawMode, int Color)
 /*********************************************************************/
 /* Routine de dessin des segments type wire, Bus .. */
@@ -755,7 +762,7 @@ int DrawMode = XOR_MODE;
 			EDA_LibComponentStruct *LibEntry;
 			EDA_SchComponentStruct *Struct;
 			Struct = (EDA_SchComponentStruct * ) DrawStruct;
-			LibEntry = FindLibPart(Struct->m_ChipName, "", FIND_ROOT);
+			LibEntry = FindLibPart(Struct->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 			if( LibEntry == NULL ) break;
 			DrawingLibInGhost(panel, DC, LibEntry, Struct, Struct->m_Pos.x + dx,
 								Struct->m_Pos.y + dy,

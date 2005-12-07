@@ -24,7 +24,7 @@
 
 #define ID_CONN "CAO_COM"
 
-char HOSTNAME[80] = "localhost";
+const wxChar HOSTNAME[80] = wxT("localhost");
 
 /* variables locales */
 #define IPC_BUF_SIZE 4000
@@ -90,7 +90,7 @@ wxSocketBase *sock = evt.GetSocket();
        break;
 
      default:
-       wxPrintf( "WinEDA_DrawFrame::OnSockRequest() error: Invalid event !");
+       wxPrintf( wxT("WinEDA_DrawFrame::OnSockRequest() error: Invalid event !"));
        break;
      }
 }

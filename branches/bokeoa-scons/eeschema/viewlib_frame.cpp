@@ -24,6 +24,7 @@
 
 #include "library_browse.xpm"
 
+#ifndef __WXMAC__
 // ----------------------------------------------------------------------------
 // wxDialogModalData (see wxWidgets, dialog.cpp, class wxDialogModalData)
 // ----------------------------------------------------------------------------
@@ -51,7 +52,7 @@ private:
 
 /* see wxWidgets: ptr_scpd.h */
 wxDEFINE_TIED_SCOPED_PTR_TYPE(wxMyDialogModalData);
-
+#endif
 
 	/*****************************/
 	/* class WinEDA_ViewlibFrame */
@@ -90,7 +91,7 @@ WinEDA_ViewlibFrame::WinEDA_ViewlibFrame(wxWindow * father, WinEDA_App *parent,
 			WinEDA_DrawFrame(father, VIEWER_FRAME, parent, _("Library browser"),
 				wxDefaultPosition, wxDefaultSize)
 {
-	m_FrameName = "ViewlibFrame";
+	m_FrameName = wxT("ViewlibFrame");
 
 	m_Draw_Axes = TRUE;				// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;				// TRUE pour avoir la axes dessinee
@@ -134,8 +135,12 @@ WinEDA_ViewlibFrame::WinEDA_ViewlibFrame(wxWindow * father, WinEDA_App *parent,
 	if ( m_LibList) ReCreateListLib();
 	DisplayLibInfos();
 
-	if ( m_IsModal ) MakeModal(TRUE);
-	else Show(TRUE);
+#ifndef __WXMAC__
+	if ( m_IsModal )
+		MakeModal(TRUE);
+	else
+#endif
+	Show(TRUE);
 }
 
 	/***************/
@@ -144,8 +149,10 @@ WinEDA_ViewlibFrame::WinEDA_ViewlibFrame(wxWindow * father, WinEDA_App *parent,
 
 WinEDA_ViewlibFrame::~WinEDA_ViewlibFrame(void)
 {
+#ifndef __WXMAC__
     if ( m_modalData ) m_modalData->ExitLoop();
 	MakeModal(FALSE);
+#endif
 	m_Parent->ViewlibFrame = NULL;
 	delete m_CurrentScreen;
 }
@@ -164,13 +171,14 @@ void WinEDA_ViewlibFrame::ShowInModalMode(void)
 /**********************************************/
 {
 	Show(TRUE);
+#ifndef __WXMAC__
 	// enter and run the modal loop
 	{
 		wxMyDialogModalDataTiedPtr modalData(&m_modalData,
 										   new wxMyDialogModalData(this));
 		modalData->RunLoop();
 	}
-	
+#endif	
 }
 
 
@@ -267,7 +275,7 @@ EDA_LibComponentStruct * CurrentLibEntry = NULL;
 void WinEDA_ViewlibFrame::ReCreateListLib(void)
 /***************************************************/
 {
-const char ** ListNames, ** names;
+const wxChar ** ListNames, ** names;
 int ii;
 bool found = FALSE;
 
@@ -279,7 +287,7 @@ bool found = FALSE;
 	for ( names = ListNames, ii = 0; *names != NULL; names++, ii++ )
 	{
 		m_LibList->Append(*names);
-		if ( strcmp(g_CurrentViewLibraryName.GetData(), *names) == 0)
+		if ( g_CurrentViewLibraryName.Cmp(*names) == 0)
 		{
 			m_LibList->SetSelection(ii, TRUE);
 			found = TRUE;
@@ -292,8 +300,8 @@ bool found = FALSE;
 		(peut etre effacée lors d'une modification de configuration) */
 	if ( ! found )
 	{
-		g_CurrentViewLibraryName = "";
-		g_CurrentViewComponentName = "";
+		g_CurrentViewLibraryName.Empty();
+		g_CurrentViewComponentName.Empty();
 	}
 
 	ReCreateListCmp();
@@ -312,7 +320,7 @@ LibraryStruct *Library = FindLibrary(g_CurrentViewLibraryName.GetData());
 
 	m_CmpList->Clear();
 	ii = 0;
-	g_CurrentViewComponentName = "";
+	g_CurrentViewComponentName.Empty();
 	g_ViewConvert = 1;						/* Vue normal / convert */
 	g_ViewUnit = 1;						/* unité a afficher (A, B ..) */
 	if ( Library )
@@ -368,6 +376,6 @@ void WinEDA_ViewlibFrame::ExportToSchematicLibraryPart(wxCommandEvent& event)
 {
 int ii = m_CmpList->GetSelection();
 	if ( ii >= 0 ) g_CurrentViewComponentName = m_CmpList->GetString(ii);
-	else g_CurrentViewComponentName = "";
+	else g_CurrentViewComponentName.Empty();
 	Close(TRUE);
 }

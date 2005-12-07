@@ -59,7 +59,7 @@ static void CreateDummyCmp(void)
 
 	LibDrawText * Text = new LibDrawText();
 	Text->m_Size.x = Text->m_Size.y = 150;
-	Text->m_Text = "??";
+	Text->m_Text = wxT("??");
 
 	DummyCmp->m_Drawings = Square;
 	Square->Pnext = Text;
@@ -86,7 +86,7 @@ void DrawLibEntry(WinEDA_DrawPanel * panel,wxDC * DC,
 {
 int color;
 int TransMat[2][2];
-char Prefix[256];
+wxString Prefix;
 LibDrawField * Field;
 wxPoint text_pos;
 
@@ -115,8 +115,8 @@ wxPoint text_pos;
 		}
 
 	if (LibEntry->m_UnitCount > 1)
-		sprintf(Prefix,"%s?%c",LibEntry->m_Prefix.m_Text.GetData(),Multi + 'A' - 1);
-	else sprintf(Prefix,"%s?",LibEntry->m_Prefix.m_Text.GetData());
+		Prefix.Printf( wxT("%s?%c"),LibEntry->m_Prefix.m_Text.GetData(),Multi + 'A' - 1);
+	else Prefix = LibEntry->m_Prefix.m_Text + wxT("?");
 
 	text_pos.x = LibEntry->m_Prefix.m_Pos.x + posX;
 	text_pos.y = posY - LibEntry->m_Prefix.m_Pos.y;
@@ -147,7 +147,7 @@ wxPoint text_pos;
 
 	for( Field = LibEntry->Fields; Field != NULL; Field = (LibDrawField *)Field->Pnext )
 		{
-		if( Field->m_Text == "" ) return;
+		if( Field->m_Text.IsEmpty() ) return;
 		if( Field->m_Attributs & TEXT_NO_VISIBLE )
 			 {
 			 if( Color >= 0) color = Color;
@@ -185,7 +185,7 @@ EDA_LibComponentStruct *Entry;
 int ii;
 bool dummy = FALSE;
 
-	if( (Entry = FindLibPart(DrawLibItem->m_ChipName,"",FIND_ROOT)) == NULL)
+	if( (Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(),wxEmptyString,FIND_ROOT)) == NULL)
 	{	/* composant non trouvé, on affiche un composant "dummy" */
 		dummy = TRUE;
 		if( DummyCmp == NULL ) CreateDummyCmp();
@@ -296,7 +296,7 @@ int hjustify, vjustify;
 
 
 /********************************************************************************/
-EDA_LibComponentStruct *FindLibPart(const char *Name, const wxString & LibName, int Alias)
+EDA_LibComponentStruct *FindLibPart(const wxChar *Name, const wxString & LibName, int Alias)
 /********************************************************************************/
 /*
  Routine to find a part in one of the libraries given its name.
@@ -309,7 +309,7 @@ EDA_LibComponentStruct *FindLibPart(const char *Name, const wxString & LibName, 
 */
 {
 EDA_LibComponentStruct *Entry;
-static EDA_LibComponentStruct DummyEntry("");  /* Used only to call PQFind. */
+static EDA_LibComponentStruct DummyEntry(wxEmptyString);  /* Used only to call PQFind. */
 LibraryStruct *Lib = g_LibraryList;
 
 	DummyEntry.m_Drawings = NULL;   /* Used only to call PQFind. */
@@ -317,10 +317,10 @@ LibraryStruct *Lib = g_LibraryList;
 
 	PQCompFunc((PQCompFuncType) LibraryEntryCompare);
 
-	Entry = NULL; FindLibName = "";
+	Entry = NULL; FindLibName.Empty();
 	while (Lib)
 	{
-		if( LibName != "" )
+		if( ! LibName.IsEmpty() )
 		{
 			if( Lib->m_Name != LibName )
 			{

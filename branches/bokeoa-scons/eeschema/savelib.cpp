@@ -63,18 +63,20 @@ bool LibDrawText::WriteDescr( FILE * ExportFile )
 {
 wxString text = m_Text;
 	
-	text.Replace(" ", "~" );	// Spaces are not allowed: changed to '~'
+	text.Replace( wxT(" "), wxT("~") );	// Spaces are not allowed: changed to '~'
 	
 	fprintf(ExportFile,"T %d %d %d %d %d %d %d %s\n",
 				m_Horiz,
 				m_Pos.x, m_Pos.y,
 				m_Size.x, m_Type,
 				m_Unit,m_Convert,
-				text.GetData() );
+				CONV_TO_UTF8(text) );
     return FALSE;
 }
 
+/***************************************************/
 bool LibDrawSquare::WriteDescr( FILE * ExportFile )
+/***************************************************/
 {
 	fprintf(ExportFile,"S %d %d %d %d %d %d %d %c\n",
                 m_Start.x, m_Start.y, m_End.x, m_End.y,
@@ -89,7 +91,7 @@ bool LibDrawPin::WriteDescr( FILE * ExportFile )
 /************************************************/
 {
 int	Etype = 'I';
-char PinNum[80];
+wxString StringPinNum;
     
 	switch(m_PinType)
 		{
@@ -105,15 +107,14 @@ char PinNum[80];
 		case PIN_OPENEMITTER:	Etype = 'E'; break;
 		}
         
-	if(m_PinNum) ReturnPinStringNum(PinNum);
-	else PinNum[0] = '0';
+	ReturnPinStringNum(StringPinNum);
 	
-    if( m_PinName != "" )
-		fprintf(ExportFile,"X %s", m_PinName.GetData() );
+    if( ! m_PinName.IsEmpty() )
+		fprintf(ExportFile,"X %s", CONV_TO_UTF8(m_PinName) );
 	else fprintf(ExportFile,"X ~");
 
 	fprintf(ExportFile," %s %d %d %d %c %d %d %d %d %c",
-					PinNum,
+					CONV_TO_UTF8(StringPinNum),
 					m_Pos.x, m_Pos.y,
 					(int)m_PinLen, (int)m_Orient,
 					m_SizeNum, m_SizeName,
@@ -157,6 +158,7 @@ bool LibDrawField::WriteDescr( FILE * ExportFile )
 /**************************************************/
 {
 int hjustify, vjustify;
+wxString text = m_Text;
 	
 	hjustify = 'C';
 	if ( m_HJustify == GR_TEXT_HJUSTIFY_LEFT ) hjustify = 'L';
@@ -164,9 +166,9 @@ int hjustify, vjustify;
 	vjustify = 'C';
 	if ( m_VJustify == GR_TEXT_VJUSTIFY_BOTTOM) vjustify = 'B';
 	else if ( m_VJustify == GR_TEXT_VJUSTIFY_TOP) vjustify = 'T';
+	if ( text.IsEmpty() ) text = wxT("~");
 	fprintf(ExportFile,"F%d \"%s\" %d %d %d %c %c %c %c\n",
-                m_FieldId,
-				(m_Text != "" ) ? m_Text.GetData() : "~",
+                m_FieldId, CONV_TO_UTF8(text),
 				m_Pos.x, m_Pos.y,
 				m_Size.x,
 				m_Orient == 0 ? 'H' : 'V',
@@ -189,7 +191,7 @@ LibEDA_BaseStruct * CopyDrawEntryStruct( wxWindow * frame,
 */
 {
 LibEDA_BaseStruct * NewDrawItem = NULL;
-char Line[256];
+wxString msg;
 
 	switch(DrawItem->m_StructType)
 		{
@@ -218,9 +220,9 @@ char Line[256];
 			break;
 
 		default:
-			sprintf(Line, "CopyDrawLibEntryStruct: unknown Draw Type %d",
+			msg.Printf( wxT("CopyDrawLibEntryStruct: unknown Draw Type %d"),
 				DrawItem->m_StructType);
-			DisplayError(frame, Line);
+			DisplayError(frame, msg);
 			break;
 		}
 
@@ -243,7 +245,7 @@ LibDrawField * OldField, * NewField;
 
 	if( OldEntry->Type != ROOT )
 	{
-		DisplayError(frame, "CopyLibEntryStruct(): Type != ROOT");
+		DisplayError(frame, wxT("CopyLibEntryStruct(): Type != ROOT"));
 		return(NULL);
 	}
 
@@ -289,7 +291,7 @@ LibDrawField * OldField, * NewField;
 		else	// Probleme rencontré: arret de copie
 		{
 			OldDrawings->m_StructType = TYPE_NOT_INIT;
-			DisplayError(frame, "CopyLibEntryStruct(): error: aborted");
+			DisplayError(frame, wxT("CopyLibEntryStruct(): error: aborted"));
 			break;
 		}
 	}
@@ -317,16 +319,16 @@ LibDrawField * Field;
 	if( LibEntry->Type != ROOT ) return(1);
 
 	/* Creation du commentaire donnant le nom du composant */
-	fprintf(ExportFile,"#\n# %s\n#\n", LibEntry->m_Name.m_Text.GetData());
+	fprintf(ExportFile,"#\n# %s\n#\n", CONV_TO_UTF8(LibEntry->m_Name.m_Text));
 
 	/* Generation des lignes utiles */
 	fprintf(ExportFile,"DEF");
 	if( (LibEntry->m_Name.m_Attributs & TEXT_NO_VISIBLE) == 0)
-		 fprintf(ExportFile," %s",LibEntry->m_Name.m_Text.GetData());
-	else fprintf(ExportFile," ~%s",LibEntry->m_Name.m_Text.GetData());
+		 fprintf(ExportFile," %s", CONV_TO_UTF8(LibEntry->m_Name.m_Text));
+	else fprintf(ExportFile," ~%s", CONV_TO_UTF8(LibEntry->m_Name.m_Text));
 
-	if(LibEntry->m_Prefix.m_Text != "")
-		fprintf(ExportFile," %s",LibEntry->m_Prefix.m_Text.GetData());
+	if( ! LibEntry->m_Prefix.m_Text.IsEmpty())
+		fprintf(ExportFile," %s", CONV_TO_UTF8(LibEntry->m_Prefix.m_Text));
 	else fprintf(ExportFile," ~");
 	fprintf(ExportFile," %d %d %c %c %d %c %c\n",
 		UNUSED, LibEntry->m_TextInside,
@@ -344,7 +346,7 @@ LibDrawField * Field;
 	for ( Field = LibEntry->Fields; Field!= NULL;
 						Field = (LibDrawField*)Field->Pnext )
 	{
-		if( Field->m_Text == "" ) continue;
+		if( Field->m_Text.IsEmpty() ) continue;
         Field->WriteDescr( ExportFile );
 	}
 
@@ -354,7 +356,7 @@ LibDrawField * Field;
 		fprintf(ExportFile,"ALIAS");
 		unsigned ii;
 		for ( ii = 0; ii < LibEntry->m_AliasList.GetCount(); ii++ )
-			fprintf(ExportFile," %s", LibEntry->m_AliasList[ii].GetData());
+			fprintf(ExportFile," %s", CONV_TO_UTF8(LibEntry->m_AliasList[ii]));
 		fprintf(ExportFile,"\n");
 	}
 
@@ -407,7 +409,7 @@ LibDrawField * Field;
                     DRAWSTRUCT->WriteDescr( ExportFile );
 					break;
 
-				default: DisplayError(frame, "Save Lib: Unknown Draw Type");
+				default: DisplayError(frame, wxT("Save Lib: Unknown Draw Type"));
 					break;
 			}
 
@@ -434,22 +436,22 @@ int WriteOneDocLibEntry(FILE * ExportFile, EDA_LibComponentStruct * LibEntry)
 */
 {
 
-	if( (LibEntry->m_Doc == "") &&
-		(LibEntry->m_KeyWord == "") &&
-		(LibEntry->m_DocFile == "" ) )
+	if( (LibEntry->m_Doc.IsEmpty() ) &&
+		(LibEntry->m_KeyWord.IsEmpty() ) &&
+		(LibEntry->m_DocFile.IsEmpty() ) )
 		return(0);
 
 	/* Generation des lignes utiles */
-	fprintf(ExportFile,"#\n$CMP %s\n", LibEntry->m_Name.m_Text.GetData());
+	fprintf(ExportFile,"#\n$CMP %s\n", CONV_TO_UTF8(LibEntry->m_Name.m_Text));
 
-	if(LibEntry->m_Doc != "")
-		fprintf(ExportFile,"D %s\n", LibEntry->m_Doc.GetData());
+	if( ! LibEntry->m_Doc.IsEmpty())
+		fprintf(ExportFile,"D %s\n", CONV_TO_UTF8(LibEntry->m_Doc));
 
-	if(LibEntry->m_KeyWord != "")
-		fprintf(ExportFile,"K %s\n", LibEntry->m_KeyWord.GetData());
+	if( ! LibEntry->m_KeyWord.IsEmpty())
+		fprintf(ExportFile,"K %s\n", CONV_TO_UTF8(LibEntry->m_KeyWord));
 
-	if(LibEntry->m_DocFile != "")
-		fprintf(ExportFile,"F %s\n", LibEntry->m_DocFile.GetData());
+	if( ! LibEntry->m_DocFile.IsEmpty())
+		fprintf(ExportFile,"F %s\n", CONV_TO_UTF8(LibEntry->m_DocFile));
 
 	fprintf(ExportFile,"$ENDCMP\n");
 	return(0);
@@ -484,46 +486,46 @@ wxString Name,DocName,BakName, msg;
 
 	/* L'ancien fichier lib est renomme en .bak */
 	if( wxFileExists(Name) )
+	{
+		BakName = Name; ChangeFileNameExt(BakName, wxT(".bak"));
+		wxRemoveFile(BakName);
+		if( ! wxRenameFile(Name, BakName) )
 		{
-		BakName = Name; ChangeFileNameExt(BakName,".bak");
-		remove(BakName);
-		if( rename(Name, BakName) )
-			{
-			msg = "Failed to rename old lib file " + BakName;
+			msg = wxT("Failed to rename old lib file ") + BakName;
 			DisplayError(frame, msg, 20);
-			}
 		}
+	}
  
 
 	DocName = Name; ChangeFileNameExt(DocName,DOC_EXT);
 	/* L'ancien fichier doc lib est renomme en .bck */
 	if( wxFileExists(DocName) )
+	{
+		BakName = DocName; ChangeFileNameExt(BakName, wxT(".bck") );
+		wxRemoveFile(BakName);
+		if( ! wxRenameFile(DocName, BakName) )
 		{
-		BakName = DocName; ChangeFileNameExt(BakName,".bck");
-		remove(BakName);
-		if( rename(DocName, BakName) )
-			{
-			msg = "Failed to save old doc lib file " + BakName;
+			msg = wxT("Failed to save old doc lib file ") + BakName;
 			DisplayError(frame, msg, 20);
-			}
 		}
+	}
 		
 
-	SaveFile = fopen(Name.GetData(), "wt");
+	SaveFile = wxFopen(Name, wxT("wt") );
 	if (SaveFile == NULL)
-		{
-		msg = "Failed to create Lib File " + Name;
+	{
+		msg = wxT("Failed to create Lib File ") + Name;
 		DisplayError(frame, msg, 20);
 		return(err);
-		}
+	}
 
-	SaveDocFile = fopen(DocName.GetData(), "wt");
+	SaveDocFile = wxFopen(DocName, wxT("wt") );
 	if (SaveDocFile == NULL)
-		{
-		msg = "Failed to create DocLib File " + DocName;
+	{
+		msg = wxT("Failed to create DocLib File ") + DocName;
 		DisplayError(frame, msg, 20);
 		return(err);
-		}
+	}
 
 	Library->m_Modified = 0;
 
@@ -539,13 +541,13 @@ wxString Name,DocName,BakName, msg;
 	LibEntry = (EDA_LibComponentStruct *) PQFirst(&Library->m_Entries, FALSE);
 
 	while( LibEntry )
-		{
+	{
 		err = WriteOneLibEntry(frame, SaveFile, LibEntry);
 		err = WriteOneDocLibEntry(SaveDocFile, LibEntry);
 
 		LibEntry = (EDA_LibComponentStruct *)
 					PQNext(Library->m_Entries, LibEntry, NULL);
-		}
+	}
 
 	fprintf(SaveFile,"#\n#End Library\n");
 	fprintf(SaveDocFile,"#\n#End Doc Library\n");

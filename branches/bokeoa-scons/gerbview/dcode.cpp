@@ -103,8 +103,8 @@ void GERBER_Descr::ResetDefaultValues(void)
 	m_Parent = NULL;
 	m_Pback = NULL;
 	m_Pnext = NULL;
-	m_FileName = "";
-	m_Name = "no name";			// Layer name
+	m_FileName.Empty();
+	m_Name = wxT("no name");			// Layer name
 	m_LayerNegative = FALSE;	// TRUE = Negative Layer
 	m_ImageNegative = FALSE;	// TRUE = Negative image
 	m_GerbMetric = FALSE;		// FALSE = Inches, TRUE = metric
@@ -253,9 +253,9 @@ D_CODE ** ListeDCode;
 							 -> 1 unite dcode = 10 unit PCB */
 	current_Dcode = 0;
 
-	if ( D_Code_FullFileName == "") return 0;
+	if ( D_Code_FullFileName.IsEmpty() ) return 0;
 
-	dest = fopen(D_Code_FullFileName.GetData(),"rt");
+	dest = wxFopen(D_Code_FullFileName, wxT("rt") );
 
 	if (dest == 0)
 		{
@@ -429,7 +429,7 @@ void WinEDA_GerberFrame::Liste_D_Codes(wxDC * DC)
 {
 int ii, jj;
 D_CODE * pt_D_code ;
-char Line[1024];
+wxString Line;
 WinEDA_TextFrame * List;
 int scale = 10000;
 int curr_layer = GetScreen()->m_Active_Layer;
@@ -437,7 +437,7 @@ int layer;
 GERBER_Descr * DcodeList;
 
 	/* Construction de la liste des messages */
-	List = new WinEDA_TextFrame(this, "List D-Codes");
+	List = new WinEDA_TextFrame(this, _("List D-Codes"));
 
 	for (layer = 0; layer < 32; layer++ )
 		{
@@ -446,8 +446,8 @@ GERBER_Descr * DcodeList;
 		if ( DcodeList->ReturnUsedDcodeNumber() == 0 )
 			continue;
 		if (layer == curr_layer )
-			sprintf(Line,  "*** Active layer (%2.2d) ***", layer+1);
-		else sprintf(Line, "*** layer %2.2d  ***", layer+1);
+			Line.Printf( wxT("*** Active layer (%2.2d) ***"), layer+1);
+		else Line.Printf( wxT("*** layer %2.2d  ***"), layer+1);
 		List->Append(Line);
 
 		for ( ii = 0, jj = 1 ; ii < MAX_TOOLS ; ii++ )
@@ -455,15 +455,15 @@ GERBER_Descr * DcodeList;
 			pt_D_code = DcodeList->m_Aperture_List[ii] ;
 			if ( pt_D_code == NULL ) continue;
 			if ( !pt_D_code->m_InUse && !pt_D_code->m_Defined ) continue;
-			sprintf(Line,
-				"tool %2.2d:   D%2.2d  V %2.4f  H %2.4f  %s",
+			Line.Printf( wxT(
+				"tool %2.2d:   D%2.2d  V %2.4f  H %2.4f  %s"),
 				jj,
 				pt_D_code->m_Num_Dcode,
 				(float)pt_D_code->m_Size.y /scale,
 				(float)pt_D_code->m_Size.x /scale,
 				g_GERBER_Tool_Type[pt_D_code->m_Shape] );
-			if ( ! pt_D_code->m_Defined ) strcat(Line," ?");
-			if ( ! pt_D_code->m_InUse ) strcat(Line," *");
+			if ( ! pt_D_code->m_Defined )  Line += wxT(" ?");
+			if ( ! pt_D_code->m_InUse ) Line += wxT(" *");
 
 			List->Append(Line);
 			jj++;

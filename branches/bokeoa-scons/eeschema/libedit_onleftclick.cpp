@@ -142,13 +142,13 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 			case ID_LIBEDIT_ANCHOR_ITEM_BUTT :
 				SaveCopyInUndoList();
 				PlaceAncre();
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 				break;
 
 
 			default :
-				DisplayError(this, "WinEDA_LibeditFrame::OnLeftClick error");
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				DisplayError(this,  wxT("WinEDA_LibeditFrame::OnLeftClick error") );
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 				break;
 			}
 		}
@@ -263,7 +263,7 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_LibeditFrame::OnLeftDClick Error: unknown StructType %d",
+				 wxT("WinEDA_LibeditFrame::OnLeftDClick Error: unknown StructType %d"),
 				DrawEntry->m_StructType);
 			DisplayError(this, msg );
 			break;

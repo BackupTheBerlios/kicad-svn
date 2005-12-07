@@ -53,7 +53,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 				case SCREEN_STRUCT_TYPE:
 				case DRAW_PICK_ITEM_STRUCT_TYPE:
 					DisplayError(this,
-					"OnLeftClick err: unexpected type for Place");
+					wxT("OnLeftClick err: unexpected type for Place"));
 					DrawStruct->m_Flags = 0;
 					break;
 
@@ -62,7 +62,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 
 				default:
 					DisplayError(this,
-					"WinEDA_SchematicFrame::OnLeftClick err: m_Flags != 0");
+					wxT("WinEDA_SchematicFrame::OnLeftClick err: m_Flags != 0"));
 					DrawStruct->m_Flags = 0;
 					break;
 			}
@@ -249,7 +249,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 		case ID_COMPONENT_BUTT:
 			if ( (DrawStruct == NULL) || (DrawStruct->m_Flags == 0) )
 			{
-				m_CurrentScreen->m_CurrentItem = Load_Component(DC, "",
+				m_CurrentScreen->m_CurrentItem = Load_Component(DC, wxEmptyString,
 					s_CmpNameList, TRUE);
 				DrawPanel->m_AutoPAN_Request = TRUE;
 			}
@@ -265,7 +265,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 			if ( (DrawStruct == NULL) || (DrawStruct->m_Flags == 0) )
 			{
 				m_CurrentScreen->m_CurrentItem =
-					Load_Component(DC, "power",s_PowerNameList, FALSE);
+					Load_Component(DC, wxT("power"),s_PowerNameList, FALSE);
 				DrawPanel->m_AutoPAN_Request = TRUE;
 			}
 			else
@@ -278,8 +278,8 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 
 		default :
 		{
-			SetToolID( 0, wxCURSOR_ARROW, "");
-			wxString msg("WinEDA_SchematicFrame::OnLeftClick error state ");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
+			wxString msg( wxT("WinEDA_SchematicFrame::OnLeftClick error state "));
 			msg << m_ID_current_state;
 			DisplayError(this, msg);
 			break;

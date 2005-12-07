@@ -162,7 +162,7 @@ void PlotArc(int format_plot, wxPoint centre, int start_angle,int end_angle,
 void PlotCircle(int format_plot,int width, wxPoint centre, int rayon);
 void PlotPolygon(int format_plot, bool filled, int nbpoints, int * coord);
 void Plot_1_texte( int format_plot,
-						const char * ptr,int t_nbcodes, int t_orient,
+						const wxString & Text, int t_orient,
 						int width, int ox,int oy,int size_h,int size_v,
 						bool centreX = TRUE, bool centreY = TRUE);
 			/* Routine de base de trace de 1 chaine de caracteres */

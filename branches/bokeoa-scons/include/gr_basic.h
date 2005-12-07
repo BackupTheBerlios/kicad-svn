@@ -157,7 +157,7 @@ int GRGetTextFgColor(wxDC * DC, wxFont * Font);
 void GRSetTextBgColor(wxDC * DC, int Color);
 void GRSetTextBgColor(wxDC * DC, wxFont * Font, int Color);
 int GRGetTextBgColor(wxDC * DC, wxFont * Font);
-void GRGetTextExtent(wxDC * DC, char * Text, long * width, long * height);
+void GRGetTextExtent(wxDC * DC, const wxChar * Text, long * width, long * height);
 
 #endif		/* define GR_BASIC */
 

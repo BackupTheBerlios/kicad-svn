@@ -109,7 +109,7 @@ int tmp;
 			m_NetCode = tmp;
 
 			ReadDelimitedText(Ltmp, Line + 2, sizeof(Ltmp) );
-			m_Netname = Ltmp;
+			m_Netname = CONV_FROM_UTF8(Ltmp);
 			continue;
 			}
 
@@ -131,7 +131,7 @@ int EQUIPOT:: WriteEquipotDescr(FILE * File)
 	if( GetState(DELETED) ) return(0);
 
 	fprintf( File,"$EQUIPOT\n");
-	fprintf( File,"Na %d \"%.16s\"\n",m_NetCode, m_Netname.GetData() );
+	fprintf( File,"Na %d \"%.16s\"\n", m_NetCode, CONV_TO_UTF8(m_Netname) );
 	fprintf( File,"St %s\n","~");
 	if( m_ForceWidth) fprintf( File,"Lw %d\n",m_ForceWidth );
 	fprintf( File,"$EndEQUIPOT\n");

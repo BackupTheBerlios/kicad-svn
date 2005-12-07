@@ -8,7 +8,7 @@
 #define GRID_REF_W 70	/* hauteur de la bande de reference grille */
 #define SIZETEXT 90		/* Dimension des textes du cartouche */
 #define SIZETEXT_REF 50	/* Dimension des lettres du marquage des reperes */
-#define PAS_REF 2000	/* pas des marquages de reference des reperes */ 
+#define PAS_REF 2000	/* pas des marquages de reference des reperes */
 
 /* Les coord ci dessous sont relatives au coin bas - droit de la feuille, et
 seront soustraires de cette origine
@@ -40,8 +40,8 @@ public:
 	WorkSheet * Pnext;
 	int posx, posy;		/* position de l'element ou point de depart du segment */
 	int endx, endy;		/* extremite d'un element type segment ou cadre */
-	char * Legende;		/* Pour Textes: texte a afficher avant le texte lui meme */
-	char * Text;		/* Pour Textes:pointeur sur le texte a afficher */
+	wxChar * Legende;	/* Pour Textes: texte a afficher avant le texte lui meme */
+	wxChar * Text;		/* Pour Textes:pointeur sur le texte a afficher */
 };
 
 /* Type des descriptions WorkSheet */
@@ -89,7 +89,7 @@ WorkSheet WS_Date =
 	&WS_Licence,
 	BLOCK_DATE_X, BLOCK_DATE_Y,
 	0,0,
-	"Date: ", NULL
+	wxT("Date: "), NULL
 	};
 
 WorkSheet WS_Licence =
@@ -107,7 +107,7 @@ WorkSheet WS_Revision =
 	&WS_SizeSheet,
 	BLOCK_REV_X, BLOCK_REV_Y,
 	0,0,
-	"Rev: ", NULL
+	wxT("Rev: "), NULL
 	};
 
 WorkSheet WS_SizeSheet =
@@ -116,7 +116,7 @@ WorkSheet WS_SizeSheet =
 	&WS_IdentSheet,
 	BLOCK_SIZE_SHEET_X, BLOCK_SIZE_SHEET_Y,
 	0,0,
-	"Size: ",NULL
+	wxT("Size: "),NULL
 	};
 
 WorkSheet WS_IdentSheet =
@@ -125,7 +125,7 @@ WorkSheet WS_IdentSheet =
 	&WS_Title,
 	BLOCK_ID_SHEET_X, BLOCK_ID_SHEET_Y,
 	0,0,
-	"Sheet: ",NULL
+	wxT("Sheet: "),NULL
 	};
 
 WorkSheet WS_Title =
@@ -134,7 +134,7 @@ WorkSheet WS_Title =
 	&WS_Company,
 	BLOCK_TITLE_X, BLOCK_TITLE_Y,
 	0,0,
-	"Title: ",NULL
+	wxT("Title: "),NULL
 	};
 
 WorkSheet WS_Company =

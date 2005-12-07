@@ -179,7 +179,7 @@ wxString msg;
 
 	if(Self_On == 0)
 	{
-		DisplayError(this, "Point de depart non specifie.."); return NULL;
+		DisplayError(this, wxT("Starting point not init..")); return NULL;
 	}
 
 	Self_On = 0;
@@ -209,13 +209,13 @@ wxString msg;
 	if( ! UnitMetric )
 	{
 		fcoeff = 10000.0 ;
-		msg.Printf("%1.4f", Mself.lng /fcoeff);
+		msg.Printf( wxT("%1.4f"), Mself.lng /fcoeff);
 		abort = Get_Message(_("Length(inch):"),msg, this);
 	}
 	else
 	{
 		fcoeff = 10000.0/25.4 ;
-		msg.Printf("%2.3f", Mself.lng /fcoeff);
+		msg.Printf( wxT("%2.3f"), Mself.lng /fcoeff);
 		abort = Get_Message( _("Length(mm):"),msg, this);
 	}
 	if ( abort ) return NULL;
@@ -243,18 +243,18 @@ wxString msg;
 	/* Calcul des parametres */
 
 	for ( Mself.nbrin = 2 ; ; Mself.nbrin++)
-		{
+	{
 		Mself.delta = (Mself.m_Size.y - ( Mself.rayon * 2 * Mself.nbrin ) ) / 2 ;
 		if(Mself.delta < Mself.m_Size.y / 10) // C.a.d. si m_Size.yeur self > m_Size.yeur specifiee
-			{	// Reduction du rayon des arrondis
+		{	// Reduction du rayon des arrondis
 			Mself.delta = Mself.m_Size.y / 10;
 			Mself.rayon = (Mself.m_Size.y - 2*Mself.delta) / ( 2 * Mself.nbrin) ;
 			if(Mself.rayon < Mself.m_Width)
-				{ // Rayon vraiment trop petit...
+			{ // Rayon vraiment trop petit...
 				Affiche_Message(_("Unable to create line: Requested length is too big"));
 				return NULL;
-				}
 			}
+		}
 		Mself.lbrin = Mself.m_Size.x - (Mself.rayon * 2);
 		lextbrin = (Mself.lbrin/2) - Mself.rayon;
 		ll = 2 * lextbrin ;			// Longueur du 1er et dernier brin
@@ -262,17 +262,18 @@ wxString msg;
 		ll += Mself.nbrin * (Mself.lbrin - 2);	// longueur des autres brins
 		ll += ((Mself.nbrin+1) * 314 * Mself.rayon) /100 ;
 
-		sprintf(cbuf,"nbrin = %d, longueur reelle = ", Mself.nbrin);
-		valeur_param(ll,cbuf+ strlen(cbuf));
-		Affiche_Message(cbuf);
+		msg.Printf( _("Segm count = %d, Lenght = "), Mself.nbrin);
+		wxString stlen;
+		valeur_param(ll, stlen); msg += stlen;
+		Affiche_Message(msg);
 		if ( ll >= Mself.lng) break;
-		}
+	}
 
 	/* Generation du composant : le calcul est fait self Verticale */
-	if( Create_1_Module(DC, "") == NULL ) return NULL;
+	if( Create_1_Module(DC, wxEmptyString) == NULL ) return NULL;
 
 	Module = m_Pcb->m_Modules;
-	Module->m_LibRef = "MuSelf";
+	Module->m_LibRef = wxT("MuSelf");
 	Module->m_Attributs = MOD_VIRTUAL | MOD_CMS;
 	Module->m_Flags = 0;
 
@@ -413,7 +414,7 @@ wxString msg;
 	PtPad = new D_PAD(Module);
 
 	Module->m_Pads = PtPad; PtPad->Pback = Module;
-	PtPad->SetPadName("1");
+	PtPad->SetPadName( wxT("1") );
 	PtPad->m_Pos.x = LastSegm->m_End.x; PtPad->m_Pos.y = LastSegm->m_End.y;
 	PtPad->m_Pos0.x = PtPad->m_Pos.x - Module->m_Pos.x;
 	PtPad->m_Pos0.y = PtPad->m_Pos.y - Module->m_Pos.y;
@@ -427,7 +428,7 @@ wxString msg;
 	newpad->Copy(PtPad);
 	newpad->AddToChain(PtPad);
 	PtPad = newpad;
-	PtPad->SetPadName("2");
+	PtPad->SetPadName( wxT("2") );
 	PtPad->m_Pos.x = FirstSegm->m_Start.x; PtPad->m_Pos.y = FirstSegm->m_Start.y;
 	PtPad->m_Pos0.x = PtPad->m_Pos.x - Module->m_Pos.x;
 	PtPad->m_Pos0.y = PtPad->m_Pos.y - Module->m_Pos.y;

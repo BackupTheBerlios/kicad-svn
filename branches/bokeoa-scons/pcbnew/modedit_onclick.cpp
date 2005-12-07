@@ -56,11 +56,11 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 
 				default:
 					{
-					char line[256];
-					sprintf(line,
-"WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d m_Flag %X"
+					wxString msg;
+					msg.Printf(
+wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d m_Flag %X")
 , DrawStruct, DrawStruct->m_StructType, DrawStruct->m_Flags);
-					DisplayError(this, line);
+					DisplayError(this, msg);
 					DrawStruct->m_Flags = 0;
 					break;
 					}
@@ -112,7 +112,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 					m_CurrentScreen->m_CurrentItem =
 						Begin_Edge_Module((EDGE_MODULE *) DrawStruct, DC, 0);
 					}
-				else  DisplayError(this, "ProcessCommand error: DrawStruct/ flags error");
+				else  DisplayError(this, wxT("ProcessCommand error: DrawStruct/ flags error"));
 				}
 			break;
 
@@ -135,7 +135,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 			Recadre_Trace(TRUE);
 			Place_Module(m_Pcb->m_Modules, DC);
 			RedrawActiveWindow(DC, TRUE);
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			m_CurrentScreen->m_CurrentItem = NULL;
 			break;
 
@@ -152,7 +152,7 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 
 		default :
 				DrawPanel->SetCursor(wxCURSOR_ARROW);
-				DisplayError(this, "WinEDA_ModuleEditFrame::ProcessCommand error");
+				DisplayError(this, wxT("WinEDA_ModuleEditFrame::ProcessCommand error"));
 				m_ID_current_state = 0;
 				break;
 		}
@@ -232,7 +232,7 @@ int flags = DrawStruct->m_Flags;
 			if( !flags )
 			{
 				ADD_MENUITEM(PopMenu,ID_POPUP_PCB_MOVE_PAD_REQUEST,
-							"Move Pad", move_pad_xpm);
+							_("Move Pad"), move_pad_xpm);
 			}
 			ADD_MENUITEM(PopMenu,ID_POPUP_PCB_EDIT_PAD, _("Edit Pad"), options_pad_xpm);
 			ADD_MENUITEM(PopMenu,ID_POPUP_PCB_IMPORT_PAD_SETTINGS,
@@ -307,16 +307,16 @@ int flags = DrawStruct->m_Flags;
 		case TYPEPCB:
 		case PCB_EQUIPOT_STRUCT_TYPE:
 			msg.Printf(
-				"WinEDA_ModuleEditFrame::OnRightClick Error: illegal DrawType %d",
+				wxT("WinEDA_ModuleEditFrame::OnRightClick Error: illegal DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(this, (char*)msg.GetData() );
+			DisplayError(this, msg );
 			break;
 
 		default:
 			msg.Printf(
-				"WinEDA_ModuleEditFrame::OnRightClick Error: unknown DrawType %d",
+				wxT("WinEDA_ModuleEditFrame::OnRightClick Error: unknown DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(this, (char*)msg.GetData() );
+			DisplayError(this, msg );
 			break;
 	}
 	PopMenu->AppendSeparator();

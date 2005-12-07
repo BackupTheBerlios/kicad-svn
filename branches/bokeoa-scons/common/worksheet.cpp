@@ -32,7 +32,7 @@ void WinEDA_DrawFrame::TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen, int marge
 int ii, jj, xg , yg, ipas, gxpas, gypas;
 wxPoint pos;
 int refx, refy,Color;
-char Line[256];
+wxString Line;
 WorkSheet * WsItem;
 int scale = m_InternalUnits/1000;
 wxSize size(SIZETEXT*scale,SIZETEXT*scale);
@@ -44,7 +44,7 @@ wxString msg;
 	if(screen->m_CurrentSheet == NULL)
 		{
 		DisplayError(this,
-			"WinEDA_DrawFrame::TraceWorkSheet error: m_CurrentSheet NULL");
+			wxT("WinEDA_DrawFrame::TraceWorkSheet error: m_CurrentSheet NULL"));
 		return;
 		}
 
@@ -72,7 +72,7 @@ wxString msg;
 	gxpas = ( xg - refx) / ipas;
 	for ( ii = refx + gxpas, jj = 1; ipas > 0 ; ii += gxpas , jj++, ipas--)
 		{
-		sprintf(Line,"%d",jj);
+		Line.Printf( wxT("%d"),jj);
 		if( ii < xg - PAS_REF/2 )
 			{
 			GRLine(&DrawPanel->m_ClipBox, DC, ii * scale, refy * scale,
@@ -100,9 +100,9 @@ wxString msg;
 	gypas = ( yg - refy) / ipas;
 	for ( ii = refy + gypas, jj = 0; ipas > 0 ; ii += gypas , jj++, ipas--)
 		{
-		if( jj < 26 ) Line[0] = jj + 'A';
-		else Line[0] = 'a' + jj - 26;
-		Line[1] = 0;
+		Line.Empty();
+		if( jj < 26 ) Line <<  jj + 'A';
+		else Line << 'a' + jj - 26;
 		if( ii < yg - PAS_REF/2 )
 			{
 			GRLine(&DrawPanel->m_ClipBox, DC, refx * scale, ii * scale,
@@ -135,14 +135,14 @@ wxString msg;
 		{
 		pos.x = (refx - WsItem->posx)* scale;
 		pos.y = (refy - WsItem->posy)* scale;
-		msg = "";
+		msg.Empty();
 		switch( WsItem->type )
 			{
 			case WS_DATE:
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Date;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -150,7 +150,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Revision;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -158,7 +158,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += g_ProductName + Main_Title;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -166,17 +166,17 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_CurrentSheet->m_Name;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
 
 			case WS_IDENTSHEET:
 				if(WsItem->Legende) msg = WsItem->Legende;
-				   msg << screen->m_SheetNumber << "/" <<
+				   msg << screen->m_SheetNumber << wxT("/") <<
 									screen->m_NumberOfSheet;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -184,7 +184,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Company;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -192,7 +192,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Title;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -200,7 +200,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Commentaire1;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -208,7 +208,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Commentaire2;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -216,7 +216,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Commentaire3;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 
@@ -224,7 +224,7 @@ wxString msg;
 				if(WsItem->Legende) msg = WsItem->Legende;
 				msg += screen->m_Commentaire4;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
-					msg.GetData(), TEXT_ORIENT_HORIZ, size,
+					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
 				break;
 

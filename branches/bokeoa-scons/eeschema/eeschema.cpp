@@ -29,7 +29,7 @@
 static void CreateScreens(void);
 
 // Global variables
-wxString Main_Title("EESchema (25-oct-2005)") ;
+wxString Main_Title( wxT("EESchema (02-dec-2005)") );
 
 	/************************************/
 	/* Called to initialize the program */
@@ -49,7 +49,7 @@ wxString FFileName;
 
 	g_DebugLevel = 0;	// Debug level */
 
-	InitEDA_Appl("eeschema");
+	InitEDA_Appl( wxT("eeschema") );
 
     if ( m_Checker && m_Checker->IsAnotherRunning() )
     {
@@ -67,7 +67,7 @@ wxString FFileName;
 
 	// Create main frame (schematic frame) :
 	SchematicFrame = new WinEDA_SchematicFrame(NULL, this,
-					"EESchema", wxPoint(0,0), wxSize(600,400) );
+					 wxT("EESchema"), wxPoint(0,0), wxSize(600,400) );
 	ScreenSch->SetParentFrame(SchematicFrame);
 	SchematicFrame->Show(TRUE);
 	SetTopWindow(SchematicFrame);
@@ -75,7 +75,7 @@ wxString FFileName;
 	SchematicFrame->Zoom_Automatique(TRUE);
 
 	/* Load file specified in the command line. */
-	if( FFileName != "" )
+	if( ! FFileName.IsEmpty() )
 	{
 		ChangeFileNameExt(FFileName, g_SchExtBuffer);
 		wxSetWorkingDirectory( wxPathOnly(FFileName) );

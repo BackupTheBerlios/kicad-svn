@@ -47,16 +47,16 @@ typedef enum {		/* Type des Marqueurs */
 
 /* Messages correspondants aux types des marqueurs */
 #ifdef MAIN
-char * NameMarqueurType[] =
+const wxChar * NameMarqueurType[] =
 	{
-	"",
-	"ERC",
-	"PCB",
-	"SIMUL",
-	"?????"
+	wxT(""),
+	wxT("ERC"),
+	wxT("PCB"),
+	wxT("SIMUL"),
+	wxT("?????")
 	};
 #else
-extern char * NameMarqueurType[];
+extern const wxChar * NameMarqueurType[];
 #endif
 
 /* Type des labels sur sheet (Labels sur hierarchie) et forme des Global-Labels*/
@@ -71,7 +71,7 @@ typedef enum {
 
 /* Messages correspondants aux types ou forme des labels */
 #ifdef MAIN
-char * SheetLabelType[] =
+const char * SheetLabelType[] =
 	{
 	"Input",
 	"Output",
@@ -81,7 +81,7 @@ char * SheetLabelType[] =
 	"?????"
 	};
 #else
-extern char * SheetLabelType[];
+extern const char * SheetLabelType[];
 #endif
 
 /* Description du graphisme des icones associes aux types des Global_Labels */
@@ -174,7 +174,7 @@ public:
 	DrawMarkerStruct(const wxPoint & pos, const wxString & text);
 	~DrawMarkerStruct(void);
 	DrawMarkerStruct * GenCopy(void);
-	const char * GetComment(void);
+	wxString GetComment(void);
 };
 
 class DrawNoConnectStruct: public EDA_BaseStruct	/* Symboles de non connexion */
@@ -237,7 +237,7 @@ public:
 	bool m_IsDangling;	// TRUE si non connecté
 
 public:
-	DrawTextStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = "");
+	DrawTextStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = wxEmptyString);
 	~DrawTextStruct(void) {}
 	DrawTextStruct * GenCopy(void);
 };
@@ -245,14 +245,14 @@ public:
 class DrawLabelStruct: public DrawTextStruct
 {
 public:
-	DrawLabelStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = "");
+	DrawLabelStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = wxEmptyString);
 	~DrawLabelStruct(void) {}
 };
 
 class DrawGlobalLabelStruct: public DrawTextStruct
 {
 public:
-	DrawGlobalLabelStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = "");
+	DrawGlobalLabelStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = wxEmptyString);
 	~DrawGlobalLabelStruct(void) {}
 };
 
@@ -264,7 +264,7 @@ public:
 
 public:
 	DrawSheetLabelStruct(DrawSheetStruct * parent,
-			const wxPoint & pos = wxPoint(0,0), const wxString & text = "");
+			const wxPoint & pos = wxPoint(0,0), const wxString & text = wxEmptyString);
 	~DrawSheetLabelStruct(void) {}
 	DrawSheetLabelStruct * GenCopy(void);
 	void Place(WinEDA_DrawFrame * frame, wxDC * DC);

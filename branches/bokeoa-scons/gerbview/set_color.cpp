@@ -179,7 +179,7 @@ wxString msg;
 		butt_ID = laytool_list[ii]->m_Id;
 
 		laytool_list[ii]->m_CheckBox = new wxCheckBox(this,
-						ID_COLOR_CHECKBOX_ONOFF, "",
+						ID_COLOR_CHECKBOX_ONOFF, wxEmptyString,
 						wxPoint(pos.x, pos.y));
 
 		if ( laytool_list[ii]->m_NoDisplayIsColor )

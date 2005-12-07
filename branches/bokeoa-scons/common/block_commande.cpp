@@ -91,7 +91,7 @@ wxString msg;
 			break;
 
 		default:
-			msg = "????";
+			msg = wxT("????");
 			break;
 	}
 
@@ -155,7 +155,7 @@ DrawBlockStruct * Block = & GetScreen()->BlockLocate;
 			InitBlockPasteInfos();
 			if( Block->m_BlockDrawStruct == NULL )	/* No data to paste */
 			{
-				DisplayError(this, "No Block to paste", 20);
+				DisplayError(this, wxT("No Block to paste"), 20);
 				GetScreen()->BlockLocate.m_Command =  BLOCK_IDLE;
 				GetScreen()->ManageCurseur = NULL;
 				return TRUE;
@@ -164,7 +164,7 @@ DrawBlockStruct * Block = & GetScreen()->BlockLocate;
 			{
 				Block->m_BlockDrawStruct = NULL;
 				DisplayError(this,
-					"WinEDA_DrawFrame::HandleBlockBegin() Err: ManageCurseur NULL");
+					wxT("WinEDA_DrawFrame::HandleBlockBegin() Err: ManageCurseur NULL"));
 				return TRUE;
 			}
 			Block->m_State = STATE_BLOCK_MOVE;
@@ -173,7 +173,7 @@ DrawBlockStruct * Block = & GetScreen()->BlockLocate;
 
 		default:
 			DisplayError(this,
-				"WinEDA_DrawFrame::HandleBlockBegin() error: Unknown command");
+				wxT("WinEDA_DrawFrame::HandleBlockBegin() error: Unknown command"));
 			break;
 		}
 
@@ -219,7 +219,7 @@ BASE_SCREEN * screen = frame->GetScreen();
 	frame->HandleBlockEnd(DC);
 
 	screen->BlockLocate.m_Command = BLOCK_IDLE;
-	frame->DisplayToolMsg("");
+	frame->DisplayToolMsg(wxEmptyString);
 }
 
 /*************************************************************************/
