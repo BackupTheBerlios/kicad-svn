@@ -59,13 +59,13 @@ bool Center = FALSE;
 		g_HPGL_Pen_Recouvrement = g_HPGL_Pen_Diam - 1 ;
 	pen_recouvrement = (int) round(g_HPGL_Pen_Recouvrement * 10.0/Scale_X);
 
-	dest = fopen(FullFileName.GetData(),"wt");
+	dest = wxFopen(FullFileName, wxT("wt"));
 	if (dest == NULL)
-		{
+	{
 		wxString msg = _("Unable to create ") + FullFileName;
 		DisplayError(this, msg);
 		return ;
-		}
+	}
 
 	Affiche_1_Parametre(this, 0,_("File"),FullFileName,CYAN) ;
 
@@ -186,7 +186,8 @@ MODULE * Module;
 D_PAD * PtPad;
 TRACK * pts ;
 EDA_BaseStruct * PtStruct;
-
+wxString msg;
+	
 	masque_layer |= EDGE_LAYER;	/* Les elements de la couche EDGE sont tj traces */
 
 	/* trace des elements type Drawings Pcb : */
@@ -219,7 +220,7 @@ EDA_BaseStruct * PtStruct;
 				break;
 
 			default:
-				DisplayError(this, "Type Draw non gere");
+				DisplayError(this, wxT("Type Draw non gere"));
 				break;
 			}
 		}
@@ -227,7 +228,7 @@ EDA_BaseStruct * PtStruct;
 
 	/* Trace des Elements des modules autres que pads */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 48,"DrawMod","",GREEN) ;
+	Affiche_1_Parametre(this, 48, wxT("DrawMod"),wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
 		{
@@ -249,7 +250,7 @@ EDA_BaseStruct * PtStruct;
 
 	/* Trace des Elements des modules : Pastilles */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 48,"Pads    ","",GREEN) ;
+	Affiche_1_Parametre(this, 48, wxT("Pads    "), wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ; Module = (MODULE*) Module->Pnext)
 		{
@@ -293,8 +294,8 @@ EDA_BaseStruct * PtStruct;
 									PtPad->m_Orient,modetrace) ;
 					break ;
 				}
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 48,"Pads",cbuf,GREEN) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 48, wxT("Pads"), msg,GREEN) ;
 			}
 		}
 
@@ -304,7 +305,7 @@ EDA_BaseStruct * PtStruct;
 		TRACK * pts ;
 
 		nb_items = 0 ;
-		Affiche_1_Parametre(this, 56,"Vias","",RED) ;
+		Affiche_1_Parametre(this, 56, wxT("Vias"), wxEmptyString, RED) ;
 
 		for(pts = m_Pcb->m_Track ;pts != NULL; pts = (TRACK*)pts->Pnext )
 		{
@@ -323,15 +324,15 @@ EDA_BaseStruct * PtStruct;
 			size.x = Via->m_Width + (garde*2);
 
 			trace_1_pastille_RONDE_HPGL(start, size.x, modetrace) ;
-			nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 56,"Vias",cbuf,RED) ;
+			nb_items++ ; msg.Printf( wxT("%d"), nb_items) ;
+			Affiche_1_Parametre(this, 56, wxT("Vias"), msg,RED) ;
 		}
 		fputs("PU;\n",dest) ;
 	}
 
 	/* trace des segments pistes */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 64,"Tracks  ","",YELLOW) ;
+	Affiche_1_Parametre(this, 64, wxT("Tracks  "),wxEmptyString,YELLOW) ;
 	for(pts = m_Pcb->m_Track ;pts != NULL; pts = (TRACK*)pts->Pnext )
 	{
 		if ( pts->m_StructType == TYPEVIA ) continue ;
@@ -360,13 +361,13 @@ EDA_BaseStruct * PtStruct;
 		if ( size.x > pen_diam)
 			trace_1_pastille_RONDE_HPGL(end, size.x, modetrace) ;
 
-		nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-		Affiche_1_Parametre(this, 64,"",cbuf,YELLOW) ;
+		nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+		Affiche_1_Parametre(this, 64,wxEmptyString, msg,YELLOW) ;
 	}
 
 	/* trace des segments pistes et zones */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 64,"Zones  ","",YELLOW) ;
+	Affiche_1_Parametre(this, 64, wxT("Zones  "), wxEmptyString,YELLOW) ;
 	for(pts = m_Pcb->m_Zone ;pts != NULL; pts = (TRACK*)pts->Pnext )
 		{
 		if( g_TabOneLayerMask[pts->m_Layer] & masque_layer)
@@ -393,8 +394,8 @@ EDA_BaseStruct * PtStruct;
 			if ( size.x > pen_diam)
 				trace_1_pastille_RONDE_HPGL(end, size.x, modetrace) ;
 
-			nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 64,"",cbuf,YELLOW) ;
+			nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 64,wxEmptyString, msg,YELLOW) ;
 			}
 		}
 }

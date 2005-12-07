@@ -131,7 +131,7 @@ wxPoint defaultpos(-1,-1);
 				m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
 			}
 			DrawPanel->m_PanelCursor = DrawPanel->m_PanelDefaultCursor = wxCURSOR_ARROW;
-			SetToolID(0, DrawPanel->m_PanelCursor, "");
+			SetToolID(0, DrawPanel->m_PanelCursor, wxEmptyString);
 			break;
 	}	// End switch commande en cours
 
@@ -142,11 +142,11 @@ wxPoint defaultpos(-1,-1);
 			break;
 
 		case ID_NEW_PROJECT: /* New EED Project */
-			LoadOneEEProject( "", TRUE);
+			LoadOneEEProject( wxEmptyString, TRUE);
 			break;
 
 		case ID_LOAD_PROJECT:
-			LoadOneEEProject( "", FALSE);
+			LoadOneEEProject( wxEmptyString, FALSE);
 			break;
 
 		case ID_LOAD_FILE_1:
@@ -172,7 +172,7 @@ wxPoint defaultpos(-1,-1);
 				m_Parent->LibeditFrame = new
 							WinEDA_LibeditFrame(m_Parent->SchematicFrame,
 							m_Parent,
-							"Library Editor",
+							 wxT("Library Editor"),
 							wxPoint(-1,-1), wxSize(600,400) );
 				ActiveScreen = ScreenLib;
 				m_Parent->LibeditFrame->AdjustScrollBars();
@@ -182,11 +182,11 @@ wxPoint defaultpos(-1,-1);
 		case ID_TO_PCB:
 		{
 			wxString Line;
-			if( ScreenSch->m_FileName != "" )
+			if( ScreenSch->m_FileName != wxEmptyString )
 			{
 				Line = ScreenSch->m_FileName;
 				AddDelimiterString(Line);
-				ChangeFileNameExt( Line,"");
+				ChangeFileNameExt( Line,wxEmptyString);
 				ExecuteFile(this, PCBNEW_EXE, Line);
 			}
 
@@ -197,11 +197,11 @@ wxPoint defaultpos(-1,-1);
 		case ID_TO_CVPCB:
 			{
 			wxString Line;
-			if( ScreenSch->m_FileName != "" )
+			if( ScreenSch->m_FileName != wxEmptyString )
 				{
 				Line = ScreenSch->m_FileName;
 				AddDelimiterString(Line);
-				ChangeFileNameExt( Line,"");
+				ChangeFileNameExt( Line,wxEmptyString);
 				ExecuteFile(this, CVPCB_EXE, Line);
 				}
 
@@ -341,12 +341,12 @@ wxPoint defaultpos(-1,-1);
 			break;
 
 		case ID_NO_SELECT_BUTT:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_POPUP_CANCEL_CURRENT_COMMAND:
 			if (m_ID_current_state == 0)
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_POPUP_END_LINE:
@@ -572,9 +572,10 @@ wxPoint defaultpos(-1,-1);
 			DrawPanel->MouseToCursorSchema();
 			{
 			EDA_SchComponentStruct * olditem, * newitem;
+			if ( m_CurrentScreen->m_CurrentItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
+				m_CurrentScreen->m_CurrentItem = LocateSmallestComponent( GetScreen() );
 			olditem = (EDA_SchComponentStruct *) m_CurrentScreen->m_CurrentItem;
-			if ( olditem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
-				break;
+			if ( olditem == NULL ) break;
 			newitem = olditem->GenCopy();
 			newitem->m_TimeStamp = GetTimeStamp();
 			newitem->ClearAnnotation();
@@ -621,8 +622,8 @@ wxPoint defaultpos(-1,-1);
 			EDA_LibComponentStruct * LibEntry;
 			LibEntry = FindLibPart(((EDA_SchComponentStruct *)
 							m_CurrentScreen->m_CurrentItem)->m_ChipName,
-							"", FIND_ALIAS);
-			if ( LibEntry && LibEntry->m_DocFile != "" )
+							wxEmptyString, FIND_ALIAS);
+			if ( LibEntry && LibEntry->m_DocFile != wxEmptyString )
 				GetAssociatedDocument(this, g_RealLibDirBuffer, LibEntry->m_DocFile);
 			}
       	break;
@@ -642,7 +643,7 @@ wxPoint defaultpos(-1,-1);
 			break;
 
 		case ID_POPUP_CLOSE_CURRENT_TOOL:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case wxID_COPY:		// really this is a Save block for paste
@@ -695,7 +696,7 @@ wxPoint defaultpos(-1,-1);
 			break;
 
 		default:	// Log error:
-			DisplayError(this, "WinEDA_SchematicFrame::Process_Special_Functions error");
+			DisplayError(this, wxT("WinEDA_SchematicFrame::Process_Special_Functions error") );
 			break;
 	}	// End switch ( id )	(Command execution)
 
@@ -754,9 +755,9 @@ void WinEDA_SchematicFrame::Process_Move_Item(EDA_BaseStruct *DrawStruct,
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_SchematicFrame::Move_Item Error: Bad DrawType %d",
+				 wxT("WinEDA_SchematicFrame::Move_Item Error: Bad DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(this, (char*)msg.GetData() );
+			DisplayError(this, msg );
 			break;
 		}
 }

@@ -135,7 +135,7 @@ wxButton * Button;
 	pos.x = 5; pos.y += Button->GetDefaultSize().y + 10;
 	wxSize size = GetClientSize();
 	size.x -= 10; size.y -= pos.y + 15;
-	m_logWindow = new wxTextCtrl(this, -1, "",
+	m_logWindow = new wxTextCtrl(this, -1, wxEmptyString,
 			pos, size,
 			wxTE_MULTILINE|wxSUNKEN_BORDER|wxTE_READONLY);
 }
@@ -260,7 +260,7 @@ TRACK * pt_segm;
 D_PAD * pad;
 MARQUEUR * Marqueur;
 EDA_BaseStruct * PtStruct, *PtNext;
-char Line[256];
+wxString Line;
 #define PRINT_NB_PAD_POS 42
 #define PRINT_PAD_ERR_POS 48
 #define PRINT_TST_POS 20
@@ -278,16 +278,16 @@ char Line[256];
 	/* Effacement des anciens marqueurs */
 	PtStruct = (EDA_BaseStruct*) m_Pcb->m_Drawings;
 	for( ; PtStruct != NULL; PtStruct = PtNext)
-		{
+	{
 		PtNext = PtStruct->Pnext;
 		if(PtStruct->m_StructType == TYPEMARQUEUR ) DeleteStructure(PtStruct);
-		}
+	}
 
 	/* Test DRC des pads entre eux */
-	sprintf(Line,"%d",m_Pcb->m_NbPads) ;
-	Affiche_1_Parametre(this, PRINT_NB_PAD_POS,"NbPad",Line,RED) ;
-	Affiche_1_Parametre(this, PRINT_PAD_ERR_POS,"Pad Err","0", LIGHTRED);
-	sprintf(Line,"Tst Pad to Pad\n");
+	Line.Printf( wxT("%d"),m_Pcb->m_NbPads) ;
+	Affiche_1_Parametre(this, PRINT_NB_PAD_POS, wxT("NbPad"),Line,RED) ;
+	Affiche_1_Parametre(this, PRINT_PAD_ERR_POS, wxT("Pad Err"), wxT("0"), LIGHTRED);
+	Line = wxT("Tst Pad to Pad\n");
 	if ( DrcFrame ) DrcFrame->m_logWindow->AppendText(Line);
 	for ( ii = 0 ; ii < m_Pcb->m_NbPads ; ii++)
 		{
@@ -298,11 +298,11 @@ char Line[256];
 			current_marqueur = NULL;
 			if( Marqueur == NULL )
 				{
-				DisplayError(this, "Test_Drc(): internal err");
+				DisplayError(this, wxT("Test_Drc(): internal err"));
 				return NumberOfErrors;
 				}
-			sprintf(Line,"%d",NumberOfErrors) ;
-			Affiche_1_Parametre(this, PRINT_PAD_ERR_POS,"",Line, LIGHTRED);
+			Line.Printf( wxT("%d"),NumberOfErrors) ;
+			Affiche_1_Parametre(this, PRINT_PAD_ERR_POS,wxEmptyString,Line, LIGHTRED);
 			Marqueur->Pnext = m_Pcb->m_Drawings;
 			Marqueur->Pback = m_Pcb;
 
@@ -313,9 +313,9 @@ char Line[256];
 		}
 
 	/* Test des segments de piste */
-	sprintf(Line,"%d",m_Pcb->m_NbSegmTrack) ;
+	Line.Printf( wxT("%d"),m_Pcb->m_NbSegmTrack) ;
 	Affiche_1_Parametre(this, PRINT_NB_SEGM_POS,_("SegmNb"),Line,RED) ;
-	Affiche_1_Parametre(this, PRINT_TRACK_ERR_POS,_("Track Err"),"0", LIGHTRED);
+	Affiche_1_Parametre(this, PRINT_TRACK_ERR_POS,_("Track Err"), wxT("0"), LIGHTRED);
 	pt_segm = (TRACK*)m_Pcb->m_Track;
 
 	if ( DrcFrame ) DrcFrame->m_logWindow->AppendText( _("Tst Tracks\n") );
@@ -329,14 +329,14 @@ char Line[256];
 		if( pt_segm->Pnext == NULL) break;
 		g_HightLigth_NetCode = pt_segm->m_NetCode;
 		flag_err_Drc = Drc(this, DC, pt_segm,(TRACK*)pt_segm->Pnext, 1);
-		sprintf(Line,"%d",ii);
-		Affiche_1_Parametre(this, PRINT_TST_POS,"Test",Line,CYAN) ;
+		Line.Printf( wxT("%d"),ii);
+		Affiche_1_Parametre(this, PRINT_TST_POS, wxT("Test"),Line,CYAN) ;
 		if ( old_net != pt_segm->m_NetCode)
 			{
 			wxString msg;
 			EQUIPOT * equipot = GetEquipot(m_Pcb, pt_segm->m_NetCode);
-			if ( equipot ) msg =  equipot->m_Netname + "        ";
-			else msg = "<noname>";
+			if ( equipot ) msg =  equipot->m_Netname + wxT("        ");
+			else msg = wxT("<noname>");
 			Affiche_1_Parametre(this, 0,_("Netname"),msg, YELLOW);
 			old_net = pt_segm->m_NetCode;
 			}
@@ -346,7 +346,7 @@ char Line[256];
 			current_marqueur = NULL;
 			if( Marqueur == NULL )
 				{
-				DisplayError(this, "Test_Drc(): internal err");
+				DisplayError(this, wxT("Test_Drc(): internal err"));
 				return NumberOfErrors;
 				}
 			Marqueur->Pnext = m_Pcb->m_Drawings;
@@ -358,10 +358,10 @@ char Line[256];
 
 			GRSetDrawMode(DC, GR_OR);
 			pt_segm->Draw(DrawPanel, DC, RED^LIGHTRED );
-			sprintf(Line,"%d",NumberOfErrors);
-			Affiche_1_Parametre(this, PRINT_TRACK_ERR_POS,"",Line, LIGHTRED);
-			sprintf(Line,"%d",m_Pcb->m_NbSegmTrack);
-			Affiche_1_Parametre(this, PRINT_NB_SEGM_POS,"",Line,RED) ;
+			Line.Printf( wxT("%d"),NumberOfErrors);
+			Affiche_1_Parametre(this, PRINT_TRACK_ERR_POS,wxEmptyString,Line, LIGHTRED);
+			Line.Printf( wxT("%d"),m_Pcb->m_NbSegmTrack);
+			Affiche_1_Parametre(this, PRINT_NB_SEGM_POS,wxEmptyString,Line,RED) ;
 			}
 		}
 

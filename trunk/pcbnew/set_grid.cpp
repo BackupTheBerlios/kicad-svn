@@ -3,7 +3,7 @@
 	/***************************************************/
 /*
  Affichage et modifications des parametres de travail de PcbNew
- Parametres = dimensions de l agride utilisateur
+ Parametres = dimensions de la grille utilisateur
 */
 
 
@@ -97,14 +97,14 @@ wxString UnitList[2] =
 	wxStaticText * Text = new wxStaticText(this, -1, _("User Grid Size X"),
 				pos, wxSize(-1,-1), 0 );
 	pos.y += 14;
-	msg.Printf("%.4f", g_UserGrid.x );
+	msg.Printf( wxT("%.4f"), g_UserGrid.x );
 	m_OptGridSizeX = new wxTextCtrl(this, -1, msg, pos );
 
 	pos.y += 25;
 	Text = new wxStaticText(this, -1, _("User Grid Size Y"), pos,
 				wxSize(-1,-1), 0 );
 	pos.y += 14;
-	msg.Printf("%.4f", g_UserGrid.y );
+	msg.Printf( wxT("%.4f"), g_UserGrid.y );
 	m_OptGridSizeY = new wxTextCtrl(this, -1, msg, pos );
 	lowy = pos.y + 20;
 
@@ -136,9 +136,11 @@ void  WinEDA_PcbGridFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void WinEDA_PcbGridFrame::AcceptPcbOptions(wxCommandEvent& event)
 /****************************************************************/
 {
+double dtmp = 0;
+	
 	g_UserGrid_Unit = m_UnitGrid->GetSelection();
-	g_UserGrid.x = atof(m_OptGridSizeX->GetValue().GetData());
-	g_UserGrid.y = atof(m_OptGridSizeY->GetValue().GetData());
+	m_OptGridSizeX->GetValue().ToDouble(&dtmp); g_UserGrid.x = dtmp;
+	m_OptGridSizeY->GetValue().ToDouble(&dtmp); g_UserGrid.y = dtmp;
 
 	m_Parent->GetScreen()->m_UserGrid = g_UserGrid;
 	m_Parent->GetScreen()->m_UserGridUnit = g_UserGrid_Unit;

@@ -76,7 +76,7 @@ static float Gerb_scale_plot;		/*Coeff de conversion d'unites des traces */
 static int scale_spot_mini;		/* Ouverture mini (pour remplissages) */
 static D_CODE * ListeDCode;		/* Pointeur sur la zone de stockage des D_CODES
 							(typiquement adr_himem - MAX_D_CODE - 10 ) */
-const char * GerberFullFileName;
+wxString GerberFullFileName;
 static double scale_x , scale_y ; /* echelles de convertion en X et Y (compte tenu
 									des unites relatives du PCB et des traceurs*/
 
@@ -122,14 +122,14 @@ int tracevia = 1;
 	memset(ListeDCode, 0, sizeof(D_CODE)); /* code indiquant a la routine get_D_code la fin de
 					la zone de description des D_CODES */
 
-	dest = fopen(FullFileName,"wt");
+	dest = wxFopen(FullFileName, wxT("wt"));
 	if (dest == NULL)
-		{
+	{
 		wxString msg = _("unable to create file ") + FullFileName;
 		DisplayError(this, msg); return ;
-		}
+	}
 
-	Affiche_1_Parametre(this, 0,_("File"),FullFileName,CYAN) ;
+	Affiche_1_Parametre(this, 0, _("File"),FullFileName,CYAN) ;
 
 	Init_Trace_GERBER(this, dest) ;
 
@@ -191,7 +191,7 @@ MODULE * Module;
 D_PAD * PtPad;
 TRACK * track ;
 EDA_BaseStruct * PtStruct;
-
+wxString msg;
 
 	masque_layer |= EDGE_LAYER;	/* Les elements de la couche EDGE sont tj traces */
 
@@ -225,14 +225,14 @@ EDA_BaseStruct * PtStruct;
 				break;
 
 			default:
-				DisplayError(this, "Type Draw non gere");
+				DisplayError(this, wxT("Type Draw non gere"));
 				break;
 			}
 		}
 
 	/* Trace des Elements des modules autres que pads */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 38,"DrawMod","",GREEN) ;
+	Affiche_1_Parametre(this, 38, wxT("DrawMod"), wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
 		{
@@ -253,7 +253,7 @@ EDA_BaseStruct * PtStruct;
 
 	/* Trace des Elements des modules : Pastilles */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 48,"Pads","",GREEN) ;
+	Affiche_1_Parametre(this, 48, wxT("Pads"),wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
 		{
@@ -296,15 +296,15 @@ EDA_BaseStruct * PtStruct;
 					PlotRectangularPad_GERBER(pos,size, PtPad->m_Orient) ;
 					break ;
 				}
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 48,"",cbuf,GREEN) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 48,wxEmptyString, msg,GREEN) ;
 			}
 		}
 	/* trace des VIAS : */
 	if(tracevia)
 	{
 		nb_items = 0 ;
-		Affiche_1_Parametre(this, 56,"Vias","",RED) ;
+		Affiche_1_Parametre(this, 56, wxT("Vias"), wxEmptyString,RED) ;
 		for( track = m_Pcb->m_Track; track != NULL; track = (TRACK*) track->Pnext)
 		{
 			if( track->m_StructType != TYPEVIA ) continue;
@@ -321,13 +321,13 @@ EDA_BaseStruct * PtStruct;
 			pos = Via->m_Start;
 			size.x = size.y = Via->m_Width  + (garde * 2);
 			Plot_1_CIRCLE_pad_GERBER(pos,size.x) ;
-			nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 56,"",cbuf,RED) ;
+			nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 56,wxEmptyString, msg,RED) ;
 		}
 	}
 	/* trace des pistes : */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 64,"Tracks","",YELLOW) ;
+	Affiche_1_Parametre(this, 64, wxT("Tracks"),wxEmptyString,YELLOW) ;
 
 	for( track = m_Pcb->m_Track; track != NULL; track = (TRACK*) track->Pnext)
 	{
@@ -341,13 +341,13 @@ EDA_BaseStruct * PtStruct;
 
 		PlotGERBERLine(pos,end, size.x) ;
 
-		nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-		Affiche_1_Parametre(this, 64,"",cbuf,YELLOW) ;
+		nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+		Affiche_1_Parametre(this, 64, wxEmptyString, msg,YELLOW) ;
 	}
 
 	/* trace des zones: */
 	nb_items = 0 ;
-	if ( m_Pcb->m_Zone ) Affiche_1_Parametre(this, 72,"Zones  ","",YELLOW) ;
+	if ( m_Pcb->m_Zone ) Affiche_1_Parametre(this, 72, wxT("Zones  "),wxEmptyString,YELLOW) ;
 
 	for( track = m_Pcb->m_Zone; track != NULL; track = (TRACK*) track->Pnext)
 	{
@@ -360,8 +360,8 @@ EDA_BaseStruct * PtStruct;
 
 		PlotGERBERLine(pos,end, size.x) ;
 
-		nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-		Affiche_1_Parametre(this, 72,"",cbuf,YELLOW) ;
+		nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+		Affiche_1_Parametre(this, 72, wxEmptyString,msg,YELLOW) ;
 	}
 }
 
@@ -765,42 +765,42 @@ void Fin_Trace_GERBER(WinEDA_BasePcbFrame * frame, FILE * gerbfile)
 /*****************************************************************/
 {
 char line[1024];
-char TmpFileName[1024];
+wxString TmpFileName, msg;
 FILE * outfile;
 
 	fputs("M02*\n",gerbfile);
 	fclose(gerbfile);
 
 	// Reouverture gerbfile pour ajout des Apertures
-	gerbfile = fopen(GerberFullFileName,"rt");
+	gerbfile = wxFopen(GerberFullFileName, wxT("rt") );
 	if (gerbfile == NULL)
-		{
-		sprintf(line,_("unable to reopen file <%s>"),GerberFullFileName) ;
-		DisplayError(frame, line); return ;
-		}
+	{
+		msg.Printf( _("unable to reopen file <%s>"),GerberFullFileName.GetData() ) ;
+		DisplayError(frame, msg); return ;
+	}
 
 
 	// Ouverture tmpfile
-	sprintf(TmpFileName,"%s.$$$", GerberFullFileName);
-	outfile = fopen(TmpFileName, "wt" );
+	TmpFileName = GerberFullFileName + wxT(".$$$");
+	outfile = wxFopen(TmpFileName, wxT("wt") );
 	if ( outfile == NULL )
-		{
+	{
 		fclose(gerbfile);
-		DisplayError(frame, "Fin_Trace_GERBER(): Can't Open tmp file");
+		DisplayError(frame, wxT("Fin_Trace_GERBER(): Can't Open tmp file"));
 		return;
-		}
+	}
 
 	// Placement des Apertures en RS274X
 	rewind(gerbfile);
 	while ( fgets(line, 1024, gerbfile) )
-		{
+	{
 		fputs(line, outfile);
 		if ( strcmp(strtok(line, "\n\r"),"G04 APERTURE LIST*") == 0 )
-			{
+		{
 			frame->Gen_D_CODE_File(outfile);
 			fputs("G04 APERTURE END LIST*\n", outfile);
-			}
 		}
+	}
 
 	fclose(outfile);
 	fclose(gerbfile);
@@ -852,7 +852,7 @@ int nb_dcodes = 0 ;
 				break;
 
 			default:
-				DisplayError(this,"Gen_D_CODE_File(): Dcode Type err");
+				DisplayError(this, wxT("Gen_D_CODE_File(): Dcode Type err") );
 				break;
 		}
 		// compensation localisation printf (float x.y généré x,y)

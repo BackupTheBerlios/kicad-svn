@@ -104,16 +104,16 @@ END_EVENT_TABLE()
 WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *parent,
 					const wxString & title,
 					const wxPoint& pos, const wxSize& size) :
-					WinEDA_BasePcbFrame(father, parent, MODULE_EDITOR_FRAME, "", pos, size)
+					WinEDA_BasePcbFrame(father, parent, MODULE_EDITOR_FRAME, wxEmptyString, pos, size)
 {
-	m_FrameName = "ModEditFrame";
+	m_FrameName = wxT("ModEditFrame");
 	m_Draw_Axes = TRUE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;			// TRUE pour avoir la axes dessinee
 	m_Draw_Sheet_Ref = FALSE;	// TRUE pour avoir le cartouche dessiné
 	// Give an icon
 	SetIcon(wxICON(icon_modedit));
 
-	SetTitle("Module Editor (lib: " + m_CurrentLib +")" );
+	SetTitle( wxT("Module Editor (lib: ") + m_CurrentLib + wxT(")") );
 
 	if ( ScreenModule == NULL )
 		{
@@ -131,8 +131,8 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 	GetSettings();
 	if ( m_Parent && m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_EDA_Config->Read("ModEditGrid_X", &g_ModEditGrid.x, 500);
-		m_Parent->m_EDA_Config->Read("ModEditGrid_Y", &g_ModEditGrid.y, 500);
+		m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_X"), &g_ModEditGrid.x, 500);
+		m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_Y"), &g_ModEditGrid.y, 500);
 	}
 	GetScreen()->SetGrid(g_ModEditGrid);
 
@@ -170,8 +170,8 @@ void WinEDA_ModuleEditFrame::OnCloseWindow(wxCloseEvent & Event)
 	SaveSettings();
 	if ( m_Parent && m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_EDA_Config->Write("ModEditGrid_X", (long)g_ModEditGrid.x);
-		m_Parent->m_EDA_Config->Write("ModEditGrid_Y", (long)g_ModEditGrid.y);
+		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_X"), (long)g_ModEditGrid.x);
+		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_Y"), (long)g_ModEditGrid.y);
 	}
 	Destroy();
 }
@@ -185,7 +185,7 @@ bool active, islib = TRUE;
 
 	if( m_HToolBar == NULL ) return;
 
-	if ( m_CurrentLib == "" ) islib = FALSE;
+	if ( m_CurrentLib == wxEmptyString ) islib = FALSE;
 
 	m_HToolBar->EnableTool(ID_MODEDIT_SAVE_LIBMODULE,islib);
 	m_HToolBar->EnableTool(ID_LIBEDIT_DELETE_PART,islib);

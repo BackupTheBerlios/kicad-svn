@@ -1407,14 +1407,14 @@ public:
 	wxWindow * m_Parent;
 	wxListBox * m_List;
 	wxTextCtrl * m_WinMsg;
-	const char ** m_ItemList;
+	const wxChar ** m_ItemList;
 
 private:
 	void(* m_MoveFct)(wxString & Text);
 
 public:
 	WinEDAListBox( wxWindow * parent, const wxString & title,
-						const char ** ItemList,
+						const wxChar ** ItemList,
 						const wxString & RefText,
 						void(* movefct)(wxString & Text) = NULL,
 						const wxColour & colour = wxNullColour);

@@ -75,7 +75,7 @@ int id = event.GetSelection();
 			break;
 
 		default:
-			DisplayError(this, "ToolOnRightClick error");
+			DisplayError(this, wxT("ToolOnRightClick() error"));
 			break;
 		}
 }

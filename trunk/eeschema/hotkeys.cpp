@@ -52,7 +52,7 @@ bool PopupOn = m_CurrentScreen->m_CurrentItem  &&
 
 		case WXK_F5 :
 			if ( g_LastSearchIsMarker ) WinEDA_SchematicFrame::FindMarker(1);
-			else FindSchematicItem("", 2);
+			else FindSchematicItem(wxEmptyString, 2);
 			break;
 
 		case 'r':	// Rotation

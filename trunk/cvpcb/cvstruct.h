@@ -153,7 +153,8 @@ class WinEDA_DisplayFrame: public WinEDA_BasePcbFrame
 public:
 
 public:
-	WinEDA_DisplayFrame( wxWindow * father, WinEDA_App *parent, char *title,
+	WinEDA_DisplayFrame( wxWindow * father, WinEDA_App *parent,
+					const wxString & title,
 					const wxPoint& pos, const wxSize& size);
 
 	~WinEDA_DisplayFrame(void);

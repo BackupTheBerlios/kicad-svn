@@ -23,7 +23,8 @@ void WinEDA_GerberFrame::OnLeftClick(wxDC * DC, const wxPoint& MousePos)
 */
 {
 EDA_BaseStruct * DrawStruct = GetScreen()->m_CurrentItem;
-char line[256];
+wxString msg;
+
 	if ( m_ID_current_state == 0 )
 		{
 		if ( DrawStruct && DrawStruct->m_Flags ) // Commande "POPUP" en cours
@@ -31,11 +32,11 @@ char line[256];
 			switch (DrawStruct->m_StructType )
 				{
 				default:
-					sprintf(line,
-						"WinEDA_GerberFrame::ProcessCommand err: Struct %d, m_Flags = %X",
+					msg.Printf(
+						wxT("WinEDA_GerberFrame::ProcessCommand err: Struct %d, m_Flags = %X"),
 						(unsigned) DrawStruct->m_StructType,
 						(unsigned) DrawStruct->m_Flags);
-					DisplayError(this, line );
+					DisplayError(this, msg );
 				}
 			}
 		else
@@ -66,8 +67,8 @@ char line[256];
 			break;
 
 		default :
-				DisplayError(this, "WinEDA_GerberFrame::ProcessCommand error");
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				DisplayError(this, wxT("WinEDA_GerberFrame::ProcessCommand error"));
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 				break;
 		}
 }
@@ -117,7 +118,7 @@ wxClientDC dc(DrawPanel);
 				m_CurrentScreen->BlockLocate.m_BlockDrawStruct = NULL;
 			}
 			if (m_ID_current_state == 0 )
-				SetToolID(0, wxCURSOR_ARROW,"");
+				SetToolID(0, wxCURSOR_ARROW, wxEmptyString);
 			else SetCursor(DrawPanel->m_PanelCursor = DrawPanel->m_PanelDefaultCursor);
 			break;
 
@@ -127,7 +128,7 @@ wxClientDC dc(DrawPanel);
 			{
 				GetScreen()->ForceCloseManageCurseur(this, &dc);
 			}
-			SetToolID(0, wxCURSOR_ARROW,"");
+			SetToolID(0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 	}
 
@@ -170,23 +171,23 @@ wxClientDC dc(DrawPanel);
 
 
 		case ID_BUS_BUTT:
-			SetToolID( id, wxCURSOR_PENCIL, "Add Tracks");
+			SetToolID( id, wxCURSOR_PENCIL, wxT("Add Tracks"));
 			break;
 
 		case ID_LINE_COMMENT_BUTT:
-			SetToolID( id, wxCURSOR_PENCIL, "Add Drawing");
+			SetToolID( id, wxCURSOR_PENCIL, wxT("Add Drawing"));
 			break;
 
 		case ID_TEXT_COMMENT_BUTT:
-			SetToolID( id, wxCURSOR_PENCIL, "Add Text");
+			SetToolID( id, wxCURSOR_PENCIL, wxT("Add Text"));
 			break;
 
 		case ID_NO_SELECT_BUTT:
-			SetToolID( 0, 0, "");
+			SetToolID( 0, 0, wxEmptyString);
 			break;
 
 		case ID_POPUP_CLOSE_CURRENT_TOOL:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_POPUP_CANCEL_CURRENT_COMMAND:
@@ -206,7 +207,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_PCB_DELETE_ITEM_BUTT:
-			SetToolID( id, wxCURSOR_PENCIL, "Delete item");
+			SetToolID( id, wxCURSOR_PENCIL, wxT("Delete item"));
 			break;
 
 		case ID_POPUP_SCH_MOVE_ITEM_REQUEST:
@@ -241,7 +242,7 @@ wxClientDC dc(DrawPanel);
 			if ( gerber_layer )
 			{
 			wxString editorname = GetEditorName();
-			if ( editorname != "" )
+			if ( ! editorname.IsEmpty() )
 				ExecuteFile(this, editorname, gerber_layer->m_FileName);
 			}
 			break;
@@ -273,7 +274,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		default:
-			wxMessageBox("WinEDA_GerberFrame::Process_Special_Functions error");
+			wxMessageBox( wxT("WinEDA_GerberFrame::Process_Special_Functions error"));
 			break;
 	}
 
@@ -296,9 +297,9 @@ static void Process_Move_Item(WinEDA_GerberFrame * frame,
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_LibeditFrame::Move_Item Error: Bad DrawType %d",
+				wxT("WinEDA_LibeditFrame::Move_Item Error: Bad DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(frame, (char*)msg.GetData() );
+			DisplayError(frame, msg );
 			break;
 		}
 }

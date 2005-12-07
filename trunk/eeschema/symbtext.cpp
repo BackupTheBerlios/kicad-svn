@@ -100,10 +100,10 @@ wxButton * Button;
 
 	pos.x = 10; pos.y += 26;
 	NewText = new WinEDA_EnterText(this, _("Name:"),
-						CurrentText ? CurrentText->m_Text.GetData() : "",
+						CurrentText ? CurrentText->m_Text.GetData() : wxEmptyString,
 				pos, wxSize(150,-1) );
 	pos.x = 170;
-	number.Printf("%d",
+	number.Printf( wxT("%d"),
 				CurrentText ? CurrentText->m_Size.x : g_LastTextSize);
 	m_Size = new wxSpinCtrl(this,-1,number, pos,
 				wxSize(60, -1), wxSP_ARROW_KEYS | wxSP_WRAP,
@@ -156,9 +156,9 @@ void WinEDA_bodytext_PropertiesFrame::bodytext_PropertiesAccept(wxCommandEvent& 
 */
 {
 LibDrawText* Text = (LibDrawText*) CurrentDrawItem;
-char Line[1024];
+wxString Line;
 
-	NewText->GetData(Line, 1024);
+	Line = NewText->GetData();
 	g_LastTextOrient = m_Orient->GetValue() ? TEXT_ORIENT_VERT : TEXT_ORIENT_HORIZ;
 	g_LastTextSize = m_Size->GetValue();
 	g_FlDrawSpecificConvert = m_CommonConvert->GetValue() ? FALSE : TRUE;
@@ -166,8 +166,8 @@ char Line[1024];
 
 	if ( Text )   // Set Pin Name & Num
 	{
-		if ( strlen(Line) ) Text->m_Text = Line;
-		else Text->m_Text = "[null]";	// **** A REVOIR ***
+		if ( ! Line.IsEmpty() ) Text->m_Text = Line;
+		else Text->m_Text = wxT("[null]");	// **** A REVOIR ***
 		Text->m_Size.x = Text->m_Size.y = g_LastTextSize;
 		Text->m_Horiz = g_LastTextOrient;
 		if( g_FlDrawSpecificUnit ) Text->m_Unit = CurrentUnit;

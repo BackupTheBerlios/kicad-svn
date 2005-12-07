@@ -16,24 +16,21 @@
 void WinEDA_MainFrame::Load_Prj_Config(void)
 /*******************************************/
 {
-FILE * in_file;
 
-	in_file = fopen(m_PrjFileName, "rt");
-	if ( in_file == 0 )
-		{
+	if ( ! wxFileExists(m_PrjFileName) )
+	{
 		wxString msg = _("Project File <") + m_PrjFileName + _("> not found");
 		DisplayError(this, msg);
 		return;
-		}
-	fclose(in_file);
+	}
 
 	wxSetWorkingDirectory(wxPathOnly(m_PrjFileName) );
-	SetTitle(Main_Title + " " + m_PrjFileName);
+	SetTitle(Main_Title + wxT(" ") + m_PrjFileName);
 	ReCreateMenuBar();
 	m_LeftWin->ReCreateTreePrj();
 
 	wxString msg = _("\nWorking dir: ") + wxGetCwd();
-	msg << _("\nProject: ") << m_PrjFileName << "\n";
+	msg << _("\nProject: ") << m_PrjFileName << wxT("\n");
 	PrintMsg(msg);
 }
 
@@ -43,9 +40,9 @@ void WinEDA_MainFrame::Save_Prj_Config(void)
 /*********************************************/
 {
 wxString FullFileName;
-wxString mask("*");
+wxString mask( wxT("*"));
 	
-	g_Prj_Config_Filename_ext = ".pro";
+	g_Prj_Config_Filename_ext = wxT(".pro");
 	mask += g_Prj_Config_Filename_ext;
 	FullFileName = m_PrjFileName;
 	ChangeFileNameExt( FullFileName, g_Prj_Config_Filename_ext);
@@ -59,9 +56,9 @@ wxString mask("*");
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	/* ecriture de la configuration */
-	EDA_Appl->WriteProjectConfig(FullFileName, "/general", CfgParamList);
+	EDA_Appl->WriteProjectConfig(FullFileName, wxT("/general"), CfgParamList);
 }
 

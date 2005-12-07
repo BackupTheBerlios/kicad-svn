@@ -25,14 +25,14 @@ static void ModuleWriteShape( FILE * File, MODULE * module );
 
 wxString GenCAD_Layer_Name[32]	// layer name pour extensions fichiers de trace
 	= {
-	"BOTTOM", "INNER1", "INNER2", "INNER3",
-	"INNER4", "INNER5", "INNER6", "INNER7",
-	"INNER8", "INNER9", "INNER10", "INNER11",
-	"INNER12", "INNER13", "INNER14", "TOP",
-	"adhecu", "adhecmp", "SOLDERPASTE_BOTTOM", "SOLDERPASTE_TOP",
-	"SILKSCREEN_BOTTOM", "SILKSCREEN_TOP", "SOLDERMASK_BOTTOM", "SOLDERMASK_TOP",
-	"drawings", "comments", "eco1", "eco2",
-	"edges", "--", "--", "--",
+	wxT("BOTTOM"), wxT("INNER1"), wxT("INNER2"), wxT("INNER3"),
+	wxT("INNER4"), wxT("INNER5"), wxT("INNER6"), wxT("INNER7"),
+	wxT("INNER8"), wxT("INNER9"), wxT("INNER10"), wxT("INNER11"),
+	wxT("INNER12"), wxT("INNER13"), wxT("INNER14"), wxT("TOP"),
+	wxT("adhecu"), wxT("adhecmp"), wxT("SOLDERPASTE_BOTTOM"), wxT("SOLDERPASTE_TOP"),
+	wxT("SILKSCREEN_BOTTOM"), wxT("SILKSCREEN_TOP"), wxT("SOLDERMASK_BOTTOM"), wxT("SOLDERMASK_TOP"),
+	wxT("drawings"), wxT("comments"), wxT("eco1"), wxT("eco2"),
+	wxT("edges"), wxT("--"), wxT("--"), wxT("--")
 	};
 
 int offsetX, offsetY;
@@ -60,11 +60,11 @@ wxString FullFileName = GetScreen()->m_FileName;
 wxString msg, std_ext, mask;
 FILE * file;
 	
-	std_ext = ".gcd";
-	mask = "*" + std_ext;
+	std_ext = wxT(".gcd");
+	mask = wxT("*") + std_ext;
 	ChangeFileNameExt(FullFileName,std_ext);
 	FullFileName = EDA_FileSelector(_("GenCAD file:"),
-					"",						/* Chemin par defaut */
+					wxEmptyString,						/* Chemin par defaut */
 					FullFileName,	 		/* nom fichier par defaut */
 					std_ext,					/* extension par defaut */
 					mask,				/* Masque d'affichage */
@@ -72,9 +72,9 @@ FILE * file;
 					wxOPEN,
 					FALSE
 					);
-	if ( FullFileName == "" ) return;
+	if ( FullFileName == wxEmptyString ) return;
 		
-	if ( (file = fopen(FullFileName.GetData(), "wt" )) == NULL )
+	if ( (file = wxFopen(FullFileName, wxT("wt") )) == NULL )
 	{
 		msg = _("Unable to create ") + FullFileName;
 		DisplayError(this, msg); return;
@@ -307,7 +307,7 @@ MODULE * module;
 D_PAD * pad;
 char * layer;
 int orient;
-char pinname[128];
+wxString pinname;
 char * mirror = "0";
 	
 	fputs("$SHAPES\n", file);
@@ -317,29 +317,29 @@ char * mirror = "0";
 		ModuleWriteShape( file, module );
 		for( pad = module->m_Pads; pad != NULL; pad = (D_PAD*) pad->Pnext)
 		{
-		layer = "ALL";
-		if ( (pad->m_Masque_Layer & ALL_CU_LAYERS) == CUIVRE_LAYER )
-		{
-			if ( module->m_Layer == CMP_N ) layer = "BOTTOM";
-			else layer = "TOP";
-		}
-		else if ( (pad->m_Masque_Layer & ALL_CU_LAYERS) == CMP_LAYER )
-		{
-			if ( module->m_Layer == CMP_N ) layer = "TOP";
-			else layer = "BOTTOM";
-		}
-
-		pad->ReturnStringPadName(pinname);
-		if( strlen(pinname) == 0 ) strcpy(pinname, "noname");
-			
-		orient = pad->m_Orient - module->m_Orient;
-		NORMALIZE_ANGLE_POS(orient);
-		fprintf(file, "PIN %s PAD%d %d %d %s %d %s",
-			pinname, pad->m_logical_connexion,
-			pad->m_Pos0.x, - pad->m_Pos0.y,
-			layer, orient/10, mirror );
-		if ( orient % 10 ) fprintf(file, " .%d", orient % 10 );
-		fprintf(file, "\n");
+			layer = "ALL";
+			if ( (pad->m_Masque_Layer & ALL_CU_LAYERS) == CUIVRE_LAYER )
+			{
+				if ( module->m_Layer == CMP_N ) layer = "BOTTOM";
+				else layer = "TOP";
+			}
+			else if ( (pad->m_Masque_Layer & ALL_CU_LAYERS) == CMP_LAYER )
+			{
+				if ( module->m_Layer == CMP_N ) layer = "TOP";
+				else layer = "BOTTOM";
+			}
+	
+			pad->ReturnStringPadName(pinname);
+			if( pinname.IsEmpty() ) pinname = wxT("noname");
+				
+			orient = pad->m_Orient - module->m_Orient;
+			NORMALIZE_ANGLE_POS(orient);
+			fprintf(file, "PIN %s PAD%d %d %d %s %d %s",
+				CONV_TO_UTF8(pinname), pad->m_logical_connexion,
+				pad->m_Pos0.x, - pad->m_Pos0.y,
+				layer, orient/10, mirror );
+			if ( orient % 10 ) fprintf(file, " .%d", orient % 10 );
+			fprintf(file, "\n");
 		}
 	}
 	
@@ -379,8 +379,8 @@ int ii;
 			flip = "0";
 		}
 			
-		fprintf(file, "COMPONENT %s\n", module->m_Reference->GetText());
-		fprintf(file, "DEVICE %s\n", module->m_Reference->GetText());
+		fprintf(file, "COMPONENT %s\n",  CONV_TO_UTF8(module->m_Reference->m_Text));
+		fprintf(file, "DEVICE %s\n",  CONV_TO_UTF8(module->m_Reference->m_Text));
 		fprintf(file, "PLACE %d %d\n", mapXto(module->m_Pos.x), mapYto(module->m_Pos.y));
 		fprintf(file, "LAYER %s\n", (module->flag)? "BOTTOM" : "TOP");
 
@@ -389,34 +389,33 @@ int ii;
 		fputs("\n",file);
 
 		fprintf(file, "SHAPE %s %s %s\n",
-			module->m_Reference->GetText(), mirror, flip);
+			CONV_TO_UTF8(module->m_Reference->m_Text), mirror, flip);
 		
 		/* Generation des elements textes (ref et valeur seulement) */
 		PtTexte = module->m_Reference;
 		for ( ii = 0; ii < 2; ii++ )
 		{
 			int orient = PtTexte->m_Orient;
-			const char * layer = GenCAD_Layer_Name[SILKSCREEN_N_CMP].GetData();
+			wxString layer = GenCAD_Layer_Name[SILKSCREEN_N_CMP];
 			fprintf(file, "TEXT %d %d %d %d.%d %s %s \"%s\"",
 				PtTexte->m_Pos0.x, - PtTexte->m_Pos0.y,
 				PtTexte->m_Size.x,
 				orient /10, orient %10,
 				mirror, 
-				layer,
-				PtTexte->GetText()
+				CONV_TO_UTF8(layer),
+				CONV_TO_UTF8(PtTexte->m_Text)
 			);
-		
 				
 			fprintf(file, " 0 0 %d %d\n",
-				PtTexte->m_Size.x * strlen(PtTexte->GetText()),
+				PtTexte->m_Size.x * PtTexte->m_Text.Len(),
 				PtTexte->m_Size.y );
 				
 			PtTexte = module->m_Value;
 		}
 		
 		// commentaire:
-		fprintf(file, "SHEET Part %s %s\n", module->m_Reference->GetText(),
-					 module->m_Value->GetText());
+		fprintf(file, "SHEET Part %s %s\n",  CONV_TO_UTF8(module->m_Reference->m_Text),
+					 CONV_TO_UTF8(module->m_Value->m_Text));
 		
 	}
 	
@@ -445,25 +444,27 @@ int NbNoConn = 1;
 	
 	for( equipot = pcb->m_Equipots; equipot != NULL; equipot = (EQUIPOT *) equipot->Pnext )
 	{
-		if ( equipot->m_Netname == "" ) 	// dummy equipot (non connexion)
+		if ( equipot->m_Netname == wxEmptyString ) 	// dummy equipot (non connexion)
 		{
-			equipot->m_Netname << "NoConnection" << NbNoConn++;
+			equipot->m_Netname << wxT("NoConnection") << NbNoConn++;
 		}
 		
 		if ( equipot->m_NetCode <= 0 )		// dummy equipot (non connexion)
 			continue;
 		
-		msg = "\nSIGNAL " + equipot->m_Netname;
-		fputs(msg.GetData(), file); fputs("\n", file);
+		msg = wxT("\nSIGNAL ") + equipot->m_Netname;
+		fputs( CONV_TO_UTF8(msg), file); fputs("\n", file);
 		
 		for ( module = pcb->m_Modules; module != NULL; module = (MODULE *) module->Pnext )
 		{
 			for( pad = module->m_Pads; pad != NULL; pad = (D_PAD *) pad->Pnext )
 			{
+				wxString padname;
 				if ( pad->m_NetCode != equipot->m_NetCode ) continue;
-				msg.Printf("NODE %s %.4s",
-					module->m_Reference->GetText(), pad->m_Padname);
-				fputs(msg.GetData(), file); fputs("\n", file);
+				pad->ReturnStringPadName(padname);
+				msg.Printf(wxT("NODE %s %.4s"),
+					module->m_Reference->m_Text.GetData(), padname.GetData());
+				fputs( CONV_TO_UTF8(msg), file); fputs("\n", file);
 			}
 		}
 	}
@@ -483,16 +484,16 @@ PCB_SCREEN * screen = frame->GetScreen();
 	
 	fputs("$HEADER\n", file);
 	fputs("GENCAD 1.4\n", file);
-	msg = "USER " + Main_Title; fputs(msg.GetData(), file); fputs("\n", file);
-	msg = "DRAWING " + screen->m_FileName;
-	fputs(msg.GetData(), file); fputs("\n", file);
-	msg = "REVISION " + screen->m_Revision + " " + screen->m_Date;
-	fputs(msg.GetData(), file); fputs("\n", file);
-	msg.Printf("UNITS USER %d", PCB_INTERNAL_UNIT);
-	fputs(msg.GetData(), file); fputs("\n", file);
-	msg.Printf("ORIGIN %d %d", mapXto(frame->m_Auxiliary_Axe_Position.x),
+	msg = wxT("USER ") + Main_Title; fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
+	msg = wxT("DRAWING ") + screen->m_FileName;
+	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
+	msg = wxT("REVISION ") + screen->m_Revision + wxT(" ") + screen->m_Date;
+	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
+	msg.Printf(wxT("UNITS USER %d"), PCB_INTERNAL_UNIT);
+	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
+	msg.Printf( wxT("ORIGIN %d %d"), mapXto(frame->m_Auxiliary_Axe_Position.x),
 				mapYto(frame->m_Auxiliary_Axe_Position.y)) ;
-	fputs(msg.GetData(), file); fputs("\n", file);
+	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
 	fputs("INTERTRACK 0\n", file);
 	fputs("$ENDHEADER\n\n", file);
 	
@@ -566,7 +567,7 @@ int nbitems, ii;
 			old_netcode = track->m_NetCode;
 			EQUIPOT * equipot = GetEquipot( pcb, track->m_NetCode);
 			fprintf(file,"\nROUTE %s\n",
-				(equipot && (equipot->m_Netname != "") ) ? equipot->m_Netname.GetData() : "_noname_" );
+				(equipot && (equipot->m_Netname != wxEmptyString) ) ? equipot->m_Netname.GetData() : wxT("_noname_" ));
 		}
 
 		if ( old_width != track->m_Width )
@@ -617,16 +618,16 @@ D_PAD * pad;
 
 	for(module = pcb->m_Modules; module != NULL; module = (MODULE *) module->Pnext)
 	{
-		fprintf(file, "DEVICE %s\n", module->m_Reference->GetText());
-		fprintf(file, "PART %s\n", module->m_LibRef.GetData());
+		fprintf(file, "DEVICE %s\n", CONV_TO_UTF8(module->m_Reference->m_Text));
+		fprintf(file, "PART %s\n", CONV_TO_UTF8(module->m_LibRef));
 		fprintf(file, "TYPE %s\n", "UNKNOWN");
 		for( pad = module->m_Pads; pad != NULL; pad = (D_PAD*) pad->Pnext)
 		{
 		fprintf(file, "PINDESCR %.4s", pad->m_Padname);
-		if ( pad->m_Netname == "" ) fputs(" NoConn\n", file);
+		if ( pad->m_Netname == wxEmptyString ) fputs(" NoConn\n", file);
 		else fprintf(file, " %.4s\n", pad->m_Padname);
 		}
-		fprintf(file, "ATTRIBUTE %s\n", module->m_Value->GetText());
+		fprintf(file, "ATTRIBUTE %s\n", CONV_TO_UTF8(module->m_Value->m_Text));
 	}
 	
 	fputs("$ENDDEVICES\n\n", file);
@@ -748,7 +749,7 @@ int Yaxis_sign = -1;	// Controle changement signe axe Y (selon module normal/mir
 	
 	
 	/* Generation du fichier module: */
-	fprintf(file, "\nSHAPE %s\n", module->m_Reference->GetText());
+	fprintf(file, "\nSHAPE %s\n", CONV_TO_UTF8(module->m_Reference->m_Text));
 
 	/* Attributs du module */
 	if( module->m_Attributs != MOD_DEFAULT )
@@ -802,7 +803,7 @@ int Yaxis_sign = -1;	// Controle changement signe axe Y (selon module normal/mir
 						break;
 					}
 					default:
-						DisplayError(NULL, "Type Edge Module inconnu");
+						DisplayError(NULL, wxT("Type Edge Module inconnu"));
 						break;
 				}	/* Fin switch type edge */
 				break;

@@ -66,7 +66,7 @@ int ii;
 			}
 		for ( ii = 0; ii < 10; ii++ )
 			{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 			}
 
@@ -80,53 +80,53 @@ int ii;
 	SetToolBar(m_HToolBar);
 
 	// Set up toolbar
-	m_HToolBar->AddTool(ID_NEW_BOARD, "", BITMAP(new_xpm), _("New Board"));
-	m_HToolBar->AddTool(ID_LOAD_FILE, "", BITMAP(open_xpm), _("Open existing Board"));
-	m_HToolBar->AddTool(ID_SAVE_BOARD, "", BITMAP(save_xpm), _("Save Board"));
+	m_HToolBar->AddTool(ID_NEW_BOARD, wxEmptyString, BITMAP(new_xpm), _("New Board"));
+	m_HToolBar->AddTool(ID_LOAD_FILE, wxEmptyString, BITMAP(open_xpm), _("Open existing Board"));
+	m_HToolBar->AddTool(ID_SAVE_BOARD, wxEmptyString, BITMAP(save_xpm), _("Save Board"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_SHEET_SET, "", BITMAP(sheetset_xpm), _("page settings (size, texts)") );
+	m_HToolBar->AddTool(ID_SHEET_SET, wxEmptyString, BITMAP(sheetset_xpm), _("page settings (size, texts)") );
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_OPEN_MODULE_EDITOR, "", BITMAP(modedit_xpm),
+	m_HToolBar->AddTool(ID_OPEN_MODULE_EDITOR, wxEmptyString, BITMAP(modedit_xpm),
 		_("Open Module Editor"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(wxID_CUT, "", BITMAP(cut_button), _("Cut selected item"));
+	m_HToolBar->AddTool(wxID_CUT, wxEmptyString, BITMAP(cut_button), _("Cut selected item"));
 
 #if 0
-	m_HToolBar->AddTool(wxID_COPY, "", BITMAP(copy_button), _("Copy selected item"));
+	m_HToolBar->AddTool(wxID_COPY, wxEmptyString, BITMAP(copy_button), _("Copy selected item"));
 
-	m_HToolBar->AddTool(wxID_PASTE, "", BITMAP(paste_xpm), _("Paste"));
+	m_HToolBar->AddTool(wxID_PASTE, wxEmptyString, BITMAP(paste_xpm), _("Paste"));
 #endif
 
-	m_HToolBar->AddTool(ID_UNDO_BUTT, "", BITMAP(undelete_xpm), _("Undelete"));
+	m_HToolBar->AddTool(ID_UNDO_BUTT, wxEmptyString, BITMAP(undelete_xpm), _("Undelete"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_GEN_PRINT, "", BITMAP(print_button), _("Print Board"));
-	m_HToolBar->AddTool(ID_GEN_PLOT, "", BITMAP(plot_xpm), _("Plot (Hplg, Postscript, or Gerber format)"));
+	m_HToolBar->AddTool(ID_GEN_PRINT, wxEmptyString, BITMAP(print_button), _("Print Board"));
+	m_HToolBar->AddTool(ID_GEN_PLOT, wxEmptyString, BITMAP(plot_xpm), _("Plot (Hplg, Postscript, or Gerber format)"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, "", BITMAP(zoom_in_xpm), _("zoom + (F1)"));
-	m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, "", BITMAP(zoom_out_xpm), _("zoom - (F2)"));
-	m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, "", BITMAP(repaint_xpm), _("redraw (F3)"));
+	m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, wxEmptyString, BITMAP(zoom_in_xpm), _("zoom + (F1)"));
+	m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, wxEmptyString, BITMAP(zoom_out_xpm), _("zoom - (F2)"));
+	m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, wxEmptyString, BITMAP(repaint_xpm), _("redraw (F3)"));
 
-	m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, "", BITMAP(zoom_optimal_xpm), _("auto zoom"));
-
-	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_FIND_ITEMS, "", BITMAP(find_xpm), _("Find components and texts"));
+	m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, wxEmptyString, BITMAP(zoom_optimal_xpm), _("auto zoom"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_GET_NETLIST, "", BITMAP(netlist_xpm), _("Read Netlist"));
-	m_HToolBar->AddTool(ID_DRC_CONTROL, "", BITMAP(erc_xpm), _("Pcb Design Rules Check"));
+	m_HToolBar->AddTool(ID_FIND_ITEMS, wxEmptyString, BITMAP(find_xpm), _("Find components and texts"));
+
+	m_HToolBar->AddSeparator();
+	m_HToolBar->AddTool(ID_GET_NETLIST, wxEmptyString, BITMAP(netlist_xpm), _("Read Netlist"));
+	m_HToolBar->AddTool(ID_DRC_CONTROL, wxEmptyString, BITMAP(erc_xpm), _("Pcb Design Rules Check"));
 
 	m_HToolBar->AddSeparator();
     ReCreateLayerBox(m_HToolBar);
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_TOOLBARH_PCB_AUTOPLACE, "", BITMAP(mode_module_xpm),
+	m_HToolBar->AddTool(ID_TOOLBARH_PCB_AUTOPLACE, wxEmptyString, BITMAP(mode_module_xpm),
 			_("Mode Module: Manual and Automatic Move or Place for modules"), wxITEM_CHECK );
-	m_HToolBar->AddTool(ID_TOOLBARH_PCB_AUTOROUTE, "", BITMAP(mode_track_xpm),
+	m_HToolBar->AddTool(ID_TOOLBARH_PCB_AUTOROUTE, wxEmptyString, BITMAP(mode_track_xpm),
 			_("Mode Track and Autorouting"), wxITEM_CHECK);
 
 
@@ -148,45 +148,45 @@ void WinEDA_PcbFrame::ReCreateOptToolbar(void)
 	// creation du tool bar options
 	m_OptionsToolBar = new WinEDA_Toolbar(TOOLBAR_OPTION, this, ID_OPT_TOOLBAR, FALSE);
 
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_DRC_OFF, "", BITMAP(drc_off_xpm),
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_DRC_OFF, wxEmptyString, BITMAP(drc_off_xpm),
 			_("Drc OFF"), wxITEM_CHECK);
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_GRID, "", BITMAP(grid_xpm),
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_GRID, wxEmptyString, BITMAP(grid_xpm),
 			_("Display Grid OFF"), wxITEM_CHECK);
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_POLAR_COORD, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_POLAR_COORD, wxEmptyString,
 			BITMAP(polar_coord_xpm), _("Display Polar Coord ON"), wxITEM_CHECK);
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_INCH, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_INCH, wxEmptyString,
 					BITMAP(unit_inch_xpm), _("Units = Inch"), wxITEM_CHECK );
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_MM, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_MM, wxEmptyString,
 					BITMAP(unit_mm_xpm), _("Units = mm"), wxITEM_CHECK );
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_CURSOR, "", BITMAP(cursor_shape_xpm),
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_CURSOR, wxEmptyString, BITMAP(cursor_shape_xpm),
 					_("Change Cursor Shape"), wxITEM_CHECK);
 
 	m_OptionsToolBar->AddSeparator();
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_RATSNEST, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_RATSNEST, wxEmptyString,
 					BITMAP(general_ratsnet_xpm),
 					_("Show General Ratsnest"), wxITEM_CHECK);
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_MODULE_RATSNEST,"",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_MODULE_RATSNEST,wxEmptyString,
 					BITMAP(local_ratsnet_xpm),
 					_("Show Module Ratsnest when moving"), wxITEM_CHECK);
 
 	m_OptionsToolBar->AddSeparator();
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_AUTO_DEL_TRACK, "", BITMAP(auto_delete_track_xpm),
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_AUTO_DEL_TRACK, wxEmptyString, BITMAP(auto_delete_track_xpm),
 					_("Enable Auto Del Track"), wxITEM_CHECK);
 
 	m_OptionsToolBar->AddSeparator();
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_ZONES,"", BITMAP(show_zone_xpm),
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_ZONES,wxEmptyString, BITMAP(show_zone_xpm),
 					_("Show Zones"), wxITEM_CHECK);
 
 	m_OptionsToolBar->AddSeparator();
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_PADS_SKETCH,"",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_PADS_SKETCH,wxEmptyString,
 					BITMAP(pad_sketch_xpm),
 					_("Show Pads Sketch"), wxITEM_CHECK);
 
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_TRACKS_SKETCH,"",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_TRACKS_SKETCH,wxEmptyString,
 					BITMAP(showtrack_xpm),
 					_("Show Tracks Sketch"), wxITEM_CHECK);
 
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_HIGHT_CONTRAST_MODE, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_HIGHT_CONTRAST_MODE, wxEmptyString,
 					BITMAP(palette_xpm),
 					_("Hight Contrast Mode Display"), wxITEM_CHECK);
 	m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SHOW_HIGHT_CONTRAST_MODE,
@@ -194,7 +194,7 @@ void WinEDA_PcbFrame::ReCreateOptToolbar(void)
 
 #ifdef MUWAVE_ENBL
 	m_OptionsToolBar->AddSeparator();
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_EXTRA_VERTICAL_TOOLBAR1, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SHOW_EXTRA_VERTICAL_TOOLBAR1, wxEmptyString,
 					BITMAP(mw_toolbar_xpm),
 					_("Display auxiliary vertical toolbar (tools for micro wave applications)\n This is a very experimental feature (under development)"), wxITEM_CHECK);
 #endif
@@ -216,64 +216,64 @@ void WinEDA_PcbFrame::ReCreateVToolbar(void)
 	m_VToolBar = new WinEDA_Toolbar(TOOLBAR_TOOL, this, ID_V_TOOLBAR, FALSE);
 
 	// Set up toolbar
-	m_VToolBar->AddTool(ID_NO_SELECT_BUTT, "",
-				BITMAP(cursor_xpm), "", wxITEM_CHECK );
+	m_VToolBar->AddTool(ID_NO_SELECT_BUTT, wxEmptyString,
+				BITMAP(cursor_xpm), wxEmptyString, wxITEM_CHECK );
 	m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
 	m_VToolBar->AddSeparator();
 
-	m_VToolBar->AddTool(ID_PCB_HIGHLIGHT_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_HIGHLIGHT_BUTT, wxEmptyString,
 				BITMAP(net_hightlight_xpm), _("Net highlight"), wxITEM_CHECK );
 
-	m_VToolBar->AddTool(ID_PCB_SHOW_1_RATSNEST_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_SHOW_1_RATSNEST_BUTT, wxEmptyString,
 				BITMAP(tool_ratsnet_xpm),
 				_("Display local ratsnest (pad or module)"), wxITEM_CHECK );
 
 	m_VToolBar->AddSeparator();
-	m_VToolBar->AddTool(ID_COMPONENT_BUTT, "",
+	m_VToolBar->AddTool(ID_COMPONENT_BUTT, wxEmptyString,
 				BITMAP(module_xpm),
 				_("Add modules"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_TRACK_BUTT, "",
+	m_VToolBar->AddTool(ID_TRACK_BUTT, wxEmptyString,
 				BITMAP(add_tracks_xpm),
 				_("Add Tracks an vias"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_PCB_ZONES_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_ZONES_BUTT, wxEmptyString,
 				BITMAP(add_zone_xpm),
 				_("Add Zones"), wxITEM_CHECK);
 
 	m_VToolBar->AddSeparator();
-	m_VToolBar->AddTool(ID_LINE_COMMENT_BUTT, "",
+	m_VToolBar->AddTool(ID_LINE_COMMENT_BUTT, wxEmptyString,
 				BITMAP(add_dashed_line_xpm),
 				_("Add graphic line or polygon"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_PCB_CIRCLE_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_CIRCLE_BUTT, wxEmptyString,
 				BITMAP(add_circle_xpm),
 				_("Add graphic circle"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_PCB_ARC_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_ARC_BUTT, wxEmptyString,
 				BITMAP(add_arc_xpm),
 				_("Add graphic arc"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_TEXT_COMMENT_BUTT, "",
+	m_VToolBar->AddTool(ID_TEXT_COMMENT_BUTT, wxEmptyString,
 				BITMAP(add_text_xpm),
 				_("Add Text"), wxITEM_CHECK);
 
 	m_VToolBar->AddSeparator();
-	m_VToolBar->AddTool(ID_PCB_COTATION_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_COTATION_BUTT, wxEmptyString,
 				BITMAP(add_cotation_xpm),
 				_("Add Cotation"), wxITEM_CHECK);
 
-	m_VToolBar->AddTool(ID_PCB_MIRE_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_MIRE_BUTT, wxEmptyString,
 				BITMAP(add_mires_xpm),
 				_("Add Mires"), wxITEM_CHECK);
 
 	m_VToolBar->AddSeparator();
-	m_VToolBar->AddTool(ID_PCB_DELETE_ITEM_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_DELETE_ITEM_BUTT, wxEmptyString,
 				BITMAP(delete_body_xpm),
 				_("Delete items"), wxITEM_CHECK);
 
 	m_VToolBar->AddSeparator();
-	m_VToolBar->AddTool(ID_PCB_PLACE_OFFSET_COORD_BUTT, "",
+	m_VToolBar->AddTool(ID_PCB_PLACE_OFFSET_COORD_BUTT, wxEmptyString,
 				BITMAP(pcb_offset_xpm),
 				_("Offset adjust for drill and place files"), wxITEM_CHECK);
 
@@ -347,14 +347,14 @@ wxString msg;
 		// Set up toolbar
 		m_AuxiliaryToolBar->AddSeparator();
 		m_SelTrackWidthBox = new wxComboBox(m_AuxiliaryToolBar,
-					ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,"",
+					ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,wxEmptyString,
 					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+20, -1), 0, NULL, wxCB_READONLY);
 		m_AuxiliaryToolBar->AddControl(m_SelTrackWidthBox);
 		m_SelTrackWidthBox_Changed = TRUE;
 
 		m_AuxiliaryToolBar->AddSeparator();
 		m_SelViaSizeBox = new wxComboBox(m_AuxiliaryToolBar,
-					ID_AUX_TOOLBAR_PCB_VIA_SIZE,"",
+					ID_AUX_TOOLBAR_PCB_VIA_SIZE,wxEmptyString,
 					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+10, -1), 0, NULL, wxCB_READONLY);
 		m_AuxiliaryToolBar->AddControl(m_SelViaSizeBox);
 
@@ -385,8 +385,8 @@ wxString msg;
 	// mise a jour des affichages
 	m_SelGridBox->Clear();
 	wxString format  = _("Grid");
-	if ( UnitMetric == INCHES ) format += " %.1f";
-	else format += " %.3f";
+	if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+	else format += wxT(" %.3f");
 
 	for ( ii = 0; g_GridList[ii].x > 0; ii++ )
 	{
@@ -417,7 +417,7 @@ long current_mask_layer;
     if ( m_SelLayerBox == NULL )
 	{
 		if ( parent == NULL ) return NULL;
-    	m_SelLayerBox = new wxComboBox(parent, ID_TOOLBARH_PCB_SELECT_LAYER,"",
+    	m_SelLayerBox = new wxComboBox(parent, ID_TOOLBARH_PCB_SELECT_LAYER,wxEmptyString,
 					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1), 0, NULL, wxCB_READONLY);
 		parent->AddControl(m_SelLayerBox);
 	}

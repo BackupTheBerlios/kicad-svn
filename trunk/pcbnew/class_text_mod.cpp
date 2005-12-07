@@ -105,13 +105,6 @@ void TEXTE_MODULE::UnLink( void )
 
 
 /******************************************/
-const char * TEXTE_MODULE:: GetText(void)
-/******************************************/
-{
-	return m_Text.GetData();
-}
-
-/******************************************/
 int TEXTE_MODULE:: GetLength(void)
 /******************************************/
 {
@@ -197,7 +190,6 @@ void TEXTE_MODULE::Draw(WinEDA_DrawPanel * panel, wxDC * DC,  wxPoint offset, in
 int zoom;
 int width, color, orient, miroir;
 wxSize size;
-const char * ptr;
 wxPoint pos;				// Centre du texte
 PCB_SCREEN * screen;
 WinEDA_BasePcbFrame * frame;
@@ -214,12 +206,8 @@ MODULE * Module = (MODULE *) m_Parent;
 	pos.y = m_Pos.y - offset.y;
 
 	size = m_Size;
-
 	orient = GetDrawRotation();
-
 	miroir = m_Miroir & 1 ; // = 0 si vu en miroir
-	ptr = GetText() ; /* ptr pointe 1er caractere du texte */
-
 	width = m_Width;
 	if( (frame->m_DisplayModText == FILAIRE) || ( (width/zoom) < L_MIN_DESSIN) )
 		width = 0;
@@ -249,7 +237,7 @@ MODULE * Module = (MODULE *) m_Parent;
 
 	/* Trace du texte */
 	
-	DrawGraphicText(panel, DC, pos , color, ptr,
+	DrawGraphicText(panel, DC, pos , color, m_Text,
 			orient, size, GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER, width);
 }
 

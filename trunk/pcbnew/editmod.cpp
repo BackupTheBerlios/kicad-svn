@@ -311,7 +311,7 @@ wxButton * Button;
 
 	wxStaticBox * box = new wxStaticBox(m_PanelProperties, -1, _("Fields:"), pos, wxSize(160, 140) );
 	pos.x += 10; pos.y += 17;
-	m_TextListBox = new wxComboBox(m_PanelProperties, ID_MODULE_LISTBOX_SELECT, "",
+	m_TextListBox = new wxComboBox(m_PanelProperties, ID_MODULE_LISTBOX_SELECT, wxEmptyString,
 			pos, wxSize(-1,-1), 0, NULL, wxCB_READONLY);
 
 	ReCreateFieldListBox();
@@ -350,7 +350,7 @@ wxButton * Button;
 		pos.y += 10 + yy;
 		bool select = FALSE;
 		wxString orient_list[5] = {
-		            _("Normal"), "+ 90.0", "- 90.0", "180.0", _("User") };
+		            _("Normal"), wxT("+ 90.0"), wxT("- 90.0"), wxT("180.0"), _("User") };
 		m_OrientCtrl = new wxRadioBox( m_PanelProperties, ID_LISTBOX_ORIENT_SELECT, _("Orient"),
 					pos, wxSize(-1,-1), 5, orient_list, 1);
 
@@ -456,7 +456,7 @@ S3D_Vertex dummy_vertex;
 	SetFont(*g_DialogFont);
 	pos.x = 10; pos.y = 20;
 	m_3D_ShapeName = new WinEDA_EnterText(this, _("3D Shape Name"),
-						struct3D ? struct3D->m_Shape3DName : "",
+						struct3D ? struct3D->m_Shape3DName : wxT(""),
 						pos, wxSize(300,-1) );
 
 	pos.x += 310;
@@ -519,16 +519,16 @@ void Panel3D_Ctrl::Browse3DLib(wxCommandEvent& event)
 {
 wxString fullfilename, shortfilename;
 wxString fullpath = g_RealLibDirBuffer;
-wxString mask ="*";
+wxString mask = wxT("*");
 
 	fullpath += LIB3D_PATH;
 	mask += g_Shapes3DExtBuffer;
 #ifdef __WINDOWS__
-	fullpath.Replace("/","\\");
+	fullpath.Replace( wxT("/"), wxT("\\") );
 #endif
 	fullfilename = EDA_FileSelector( _("3D Shape:"),
 					fullpath,			/* Chemin par defaut */
-					"",					/* nom fichier par defaut */
+					wxEmptyString,					/* nom fichier par defaut */
 					g_Shapes3DExtBuffer,	/* extension par defaut */
 					mask,				/* Masque d'affichage */
 					this,
@@ -536,10 +536,10 @@ wxString mask ="*";
 					TRUE
 					);
 
-	if ( fullfilename == "" ) return;
+	if ( fullfilename == wxEmptyString ) return;
 
 	shortfilename = MakeReducedFileName( fullfilename,
-						fullpath, "");
+						fullpath, wxEmptyString);
 	m_3D_ShapeName->SetValue(shortfilename);
 }
 
@@ -616,7 +616,7 @@ bool change_layer = FALSE;
 		draw3D->m_MatScale = panel3D->m_3D_Scale->GetValue();
 		draw3D->m_MatRotation = panel3D->m_3D_Rotation->GetValue();
 		draw3D->m_MatPosition = panel3D->m_3D_Offset->GetValue();
-		if ( (draw3D->m_Shape3DName == "") &&
+		if ( (draw3D->m_Shape3DName.IsEmpty() ) &&
 			 (draw3D != m_CurrentModule->m_3D_Drawings) )
 			continue;
 		if ( (draw3D->Pnext == NULL) && panel3D->m_Pnext )
@@ -727,14 +727,14 @@ void WinEDA_ModulePropertiesFrame::ReCreateFieldListBox(void)
 {
 	m_TextListBox->Clear();
 
-	m_TextListBox->Append(m_CurrentModule->m_Reference->GetText());
-	m_TextListBox->Append(m_CurrentModule->m_Value->GetText());
+	m_TextListBox->Append(m_CurrentModule->m_Reference->m_Text);
+	m_TextListBox->Append(m_CurrentModule->m_Value->m_Text);
 
 	EDA_BaseStruct * item = m_CurrentModule->m_Drawings;
 	while ( item )
 		{
 		if( item->m_StructType == TYPETEXTEMODULE )
-			m_TextListBox->Append( ((TEXTE_MODULE*)item)->GetText() );
+			m_TextListBox->Append( ((TEXTE_MODULE*)item)->m_Text );
 		item = item->Pnext;
 		}
 }
@@ -785,17 +785,17 @@ TEXTE_MODULE * Text = NULL;
 		}
 
 	if ( Text )
-		{
+	{
 		if ( event.GetId() == ID_MODULE_EDIT_DELETE_TEXT )
-			{
-			char Line[256];
-			sprintf(Line, _("Delete [%s]"), Text->GetText() );
+		{
+			wxString Line;
+			Line.Printf( _("Delete [%s]"), Text->m_Text.GetData() );
 			if ( ii < 2 ) { wxBell(); return; }		// Ref ou Value non effacables
 			if ( !IsOK(this, Line ) ) return;
 			m_Parent->DeleteTextModule(Text, m_DC);
 			ReCreateFieldListBox();
 			m_TextListBox->SetSelection(0);
-			}
+		}
 		else	// Edition du champ
 			{
 			m_Parent->InstallTextModOptionsFrame(Text, m_DC, wxPoint(-1,-1) );
@@ -904,8 +904,8 @@ void WinEDA_ModuleEditFrame::RemoveStruct(EDA_BaseStruct * Item, wxDC * DC)
 
 		default:
 			{
-			char Line[256];
-			sprintf(Line," Remove: StructType %d Inattendu",
+			wxString Line;
+			Line.Printf( wxT(" Remove: StructType %d Inattendu"),
 										Item->m_StructType);
 			DisplayError(this, Line);
 			}

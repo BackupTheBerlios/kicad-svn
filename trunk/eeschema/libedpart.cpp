@@ -148,7 +148,7 @@ wxPoint fpos = pos;
 /**********************************************************************************/
 WinEDA_PartPropertiesFrame::WinEDA_PartPropertiesFrame(WinEDA_LibeditFrame *parent,
 						wxPoint& framepos):
-		wxDialog(parent, -1, "", framepos, wxSize(XSIZE, YSIZE),
+		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(XSIZE, YSIZE),
 				DIALOG_STYLE)
 /**********************************************************************************/
 {
@@ -171,18 +171,18 @@ int ii;
 	if ( CurrentLibEntry )
 	{
 		msg_text = _("Properties for ");
-		if ( CurrentAliasName != "" )
+		if ( ! CurrentAliasName.IsEmpty() )
 		{
 			m_AliasLocation = LocateAlias( CurrentLibEntry->m_AliasList, CurrentAliasName);
 			SetTitle( msg_text + CurrentAliasName +
 						_("(alias of ") +
 						wxString(CurrentLibEntry->m_Name.m_Text)
-						+ ")" );
+						+ wxT(")") );
 		}
 		else
       	{
-			SetTitle(  msg_text + wxString(CurrentLibEntry->m_Name.m_Text) );
-			CurrentAliasName = "";
+			SetTitle(  msg_text + CurrentLibEntry->m_Name.m_Text );
+			CurrentAliasName.Empty();
 		}
 
 		FieldFlags[REFERENCE] = CurrentLibEntry->m_Prefix.m_Attributs;
@@ -283,7 +283,7 @@ wxButton * Button;
 	Button = new wxButton(m_PanelAlias, ID_DELETE_ALL_ALIAS,
 						_("Delete All"), pos);
 	Button->SetForegroundColour(*wxRED);
-	if ( CurrentAliasName != "" ) Button->Enable(FALSE);
+	if ( ! CurrentAliasName.IsEmpty() ) Button->Enable(FALSE);
 
 	pos.x = 5; pos.y = 30;
 	m_PartAliasList = new wxListBox(m_PanelAlias,
@@ -327,7 +327,7 @@ wxString msg_text;
 	if ( CurrentLibEntry )
 	{
 		msg_text = _("Properties for ");
-		if ( CurrentAliasName != "" )
+		if ( ! CurrentAliasName.IsEmpty() )
 		{
 			msg_text += _("alias ");
 			msg_text += CurrentAliasName;
@@ -353,7 +353,7 @@ wxString msg_text;
 				pos, wxSize(285,-1) );
 
 	pos.y += 40;
-	msg_text = "";
+	msg_text.Empty();
 	if ( m_AliasLocation >= 0 )
 		msg_text = CurrentLibEntry->m_AliasList[m_AliasLocation+ALIAS_KEYWORD];
 	else
@@ -364,7 +364,7 @@ wxString msg_text;
 				_("Keywords:"), msg_text,
 				pos, wxSize(285,-1) );
 	pos.y += 40;
-	msg_text = "";
+	msg_text.Empty();
 	if ( m_AliasLocation >= 0 )
 		msg_text = CurrentLibEntry->m_AliasList[m_AliasLocation+ALIAS_DOC_FILENAME];
 	else
@@ -438,8 +438,8 @@ wxPoint pos;
 	new wxStaticText(m_PanelBasic,-1,_("Number of Units:"), pos);
 	pos.y += 15;
 	wxString number;
-	if ( CurrentLibEntry ) number.Printf("%d", CurrentLibEntry->m_UnitCount);
-	else number = "1";
+	if ( CurrentLibEntry ) number.Printf( wxT("%d"), CurrentLibEntry->m_UnitCount);
+	else number = wxT("1");
 	SelNumberOfUnits = new wxSpinCtrl(m_PanelBasic,-1,number, pos,
 				wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP,
 				1, 16);
@@ -448,8 +448,8 @@ wxPoint pos;
 	new wxStaticText(m_PanelBasic,-1,_("Skew:"), pos);
 	pos.y += 15;
 	if ( CurrentLibEntry && CurrentLibEntry->m_TextInside)
-		number.Printf("%d", CurrentLibEntry->m_TextInside);
-	else number = "40";
+		number.Printf( wxT("%d"), CurrentLibEntry->m_TextInside);
+	else number = wxT("40");
 	m_SetSkew = new wxSpinCtrl(m_PanelBasic,-1,number, pos,
 				wxDefaultSize, wxSP_ARROW_KEYS | wxSP_WRAP,
 				1, 100);
@@ -469,7 +469,7 @@ wxPoint pos;
 		if( CurrentLibEntry->m_UnitSelectionLocked )
 			m_OptionPartsLocked->SetValue(TRUE);
 	}
-	if ( number == "1" ) m_OptionPartsLocked->Enable(FALSE);
+	if ( number == wxT("1") ) m_OptionPartsLocked->Enable(FALSE);
 
 }
 
@@ -546,7 +546,7 @@ int ii = fieldId;
 			FieldTextCtrl[ii] = new WinEDA_GraphicTextCtrl( PanelField[ii],
 						g_FieldNameList[ii],
 						CurrentLibEntry ?
-						CurrentLibEntry->m_Prefix.m_Text.GetData() : (char*) "U",
+						CurrentLibEntry->m_Prefix.m_Text.GetData() : wxT("U"),
 						CurrentLibEntry ? CurrentLibEntry->m_Prefix.m_Size.x : DEFAULT_TEXT_SIZE,
 						UnitMetric ,
 						wxPoint(pos.x, pos.y +FieldPosition[ii]->GetDimension().y + POSY_OFFSET),
@@ -581,8 +581,10 @@ int ii = fieldId;
 			break;
 			
 		default:
-			int fsize; const char * ftext; wxPoint fpos;
-			fsize = DEFAULT_TEXT_SIZE; ftext = NULL;
+			int fsize;
+			wxString ftext;
+			wxPoint fpos;
+			fsize = DEFAULT_TEXT_SIZE;;
 			Field = NULL;
 			fpos = wxPoint(0,0);
 			//recherche du Field de FieldId correspondant, s'il existe
@@ -594,7 +596,7 @@ int ii = fieldId;
 					if( Field->m_FieldId == ii )
 						{
 						fsize = Field->m_Size.x;
-						ftext = Field->m_Text.GetData();
+						ftext = Field->m_Text;
 						fpos = Field->m_Pos;
 						if ( Field->m_HJustify == GR_TEXT_HJUSTIFY_LEFT)
 							FieldHJustify[ii]->SetSelection(0);
@@ -662,7 +664,7 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 		if( newvalue.CmpNoCase(m_PartAliasList->GetString(ii).GetData()) == 0 )
 		{
 		wxString msg;
-		msg.Printf("Alias %s exists!", newvalue.GetData());
+		msg.Printf( wxT("Alias %s exists!"), newvalue.GetData());
 		DisplayError(this, msg);
 		return;
 		}
@@ -691,9 +693,9 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 		if ( LocateAlias( CurrentLibEntry->m_AliasList, m_PartAliasList->GetString(ii)) < 0 )
 		{	// new alias must be created
 			CurrentLibEntry->m_AliasList.Add(m_PartAliasList->GetString(ii));
-			CurrentLibEntry->m_AliasList.Add("");	// Add a void doc string 
-			CurrentLibEntry->m_AliasList.Add("");	// Add a void keyword list string 
-			CurrentLibEntry->m_AliasList.Add("");	// Add a void doc filename string 
+			CurrentLibEntry->m_AliasList.Add(wxEmptyString);	// Add a void doc string 
+			CurrentLibEntry->m_AliasList.Add(wxEmptyString);	// Add a void keyword list string 
+			CurrentLibEntry->m_AliasList.Add(wxEmptyString);	// Add a void doc filename string 
 		}
 	}
 	
@@ -721,12 +723,12 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 	}
 	
 
-	if ( FieldTextCtrl[REFERENCE]->GetText() != "" )
+	if ( ! FieldTextCtrl[REFERENCE]->GetText().IsEmpty() )
 	{
 		CurrentLibEntry->m_Prefix.m_Text = FieldTextCtrl[REFERENCE]->GetText();
 	}
 
-	if ( FieldTextCtrl[VALUE]->GetText() != "" )
+	if ( ! FieldTextCtrl[VALUE]->GetText().IsEmpty() )
 	{
 		if ( CurrentLibEntry->m_Name.m_Text != FieldTextCtrl[VALUE]->GetText() )
 		{
@@ -784,7 +786,7 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 					Field->m_Attributs |= TEXT_NO_VISIBLE;
 				Field->m_Orient = VorientFieldText[ii]->GetValue() ? 1 : 0;
 				Field->m_Pos = FieldPosition[ii]->GetCoord();
-				if( Field->m_Text == "" )	// An old field exists; new is void, delete it
+				if( Field->m_Text.IsEmpty() )	// An old field exists; new is void, delete it
 				{
 					delete Field;
 					if ( previousField ) previousField->Pnext = NextField;
@@ -797,7 +799,7 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 			Field = NextField;
 		}
 
-		if ( (Field == NULL) &&	(FieldTextCtrl[ii]->GetText() != "") )
+		if ( (Field == NULL) &&	( ! FieldTextCtrl[ii]->GetText().IsEmpty() ) )
 		{	// Do not exists: must be created
 			Field = new LibDrawField(ii);
 			Field->m_Text = FieldTextCtrl[ii]->GetText();
@@ -868,7 +870,7 @@ void WinEDA_PartPropertiesFrame::CopyDocToAlias(wxCommandEvent& WXUNUSED(event))
 /******************************************************************************/
 {
 	if( CurrentLibEntry == NULL ) return;
-	if ( CurrentAliasName == "" ) return;
+	if ( CurrentAliasName.IsEmpty() ) return;
 
 	m_Doc->SetValue(CurrentLibEntry->m_Doc);
 	m_Docfile->SetValue(CurrentLibEntry->m_DocFile);
@@ -881,7 +883,7 @@ void WinEDA_PartPropertiesFrame::DeleteAllAliasOfPart(
 /**********************************************************/
 {
 
-	CurrentAliasName = "";
+	CurrentAliasName.Empty();
 	if( CurrentLibEntry )
 	{
 		if( IsOK(this, _("Ok to Delete Alias LIST") ) )
@@ -907,7 +909,7 @@ wxString aliasname;
 
 	if( Get_Message(_("New alias:"),Line, this) != 0 ) return;
 
-	Line.Replace(" ", "_");
+	Line.Replace( wxT(" "), wxT("_") );
 	aliasname = Line;
 
 	if ( CurrentLibEntry->m_Name.m_Text.CmpNoCase(Line) == 0 )
@@ -938,7 +940,7 @@ void WinEDA_PartPropertiesFrame::DeleteAliasOfPart(
 {
 wxString aliasname = m_PartAliasList->GetStringSelection();
 
-	if ( aliasname == "" ) return;
+	if ( aliasname.IsEmpty() ) return;
 	if ( aliasname == CurrentAliasName )
 	{
 		wxString msg = CurrentAliasName + _(" is Current Selected Alias!");
@@ -1107,20 +1109,20 @@ void WinEDA_PartPropertiesFrame::BrowseAndSelectDocFile(wxCommandEvent& event)
 wxString FullFileName;
 wxString docpath(g_RealLibDirBuffer), filename;
 	
-	docpath += "doc"; 
+	docpath += wxT("doc"); 
 	docpath += STRING_DIR_SEP; 
 	FullFileName = EDA_FileSelector(_("Doc Files"),
 					docpath,			/* Chemin par defaut */
-					"",					/* nom fichier par defaut */
-					"",					/* extension par defaut */
-					"",					/* Masque d'affichage */
+					wxEmptyString,					/* nom fichier par defaut */
+					wxEmptyString,					/* extension par defaut */
+					wxEmptyString,					/* Masque d'affichage */
 					this,
 					wxOPEN,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	// Suppression du chemin par defaut pour le fichier de doc:
-	filename = MakeReducedFileName(FullFileName,docpath,"");
+	filename = MakeReducedFileName(FullFileName,docpath, wxEmptyString);
 	m_Docfile->SetValue(filename);
 }	

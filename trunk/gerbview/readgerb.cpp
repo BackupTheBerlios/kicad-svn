@@ -136,7 +136,7 @@ int error = 0;
 	gerber_layer->ResetDefaultValues();
 
 	/* Lecture du fichier de Trace */
-	gerber_layer->m_Current_File = fopen(GERBER_FullFileName.GetData(),"rt");
+	gerber_layer->m_Current_File = wxFopen(GERBER_FullFileName, wxT("rt") );
 	if (gerber_layer->m_Current_File == 0)
 	{
 		msg = _("File ") + GERBER_FullFileName + _(" not found");
@@ -235,14 +235,14 @@ wxBusyCursor show_wait;
 	if ( !gerber_layer->m_As_DCode )
 	{
 		wxString DCodeFileName;
-		if(  D_Code_FullFileName == "")
+		if(  D_Code_FullFileName.IsEmpty())
 			{
 			wxString mask;
 			DCodeFileName = GERBER_FullFileName;
 			ChangeFileNameExt(DCodeFileName, g_PenFilenameExt);
-			mask = "*" + g_PenFilenameExt;
+			mask = wxT("*") + g_PenFilenameExt;
 			DCodeFileName = EDA_FileSelector( _("D CODES files:"),
-						"",						/* Chemin par defaut */
+						wxEmptyString,						/* Chemin par defaut */
 						DCodeFileName,			/* nom fichier par defaut */
 						g_PenFilenameExt,			/* extension par defaut */
 						mask,					/* Masque d'affichage */
@@ -253,7 +253,7 @@ wxBusyCursor show_wait;
 			}
 		else  DCodeFileName = D_Code_FullFileName;
 
-		if ( DCodeFileName != "" )
+		if ( ! DCodeFileName.IsEmpty() )
 		{
 			Read_D_Code_File(DCodeFileName);
 			CopyDCodesSizeToItems();

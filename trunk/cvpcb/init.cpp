@@ -26,30 +26,31 @@ void WinEDA_CvpcbFrame::SetNewPkg(void)
 {
 STORECMP * Composant;
 int ii, NumCmp, IsNew = 1;
-char Line[256];
+wxString Line;
 
 	if ( BaseListeCmp == NULL ) return;
 
 	NumCmp = m_ListCmp->GetSelection();
 	if( NumCmp < 0 )
-		{
+	{
 		NumCmp = 0;
 		m_ListCmp->SetSelection(NumCmp, TRUE);
-		}
+	}
 
 	Composant = BaseListeCmp;
 	for ( ii = 0; Composant != NULL; Composant = Composant->Pnext, ii++ )
-		{
+	{
 		if ( NumCmp == ii ) break;
-		}
+	}
 
 	if ( Composant == NULL ) return;
-	if ( Composant->Module[0] >= ' ') IsNew = 0;
+	if ( ! Composant->m_Module.IsEmpty() ) IsNew = 0;
 
-	strncpy( Composant->Module, CurrentPkg, 32);Composant->Module[32] = 0;
+	Composant->m_Module = g_CurrentPkg;
 
-	sprintf(Line,CMP_FORMAT ,ii+1,
-			Composant->Reference, Composant->Valeur, Composant->Module);
+	Line.Printf( CMP_FORMAT ,ii+1,
+			Composant->m_Reference.GetData(), Composant->m_Valeur.GetData(),
+			Composant->m_Module.GetData());
 	modified = 1;
 	if ( IsNew ) composants_non_affectes -= 1;
 
@@ -60,7 +61,7 @@ char Line[256];
 	if ( NumCmp < (m_ListCmp->GetCount() - 1) ) NumCmp++;
 	m_ListCmp->SetSelection(NumCmp, TRUE);
 
-	sprintf(Line,_("Components: %d (free: %d)"),
+	Line.Printf( _("Components: %d (free: %d)"),
 					nbcomp, composants_non_affectes);
 	SetStatusText(Line,1);
 }
@@ -107,7 +108,7 @@ int error_level = -1;
 
 	if (m_ListCmp == NULL ) return;
 
-	if (NetInNameBuffer != "")
+	if ( ! NetInNameBuffer.IsEmpty() )
 		wxSetWorkingDirectory( wxPathOnly(NetInNameBuffer) );
 
 	Read_Config(NetInNameBuffer);	// relecture de la config (elle peut etre modifiée)
@@ -122,10 +123,10 @@ int error_level = -1;
 	for ( ii = 1;Composant != NULL; Composant = Composant->Pnext, ii++ )
 		{
 		msg.Printf(CMP_FORMAT ,ii,
-				Composant->Reference, Composant->Valeur,
-				Composant->Module);
+				Composant->m_Reference.GetData(), Composant->m_Valeur.GetData(),
+				Composant->m_Module.GetData());
 		m_ListCmp->AppendLine(msg);
-		if( Composant->Module[0] < ' ' ) composants_non_affectes += 1;
+		if( Composant->m_Module.IsEmpty() ) composants_non_affectes += 1;
 		}
 	if ( BaseListeCmp )
 		m_ListCmp->SetSelection(0, TRUE);
@@ -134,7 +135,7 @@ int error_level = -1;
 	SetStatusText(msg,1);
 
 	/* Mise a jour du titre de la fenetre principale */
-	msg.Printf("%s [%s]",Main_Title.GetData(), FFileName.GetData());
+	msg.Printf( wxT("%s [%s]"), Main_Title.GetData(), FFileName.GetData());
 	SetTitle(msg);
 
 }
@@ -154,7 +155,7 @@ int WinEDA_CvpcbFrame::SaveNetList(void)
 		return(0);
 		}
 
-	dest = fopen(FFileName,"wt") ;
+	dest = wxFopen(FFileName, wxT("wt") );
 	if( dest == 0 )
 		{
 		DisplayError(this, _("Unable to create netlist file") );
@@ -182,10 +183,10 @@ celle-ci
 {
 wxString Mask, Line;
 
-	if ( FullFileName == "" )
+	if ( FullFileName.IsEmpty()  )
 		{
-		if( NetInExtBuffer != "" ) Mask = "*" + NetInExtBuffer;
-		else Mask = "*.net";
+		if( ! NetInExtBuffer.IsEmpty() ) Mask = wxT("*") + NetInExtBuffer;
+		else Mask = wxT("*.net");
 		Line = EDA_FileSelector(_("Load Net List"),
 					NetDirBuffer,		/* Chemin par defaut */
 					NetInNameBuffer,	/* nom fichier par defaut */
@@ -195,7 +196,7 @@ wxString Mask, Line;
 					0,
 					FALSE
 					);
-		if ( Line == "") return(FALSE);
+		if ( Line.IsEmpty()) return(FALSE);
 		}
 	else Line = FullFileName;
 
@@ -204,7 +205,7 @@ wxString Mask, Line;
 	FFileName = NetInNameBuffer;
 
 	/* Mise a jour du titre de la fenetre principale */
-	Line = Main_Title + " " + NetInNameBuffer;
+	Line = Main_Title + wxT(" ") + NetInNameBuffer;
 	SetTitle(Line);
 
 	ReadNetListe();

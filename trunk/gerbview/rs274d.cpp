@@ -596,7 +596,7 @@ bool GERBER_Descr::Execute_G_Command(char * &text, int G_commande)
 		case GC_MOVE:	// Non existant
 		default:
 		{
-			wxString msg; msg.Printf("G%.2d command not handled",G_commande);
+			wxString msg; msg.Printf( wxT("G%.2d command not handled"),G_commande);
 			DisplayError(NULL, msg);
 			return FALSE;
 		}
@@ -614,7 +614,7 @@ bool GERBER_Descr::Execute_DCODE_Command(WinEDA_GerberFrame * frame, wxDC * DC,
 wxSize size(15, 15);
 int shape = 1, dcode = 0;
 D_CODE * pt_Tool = NULL;
-char Line[1024];
+wxString msg;
 
 	if(D_commande >= FIRST_DCODE )
 	{
@@ -701,10 +701,9 @@ char Line[1024];
 					break;
 
 				default:
-					sprintf(Line,"%s (type %X)",
-						"Execute_DCODE_Command: interpol error",
+					msg.Printf( wxT("Execute_DCODE_Command: interpol error (type %X)"),
 						m_Iterpolation);
-					DisplayError(frame, Line);
+					DisplayError(frame, msg);
 					break;
 			}
 			m_PreviousPos = m_CurrentPos;

@@ -38,7 +38,7 @@ FILE *ArchiveFile, *DocFile;
 EDA_BaseStruct ** ListStruct;
 EDA_LibComponentStruct ** ListEntry, *Entry;
 int ii, NbItems;
-char * Text;
+const wxChar * Text;
 
 
 	/* Creation de la liste des elements */
@@ -60,8 +60,8 @@ char * Text;
 
 	for ( ii = 0; ii < NbItems; ii++ )
 	{
-		Text = ( (EDA_SchComponentStruct*)ListStruct[ii])->m_ChipName;
-		Entry = FindLibPart(Text, "", FIND_ROOT);
+		Text = ( (EDA_SchComponentStruct*)ListStruct[ii])->m_ChipName.GetData();
+		Entry = FindLibPart(Text, wxEmptyString, FIND_ROOT);
 		ListEntry[ii] = Entry;	// = NULL si Composant non trouvé en librairie
 	}
 
@@ -72,9 +72,9 @@ char * Text;
 
 	/* mise a jour extension fichier doc associe */
 	DocFileName = ArchFullFileName;
-	ChangeFileNameExt(DocFileName, ".bck");
+	ChangeFileNameExt(DocFileName, wxT(".bck"));
 
-	if ((ArchiveFile = fopen(ArchFullFileName.GetData(), "wt")) == NULL)
+	if ((ArchiveFile = wxFopen(ArchFullFileName, wxT("wt"))) == NULL)
 	{
 		MyFree(ListEntry);
 		msg = _("Failed to create archive lib file ") + ArchFullFileName;
@@ -82,7 +82,7 @@ char * Text;
 		return FALSE;
 	}
 
-	if ((DocFile = fopen(DocFileName.GetData(), "wt")) == NULL)
+	if ((DocFile = wxFopen(DocFileName, wxT("wt"))) == NULL)
 	{
 		msg = _("Failed to create doc lib file ") + DocFileName;
 		DisplayError(frame, msg);
@@ -126,29 +126,25 @@ char * Text;
 	return TRUE;
 }
 
-	/*******************************************************/
-	/* static int TriListEntry(EDA_LibComponentStruct **Objet1, */
-	/*						  EDA_LibComponentStruct **Objet2) */
-	/*******************************************************/
-
+/***********************************************************/
+static int TriListEntry(EDA_LibComponentStruct **Objet1,
+							EDA_LibComponentStruct **Objet2)
+/***********************************************************/
 /* Routine de comparaison pour le tri du Tableau par qsort()
 	Les composants sont tries par LibName
 */
-
-static int TriListEntry(EDA_LibComponentStruct **Objet1,
-							EDA_LibComponentStruct **Objet2)
 {
 int ii;
-const char * Text1, *Text2;
+const wxString * Text1, *Text2;
 
 	if( (*Objet1 == NULL) && (*Objet2 == NULL ) ) return(0);
 	if( *Objet1 == NULL) return(-1);
 	if( *Objet2 == NULL) return(1);
 
-	Text1 = (*Objet1)->m_Name.m_Text.GetData();
-	Text2 = (*Objet2)->m_Name.m_Text.GetData();
+	Text1 = &(*Objet1)->m_Name.m_Text;
+	Text2 = &(*Objet2)->m_Name.m_Text;
 
-	ii = stricmp( Text1, Text2);
+	ii = Text1->CmpNoCase(* Text2);
 	return(ii);
 }
 

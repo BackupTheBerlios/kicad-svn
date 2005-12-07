@@ -156,16 +156,16 @@ static long newmask[8] = { /* patterns to mask out in neighbor cells */
 
 /* Macro d'affichage de l'activite du routeur; */
 #define AFFICHE_ACTIVITE_ROUTE \
-				sprintf(cbuf,"%5.5d",OpenNodes); \
-				Affiche_1_Parametre(pcbframe, 24,"Open",cbuf,WHITE); \
-				sprintf(cbuf,"%5.5d",ClosNodes); \
-				Affiche_1_Parametre(pcbframe, 32,"Closed",cbuf,WHITE);\
-				sprintf(cbuf,"%5.5d",MoveNodes); \
-				Affiche_1_Parametre(pcbframe, 40,"Moved",cbuf,WHITE); \
-				sprintf(cbuf,"%5.5d",MaxNodes); \
-				Affiche_1_Parametre(pcbframe, 48,"Max",cbuf,WHITE); \
-				sprintf(cbuf,"%2.2d",(ClosNodes*50)/(Nrows*Ncols) ); \
-				Affiche_1_Parametre(pcbframe, 56,"%",cbuf,CYAN);
+				msg.Printf( wxT("%5.5d"),OpenNodes); \
+				Affiche_1_Parametre(pcbframe, 24,wxT("Open"),msg,WHITE); \
+				msg.Printf( wxT("%5.5d"),ClosNodes); \
+				Affiche_1_Parametre(pcbframe, 32,wxT("Closed"),msg,WHITE);\
+				msg.Printf( wxT("%5.5d"),MoveNodes); \
+				Affiche_1_Parametre(pcbframe, 40,wxT("Moved"),msg,WHITE); \
+				msg.Printf( wxT("%5.5d"),MaxNodes); \
+				Affiche_1_Parametre(pcbframe, 48,wxT("Max"),msg,WHITE); \
+				msg.Printf( wxT("%2.2d"),(ClosNodes*50)/(Nrows*Ncols) ); \
+				Affiche_1_Parametre(pcbframe, 56, wxT("%"),msg,CYAN);
 
 
 	/********************************************************/
@@ -185,14 +185,15 @@ int row_source, col_source, row_target, col_target;
 int success, nbsucces = 0, nbunsucces = 0;
 EQUIPOT * pt_equipot;
 bool stop = FALSE;
-
+wxString msg;
+	
 	DrawPanel->m_AbortRequest = FALSE;
 	DrawPanel->m_AbortEnable = TRUE;
 
 	Ncurrent = 0;
 	MsgPanel->EraseMsgBox();
-	sprintf(cbuf,"%d  ",m_Pcb->m_NbNoconnect);
-	Affiche_1_Parametre(this, 72,"NoConn",cbuf,LIGHTCYAN);
+	msg.Printf( wxT("%d  "),m_Pcb->m_NbNoconnect);
+	Affiche_1_Parametre(this, 72, wxT("NoConn"),msg,LIGHTCYAN);
 
 
 	/* go until no more work to do */
@@ -206,7 +207,7 @@ bool stop = FALSE;
 		wxYield();
 		if( DrawPanel->m_AbortRequest )
 			{
-			if ( IsOK(this, "Abort routing?" ) )
+			if ( IsOK(this, _("Abort routing?" )) )
 				{
 				success = STOP_FROM_ESC;
 				stop = TRUE;
@@ -219,10 +220,10 @@ bool stop = FALSE;
 		pt_equipot = GetEquipot(m_Pcb, current_net_code);
 		if( pt_equipot)
 			{
-			sprintf(cbuf,"[%8.8s]",pt_equipot->m_Netname.GetData());
-			Affiche_1_Parametre(this, 1,"Net route",cbuf,YELLOW);
-			sprintf(cbuf, "%d / %d",Ncurrent, Ntotal);
-			Affiche_1_Parametre(this, 12,"Activite",cbuf,YELLOW);
+			msg.Printf( wxT("[%8.8s]"),pt_equipot->m_Netname.GetData());
+			Affiche_1_Parametre(this, 1, wxT("Net route"), msg,YELLOW);
+			msg.Printf( wxT( "%d / %d"),Ncurrent, Ntotal);
+			Affiche_1_Parametre(this, 12, wxT("Activity"), msg,YELLOW);
 			}
 
 		pt_cur_ch = pt_cur_ch;
@@ -258,12 +259,12 @@ bool stop = FALSE;
 				break;
 			}
 
-		sprintf(cbuf,"%d  ",nbsucces);
-		Affiche_1_Parametre(this, 61,"Ok",cbuf,LIGHTGREEN);
-		sprintf(cbuf,"%d  ",nbunsucces);
-		Affiche_1_Parametre(this, 66,"echec",cbuf,LIGHTRED);
-		sprintf(cbuf,"%d  ",m_Pcb->m_NbNoconnect);
-		Affiche_1_Parametre(this, 72,"NoConn",cbuf,LIGHTCYAN);
+		msg.Printf( wxT("%d  "),nbsucces);
+		Affiche_1_Parametre(this, 61, wxT("Ok"),msg,LIGHTGREEN);
+		msg.Printf( wxT("%d  "),nbunsucces);
+		Affiche_1_Parametre(this, 66, wxT("Fail"),msg,LIGHTRED);
+		msg.Printf( wxT("%d  "),m_Pcb->m_NbNoconnect);
+		Affiche_1_Parametre(this, 72, wxT("NoConn"),msg,LIGHTCYAN);
 
 		/* Effacement des affichages de routage sur l'ecran */
 		pt_cur_ch->pad_start->Draw(DrawPanel, DC, wxPoint(0,0), GR_AND);
@@ -316,7 +317,8 @@ int masque_layers;		/* Masque des 2 couches de routage */
 int tab_mask[2];		/* permet le calcul du Masque de la couche en cours
 							de tst (side = TOP ou BOTTOM)*/
 int start_mask_layer = 0;
-
+wxString msg;
+	
 	result = NOSUCCESS;
 
 	marge = g_DesignSettings.m_TrackClearence + (g_DesignSettings.m_CurrentTrackWidth / 2);
@@ -381,7 +383,7 @@ int start_mask_layer = 0;
 
 
 	/* Placement du bit de suppression d'obstacle relative aux 2 pads a relier */
-	pcbframe->Affiche_Message("Gen Cellules");
+	pcbframe->Affiche_Message( wxT("Gen Cells") );
 
 	Place_1_Pad_Board(pcbframe->m_Pcb, pt_cur_ch->pad_start,CURRENT_PAD ,marge,WRITE_OR_CELL);
 	Place_1_Pad_Board(pcbframe->m_Pcb, pt_cur_ch->pad_end, CURRENT_PAD ,marge,WRITE_OR_CELL);
@@ -715,7 +717,7 @@ long b;
 			case FROM_NORTHWEST:	r2++;	c2--;	break;
 			case FROM_OTHERSIDE:	s2 = 1-s2;	break;
 			default:
-				DisplayError(pcbframe, "Retrace: internal error: no way back");
+				DisplayError(pcbframe, wxT("Retrace: internal error: no way back"));
 				return(0);
 			}
 
@@ -747,7 +749,7 @@ long b;
 
 				case FROM_OTHERSIDE:
 				default:
-					DisplayError(pcbframe, "Retrace: error 1");
+					DisplayError(pcbframe, wxT("Retrace: error 1"));
 					return(0);
 				}
 			OrCell_Trace(pcbframe->m_Pcb, r1, c1, s1, p_dir, current_net_code );
@@ -771,7 +773,7 @@ long b;
 				}
 			else
 				{
-				DisplayError(pcbframe, "Retrace: error 2");
+				DisplayError(pcbframe, wxT("Retrace: error 2"));
 				return(0);
 				}
 			}
@@ -792,7 +794,7 @@ long b;
 
 				case FROM_OTHERSIDE:
 				default:
-					DisplayError(pcbframe, "Retrace: error 3");
+					DisplayError(pcbframe, wxT("Retrace: error 3"));
 					return(0);
 				}
 			OrCell_Trace(pcbframe->m_Pcb, r2, c2, s2, p_dir, current_net_code );

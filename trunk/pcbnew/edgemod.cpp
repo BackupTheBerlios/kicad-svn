@@ -214,7 +214,7 @@ wxString buffer;
 long ll;
 	
 	buffer << ModuleSegmentWidth;
-	if ( Get_Message("New Width (1/10000\"):",buffer, this) ) return;
+	if ( Get_Message( _("New Width (1/10000\"):"),buffer, this) ) return;
 
 	if ( buffer.ToLong(&ll) ) ModuleSegmentWidth = ll;
 	else
@@ -241,7 +241,7 @@ void WinEDA_ModuleEditFrame::Delete_Edge_Module(EDGE_MODULE * Edge, wxDC * DC)
 	if(Edge == NULL ) return;
 	if ( Edge->m_StructType != TYPEEDGEMODULE )
 		{
-		DisplayError(this, "StructType error: TYPEEDGEMODULE expected");
+		DisplayError(this, wxT("StructType error: TYPEEDGEMODULE expected"));
 		return;
 		}
 
@@ -376,7 +376,7 @@ int angle = 0;
 				}
 			}
 		else
-			DisplayError(this, "Begin_Edge() error");
+			DisplayError(this, wxT("Begin_Edge() error"));
 		}
 	return Edge;
 }

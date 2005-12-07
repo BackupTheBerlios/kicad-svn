@@ -93,7 +93,7 @@ wxClientDC dc(DrawPanel);
 				{
 				GetScreen()->ForceCloseManageCurseur(this, &dc);
 				}
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 		}
 
@@ -119,7 +119,7 @@ wxClientDC dc(DrawPanel);
 			Clear_Pcb(&dc, TRUE);
 			GetScreen()->m_CurrentItem = NULL;
 			GetScreen()->m_Curseur = wxPoint(0,0);
-			Create_1_Module(& dc, "");
+			Create_1_Module(& dc, wxEmptyString);
 			if ( m_Pcb->m_Modules ) m_Pcb->m_Modules->m_Flags = 0;
 			Zoom_Automatique(TRUE);
 			break;
@@ -245,12 +245,12 @@ wxClientDC dc(DrawPanel);
 
 		case ID_MODEDIT_ADD_PAD:
 			if ( m_Pcb->m_Modules )
-				SetToolID( id, wxCURSOR_PENCIL, "Add Pad");
+				SetToolID( id, wxCURSOR_PENCIL, _("Add Pad"));
 			else
 				{
-				SetToolID( id, wxCURSOR_ARROW, "Pad Settings");
+				SetToolID( id, wxCURSOR_ARROW, _("Pad Settings"));
 				InstallPadOptionsFrame(NULL, NULL, wxPoint(-1, -1) );
-				SetToolID( 0, wxCURSOR_ARROW, "");
+				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 				}
 			break;
 
@@ -258,15 +258,15 @@ wxClientDC dc(DrawPanel);
 		case ID_PCB_ARC_BUTT:
 		case ID_PCB_CIRCLE_BUTT:
 		case ID_TEXT_COMMENT_BUTT:
-			SetToolID( id, wxCURSOR_PENCIL, "Add Drawing");
+			SetToolID( id, wxCURSOR_PENCIL, _("Add Drawing"));
 			break;
 
 		case ID_MODEDIT_PLACE_ANCHOR:
-			SetToolID( id, wxCURSOR_PENCIL, "Place anchor");
+			SetToolID( id, wxCURSOR_PENCIL, _("Place anchor"));
 			break;
 
 		case ID_NO_SELECT_BUTT:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_POPUP_CLOSE_CURRENT_TOOL:
@@ -276,7 +276,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_MODEDIT_DELETE_ITEM_BUTT:
-			SetToolID( id, wxCURSOR_BULLSEYE, "Delete item");
+			SetToolID( id, wxCURSOR_BULLSEYE, _("Delete item"));
 			break;
 
 		case ID_POPUP_PCB_ROTATE_MODULE_COUNTERCLOCKWISE:
@@ -430,7 +430,7 @@ wxClientDC dc(DrawPanel);
 		
 		default:
 			DisplayError(this,
-				"WinEDA_ModuleEditFrame::Process_Special_Functions error");
+				wxT("WinEDA_ModuleEditFrame::Process_Special_Functions error"));
 			break;
 		}
 
@@ -542,7 +542,7 @@ int angle = 900;	// NECESSAIREMENT +- 900 (+- 90 degres) )
 							textmod->m_Orient = 3600 - textmod->m_Orient;
 						break;
 
-					default: DisplayError(this, "Type Draw Indefini");
+					default: DisplayError(this, wxT("Type Draw Indefini"));
 						break;
 				}
 			}
@@ -551,7 +551,7 @@ int angle = 900;	// NECESSAIREMENT +- 900 (+- 90 degres) )
 		case ID_MODEDIT_MODULE_SCALE:
 		case ID_MODEDIT_MODULE_SCALEX:
 		case ID_MODEDIT_MODULE_SCALEY:
-			DisplayInfo(this, "Non disponible");
+			DisplayInfo(this, wxT("Not availlable"));
 			break;
 		}
 	module->Set_Rectangle_Encadrement();

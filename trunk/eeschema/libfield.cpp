@@ -162,19 +162,19 @@ void WinEDA_LibeditFrame::EditField(wxDC * DC, LibDrawField *Field)
 {
 wxString Text;
 int color;
-char * title = "Text:";
+wxString title = wxT("Text:");
 
 	if( Field == NULL) return;
 
 	switch (Field->m_FieldId)
 	{
 		case REFERENCE:
-			title ="Reference:";
+			title = wxT("Reference:");
 			color = ReturnLayerColor(LAYER_REFERENCEPART);
 			break;
 
 		case VALUE:
-			title ="Value:";
+			title = wxT("Value:");
 			color = ReturnLayerColor(LAYER_VALUEPART);
 			break;
 
@@ -187,7 +187,7 @@ char * title = "Text:";
 
 	Text = Field->m_Text;
 	Get_Message(title,Text, this);
-	Text.Replace(" ", "_");
+	Text.Replace( wxT(" ") , wxT("_") );
 
 	GRSetDrawMode(DC, XOR_MODE);
 	DrawGraphicText(DrawPanel, DC, wxPoint(Field->m_Pos.x, - Field->m_Pos.y),
@@ -196,7 +196,7 @@ char * title = "Text:";
 					Field->m_Size,
 					Field->m_HJustify, Field->m_VJustify);
 
-	if( ! Text .IsEmpty() )
+	if( ! Text.IsEmpty() )
 	{
 		SaveCopyInUndoList();
 		Field->m_Text = Text;
@@ -282,7 +282,7 @@ int hjustify, vjustify;
 	/* Localisation du Nom */
 	x0 = LibEntry->m_Name.m_Pos.x;
 	y0 = - LibEntry->m_Name.m_Pos.y;
-	dx = LibEntry->m_Name.m_Size.x * strlen(LibEntry->m_Name.m_Text),
+	dx = LibEntry->m_Name.m_Size.x * LibEntry->m_Name.m_Text.Len(),
 	dy = LibEntry->m_Name.m_Size.y;
 	hjustify = LibEntry->m_Name.m_HJustify; vjustify = LibEntry->m_Name.m_VJustify;
 	if (LibEntry->m_Name.m_Orient) EXCHG(dx, dy);
@@ -299,7 +299,7 @@ int hjustify, vjustify;
 	/* Localisation du Prefix */
 	x0 = LibEntry->m_Prefix.m_Pos.x;
 	y0 = - LibEntry->m_Prefix.m_Pos.y;
-	dx = LibEntry->m_Prefix.m_Size.x * strlen(LibEntry->m_Prefix.m_Text),
+	dx = LibEntry->m_Prefix.m_Size.x *LibEntry->m_Prefix.m_Text.Len(),
 	dy = LibEntry->m_Prefix.m_Size.y;
 	hjustify = LibEntry->m_Prefix.m_HJustify; vjustify = LibEntry->m_Prefix.m_VJustify;
 	if (LibEntry->m_Prefix.m_Orient) EXCHG(dx, dy);
@@ -317,9 +317,9 @@ int hjustify, vjustify;
 	for (Field = LibEntry->Fields; Field != NULL;
 						Field = (LibDrawField*)Field->Pnext)
 		{
-		if ( Field->m_Text == "") continue;
+		if ( Field->m_Text.IsEmpty() ) continue;
 		x0 = Field->m_Pos.x; y0 = - Field->m_Pos.y;
-		dx = Field->m_Size.x * strlen(Field->m_Text),
+		dx = Field->m_Size.x * Field->m_Text.Len(),
 		dy = Field->m_Size.y;
 		hjustify = Field->m_HJustify; vjustify = Field->m_VJustify;
 		if (Field->m_Orient) EXCHG(dx, dy);

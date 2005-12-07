@@ -40,12 +40,12 @@ double scale_x, scale_y;
 
 	MsgPanel->EraseMsgBox();
 
-	dest = fopen(FullFileName.GetData(),"wt");
+	dest = wxFopen(FullFileName, wxT("wt") );
 	if (dest == NULL)
-		{
+	{
 		wxString msg = _("Unable to create file ") + FullFileName;
 		DisplayError(this, msg); return ;
-		}
+	}
 
 	Affiche_1_Parametre(this, 0,_("File"),FullFileName,CYAN) ;
 
@@ -83,7 +83,7 @@ double scale_x, scale_y;
 	scale_x = scale_y = 1.0;
 	InitPlotParametresPS( g_PlotOffset, SheetPS, 1.0/m_InternalUnits, 1.0/m_InternalUnits);
 	SetDefaultLineWidthPS(g_PlotLine_Width);
-	PrintHeaderPS(dest, "PCBNEW-PS", FullFileName, BBox);
+	PrintHeaderPS(dest, wxT("PCBNEW-PS"), FullFileName, BBox);
 
 	if ( Plot_Sheet_Ref )
 	{
@@ -193,7 +193,8 @@ MODULE * Module;
 D_PAD * PtPad;
 TRACK * pts ;
 EDA_BaseStruct * PtStruct;
-
+wxString msg;
+	
 	masque_layer |= EDGE_LAYER; /* Les elements de la couche EDGE sont tj traces */
 
 	/* trace des elements type Drawings Pcb : */
@@ -226,14 +227,14 @@ EDA_BaseStruct * PtStruct;
 				break;
 
 			default:
-				DisplayError(this, "WinEDA_BasePcbFrame::Plot_Layer_PS() : Unexpected Draw Type");
+				DisplayError(this, wxT("WinEDA_BasePcbFrame::Plot_Layer_PS() : Unexpected Draw Type"));
 				break;
 			}
 		}
 
 	/* Trace des Elements des modules autres que pads */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 48,"DrawMod","",GREEN) ;
+	Affiche_1_Parametre(this, 48,wxT("DrawMod"),wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
 		{
@@ -255,7 +256,7 @@ EDA_BaseStruct * PtStruct;
 
 	/* Trace des Elements des modules : Pastilles */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this,48,"Pads   ","",GREEN) ;
+	Affiche_1_Parametre(this,48,wxT("Pads   "),wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
 		{
@@ -298,15 +299,15 @@ EDA_BaseStruct * PtStruct;
 					trace_1_pad_rectangulaire_POST(pos,size, PtPad->m_Orient, modetrace) ;
 					break ;
 				}
-			sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 48,"Pads",cbuf,GREEN) ;
+			msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 48, wxT("Pads"),msg,GREEN) ;
 			}
 		}
 	/* trace des VIAS : */
 	if(tracevia)
 	{
 		nb_items = 0 ;
-		Affiche_1_Parametre(this, 56,_("Vias"),"",RED) ;
+		Affiche_1_Parametre(this, 56,_("Vias"),wxEmptyString,RED) ;
 		for( pts = m_Pcb->m_Track;pts != NULL; pts = pts->Next())
 		{
 			if( pts->m_StructType != TYPEVIA ) continue;
@@ -323,13 +324,13 @@ EDA_BaseStruct * PtStruct;
 			pos = Via->m_Start;
 			size.x = size.y = Via->m_Width + (garde*2);
 			trace_1_pastille_RONDE_POST(pos,size.x, modetrace) ;
-			nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-			Affiche_1_Parametre(this, 56,"",cbuf,RED) ;
+			nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+			Affiche_1_Parametre(this, 56,wxEmptyString,msg,RED) ;
 		}
 	}
 	/* trace des pistes et zones: */
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 64,_("Tracks"),"",YELLOW) ;
+	Affiche_1_Parametre(this, 64,_("Tracks"),wxEmptyString,YELLOW) ;
 
 	for( pts = m_Pcb->m_Track; pts != NULL; pts = (TRACK*) pts->Pnext)
 	{
@@ -341,12 +342,12 @@ EDA_BaseStruct * PtStruct;
 
 		PlotFilledSegmentPS(pos,end, size.x);
 
-		nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-		Affiche_1_Parametre(this, 64,"",cbuf,YELLOW) ;
+		nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+		Affiche_1_Parametre(this, 64,wxEmptyString,msg,YELLOW) ;
 	}
 
 	nb_items = 0 ;
-	Affiche_1_Parametre(this, 64,"Zones  ","",YELLOW) ;
+	Affiche_1_Parametre(this, 64, wxT("Zones  "),wxEmptyString,YELLOW) ;
 
 	for( pts = m_Pcb->m_Zone; pts != NULL; pts = (TRACK*) pts->Pnext)
 	{
@@ -354,8 +355,8 @@ EDA_BaseStruct * PtStruct;
 		size.x = size.y = pts->m_Width;
 		pos = pts->m_Start; end = pts->m_End;
 		PlotFilledSegmentPS(pos,end, size.x);
-		nb_items++ ; sprintf(cbuf,"%d",nb_items) ;
-		Affiche_1_Parametre(this, 64,"",cbuf,YELLOW) ;
+		nb_items++ ; msg.Printf( wxT("%d"),nb_items) ;
+		Affiche_1_Parametre(this, 64,wxEmptyString,msg,YELLOW) ;
 	}
 
 	/* Trace des trous de percage */

@@ -32,17 +32,15 @@ static TRACK * AlignSegment(BOARD * Pcb, TRACK * pt_ref, TRACK * pt_segm, int ex
 static int a_color;	/* couleur du message */
 
 
-	/************************************/
-	/* void Clean_Pistes(COMMAND * frame) */
-	/************************************/
-
+/*****************************************/
+void WinEDA_PcbFrame::Clean_Pcb(wxDC * DC)
+/*****************************************/
 /* Regroupement des segments de meme piste.
 	Suppression des points inutiles
 		- via sur pad
 		- points de couche et coord identiques
 		- points align‚s (supp du pt milieu)
 */
-void WinEDA_PcbFrame::Clean_Pcb(wxDC * DC)
 {
 	MsgPanel->EraseMsgBox();
 	m_Pcb->GetNumSegmTrack();	/* Met a jour le compte */
@@ -76,18 +74,15 @@ void WinEDA_PcbFrame::Clean_Pcb(wxDC * DC)
 
 
 
-	/******************************************************/
-	/* void suppression_piste_non_connectee(COMMAND * frame) */
-	/******************************************************/
-
+/*****************************************************************************/
+static void suppression_piste_non_connectee(WinEDA_PcbFrame * frame, wxDC * DC)
+/*****************************************************************************/
 /*
 	Supprime les segments de piste ayant 1 ou 2 extremites non connectees
 	Cas des vias:
 	si une extremite de segment est connectee uniquement a une via, la via
 	et le segment seront supprimes
 */
-
-static void suppression_piste_non_connectee(WinEDA_PcbFrame * frame, wxDC * DC)
 {
 TRACK  * PtSegm, * pt_other, * pt_via;
 TRACK * PtStartNetCode;
@@ -97,30 +92,30 @@ int nbpoints_supprimes = 0;
 int masklayer, oldnetcode;
 int type_end,flag_erase;
 int ii, percent, oldpercent;
-
-	frame->Affiche_Message("Pistes non connectees:");
+wxString msg;
+	
+	frame->Affiche_Message( _("Delete unconnected tracks:") );
 	frame->DrawPanel->m_AbortRequest = FALSE;
 
 	/* Correction des defauts des vias et recalcul du nombre de segm */
 	frame->m_Pcb->m_NbSegmTrack = 0; ii = 0;
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*)NextS)
-		{
+	{
 		frame->m_Pcb->m_NbSegmTrack++;
 		NextS = PtSegm->Pnext;
 		if(PtSegm->m_StructType == TYPEVIA)
-			{
+		{
 			if( (PtSegm->m_Start.x != PtSegm->m_End.x ) || (PtSegm->m_Start.y != PtSegm->m_End.y ) )
-				{
+			{
 				PtSegm->m_End.x = PtSegm->m_Start.x;
 				PtSegm->m_End.y = PtSegm->m_Start.y;
 				ii++;
-				sprintf(cbuf,"%d ", ii);
-				Affiche_1_Parametre(frame, POS_AFF_PASSE,_("ViaDef"),cbuf,LIGHTRED);
-				sprintf(cbuf,"ViaDef");
-				}
-			continue;
+				msg.Printf( wxT("%d "), ii);
+				Affiche_1_Parametre(frame, POS_AFF_PASSE,_("ViaDef"),msg,LIGHTRED);
 			}
+			continue;
 		}
+	}
 
 	/* Suppression des pistes en l'air */
 	PtSegm = frame->m_Pcb->m_Track; ii = 0;
@@ -134,12 +129,12 @@ int ii, percent, oldpercent;
 		if( percent != oldpercent)
 			{
 			oldpercent = percent;
-			frame->DisplayActivity(percent, "No Conn: ");
+			frame->DisplayActivity(percent, wxT("No Conn: ") );
 
-			sprintf(cbuf,"%d ", frame->m_Pcb->m_NbSegmTrack );
-			Affiche_1_Parametre(frame,POS_AFF_MAX,"Max",cbuf,GREEN);
-	 		sprintf(cbuf,"%d ",ii );
-			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d "), frame->m_Pcb->m_NbSegmTrack );
+			Affiche_1_Parametre(frame,POS_AFF_MAX, wxT("Max"), msg,GREEN);
+	 		msg.Printf( wxT("%d "),ii );
+			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM, wxT("Segm"), msg,CYAN);
 			}
 
 		if( frame->DrawPanel->m_AbortRequest ) break;
@@ -218,8 +213,8 @@ int ii, percent, oldpercent;
 			{
 			oldpercent = -1;	/* force affichage activite */
 			nbpoints_supprimes++; ii--;
-			sprintf(cbuf,"%d ",nbpoints_supprimes);
-			Affiche_1_Parametre(frame,POS_AFF_VAR,"NoConn.",cbuf,LIGHTRED);
+			msg.Printf( wxT("%d "),nbpoints_supprimes);
+			Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("NoConn."), msg,LIGHTRED);
 
 			/* rectification du pointeur PtSegm pour repartir en debut
 					du block des segments de meme net_code */
@@ -252,7 +247,7 @@ TRACK * PtSegm, * pt_aux;
 EDA_BaseStruct * NextS;
 int ii, nbpoints_supprimes = 0;
 int flag, no_inc, percent, oldpercent;
-
+wxString msg;
 
 	frame->DrawPanel->m_AbortRequest = FALSE;
 
@@ -264,9 +259,9 @@ int flag, no_inc, percent, oldpercent;
 	nbpoints_supprimes = 0; PtSegm = frame->m_Pcb->m_Track;
 	percent = 0; oldpercent = -1;
 	frame->MsgPanel->EraseMsgBox();
-	frame->Affiche_Message("Clean Segments Nulls:");
+	frame->Affiche_Message( _("Clean Null Segments") );
 
-	Affiche_1_Parametre(frame,POS_AFF_VAR,"SegNull","0",a_color);
+	Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("NullSeg"), wxT("0"),a_color);
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*)NextS )
 		{
 		NextS = PtSegm->Pnext;
@@ -284,15 +279,15 @@ int flag, no_inc, percent, oldpercent;
 		DeleteStructure(PtSegm);
 		nbpoints_supprimes++;
 
-		sprintf(cbuf,"  %d",nbpoints_supprimes);
-		Affiche_1_Parametre(frame,POS_AFF_VAR,"",cbuf,a_color);
+		msg.Printf( wxT("  %d"),nbpoints_supprimes);
+		Affiche_1_Parametre(frame,POS_AFF_VAR,wxEmptyString, msg,a_color);
 		}
 
 	/**************************************/
 	/* suppression des segments confondus */
 	/**************************************/
 
-	Affiche_1_Parametre(frame,POS_AFF_VAR,"Ident","0",a_color);
+	Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("Ident"), wxT("0"),a_color);
 	percent = 0; oldpercent = -1;
 	PtSegm = frame->m_Pcb->m_Track;
 	for( ii = 0; PtSegm != NULL; PtSegm = (TRACK*) PtSegm->Pnext , ii++)
@@ -301,13 +296,13 @@ int flag, no_inc, percent, oldpercent;
 		percent = (100 * ii) / frame->m_Pcb->m_NbSegmTrack;
 		if( percent != oldpercent)
 			{
-			frame->DisplayActivity(percent, "Id segm: ");
+			frame->DisplayActivity(percent, wxT("Id segm: ") );
 			oldpercent = percent;
 
-			sprintf(cbuf,"%d", frame->m_Pcb->m_NbSegmTrack);
-			Affiche_1_Parametre(frame,POS_AFF_MAX,"Max",cbuf,GREEN);
-			sprintf(cbuf,"%d", ii );
-			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d"), frame->m_Pcb->m_NbSegmTrack);
+			Affiche_1_Parametre(frame,POS_AFF_MAX, wxT("Max"), msg,GREEN);
+			msg.Printf( wxT("%d"), ii );
+			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM, wxT("Segm"), msg,CYAN);
 
 			if( frame->DrawPanel->m_AbortRequest ) return(-1);
 			}
@@ -341,8 +336,8 @@ int flag, no_inc, percent, oldpercent;
 				DeleteStructure(pt_aux);
 				nbpoints_supprimes++;
 
-				sprintf(cbuf,"  %d",nbpoints_supprimes);
-				Affiche_1_Parametre(frame,50,"",cbuf,a_color);
+				msg.Printf( wxT("  %d"),nbpoints_supprimes);
+				Affiche_1_Parametre(frame,50, wxEmptyString, msg,a_color);
 				}
 			}
 		}
@@ -353,9 +348,9 @@ int flag, no_inc, percent, oldpercent;
 
 	PtSegm = frame->m_Pcb->m_Track; nbpoints_supprimes = 0;
 	percent = 0; oldpercent = -1;
-	frame->Affiche_Message("Clean Segments Alignes:");
+	frame->Affiche_Message( _("Merging Segments:") );
 
-	Affiche_1_Parametre(frame,POS_AFF_VAR,"Alignes","0",a_color);
+	Affiche_1_Parametre(frame,POS_AFF_VAR, _("Merge"), _("0"),a_color);
 
 	ii = 0;
 	for( PtSegm = frame->m_Pcb->m_Track; PtSegm!= NULL; PtSegm = (TRACK*) NextS)
@@ -368,12 +363,12 @@ int flag, no_inc, percent, oldpercent;
 		percent = (100 * ii)/ frame->m_Pcb->m_NbSegmTrack;
 		if( percent != oldpercent)
 			{
-			frame->DisplayActivity(percent, "Align: ");
+			frame->DisplayActivity(percent, _("Merge: ") );
 			oldpercent = percent;
-			sprintf(cbuf,"%d", frame->m_Pcb->m_NbSegmTrack);
-			Affiche_1_Parametre(frame, POS_AFF_MAX,"Max",cbuf,GREEN);
-			sprintf(cbuf,"%d", ii );
-			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d"), frame->m_Pcb->m_NbSegmTrack);
+			Affiche_1_Parametre(frame, POS_AFF_MAX, wxT("Max"), msg,GREEN);
+			msg.Printf( wxT("%d"), ii );
+			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM, wxT("Segm"), msg,CYAN);
 
 			if( frame->DrawPanel->m_AbortRequest ) return(-1);
 			}
@@ -451,8 +446,8 @@ int flag, no_inc, percent, oldpercent;
 
 		if(no_inc) /* Le segment en cours a ete modifie, il faut le reexaminer */
 			{
-			sprintf(cbuf,"%d ",nbpoints_supprimes);
-			Affiche_1_Parametre(frame,POS_AFF_VAR,"",cbuf,a_color);
+			msg.Printf( wxT("%d "),nbpoints_supprimes);
+			Affiche_1_Parametre(frame,POS_AFF_VAR,wxEmptyString, msg,a_color);
 			NextS = PtSegm->Pnext;
 			}
 		}
@@ -460,9 +455,8 @@ int flag, no_inc, percent, oldpercent;
 }
 
 /****************************************************************************/
-/* TRACK * AlignSegment(TRACK *pt_ref, TRACK *pt_segm, int extremite) */
+static TRACK * AlignSegment(BOARD * Pcb, TRACK * pt_ref, TRACK * pt_segm, int extremite)
 /****************************************************************************/
-
 /* Routine utilisee par clean_segments.
  Verifie l'alignement de pt_segm / pt_ref. et verifie que le point commun
  a faire disparaitre n'est pas sur un pad.
@@ -471,8 +465,6 @@ int flag, no_inc, percent, oldpercent;
  pt_segm.
  sinon retourne NULL
 */
-
-static TRACK * AlignSegment(BOARD * Pcb, TRACK * pt_ref, TRACK * pt_segm, int extremite)
 {
 int refdx,refdy, segmdx, segmdy;	/* projections des segments */
 int flag = 0;
@@ -559,15 +551,16 @@ int net_code_s, net_code_e;
 int nbpoints_modifies = 0;
 int flag = 0;
 int ii, percent, oldpercent;
-
+wxString msg;
+	
 	a_color = RED;
 	percent = 0; oldpercent = -1;
 
-	frame->Affiche_Message("Controle DRC Connexions:");
+	frame->Affiche_Message( _("DRC Control:") );
 
 	frame->DrawPanel->m_AbortRequest = FALSE;
 
-	if(affiche) Affiche_1_Parametre(frame,POS_AFF_VAR,"NetCtr","0 ",a_color);
+	if(affiche) Affiche_1_Parametre(frame,POS_AFF_VAR, _("NetCtr"), wxT("0 "),a_color);
 
 	ii = 0;
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*)PtSegm->Pnext)
@@ -577,12 +570,12 @@ int ii, percent, oldpercent;
 		percent = (100 * ii) / frame->m_Pcb->m_NbSegmTrack;
 		if( percent != oldpercent)
 			{
-			frame->DisplayActivity(percent, "Drc: ");
+			frame->DisplayActivity(percent, wxT("Drc: ") );
 			oldpercent = percent;
-			sprintf(cbuf,"%d", frame->m_Pcb->m_NbSegmTrack);
-			Affiche_1_Parametre(frame, POS_AFF_MAX,"Max",cbuf,GREEN);
-			sprintf(cbuf,"%d", frame->m_Pcb->m_NbSegmTrack);
-			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d"), frame->m_Pcb->m_NbSegmTrack);
+			Affiche_1_Parametre(frame, POS_AFF_MAX, wxT("Max"),msg,GREEN);
+			msg.Printf( wxT("%d"), frame->m_Pcb->m_NbSegmTrack);
+			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM, wxT("Segm"),msg,CYAN);
 
 			if( frame->DrawPanel->m_AbortRequest ) return(flag);
 			}
@@ -628,7 +621,7 @@ int ii, percent, oldpercent;
 	/* Suppression effective des segments */
 
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*) NextS)
-		{
+	{
 		NextS = PtSegm->Pnext;
 		if( PtSegm->GetState(FLAG0) ) /* Connexion erronee : a supprimer */
 			{
@@ -638,13 +631,13 @@ int ii, percent, oldpercent;
 			frame->Supprime_Une_Piste( DC, PtSegm);
 			NextS = frame->m_Pcb->m_Track;	/* NextS a peut etre ete efface */
 			if(affiche)
-				{
+			{
 				nbpoints_modifies++;
-				sprintf(cbuf,"%d ",nbpoints_modifies);
-				Affiche_1_Parametre(frame,POS_AFF_VAR,"",cbuf,a_color);
-				}
+				msg.Printf( wxT("%d "),nbpoints_modifies);
+				Affiche_1_Parametre(frame,POS_AFF_VAR,wxEmptyString,msg,a_color);
 			}
 		}
+	}
 	return(flag);
 }
 
@@ -665,8 +658,9 @@ EDA_BaseStruct * NextS;
 int nn = 0;
 int masquelayer;
 int ii, percent, oldpercent;
-
-	frame->Affiche_Message("Gen Raccords sur Pistes:");
+wxString msg;
+	
+	frame->Affiche_Message( wxT("Gen Raccords sur Pistes:") );
 	if( frame->m_Pcb->GetNumSegmTrack() == 0 ) return;
 
 	frame->DrawPanel->m_AbortRequest = FALSE;
@@ -680,12 +674,12 @@ int ii, percent, oldpercent;
 		percent = (100 * ii)/ frame->m_Pcb->m_NbSegmTrack;
 		if( percent != oldpercent)
 			{
-			frame->DisplayActivity(percent, "Tracks: ");
+			frame->DisplayActivity(percent, wxT("Tracks: ") );
 			oldpercent = percent;
-			sprintf(cbuf,"%d",frame->m_Pcb->m_NbSegmTrack );
-			Affiche_1_Parametre(frame,POS_AFF_MAX,"Max",cbuf,GREEN);
-			sprintf(cbuf,"%d", ii);
-			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d"),frame->m_Pcb->m_NbSegmTrack );
+			Affiche_1_Parametre(frame,POS_AFF_MAX, wxT("Max"),msg,GREEN);
+			msg.Printf( wxT("%d"), ii);
+			Affiche_1_Parametre(frame,POS_AFF_NUMSEGM, wxT("Segm"),msg,CYAN);
 			}
 
 		if( frame->DrawPanel->m_AbortRequest ) return;
@@ -712,8 +706,8 @@ int ii, percent, oldpercent;
 			NewTrack->Insert(frame->m_Pcb, pt_aux);
 			nn++;
 			frame->m_Pcb->m_NbSegmTrack++;
-			sprintf(cbuf,"%d",nn);
-			Affiche_1_Parametre(frame,POS_AFF_VAR,"New <",cbuf,YELLOW);
+			msg.Printf( wxT("%d"),nn);
+			Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("New <"),msg,YELLOW);
 			pt_aux->m_End.x = PtSegm->m_Start.x; pt_aux->m_End.y = PtSegm->m_Start.y;
 			NewTrack->m_Start.x = PtSegm->m_Start.x; NewTrack->m_Start.y = PtSegm->m_Start.y;
 			Trace_Une_Piste(frame->DrawPanel, DC, pt_aux, 2, GR_OR);
@@ -740,8 +734,8 @@ int ii, percent, oldpercent;
 			NewTrack->Insert(frame->m_Pcb, pt_aux);
 
 			frame->m_Pcb->m_NbSegmTrack++;
-			nn++; sprintf(cbuf,"%d",nn);
-			Affiche_1_Parametre(frame,POS_AFF_VAR,"New >",cbuf,YELLOW);
+			nn++; msg.Printf( wxT("%d"),nn);
+			Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("New >"),msg,YELLOW);
 			pt_aux->m_End.x = PtSegm->m_End.x; pt_aux->m_End.y = PtSegm->m_End.y;
 			NewTrack->m_Start.x = PtSegm->m_End.x; NewTrack->m_Start.y = PtSegm->m_End.y;
 			Trace_Une_Piste(frame->DrawPanel, DC, pt_aux,2,GR_OR);
@@ -767,13 +761,14 @@ EDA_BaseStruct * NextS;
 D_PAD * ptr_pad;
 int nb_new_piste = 0 , ii;
 int percent, oldpercent;
-
+wxString msg;
+	
 	a_color = GREEN;
 	percent = 0; oldpercent = -1;
 
 	frame->DrawPanel->m_AbortRequest = FALSE;
 
-	Affiche_1_Parametre(frame, POS_AFF_VAR,"Centre","0 ",a_color);
+	Affiche_1_Parametre(frame, POS_AFF_VAR, wxT("Centre"), wxT("0 "),a_color);
 
 	ii = 0;
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*)NextS)
@@ -784,12 +779,12 @@ int percent, oldpercent;
 		percent = (100 * ii)/ frame->m_Pcb->m_NbSegmTrack;
 		if( percent != oldpercent)
 			{
-			frame->DisplayActivity(percent, "Pads: ");
+			frame->DisplayActivity(percent, _("Pads: "));
 			oldpercent = percent;
-			sprintf(cbuf,"%d", frame->m_Pcb->m_NbSegmTrack );
-			Affiche_1_Parametre(frame, POS_AFF_MAX,"Max",cbuf,GREEN);
-			sprintf(cbuf,"%d", ii);
-			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM,"Segm",cbuf,CYAN);
+			msg.Printf( wxT("%d"), frame->m_Pcb->m_NbSegmTrack );
+			Affiche_1_Parametre(frame, POS_AFF_MAX, wxT("Max"),msg,GREEN);
+			msg.Printf( wxT("%d"), ii);
+			Affiche_1_Parametre(frame, POS_AFF_NUMSEGM, wxT("Segm"),msg,CYAN);
 
 			if( frame->DrawPanel->m_AbortRequest ) return;
 			}
@@ -811,7 +806,7 @@ int percent, oldpercent;
 					NewTrack->end = ptr_pad;
 					nb_new_piste++;
 
-					Affiche_1_Parametre(frame,POS_AFF_VAR,"",cbuf,a_color);
+					Affiche_1_Parametre(frame,POS_AFF_VAR,wxEmptyString,msg,a_color);
 					}
 				}
 			}
@@ -833,8 +828,8 @@ int percent, oldpercent;
 					NewTrack->end = PtSegm;
 					nb_new_piste++;
 
-					sprintf(cbuf,"e %d",nb_new_piste);
-					Affiche_1_Parametre(frame, POS_AFF_VAR,"",cbuf,a_color);
+					msg.Printf( wxT("e %d"),nb_new_piste);
+					Affiche_1_Parametre(frame, POS_AFF_VAR,wxEmptyString,msg,a_color);
 					}
 				}
 			}

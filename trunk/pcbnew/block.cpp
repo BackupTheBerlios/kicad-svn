@@ -229,7 +229,7 @@ bool err = FALSE;
 	if(GetScreen()->ManageCurseur == NULL)
 		{
 		err = TRUE;
-		DisplayError(this, "Error in HandleBlockPLace : ManageCurseur = NULL" );
+		DisplayError(this, wxT("Error in HandleBlockPLace : ManageCurseur = NULL") );
 		}
 	GetScreen()->BlockLocate.m_State = STATE_BLOCK_STOP;
 
@@ -277,11 +277,11 @@ bool err = FALSE;
 	GetScreen()->BlockLocate.m_Command =  BLOCK_IDLE;
 	if ( GetScreen()->BlockLocate.m_BlockDrawStruct )
 	{
-		DisplayError(this, "Error in HandleBlockPLace DrawStruct != NULL" );
+		DisplayError(this, wxT("Error in HandleBlockPLace DrawStruct != NULL") );
 		GetScreen()->BlockLocate.m_BlockDrawStruct = NULL;
 	}
 
-	DisplayToolMsg("");
+	DisplayToolMsg(wxEmptyString);
 }
 
 /**********************************************/
@@ -300,7 +300,7 @@ int endcommande = TRUE;
 	switch( GetScreen()->BlockLocate.m_Command )
 	{
 		case  BLOCK_IDLE:
-			DisplayError(this, "Error in HandleBlockPLace");
+			DisplayError(this, wxT("Error in HandleBlockPLace") );
 			break;
 
 		case BLOCK_DRAG: /* Drag (not used, for future enhancements)*/
@@ -360,7 +360,7 @@ int endcommande = TRUE;
 		GetScreen()->BlockLocate.m_BlockDrawStruct = NULL;
 		GetScreen()->ManageCurseur = NULL;
 		GetScreen()->ForceCloseManageCurseur = NULL;
-		DisplayToolMsg("");
+		DisplayToolMsg(wxEmptyString);
 	}
 
 	return(endcommande);
@@ -740,7 +740,7 @@ int masque_layer;
 wxPoint memo;
 int Ny, centerY;	/* position de l'axe d'inversion de l'ensemble des elements */
 
-	if( ! InstallBlockCmdFrame(this, "Block mirroring") ) return ;
+	if( ! InstallBlockCmdFrame(this, _("Block mirroring")) ) return ;
 
 	memo = GetScreen()->m_Curseur;
 	GetScreen()->BlockLocate.Normalize();
@@ -829,7 +829,7 @@ int Ny, centerY;	/* position de l'axe d'inversion de l'ensemble des elements */
 	if( Block_Include_Draw_Items ) masque_layer = ALL_LAYERS;
 	if( ! Block_Include_Edges_Items ) masque_layer &= ~EDGE_LAYER;
 
-	Affiche_Message("Draw layers mirroring") ;
+	Affiche_Message( _("Draw layers mirroring") );
 	PtStruct = m_Pcb->m_Drawings;
 	for( ; PtStruct != NULL; PtStruct = PtStruct->Pnext )
 		{

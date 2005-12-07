@@ -118,7 +118,7 @@ wxString display_msg[2] = { _("Normal"), _("Mirror") };
 	if ( ! Cotation->m_Text->m_Miroir ) m_Mirror->SetSelection(1);;
 
 	pos.x = 5; pos.y = VPOS0 + 10;
-	m_Name = new WinEDA_EnterText(this, "Text:",
+	m_Name = new WinEDA_EnterText(this, wxT("Text:"),
 			Cotation->m_Text->m_Text,
 			pos, wxSize( 200, -1) );
 
@@ -135,7 +135,7 @@ wxString display_msg[2] = { _("Normal"), _("Mirror") };
 	pos.y += 10 + m_TxtWidthCtrl->GetDimension().y;
 	new wxStaticText(this, -1, _("Layer:"), pos);
 	pos.y += 12;
-	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER,"",
+	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER,wxEmptyString,
 					pos, wxDefaultSize, 0, NULL, wxCB_READONLY);
 	int ii;
 	for ( ii = CMP_N + 1; ii < 29 ; ii ++ )
@@ -159,14 +159,14 @@ void WinEDA_CotationPropertiesFrame::CotationPropertiesAccept(wxCommandEvent& ev
 /***********************************************************************************/
 {
 	if ( m_DC )		// Effacement ancien texte
-		{
+	{
 		CurrentCotation->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR);
-		}
+	}
 
-	if ( m_Name->GetData() != "" )
-		{
-		CurrentCotation->SetText( (char*)(m_Name->GetData()).GetData());
-		}
+	if ( m_Name->GetData() != wxEmptyString )
+	{
+		CurrentCotation->SetText( m_Name->GetData());
+	}
 
 	CurrentCotation->m_Text->m_Size = m_TxtSizeCtrl->GetCoord();
 	CurrentCotation->m_Text->m_Width = CurrentCotation->m_Width =
@@ -381,7 +381,8 @@ int fleche_up_X=0, fleche_up_Y=0;	/* coord des fleches : barre / */
 int fleche_dw_X=0, fleche_dw_Y=0;	/* coord des fleches : barre \ */
 int hx, hy;							/* coord des traits de rappel de cote */
 float angle, angle_f;
-
+wxString msg;
+	
 	/* Init des couches : */
 	Cotation->m_Text->m_Layer = Cotation->m_Layer;
 
@@ -463,16 +464,8 @@ float angle, angle_f;
 	if( (Cotation->m_Text->m_Orient > 900) && (Cotation->m_Text->m_Orient <2700) )
 		Cotation->m_Text->m_Orient -= 1800;
 
-	valeur_param(mesure,cbuf);
-	if ( UnitMetric )
-		{
-		sprintf(cbuf,"%3.3fmm",(float) mesure * 0.00254);
-		}
-	else
-		{
-		sprintf(cbuf,"%2.4f''",(float) mesure * 0.0001);
-		}
-	Cotation->SetText( cbuf);
+	valeur_param(mesure,msg);
+	Cotation->SetText( msg);
 	Cotation->m_Text->CreateDrawData();
 }
 

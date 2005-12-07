@@ -13,15 +13,11 @@
 
 /* Routines Locales */
 
-	/************************************/
-	/* void UnDeleteItem(COMMAND * Cmd) */
-	/************************************/
-
+/***********************************************/
+void WinEDA_GerberFrame::UnDeleteItem(wxDC * DC)
+/***********************************************/
 /* Restitution d'un element (MODULE ou TRACK ) Efface
 */
-
-
-void WinEDA_GerberFrame::UnDeleteItem(wxDC * DC)
 {
 EDA_BaseStruct * PtStruct, *PtNext;
 TRACK * pt_track;
@@ -53,20 +49,18 @@ int net_code;
 			break;
 
 		default:
-			DisplayError(this, "Undelete struct: type Struct inattendu");
+			DisplayError(this, wxT("Undelete struct: type Struct inattendu"));
 			break;
 		}
 }
 
 
-	/**************************************************************/
-	/* void * SaveItemEfface(int type, void * PtItem, int nbitems) */
-	/**************************************************************/
-
+/********************************************************************/
+EDA_BaseStruct * SaveItemEfface(EDA_BaseStruct * PtItem, int nbitems)
+/********************************************************************/
 /* Sauvegarde d'un element aux fins de restitution par Undelete
 	Supporte actuellement : Module et segments de piste
 */
-EDA_BaseStruct * SaveItemEfface(EDA_BaseStruct * PtItem, int nbitems)
 {
 EDA_BaseStruct * NextS, * PtStruct = PtItem;
 int ii;

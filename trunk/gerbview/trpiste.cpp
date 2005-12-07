@@ -192,7 +192,7 @@ static bool show_err;
 		default:
 			if ( ! show_err )
 				{
-				DisplayError(panel,"Trace_Segment() type error");
+				DisplayError(panel, wxT("Trace_Segment() type error"));
 				show_err = TRUE;
 				}
 			break;
@@ -297,59 +297,14 @@ int rayon;
 }
 
 
-/***************************************************************/
-void Trace_1_texte_pcb(WinEDA_DrawPanel * panel, wxDC * DC,
-						TEXTE_PCB * PcbText,int ox,int oy, int DrawMode)
-/***************************************************************/
-/*
- Trace de 1 texte :
-	ptr = pointeur sur le debut de la description du texte
-	ox, oy = Offsets de trace
-	mode_color = GR_OR, GR_XOR..
-*/
-{
-int zoom = panel->GetScreen()->GetZoom();
-int cX, cY;
-int screen_epais, gcolor ;
-int size_h , size_v , width ;
-const char *ptr;
-int orient;
-
-	ptr = PcbText->m_Text.GetData(); /* ptr pointe 1er caractere du texte */
- 	if( ptr == NULL ) return;
-
-	/* lecture des caracteristiques du texte */
-	size_h = PcbText->m_Size.x; size_v = PcbText->m_Size.y ;
-	orient = PcbText->m_Orient;
-	width = PcbText->m_Width;
-	screen_epais = width / zoom;
-
-	if( (DisplayOpt.DisplayDrawItems == FILAIRE) || ( screen_epais < L_MIN_DESSIN) )
-		width = 0;
-
-	/* calcul de la position du texte */
-	cX = PcbText->m_Pos.x - ox;
-	cY = PcbText->m_Pos.y - oy;
-
-	if ( PcbText->m_Miroir == 0 ) size_h = -size_h;
-
-	/* choix de la couleur du texte : */
-	gcolor = g_DesignSettings.m_LayerColor[PcbText->m_Layer];
-
-	GRSetDrawMode(DC, DrawMode);
-
-	/* trace du texte */
-//	Display_1_Texte(panel, DC, ptr, strlen(ptr), cX, cY,
-//					size_h, size_v, width, orient, gcolor);
-}
-
-
+/*****************************************************************************************/
 void Affiche_DCodes_Pistes(WinEDA_DrawPanel * panel, wxDC * DC, BOARD * Pcb, int drawmode)
+/*****************************************************************************************/
 {
 TRACK * track;
 wxPoint pos;
 int width, orient;
-char Line[80];
+wxString Line;
 
 	GRSetDrawMode(DC, drawmode);
 	track = Pcb->m_Track;
@@ -368,7 +323,7 @@ char Line[80];
 			pos.x = (track->m_Start.x + track->m_End.x) / 2;
 			pos.y = (track->m_Start.y + track->m_End.y) / 2;
 			}
-		sprintf(Line,"D%d", track->m_NetCode);
+		Line.Printf( wxT("D%d"), track->m_NetCode);
 		width = track->m_Width;
 		orient = TEXT_ORIENT_HORIZ;
 		if ( track->m_Shape >= S_SPOT_CIRCLE)	// forme flash

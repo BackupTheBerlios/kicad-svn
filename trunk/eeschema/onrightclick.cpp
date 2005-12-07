@@ -71,7 +71,7 @@ int id = event.GetId();
 	switch ( id )
 		{
 		default:
-			DisplayError(this, "ToolOnRightClick() error");
+			DisplayError(this, wxT("ToolOnRightClick() error"));
 			break;
 		}
 }
@@ -233,7 +233,7 @@ bool is_new = (flags & IS_NEW) ? TRUE : FALSE;
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_SchematicFrame::OnRightClick Error: unknown DrawType %d",
+				wxT("WinEDA_SchematicFrame::OnRightClick Error: unknown DrawType %d"),
 				DrawStruct->m_StructType);
 			DisplayError(this, msg );
 			break;
@@ -263,7 +263,7 @@ void AddMenusForComponent(wxMenu * PopMenu, EDA_SchComponentStruct * Component )
 {
 EDA_LibComponentStruct * LibEntry;
 	
-	LibEntry = FindLibPart(Component->m_ChipName, "", FIND_ROOT);
+	LibEntry = FindLibPart(Component->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 
 	if( ! Component->m_Flags )
 	{
@@ -312,8 +312,8 @@ EDA_LibComponentStruct * LibEntry;
 		ADD_MENUITEM(PopMenu, ID_POPUP_SCH_DELETE_CMP, _("Delete Component"), delete_xpm);
 	}
 	
-	LibEntry = FindLibPart(Component->m_ChipName, "", FIND_ALIAS);
-	if ( LibEntry && LibEntry->m_DocFile != "" )
+	LibEntry = FindLibPart(Component->m_ChipName.GetData(), wxEmptyString, FIND_ALIAS);
+	if ( LibEntry &&  ! LibEntry->m_DocFile.IsEmpty() )
 		ADD_MENUITEM(PopMenu, ID_POPUP_SCH_DISPLAYDOC_CMP, _("Doc"), datasheet_xpm);
 }
 

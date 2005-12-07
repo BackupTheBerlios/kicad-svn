@@ -147,7 +147,7 @@ int TransMat[2][2], PartX, PartY, Multi, convert;
 int CharColor = -1;
 wxPoint pos;
 
-	Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+	Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 	if( Entry == NULL) return;;
 	memcpy(TransMat, DrawLibItem->m_Transform, sizeof(TransMat));
 	PartX = DrawLibItem->m_Pos.x; PartY = DrawLibItem->m_Pos.y;
@@ -489,12 +489,13 @@ int ii, pX, pY, Shape = 0, Orient = 0, offset;
 wxSize Size;
 wxString Text;
 int color = -1;
+int HalfSize;
 
 	switch ( Struct->m_StructType )
 		{
+		case DRAW_GLOBAL_LABEL_STRUCT_TYPE:
 		case DRAW_LABEL_STRUCT_TYPE:
 		case DRAW_TEXT_STRUCT_TYPE:
-		case DRAW_GLOBAL_LABEL_STRUCT_TYPE:
 			Text = ((DrawTextStruct*)Struct)->m_Text;
 			Size = ((DrawTextStruct*)Struct)->m_Size;
 			Orient = ((DrawTextStruct*)Struct)->m_Orient;
@@ -502,6 +503,8 @@ int color = -1;
 			pX = ((DrawTextStruct*)Struct)->m_Pos.x;
 			pY = ((DrawTextStruct*)Struct)->m_Pos.y;
 			offset = TXTMARGE;
+			if ( Struct->m_StructType == DRAW_GLOBAL_LABEL_STRUCT_TYPE)
+				offset += Size.x;	// We must draw the Glabel graphoc symbol
 			if ( (g_PlotFormat == PLOT_FORMAT_POST) && g_PlotPSColorOpt )
 				color = ReturnLayerColor(((DrawTextStruct*)Struct)->m_Layer);
 			break;
@@ -560,21 +563,21 @@ int color = -1;
 
 	/* Trace du symbole associe au label global */
 	if( Struct->m_StructType == DRAW_GLOBAL_LABEL_STRUCT_TYPE)
-		{
+	{
 		int jj, imax;
-		int HalfSize = Size.x / 2;
+		HalfSize = Size.x / 2;
 		Template = TemplateShape[Shape][Orient];
 		imax = *Template; Template++;
 
 		for ( ii = 0, jj = 0; ii < imax ; ii++ )
-			{
+		{
 			Poly[jj] = ( HalfSize * (*Template) ) + pX;
 			jj ++; Template++;
 			Poly[jj] = ( HalfSize * (*Template) ) + pY;
 			jj ++; Template++;
-			}
-		PlotPoly(imax,Poly,NOFILL );
 		}
+		PlotPoly(imax,Poly,NOFILL );
+	}
 }
 
 /***********************************************************/

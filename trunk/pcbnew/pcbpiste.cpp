@@ -71,9 +71,9 @@ wxString g_Layer_Name_Pair[29];
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
-	for ( ii = 0; ii < 29; ii++ )
+	for ( ii = 0; ii < NB_LAYERS; ii++ )
 	{
-		g_Layer_Name_Pair[ii] = ReturnPcbLayerName(ii) + " -> " + _("No Change");
+		g_Layer_Name_Pair[ii] = ReturnPcbLayerName(ii) + wxT(" -> ") + _("No Change");
 	}
 	pos.x = 5; pos.y = START_Y;
 	m_LayerList = new wxRadioBox(this, ID_SWAP_LAYER_SELECT, _("Layers"),
@@ -117,7 +117,8 @@ void WinEDA_SwapLayerFrame::Sel_Layer(wxCommandEvent& event)
 			if ( New_Layer[ii] != -1 )
 				{
 				New_Layer[ii] = -1;
-				m_LayerList->SetString(ii, ReturnPcbLayerName(ii) + " -> No Change");
+				m_LayerList->SetString(ii, ReturnPcbLayerName(ii) +
+							 + wxT(" -> ") + _("No Change") );
 				}
 			break;
 
@@ -130,7 +131,7 @@ void WinEDA_SwapLayerFrame::Sel_Layer(wxCommandEvent& event)
 				{
 				New_Layer[ii] = jj;
 				m_LayerList->SetString(ii,
-						ReturnPcbLayerName(ii) + " -> " + ReturnPcbLayerName(jj) );
+						ReturnPcbLayerName(ii) + wxT(" -> ") + ReturnPcbLayerName(jj) );
 				}
 			break;
 		}
@@ -227,7 +228,7 @@ wxString msg;
 WinEDA_TextFrame * List;
 int ii, jj;
 
-	msg = "*";
+	msg = wxT("*");
 	Get_Message(_("Filter for net names:"),msg, this);
 	if ( msg.IsEmpty() ) return;
 
@@ -240,8 +241,8 @@ int ii, jj;
 		/* calcul adr relative du nom de la pastille reference de la piste */
 		if( ! WildCompareString(msg, Equipot->m_Netname, FALSE ) ) continue ;
 
-		Line.Printf("net_code = %3.3d  [%.16s] ",Equipot->m_NetCode,
-													Equipot->m_Netname.GetData());
+		Line.Printf( wxT("net_code = %3.3d  [%.16s] "),Equipot->m_NetCode,
+											Equipot->m_Netname.GetData());
 		List->Append(Line);
 	}
 	ii = List->ShowModal(); List->Destroy();

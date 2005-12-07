@@ -175,7 +175,7 @@ int StartCount;
 	
 	else for ( Module = m_Parent->m_Pcb->m_Modules; Module != NULL; Module = (MODULE*)Module->Pnext)
 	{
-		if( WildCompareString( s_OldStringFound, Module->m_Reference->GetText(), FALSE ) )
+		if( WildCompareString( s_OldStringFound, Module->m_Reference->m_Text.GetData(), FALSE ) )
 		{
 			StartCount++;
 			if ( StartCount > s_ItemCount )
@@ -186,7 +186,7 @@ int StartCount;
 				break;
 			}
 		}
-		if( WildCompareString( s_OldStringFound, Module->m_Value->GetText(), FALSE ) )
+		if( WildCompareString( s_OldStringFound, Module->m_Value->m_Text.GetData(), FALSE ) )
 		{
 			StartCount++;
 			if ( StartCount > s_ItemCount )
@@ -223,7 +223,7 @@ int StartCount;
 
 	else
 	{
-		m_Parent->Affiche_Message("");
+		m_Parent->Affiche_Message(wxEmptyString);
 		if( FindMarker ) msg = _("Marker not found");
 		else msg.Printf( _("<%s> Not Found"), s_OldStringFound.GetData());
 		DisplayError(this,msg, 10);

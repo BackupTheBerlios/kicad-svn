@@ -116,7 +116,7 @@ WinEDA_GerberFrame::WinEDA_GerberFrame(wxWindow * father, WinEDA_App *parent,
 					const wxString & title, const wxPoint& pos, const wxSize& size) :
 					WinEDA_BasePcbFrame(father, parent, GERBER_FRAME, title, pos, size)
 {
-	m_FrameName = "GerberFrame";
+	m_FrameName = wxT("GerberFrame");
 	m_Draw_Axes = TRUE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;			// TRUE pour avoir la axes dessinee
 	m_Draw_Sheet_Ref = FALSE;	// TRUE pour avoir le cartouche dessiné
@@ -248,13 +248,13 @@ wxMenuBar * menuBar = GetMenuBar();
 		m_FilesMenu->AppendSeparator();
 		for ( int ii = 0; ii < 10; ii++ )
 			{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 			}
 
 		// Configuration:
 		wxMenu * configmenu = new wxMenu;
-		configmenu->Append(ID_CONFIG_REQ,_( "&Files and Dir"),
+		configmenu->Append(ID_CONFIG_REQ, _("&Files and Dir"),
 			_("Setting Files extension, Directories and others..."));
 		configmenu->Append(ID_COLORS_SETUP, _("&Colors"),
 			_("Select Colors and Display for layers"));
@@ -314,7 +314,7 @@ wxMenuBar * menuBar = GetMenuBar();
 			}
 		for ( ii = 0; ii < max_file; ii++ )
 			{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 			}
 		}

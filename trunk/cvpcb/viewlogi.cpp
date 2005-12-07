@@ -39,7 +39,6 @@ int WinEDA_CvpcbFrame::ReadViewlogicWirList(void)
 int ii, Type = 0, error, Header;
 char RefDes[40], val[40], LocalRef[40], Generic[40] ;
 char Line[1024], *Text;
-STOREPIN * Pin;
 STORECMP * Cmp, *NextCmp;
 STORECMP * PseudoCmp = NULL;
 wxString msg;
@@ -56,25 +55,25 @@ wxString msg;
 	msg = _("Netlist file ") + FFileName;
 	SetStatusText(msg,0);
 
-	source = fopen(FFileName.GetData(),"rt");
+	source = wxFopen(FFileName, wxT("rt"));
 	if (source == 0)
-		{
+	{
 		msg = _("File not found ") + FFileName;
 		DisplayError(this, msg); return(-1);
-		}
+	}
 
 	/* Lecture entete qui doit etre "| Wirelist ..*/
 	fgets(Line,1024,source) ;
 	ii = strncmp(Line,"| Wirelist",3) ;	 /* net type Viewlogic */
 
 	if ( ii != 0 )
-		{
-		sprintf(cbuf,"format inconnu <%s>",Line) ;
-		DisplayError(this, cbuf);
+	{
+		msg.Printf( _("Unknown format <%s>"),Line) ;
+		DisplayError(this, msg);
 		fclose(source); return(-3) ;
-		}
+	}
 
-	SetStatusText("Format Netliste ViewLogic wirelist", 0);
+	SetStatusText( wxT("Format Netliste ViewLogic wirelist"), 0);
 
 	/* Lecture de la liste */
 	for ( ;; )
@@ -100,23 +99,23 @@ wxString msg;
 			case API :
 				if( (nbcomp <= 0 ) || (Cmp == NULL) )
 					{
-					DisplayError(NULL, "Description API inattendue", 20);
+					DisplayError(NULL, wxT("Description API inattendue"), 20);
 					break;
 					}
 				error = ReadReelNumPin( Text, Cmp, Type );
 				if( error < 0 )
 					{
-					sprintf(Line,"Erreur %d ligne API", -error );
-					DisplayError(NULL, Line,10 );
+					msg.Printf( wxT("Erreur %d ligne API"), -error );
+					DisplayError(NULL, msg,10 );
 					}
 				break;
 
 			case I__ :	/* Lecture descr 1 composant */
 				if( nbcomp <= 0 )
-					{
-					DisplayError(NULL, "Description Composant inattendue", 20);
+				{
+					DisplayError(NULL, wxT("Description Composant inattendue"), 20);
 					break;
-					}
+				}
 				*RefDes = 0; *val = 0;
 				ReadVLDescrCmp( Text, Cmp, Type);
 				Type = 1;	/* pour lecture num pins */
@@ -124,8 +123,7 @@ wxString msg;
 
 			case W__ :
 			case M__ :
-				Cmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
-				Cmp->Type = STRUCT_COMPONANT;
+				Cmp = new STORECMP();
 				Cmp->Pnext = BaseListeCmp;
 				BaseListeCmp = Cmp;
 				nbcomp++ ;
@@ -156,23 +154,16 @@ wxString msg;
 	/* Renumerotation des composants */
 	Cmp = BaseListeCmp;
 	for( ii = 1; Cmp != NULL; ii++, Cmp = Cmp->Pnext)
-		{
-		Cmp->Num = ii;
-		}
+	{
+		Cmp->m_Num = ii;
+	}
 
 	/* Liberation memoire */
 	Cmp = BasePseudoCmp;
 	for( ; Cmp != NULL; Cmp = NextCmp )
-		{
-		STOREPIN * NextPin;
-		for( Pin = Cmp->Pins; Pin != NULL; Pin = NextPin )
-			{
-			NextPin = Pin->Pnext;
-			if( Pin->PinNet ) MyFree(Pin->PinNet);
-			MyFree(Pin);
-			}
-		NextCmp = Cmp->Pnext; MyFree(Cmp);
-		}
+	{
+		NextCmp = Cmp->Pnext; delete Cmp;
+	}
 	BasePseudoCmp = NULL;
 
 	return(0);
@@ -187,17 +178,17 @@ static int ReadVLDescrCmp( char * Line, STORECMP * Cmp, int Type)
 */
 {
 char * Text, *Ident;
-int nbpins = 0, ii;
+int nbpins = 0;
 char numpin[9];
 STOREPIN * Pin = NULL;
-STOREPIN ** LastPin = & Cmp->Pins;
+STOREPIN ** LastPin = & Cmp->m_Pins;
 
 	Text = strtok(Line, " \n\t\r`");
 
 	Text = strtok(NULL, " \n\t\r`");	/* Text pointe 1er mot utile */
 
 	Ident = strtok(NULL, " \n\t\r`");	/* Ident pointe identificateur */
-	strncpy(Cmp->Repere, Ident, sizeof(Cmp->Repere) -1) ;
+	Cmp->m_Repere = CONV_FROM_UTF8(Ident);
 
 	while ( Text )
 		{
@@ -205,49 +196,45 @@ STOREPIN ** LastPin = & Cmp->Pins;
 		if( Text == NULL ) break;
 
 		if( strncmp(Text, "VALUE=" ,6) == 0 )
-			{
-			strncpy(Cmp->Valeur, Text+6,
-							sizeof(Cmp->Valeur) -1);
+		{
+			Cmp->m_Valeur = CONV_FROM_UTF8(Text+6);
 			continue;
-			}
+		}
 
 		if( strncmp(Text, "REFDES=",7 ) == 0 )
-			{
-			strncpy( Cmp->Reference, Text+7 ,
-						sizeof(Cmp->Reference) -1);
-			ii = strlen(Cmp->Reference) -1 ;
-			if( !isdigit(Cmp->Reference[ii] ) )
-				Cmp->Reference[ii] = 0;
+		{
+			Cmp->m_Reference = CONV_FROM_UTF8(Text+7);
+			if( !isdigit(Cmp->m_Reference.Last() ) )
+				Cmp->m_Reference.RemoveLast();
 			continue;
-			}
+		}
 
 		/* Lecture d'un net pin */
 		nbpins++;
 		Pin = (STOREPIN *)MyZMalloc( sizeof(STOREPIN) );
-		Pin->Type = STRUCT_PIN;
 		*LastPin = Pin; LastPin = &Pin->Pnext;
 		sprintf(numpin,"%d", nbpins);
-		Pin->index = nbpins;
-		strncpy( Pin->PinNum, numpin, sizeof(Pin->PinNum) -1 );
-		Pin->PinNet = strdup(Text);
+		Pin->m_Index = nbpins;
+		Pin->m_PinNum = CONV_FROM_UTF8(numpin);
+		Pin->m_PinNet = CONV_FROM_UTF8(Text);
 		}
 
-	if( Cmp->Valeur[0] == 0)
-		{
-		strncpy(Cmp->Valeur, Ident, 16);
-		}
+	if( Cmp->m_Valeur.IsEmpty())
+	{
+		Cmp->m_Valeur = CONV_FROM_UTF8(Ident);
+	}
 
 
 	/* Mise en place du TimeStamp init a 0 */
-	memset(Cmp->TimeStamp, '0', 8 );
+	Cmp->m_TimeStamp = wxT("00000000");
 
 	/* Analyse du type */
 	switch( Type )
-		{
+	{
 		case M__: return(0);
 		case W__: return(0);
 		default: break;
-		}
+	}
 	return(-1);
 }
 
@@ -282,11 +269,11 @@ STOREPIN * Pin;
 
 	if( strncmp(Text, "#=" ,2) ) return (-4);
 
-	for(Pin = Cmp->Pins ; Pin != NULL; Pin = Pin->Pnext )
+	for(Pin = Cmp->m_Pins ; Pin != NULL; Pin = Pin->Pnext )
 		{
-		if( Pin->Type != STRUCT_PIN ) return(-5);
-		if( Pin->index != numpin ) continue;
-		strncpy( Pin->PinNum, Text+2, sizeof(Pin->PinNum) -1 );
+		if( Pin->m_Type != STRUCT_PIN ) return(-5);
+		if( Pin->m_Index != numpin ) continue;
+		Pin->m_PinNum = CONV_FROM_UTF8(Text+2);
 		return(0);
 		}
 	return(-6 );
@@ -312,20 +299,20 @@ int Deleted = 0;
 
 	for( ; NextCmp != NULL; Cmp = NextCmp, NextCmp = NextCmp->Pnext )
 		{
-		if( strcmp(Cmp->Reference,NextCmp->Reference) ) continue;
+		if( Cmp->m_Reference != NextCmp->m_Reference ) continue;
 		/* 2 composants identiques : Pins a regrouper */
 		Deleted++;
-		Pin = Cmp->Pins;
-		if( Pin == NULL ) Cmp->Pins = NextCmp->Pins;
+		Pin = Cmp->m_Pins;
+		if( Pin == NULL ) Cmp->m_Pins = NextCmp->m_Pins;
 		else
-			{
+		{
 			while(Pin->Pnext) Pin = Pin->Pnext;
-			Pin->Pnext = NextCmp->Pins;
-			}
-		NextCmp->Pins = NULL;
+			Pin->Pnext = NextCmp->m_Pins;
+		}
+		NextCmp->m_Pins = NULL;
 		Cmp->Pnext = NextCmp->Pnext;
 		(Cmp->Pnext)->Pback = Cmp;
-		MyFree( NextCmp);
+		delete NextCmp;
 		NextCmp = Cmp;
 		}
 	return(Deleted);
@@ -334,66 +321,62 @@ int Deleted = 0;
 
 
 /****************************************************************************/
-/* STORECMP * TraitePseudoCmp(char * Text, STORECMP *PseudoCmp, int Header) */
-/****************************************************************************/
-
 static STORECMP *TraitePseudoCmp(char * Line, STORECMP *PseudoCmp, int Header)
+/****************************************************************************/
 {
 STORECMP * Cmp = PseudoCmp;
 STOREPIN * Pin;
-char Name[256], *Text;
+char  *Text;
+wxString Name;
 
 	Text = strtok(Line," \t\n\r");
 	Text = strtok(NULL," \t\n\r");  /* Pointe Name */
-	strcpy(Name, Text);
+	Name = CONV_FROM_UTF8(Text);
 	Text = strtok(NULL," \t\n\r");  /* Pointe partie utile */
 
 	if( Cmp == NULL )
-		{
-		Cmp = BasePseudoCmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
-		Cmp->Type = STRUCT_COMPONANT;
-		strncpy( Cmp->Repere, Name, sizeof(Cmp->Repere) - 1);
-		strncpy( Cmp->Valeur, Name, sizeof(Cmp->Valeur) - 1);
-		}
+	{
+		Cmp = BasePseudoCmp = new STORECMP();
+		Cmp->m_Repere = Name;
+		Cmp->m_Valeur = Name;
+	}
 
-	else if( strcmp(Name, Cmp->Valeur) )	/* Nouveau pseudo composant */
-		{
-		Cmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
+	else if( Name != Cmp->m_Valeur )	/* Nouveau pseudo composant */
+	{
+		Cmp = new STORECMP();
 		PseudoCmp->Pnext = Cmp;
-		Cmp->Type = STRUCT_COMPONANT;
-		strncpy( Cmp->Valeur, Name, sizeof(Cmp->Valeur) - 1);
-		strncpy( Cmp->Repere, Name, sizeof(Cmp->Repere) - 1);
-		}
+		Cmp->m_Valeur = Name;
+		Cmp->m_Repere = Name;
+	}
 
 	switch ( Header )
 		{
 		case AS_ :
 			if( strnicmp(Text,"PKG_TYPE=",9) == 0 )
 				{
-				strncpy(Cmp->Module,Text+9,sizeof(Cmp->Module) -1 );
+				Cmp->m_Module = CONV_FROM_UTF8(Text+9);
 				break;
 				}
 			if( strnicmp(Text,"PARTS =",7) == 0 )
 				{
-				Cmp->Multi = atoi(Text+7);
+				Cmp->m_Multi = atoi(Text+7);
 				break;
 				}
 			if( strnicmp(Text,"REFDES=",7) == 0 )
 				{
-				strncpy(Cmp->Reference,Text+7,sizeof(Cmp->Reference) -1 );
+				Cmp->m_Reference = CONV_FROM_UTF8(Text+7);
 				break;
 				}
 			if( strnicmp(Text,"SIGNAL=",7) == 0 )
 				{
 				Text = strtok(Text," ;=\t\n\r");
 				Text = strtok(NULL," ;=\t\n\r");  /* Pointe partie utile */
-				Pin = (STOREPIN*) MyZMalloc( sizeof(STOREPIN) );
-				Pin->Type = STRUCT_PIN;
-				Pin->Pnext = Cmp->Pins;
-				Cmp->Pins = Pin;
-				Pin->PinNet = strdup(Text);
+				Pin = new STOREPIN();
+				Pin->Pnext = Cmp->m_Pins;
+				Cmp->m_Pins = Pin;
+				Pin->m_PinNet = CONV_FROM_UTF8(Text);
 				Text = strtok(NULL," ;=\t\n\r");  /* Pointe partie utile */
-				strncpy(Pin->PinNum,Text,sizeof(Pin->PinNum) -1 );
+				Pin->m_PinNum = CONV_FROM_UTF8(Text);
 				break;
 				}
 			break;
@@ -407,38 +390,33 @@ char Name[256], *Text;
 }
 
 
-	/*********************************************************************/
-	/* void MergePseudoCmp(STORECMP * BaseCmp, STORECMP * BasePseudoCmp) */
-	/*********************************************************************/
-
+/*********************************************************************/
+static void MergePseudoCmp(STORECMP * BaseCmp, STORECMP * BasePseudoCmp)
+/*********************************************************************/
 /* Additionne aux composants standards les renseignements contenus
 dans les descriptions generales
 */
-static void MergePseudoCmp(STORECMP * BaseCmp, STORECMP * BasePseudoCmp)
 {
 STORECMP * Cmp, * PseudoCmp;
 STOREPIN * Pin, * PseudoPin;
 
 	Cmp = BaseCmp;
 	for( ; Cmp != NULL; Cmp = Cmp->Pnext)
-		{
+	{
 		PseudoCmp = BasePseudoCmp;
 		for( ; PseudoCmp != NULL; PseudoCmp = PseudoCmp->Pnext)
-			{
-			if( strcmp(Cmp->Repere, PseudoCmp->Repere) ) continue;
+		{
+			if( Cmp->m_Repere != PseudoCmp->m_Repere ) continue;
 			/* Description trouvee, transfert des infos */
-			Cmp->Multi = PseudoCmp->Multi;
-			PseudoPin = PseudoCmp->Pins;
+			Cmp->m_Multi = PseudoCmp->m_Multi;
+			PseudoPin = PseudoCmp->m_Pins;
 			for ( ; PseudoPin != NULL; PseudoPin = PseudoPin->Pnext)
-				{
-				Pin = (STOREPIN*) MyMalloc(sizeof(STOREPIN) );
-				*Pin = *PseudoPin;
-				if (PseudoPin->PinNet)
-					 Pin->PinNet = strdup(PseudoPin->PinNet);
-				Pin->Pnext = Cmp->Pins; Cmp->Pins = Pin;
-				}
-			break;
+			{
+				Pin = new STOREPIN(*PseudoPin);
+				Pin->Pnext = Cmp->m_Pins; Cmp->m_Pins = Pin;
 			}
+			break;
 		}
+	}
 }
 

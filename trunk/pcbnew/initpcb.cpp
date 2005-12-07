@@ -266,7 +266,7 @@ bool WinEDA_BasePcbFrame::Clear_Pcb(wxDC * DC, bool query)
 		}
 
 	/* init pointeurs  et variables */
-	GetScreen()->m_FileName = "";
+	GetScreen()->m_FileName.Empty();
 	memset (buf_work, 0, BUFMEMSIZE);
 	adr_lowmem = adr_max = buf_work;
 
@@ -318,7 +318,7 @@ void WinEDA_PcbFrame::Erase_Zones(wxDC * DC, bool query)
 /************************************************************/
 {
 
-	if( query && !IsOK(this, "Suppression des Zones ?") ) return ;
+	if( query && !IsOK(this, _("Delete Zones ?") ) ) return ;
 
 	if( m_Pcb->m_Zone )
 		{
@@ -341,11 +341,11 @@ int masque_layer = (~EDGE_LAYER) & 0x1FFF0000;
 	if( is_edges )
 		{
 		masque_layer = EDGE_LAYER;
-		if ( query && ! IsOK(this, "Suppression des Contours du Pcb?") ) return;
+		if ( query && ! IsOK(this, _("Delete Board edges ?") ) ) return;
 		}
 	else
 		{
-		if ( query && ! IsOK(this, "Suppression des Segments Dessin?") ) return;
+		if ( query && ! IsOK(this, _("Delete draw items?") ) ) return;
 		}
 
 	PtStruct = (EDA_BaseStruct *) m_Pcb->m_Drawings;
@@ -374,7 +374,7 @@ int masque_layer = (~EDGE_LAYER) & 0x1FFF0000;
 					DeleteStructure(PtStruct);
 				break;
 			default:
-				DisplayError(this, "Type Draw inconnu/inattendu");
+				DisplayError(this, wxT("Unknown/unexpected Draw Type"));
 				break;
 			}
 		}
@@ -395,7 +395,7 @@ SEGM_FIXE, SEGM_AR
 TRACK * pt_segm;
 EDA_BaseStruct * PtNext;
 
-	if( query && ! IsOK(this, "Delete Tracks?") ) return;
+	if( query && ! IsOK(this, _("Delete Tracks?") ) ) return;
 
 	/* Marquage des pistes a effacer */
 	for( pt_segm = m_Pcb->m_Track; pt_segm != NULL; pt_segm = (TRACK*) PtNext)
@@ -414,7 +414,7 @@ EDA_BaseStruct * PtNext;
 void WinEDA_PcbFrame::Erase_Modules(wxDC * DC, bool query)
 /**************************************************************/
 {
-	if( query && ! IsOK(this, "Delete Modules?") ) return;
+	if( query && ! IsOK(this, _("Delete Modules?") ) ) return;
 
 	while ( m_Pcb->m_Modules ) DeleteStructure(m_Pcb->m_Modules);
 
@@ -435,7 +435,7 @@ void WinEDA_PcbFrame::Erase_Textes_Pcb(wxDC * DC, bool query)
 {
 EDA_BaseStruct * PtStruct, *PtNext;
 
-	if( query && ! IsOK(this, "Delete Pcb Texts") ) return;
+	if( query && ! IsOK(this, _("Delete Pcb Texts") ) ) return;
 
 	PtStruct = (EDA_BaseStruct*) m_Pcb->m_Drawings;
 	for( ; PtStruct != NULL; PtStruct = PtNext)

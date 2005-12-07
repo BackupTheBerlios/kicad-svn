@@ -31,7 +31,7 @@ int ii;
 EDA_LibComponentStruct * RootLibEntry = NULL, * CurrentLibEntry = NULL;
 bool asdeMorgan = FALSE, state;
 
-	if ( (g_CurrentViewLibraryName != "") && (g_CurrentViewComponentName != "") )
+	if ( (g_CurrentViewLibraryName != wxEmptyString) && (g_CurrentViewComponentName != wxEmptyString) )
 	{
 		RootLibEntry = FindLibPart(g_CurrentViewComponentName.GetData(),
 					 g_CurrentViewLibraryName.GetData(), FIND_ROOT);
@@ -47,66 +47,66 @@ bool asdeMorgan = FALSE, state;
 		SetToolBar(m_HToolBar);
 
 		// Set up toolbar
-		m_HToolBar->AddTool(ID_LIBVIEW_SELECT_LIB, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_SELECT_LIB, wxEmptyString,
 					BITMAP(library_xpm),
 					_("Select library to browse"));
 
-		m_HToolBar->AddTool(ID_LIBVIEW_SELECT_PART, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_SELECT_PART, wxEmptyString,
 					BITMAP(add_component_xpm),
 					_("Select part to browse"));
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_LIBVIEW_PREVIOUS, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_PREVIOUS, wxEmptyString,
 					BITMAP(lib_previous_xpm),
 					_("Display previous part"));
 
-		m_HToolBar->AddTool(ID_LIBVIEW_NEXT, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_NEXT, wxEmptyString,
 					BITMAP(lib_next_xpm),
 					_("Display next part"));
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, wxEmptyString,
 					BITMAP(zoom_in_xpm),
-					"zoom + (F1)");
+					_("zoom + (F1)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, wxEmptyString,
 					BITMAP(zoom_out_xpm),
-					"zoom - (F2)");
+					_("zoom - (F2)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, wxEmptyString,
 					BITMAP(repaint_xpm),
 					_("redraw (F3)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, wxEmptyString,
 					BITMAP(zoom_optimal_xpm),
-					"1:1 zoom");
+					_("1:1 zoom"));
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_LIBVIEW_DE_MORGAN_NORMAL_BUTT, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_DE_MORGAN_NORMAL_BUTT, wxEmptyString,
 					BITMAP(morgan1_xpm),
 					_("Show as \"De Morgan\" normal part"), wxITEM_CHECK);
 
-		m_HToolBar->AddTool(ID_LIBVIEW_DE_MORGAN_CONVERT_BUTT, "",
+		m_HToolBar->AddTool(ID_LIBVIEW_DE_MORGAN_CONVERT_BUTT, wxEmptyString,
 					BITMAP(morgan2_xpm),
 					_("Show as \"De Morgan\" convert part"), wxITEM_CHECK);
 
 		m_HToolBar->AddSeparator();
 
-		SelpartBox = new wxComboBox(m_HToolBar, ID_LIBVIEW_SELECT_PART_NUMBER,"",
+		SelpartBox = new wxComboBox(m_HToolBar, ID_LIBVIEW_SELECT_PART_NUMBER,wxEmptyString,
 					wxDefaultPosition, wxSize(150,-1), 0, NULL, wxCB_READONLY);
 		m_HToolBar->AddControl(SelpartBox);
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_LIBVIEW_VIEWDOC, "", BITMAP(datasheet_xpm),
+		m_HToolBar->AddTool(ID_LIBVIEW_VIEWDOC, wxEmptyString, BITMAP(datasheet_xpm),
 					_("View component documents") );
 		m_HToolBar->EnableTool(ID_LIBVIEW_VIEWDOC, FALSE);
 
 		if ( m_IsModal )	// The lib browser is called from a "load component" command
 		{
 			m_HToolBar->AddSeparator();
-			m_HToolBar->AddTool(ID_LIBVIEW_CMP_EXPORT_TO_SCHEMATIC, "",
+			m_HToolBar->AddTool(ID_LIBVIEW_CMP_EXPORT_TO_SCHEMATIC, wxEmptyString,
 						BITMAP(export_xpm),
-						"Export to schematic");
+						_("Export to schematic") );
 		}
 
 		// after adding the buttons to the toolbar, must call Realize() to reflect
@@ -137,7 +137,7 @@ bool asdeMorgan = FALSE, state;
 	SelpartBox->Enable(state);
 
 	state = FALSE;
-	if( CurrentLibEntry && (CurrentLibEntry->m_DocFile != "") )
+	if( CurrentLibEntry && (CurrentLibEntry->m_DocFile != wxEmptyString) )
 		state = TRUE;
 	m_HToolBar->EnableTool(ID_LIBVIEW_VIEWDOC, state);
 }

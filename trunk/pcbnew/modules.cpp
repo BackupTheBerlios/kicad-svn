@@ -237,8 +237,9 @@ wxString msg;
 	/* Confirmation de l'effacement */
 	module->Display_Infos(this);
 
-	msg << _("Delete Module") << " " << module->m_Reference->m_Text
-			<< "  (" << _("Value ") << module->m_Value->m_Text << ") ?";
+	msg << _("Delete Module") << wxT(" ") << module->m_Reference->m_Text
+			<< wxT("  (") << _("Value ") << module->m_Value->m_Text
+			<< wxT(") ?");
 	if( !IsOK(this, msg ) )
 	{
 		return FALSE;
@@ -414,7 +415,7 @@ EDA_BaseStruct * PtStruct;
 
 				break;
 
-			default: DisplayError(this, "Type Draw Indefini"); break;
+			default: DisplayError(this, wxT("Unknown Draw Type")); break;
 
 			}
 		}

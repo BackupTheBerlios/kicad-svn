@@ -76,7 +76,7 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 
 		default:
 			msg.Printf(
-				"WinEDA_GerberFrame::OnRightClick Error: iilegal or unknown DrawType %d",
+				wxT("WinEDA_GerberFrame::OnRightClick Error: iilegal or unknown DrawType %d"),
 				DrawStruct->m_StructType);
 			DisplayError(this, msg );
 			break;

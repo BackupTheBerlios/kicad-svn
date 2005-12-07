@@ -120,7 +120,7 @@ int net_code_delete;
 
 	if ( pt_segm == NULL ) return;
 
-	if ( IsOK(this, "Delete NET ?") )
+	if ( IsOK(this, _("Delete NET ?") ) )
 		{
 		net_code_delete = pt_segm->m_NetCode;
 		/* Recherche du debut de la zone des pistes du net_code courant */

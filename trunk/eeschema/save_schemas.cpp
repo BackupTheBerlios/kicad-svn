@@ -9,6 +9,7 @@
 #include "program.h"
 #include "libcmp.h"
 #include "general.h"
+#include "macros.h"
 
 #include "protos.h"
 
@@ -32,7 +33,7 @@ bool WinEDA_SchematicFrame::SaveEEFile(BASE_SCREEN *Window, int FileSave)
 {
 wxString msg;
 wxString Name, BakName;
-const char **LibNames;
+const wxChar **LibNames;
 char * layer, *width;
 int ii, shape;
 bool Failed = FALSE;
@@ -44,7 +45,7 @@ wxString dirbuf;
 	if ( Window == NULL ) Window = ActiveScreen;
 
 	/* If no name exists in the window yet - save as new. */
-	if( Window->m_FileName ==  "" ) FileSave = FILE_SAVE_NEW;
+	if( Window->m_FileName.IsEmpty() ) FileSave = FILE_SAVE_NEW;
 
 	switch (FileSave)
 	{
@@ -55,20 +56,20 @@ wxString dirbuf;
 			BakName = Name;
 			if ( wxFileExists(Name) )
 			{
-				ChangeFileNameExt(BakName, ".bak");
-				remove(BakName);	/* delete Old .bak file */
-				if( rename(Name, BakName) )
+				ChangeFileNameExt(BakName, wxT(".bak"));
+				wxRemoveFile(BakName);	/* delete Old .bak file */
+				if( ! wxRenameFile(Name, BakName) )
 				{
-					DisplayError(this, "Warning: unable to rename old file", 10);
+					DisplayError(this, wxT("Warning: unable to rename old file"), 10);
 				}
 			}
 			break;
 
 		case FILE_SAVE_NEW:
 		{
-			wxString mask = "*" + g_SchExtBuffer;
+			wxString mask = wxT("*") + g_SchExtBuffer;
 			Name = EDA_FileSelector(_("Schematic files:"),
-					"",					/* Chemin par defaut */
+					wxEmptyString,					/* Chemin par defaut */
 					Window->m_FileName,				/* nom fichier par defaut, et resultat */
 					g_SchExtBuffer,		/* extension par defaut */
 					mask,				/* Masque d'affichage */
@@ -76,7 +77,7 @@ wxString dirbuf;
 					wxSAVE,
 					FALSE
 					);
-			if ( Name == "" ) return FALSE;
+			if ( Name.IsEmpty() ) return FALSE;
 
 			Window->m_FileName = Name;
 			dirbuf = wxGetCwd() + STRING_DIR_SEP;
@@ -88,7 +89,7 @@ wxString dirbuf;
 		default: break;
 	}
 
-	if ((f = fopen(Name.GetData(), "wt")) == NULL)
+	if ((f = wxFopen(Name, wxT("wt"))) == NULL)
 	{
 		msg = _("Failed to create file ") + Name;
 		DisplayError(this, msg);
@@ -99,17 +100,17 @@ wxString dirbuf;
 	Affiche_Message(msg);
 
 	LibNames = GetLibNames();
-	BakName = "";	// temporary buffer!
+	BakName.Empty();	// temporary buffer!
 	for (ii = 0; LibNames[ii] != NULL; ii++)
 	{
-		if (ii > 0) BakName += ",";
+		if (ii > 0) BakName += wxT(",");
 		BakName += LibNames[ii];
 	}
 	MyFree( LibNames);
 
 	if (fprintf(f, "%s %s %d\n", EESCHEMA_FILE_STAMP,
 		SCHEMATIC_HEAD_STRING, EESCHEMA_VERSION) == EOF ||
-		fprintf(f, "LIBS:%s\n", BakName.GetData()) == EOF)
+		fprintf(f, "LIBS:%s\n", CONV_TO_UTF8(BakName)) == EOF)
 	{
 		DisplayError(this, _("File write operation failed."));
 		fclose(f);
@@ -120,19 +121,20 @@ wxString dirbuf;
 
 	SaveLayers(f);
 	/* Sauvegarde des dimensions du schema, des textes du cartouche.. */
+	
 	PlotSheet = Window->m_CurrentSheet;
-	fprintf(f,"$Descr %s %d %d\n",PlotSheet->m_Name.GetData(),
+	fprintf(f,"$Descr %s %d %d\n",CONV_TO_UTF8(PlotSheet->m_Name),
 			PlotSheet->m_Size.x, PlotSheet->m_Size.y);
 
 	fprintf(f,"Sheet %d %d\n",Window->m_SheetNumber, Window->m_NumberOfSheet);
-	fprintf(f,"Title \"%s\"\n",Window->m_Title.GetData());
-	fprintf(f,"Date \"%s\"\n",Window->m_Date.GetData());
-	fprintf(f,"Rev \"%s\"\n",Window->m_Revision.GetData());
-	fprintf(f,"Comp \"%s\"\n",Window->m_Company.GetData());
-	fprintf(f,"Comment1 \"%s\"\n",Window->m_Commentaire1.GetData());
-	fprintf(f,"Comment2 \"%s\"\n",Window->m_Commentaire2.GetData());
-	fprintf(f,"Comment3 \"%s\"\n",Window->m_Commentaire3.GetData());
-	fprintf(f,"Comment4 \"%s\"\n",Window->m_Commentaire4.GetData());
+	fprintf(f,"Title \"%s\"\n",CONV_TO_UTF8(Window->m_Title));
+	fprintf(f,"Date \"%s\"\n",CONV_TO_UTF8(Window->m_Date));
+	fprintf(f,"Rev \"%s\"\n",CONV_TO_UTF8(Window->m_Revision));
+	fprintf(f,"Comp \"%s\"\n",CONV_TO_UTF8(Window->m_Company));
+	fprintf(f,"Comment1 \"%s\"\n", CONV_TO_UTF8(Window->m_Commentaire1));
+	fprintf(f,"Comment2 \"%s\"\n", CONV_TO_UTF8(Window->m_Commentaire2));
+	fprintf(f,"Comment3 \"%s\"\n", CONV_TO_UTF8(Window->m_Commentaire3));
+	fprintf(f,"Comment4 \"%s\"\n", CONV_TO_UTF8(Window->m_Commentaire4));
 
 	fprintf(f,"$EndDescr\n");
 
@@ -240,7 +242,7 @@ wxString dirbuf;
 				if (fprintf(f, "Text Notes %-4d %-4d %-4d %-4d ~\n%s\n",
 						STRUCT->m_Pos.x, STRUCT->m_Pos.y,
 						STRUCT->m_Orient, STRUCT->m_Size.x,
-						STRUCT->m_Text.GetData()) == EOF)
+						CONV_TO_UTF8(STRUCT->m_Text)) == EOF)
 					Failed = TRUE;
 				break;
 
@@ -252,7 +254,7 @@ wxString dirbuf;
 				if (fprintf(f, "Text Label %-4d %-4d %-4d %-4d %c\n%s\n",
 						STRUCT->m_Pos.x, STRUCT->m_Pos.y,
 						STRUCT->m_Orient, STRUCT->m_Size.x, shape,
-						STRUCT->m_Text.GetData()) == EOF)
+						CONV_TO_UTF8(STRUCT->m_Text)) == EOF)
 					Failed = TRUE;
 				break;
 
@@ -265,7 +267,7 @@ wxString dirbuf;
 						STRUCT->m_Pos.x, STRUCT->m_Pos.y,
 						STRUCT->m_Orient,	STRUCT->m_Size.x,
 						SheetLabelType[shape],
-						STRUCT->m_Text.GetData()) == EOF)
+						CONV_TO_UTF8(STRUCT->m_Text)) == EOF)
 					Failed = TRUE;
 				break;
 
@@ -273,11 +275,11 @@ wxString dirbuf;
 				#undef STRUCT
 				#define STRUCT ((DrawMarkerStruct *) Phead)
 				if( STRUCT->GetComment() ) msg = STRUCT->GetComment();
-				else msg = "";
+				else msg.Empty();
 				if (fprintf(f, "Kmarq %c %-4d %-4d \"%s\" F=%X\n",
 								(int) STRUCT->m_Type + 'A',
 								STRUCT->m_Pos.x, STRUCT->m_Pos.y,
-								msg.GetData(), STRUCT->m_MarkFlags) == EOF)
+								CONV_TO_UTF8(msg), STRUCT->m_MarkFlags) == EOF)
 					{
 					Failed = TRUE;
 					}
@@ -320,13 +322,13 @@ int ii, Failed = FALSE;
 char Name1[256], Name2[256];
 int hjustify, vjustify;
 
-	strcpy(Name1, LibItemStruct->m_Field[REFERENCE].m_Text.GetData());
+	strcpy(Name1, CONV_TO_UTF8(LibItemStruct->m_Field[REFERENCE].m_Text));
 	for (ii = 0; ii < (int)strlen(Name1); ii++)
-	if (Name1[ii] <= ' ') Name1[ii] = '~';
+	if (Name1[ii] <= ' ') Name1[ii] = '~'; 
 
-	if (LibItemStruct->m_ChipName != NULL)
+	if ( ! LibItemStruct->m_ChipName.IsEmpty() )
 	{
-		strcpy(Name2, LibItemStruct->m_ChipName);
+		strcpy(Name2, CONV_TO_UTF8(LibItemStruct->m_ChipName));
 		for (ii = 0; ii < (int)strlen(Name2); ii++)
 		if (Name2[ii] <= ' ') Name2[ii] = '~';
 	}
@@ -360,7 +362,7 @@ int hjustify, vjustify;
 	for( ii = 0; ii < NUMBER_OF_FIELDS; ii++ )
 		{
 		PartTextStruct * field = & LibItemStruct->m_Field[ii];
-		if( field->m_Text == "") continue;
+		if( field->m_Text.IsEmpty() ) continue;
 		hjustify = 'C';
 		if ( field->m_HJustify == GR_TEXT_HJUSTIFY_LEFT)
 			hjustify = 'L';
@@ -372,7 +374,7 @@ int hjustify, vjustify;
 		else if ( field->m_VJustify == GR_TEXT_VJUSTIFY_TOP)
 			vjustify = 'T';
 		if( fprintf(f,"F %d \"%s\" %c %-3d %-3d %-3d %4.4X %c %c\n", ii,
-					field->m_Text.GetData(),
+					CONV_TO_UTF8(field->m_Text),
 					field->m_Orient == TEXT_ORIENT_HORIZ ? 'H' : 'V',
 					field->m_Pos.x, field->m_Pos.y,
 					field->m_Size.x,
@@ -431,7 +433,7 @@ DrawSheetLabelStruct * SheetLabel;
 	/* Generation de la liste des 2 textes (sheetname et filename) */
 	if ( ! SheetStruct->m_Field[VALUE].m_Text.IsEmpty())
 	{
-		if(fprintf(f,"F0 \"%s\" %d\n", SheetStruct->m_Field[VALUE].m_Text.GetData(),
+		if(fprintf(f,"F0 \"%s\" %d\n", CONV_TO_UTF8(SheetStruct->m_Field[VALUE].m_Text),
 					SheetStruct->m_Field[VALUE].m_Size.x) == EOF)
 		{
 			Failed = TRUE; return(Failed);
@@ -441,7 +443,7 @@ DrawSheetLabelStruct * SheetLabel;
 	if( ! SheetStruct->m_Field[SHEET_FILENAME].m_Text.IsEmpty())
 		{
 		if(fprintf(f,"F1 \"%s\" %d\n",
-				SheetStruct->m_Field[SHEET_FILENAME].m_Text.GetData(),
+				CONV_TO_UTF8(SheetStruct->m_Field[SHEET_FILENAME].m_Text),
 				SheetStruct->m_Field[SHEET_FILENAME].m_Size.x) == EOF)
 			{
 			Failed = TRUE; return(Failed);
@@ -468,7 +470,7 @@ DrawSheetLabelStruct * SheetLabel;
 		}
 
 		if(fprintf(f,"F%d \"%s\" %c %c %-3d %-3d %-3d\n", ii,
-			SheetLabel->m_Text.GetData(), type, side,
+			CONV_TO_UTF8(SheetLabel->m_Text), type, side,
 			SheetLabel->m_Pos.x, SheetLabel->m_Pos.y,
 			SheetLabel->m_Size.x) == EOF)
 		{

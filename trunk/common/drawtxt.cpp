@@ -15,6 +15,7 @@
 #define DEFAULT_SIZE_TEXT 50
 #endif
 
+#define EDA_DRAWBASE
 #include "grfonte.h"
 
 /* fonctions locales : */
@@ -26,7 +27,7 @@ void DrawGraphicText(WinEDA_DrawPanel * panel, wxDC * DC,
 			int orient, const wxSize & Size, int h_justify, int v_justify, int width)
 /*****************************************************************************/
 /* Draw a graphic text (like module texts)
-	text_ptr = text to draw
+	Text = text to draw
 	Pos = text position (according to h_justify, v_justify)
 	Size = text size (size.x or size.y can be < 0 for mirrored texts) 
 	orient = angle in 0.1 degree
@@ -41,22 +42,22 @@ int k1 , k2, x0, y0;
 int zoom;
 int size_h , size_v , espacement ;
 char f_cod , plume = 'U';
-const char * ptcar, * ptr;
+const SH_CODE * ptcar;
+int ptr;
 int ux0, uy0, dx, dy;	// Coord de trace des segments de texte & variables de calcul */
 int cX, cY;				// Centre du texte
 int ox, oy;				// coord de trace du caractere courant
 int coord[100];			// liste des coord des segments a tracer
-const char * text_ptr = Text.GetData();
 
 	zoom = panel->GetZoom();
 
 	size_h = Size.x;
 	size_v = Size.y;
 
-	kk = 0 ; ptr = text_ptr ; /* ptr pointe 1er caractere du texte */
+	kk = 0 ; ptr = 0;	/* ptr = text index */
 
 	/* calcul de la position du debut des textes: ox et oy */
-	nbchar = strlen(text_ptr);
+	nbchar = Text.Len();
 	if ( nbchar == 0 ) return;
 
 	espacement = (10 * size_h ) / 9;
@@ -178,14 +179,14 @@ DC->SetTextForeground( wxColour(
 						ColorRefs[gcolor].r,
 						ColorRefs[gcolor].g,
 						ColorRefs[gcolor].b) );
-DC->DrawRotatedText(ptr, GRMapX(ux0), GRMapY(uy0), (double) orient / 10.0);
+DC->DrawRotatedText(Text, GRMapX(ux0), GRMapY(uy0), (double) orient / 10.0);
 return;
 #endif
 
 	while(kk++ < nbchar)
 		{
 		x0 = 0 ; y0 = 0 ;
-		AsciiCode = (*ptr) & 255;
+		AsciiCode = Text.GetChar(ptr) & 255;
 		ptcar = graphic_fonte_shape[AsciiCode] ; /* ptcar pointe la description
 						du caractere a dessiner */
 
@@ -248,11 +249,11 @@ int kk, nbchar, end, AsciiCode;
 int k1 , k2 , x0 , y0, ox, oy ;
 int size_h , size_v , espacement ;
 char f_cod , plume = 'U';
-const char * ptcar, * ptr;
+const SH_CODE * ptcar;
+int ptr;
 int ux0, uy0, dx, dy;	// Coord de trace des segments de texte & variables de calcul */
 int cX, cY;				// Centre du texte
 void (*FctPlume)(wxPoint pos, int state);
-const char * text_ptr = Text.GetData();
 	
 	switch ( format_plot)
 	{
@@ -277,10 +278,10 @@ const char * text_ptr = Text.GetData();
 	if(size_h == 0) size_h = DEFAULT_SIZE_TEXT;
 	if(size_v == 0) size_v = DEFAULT_SIZE_TEXT;
 
-	kk = 0 ; ptr = text_ptr ; /* ptr pointe 1er caractere du texte */
+	kk = 0 ; ptr = 0; /* ptr = text index */
 
 	/* calcul de la position du debut des textes: ox et oy */
-	nbchar = strlen(text_ptr) ;
+	nbchar = Text.Len();
 
 	espacement = (10 * size_h ) / 9;
 	ox = cX = Pos.x; oy = cY = Pos.y;
@@ -359,7 +360,7 @@ const char * text_ptr = Text.GetData();
 
 	while(kk++ < nbchar)
 		{
-		AsciiCode = (*ptr) & 127;
+		AsciiCode = Text.GetChar(ptr) & 255;
 		ptcar = graphic_fonte_shape[AsciiCode] ; /* ptcar pointe la description
 						du caractere a dessiner */
 

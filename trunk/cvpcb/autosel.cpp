@@ -1,5 +1,5 @@
 	/**********************/
-	/* CVPCB: autosel.cc  */
+	/* CVPCB: autosel.cpp  */
 	/**********************/
 
 /* Routines de selection automatique des modules */
@@ -12,16 +12,18 @@
 #include "protos.h"
 
 #define QUOTE '\''
-#define STRUCT_AUTOMODULE 1
 
-typedef struct AutoModule
-	{
-	int Type;
-	AutoModule * Pnext;
-	char Name[17];
-	char LibName[17];
-	char Library[17];
-	} AUTOMODULE;
+class AUTOMODULE
+{
+public:
+	int m_Type;
+	AUTOMODULE * Pnext;
+	wxString m_Name;
+	wxString m_LibName;
+	wxString m_Library;
+
+	AUTOMODULE(void) { m_Type = 0; Pnext = NULL; }
+} ;
 
 
 /* routines locales : */
@@ -44,7 +46,7 @@ static void auto_associe(WinEDA_CvpcbFrame * frame)
 /**************************************************/
 {
 unsigned ii, j, k;
-wxString EquivFileName;
+wxString EquivFileName, msg;
 char Line[1024];
 FILE *fichierstf ;	/* sert en lecture des differents fichiers *.STF */
 AUTOMODULE * ItemModule,* NextMod;
@@ -61,40 +63,40 @@ int nb_correspondances = 0;
 		/* Calcul du nom complet avec son chemin */
 		EquivFileName = MakeFileName(g_RealLibDirBuffer,g_ListName_Equ[ii],g_EquivExtBuffer);
 
-		if ( (fichierstf = fopen(EquivFileName.GetData(),"rt"))  == 0)
+		if ( (fichierstf = wxFopen(EquivFileName, wxT("rt")))  == 0)
 			{
-			sprintf(Line,_("Library: <%s> not found"),EquivFileName.GetData());
-			DisplayError(frame, Line,10);
+			msg.Printf( _("Library: <%s> not found"),EquivFileName.GetData());
+			DisplayError(frame, msg,10);
 			continue ;
 			}
 
 		/* lecture fichier n */
 		while ( fgets(Line,79,fichierstf) != 0 )
-			{
+		{
 			/* elimination des lignes vides */
 			for (j = 0 ; j < 40 ; j++ )
-				{ 
+			{ 
 				if (Line[j] == 0 ) goto fin_de_while ;
 				if (Line[j] == QUOTE ) break ;
-				}
+			}
 
-			ItemModule = (AUTOMODULE * ) MyZMalloc(sizeof(AUTOMODULE) );
+			ItemModule = new AUTOMODULE();
 			ItemModule->Pnext = BaseListeMod;
 			BaseListeMod = ItemModule;
 			
 			/* stockage du composant ( 'namecmp'  'namelib')
-			name sur 16 caract et namelib sur 16 octets */
-			for ( j++ , k = 0 ; j < 40 ; j++, k++)
-				{
+			name et namelib */
+			for ( j++ ; j < 40 ; j++, k++)
+			{
 				if ( Line[j] == QUOTE) break ;
-				if (k < 16) ItemModule->Name[k] = Line[j];
-				}
+				ItemModule->m_Name.Append(Line[j]);
+			}
 			j++ ;
 			for ( ; j < 80 ; ) if (Line[j++] == QUOTE) break ;
-			for ( k = 0 ; k < 16 ; k++ , j++)
+			for (; ; j++)
 				{
 				if (Line[j] == QUOTE) break ;
-				ItemModule->LibName[k] = Line[j];
+				ItemModule->m_LibName.Append(Line[j]);
 				}
 			nb_correspondances++ ;
 			fin_de_while:;
@@ -102,23 +104,22 @@ int nb_correspondances = 0;
 		fclose(fichierstf) ;
 
 		/* Affichage Statistiques */
-		sprintf(Line,_("%d equivalences"),nb_correspondances);
-		frame->SetStatusText(Line, 0);
+		msg.Printf(_("%d equivalences"),nb_correspondances);
+		frame->SetStatusText(msg, 0);
 		}
 
 	Componant = BaseListeCmp;
 	for ( ii = 0; Componant != NULL; Componant = Componant->Pnext, ii++ )
 		{
 		frame->m_ListCmp->SetSelection(ii,TRUE);
-		if( Componant->Module[0] <= ' ' )
+		if( Componant->m_Module.IsEmpty() )
 			auto_select(frame, Componant, BaseListeMod);
 		}
 
 	/* Liberation memoire */
-	for( ItemModule = BaseListeMod; ItemModule != NULL;
-			 ItemModule = NextMod)
+	for( ItemModule = BaseListeMod; ItemModule != NULL; ItemModule = NextMod)
 		{
-		NextMod = ItemModule->Pnext; MyFree(ItemModule);
+		NextMod = ItemModule->Pnext; delete ItemModule;
 		}
 	BaseListeMod = NULL;
 }
@@ -138,13 +139,13 @@ static int auto_select(WinEDA_CvpcbFrame * frame, STORECMP * Cmp,
 {
 AUTOMODULE * ItemModule;
 STOREMOD * Module;
-char Line[1024];
+wxString msg;
 
 	/* examen de la liste des correspondances */
 	ItemModule = BaseListeMod;
 	for ( ; ItemModule != NULL; ItemModule = ItemModule->Pnext )
 		{
-		if (stricmp (ItemModule->Name,Cmp->Valeur) != 0) continue;
+		if ( ItemModule->m_Name.CmpNoCase(Cmp->m_Valeur) != 0) continue;
 
 		/* Correspondance trouvee, recherche nom module dans la liste des
 		modules disponibles en librairie */
@@ -152,17 +153,17 @@ char Line[1024];
 		for ( ;Module != NULL; Module = Module->Pnext )
 			{
 
-			if(strnicmp(ItemModule->LibName,Module->Module,16) == 0 )
+			if( ItemModule->m_LibName.CmpNoCase(Module->m_Module) == 0 )
 				{ /* empreinte trouv‚e */
-				strcpy(CurrentPkg,Module->Module);
+				g_CurrentPkg = Module->m_Module;
 				frame->SetNewPkg();
 				return(0);
 				}
 			}
-		sprintf(Line,
+		msg.Printf(
 				  _("Component %s: Footprint %s not found in libraries"),
-						Cmp->Valeur, ItemModule->LibName);
-		DisplayError(frame, Line, 10);
+						Cmp->m_Valeur.GetData(), ItemModule->m_LibName.GetData());
+		DisplayError(frame, msg, 10);
 		return( 2 );
 		}
 	return(1);

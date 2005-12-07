@@ -18,7 +18,7 @@
 static void PropageNetCode( int OldNetCode, int NewNetCode, int IsBus );
 static void SheetLabelConnection(ObjetNetListStruct *SheetLabel);
 static int ListeObjetConnection(wxWindow * frame, SCH_SCREEN *Window, ObjetNetListStruct *ObjNet);
-static int EclateBus(ObjetNetListStruct *ObjNet);
+static int ConvertBusToMembers(ObjetNetListStruct *ObjNet);
 static void PointToPointConnect(ObjetNetListStruct *RefObj, int IsBus,
 								int start);
 static void SegmentToPointConnect(ObjetNetListStruct *Jonction, int IsBus,
@@ -36,7 +36,7 @@ static int LastNetCode, LastBusNetCode;
 
 
 /********************************************************/
-void FreeTabNetList(void * TabNetItems, int NbrNetItems)
+void FreeTabNetList(ObjetNetListStruct * TabNetItems, int NbrNetItems)
 /********************************************************/
 /*
 	Routine de liberation memoire des tableaux utilises pour le calcul
@@ -47,11 +47,11 @@ void FreeTabNetList(void * TabNetItems, int NbrNetItems)
 {
 int i;
 
-	/* Liberation memoire des strings du champ Label reserve par EclateBus */
+	/* Liberation memoire des strings du champ Label reserve par ConvertBusToMembers */
 	for (i = 0; i < NbrNetItems; i++)
+	{
+		switch( TabNetItems[i].m_Type )
 		{
-		switch( ((ObjetNetListStruct *) TabNetItems)[i].m_Type )
-			{
 			case NET_PIN:
 			case NET_SHEETLABEL:
 			case NET_SEGMENT:
@@ -65,10 +65,10 @@ int i;
 			case NET_GLOBBUSLABELMEMBER:
 			case NET_SHEETBUSLABELMEMBER:
 			case NET_BUSLABELMEMBER:
-				MyFree( (void*)(((ObjetNetListStruct*)TabNetItems)[i].m_Label));
+				delete TabNetItems[i].m_Label;
 				break;
-			}
 		}
+	}
 
 	MyFree(TabNetItems); 
 }
@@ -86,13 +86,13 @@ int NetNumber, SheetNumber;
 int i, istart, NetCode;
 SCH_SCREEN * CurrWindow;
 ObjetNetListStruct * BaseTabObjNet;
-char BufLine[1024];
+wxString msg;
 	
 wxBusyCursor Busy;
 
 	NetNumber = 1;
 	frame->MsgPanel->EraseMsgBox();
-	Affiche_1_Parametre(frame, 1,_("List"),"",LIGHTRED);
+	Affiche_1_Parametre(frame, 1,_("List"), wxEmptyString, LIGHTRED);
 
 	/* 1ere passe : Comptage du nombre d'objet de Net */
 	g_TabObjNet = NULL; /* Init pour le 1er passage dans ListeObjetConnection */
@@ -115,17 +115,17 @@ wxBusyCursor Busy;
 
 	/* 2eme passe : Remplissage des champs des structures des objets de Net */
 
-	Affiche_1_Parametre(frame, 1,_("List"),"",RED);
+	Affiche_1_Parametre(frame, 1,_("List"), wxEmptyString,RED);
 	CurrWindow = Window;
 	for ( ; CurrWindow != NULL ; CurrWindow = (SCH_SCREEN*)CurrWindow->Pnext )
 		{
 		g_TabObjNet += ListeObjetConnection(frame, CurrWindow, g_TabObjNet );
 		}
 
-	Affiche_1_Parametre(frame, -1,"",_("Done"),RED);
+	Affiche_1_Parametre(frame, -1, wxEmptyString,_("Done"),RED);
 
-	sprintf(BufLine,"%d", g_NbrObjNet);
-	Affiche_1_Parametre(frame, 8,_("NbItems"),BufLine,GREEN);
+	msg.Printf( wxT("%d"), g_NbrObjNet);
+	Affiche_1_Parametre(frame, 8, _("NbItems"),msg,GREEN);
 
 	/* Recherche des connections pour les Segments et les Pins */
 	/* Tri du Tableau des objets de Net par Sheet */
@@ -133,7 +133,7 @@ wxBusyCursor Busy;
 	qsort(BaseTabObjNet, g_NbrObjNet, sizeof(ObjetNetListStruct),
 				(int (*)(const void *, const void *)) TriBySheet);
 
-	Affiche_1_Parametre(frame, 18,_("Conn"),"",CYAN);
+	Affiche_1_Parametre(frame, 18,_("Conn"), wxEmptyString,CYAN);
 
 	g_TabObjNet = BaseTabObjNet; 
 	SheetNumber = g_TabObjNet[0].m_SheetNumber;
@@ -216,12 +216,12 @@ wxBusyCursor Busy;
 
 			}
 		}
-	Affiche_1_Parametre(frame, -1,"",_("Done"),CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString,_("Done"),CYAN);
 
 	/* Mise a jour des NetCodes des Bus Labels connectes par les Bus */
 	ConnectBusLabels( g_TabObjNet, g_NbrObjNet);
 
-	Affiche_1_Parametre(frame, 26,_("Labels"),"",CYAN);
+	Affiche_1_Parametre(frame, 26,_("Labels"), wxEmptyString,CYAN);
 
 	/* Connections des groupes d'objets par labels identiques */
 	for (i = 0; i < g_NbrObjNet; i++)
@@ -248,11 +248,11 @@ wxBusyCursor Busy;
 			}
 		}
 
-	Affiche_1_Parametre(frame, -1,"",_("Done"),CYAN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString,_("Done"),CYAN);
 
 
 	/* Connexion des hierarchies */
-	Affiche_1_Parametre(frame, 36,_("Hierar."),"",LIGHTRED);
+	Affiche_1_Parametre(frame, 36,_("Hierar."), wxEmptyString,LIGHTRED);
 
 	for (i = 0; i < g_NbrObjNet; i++)
 		{
@@ -265,10 +265,10 @@ wxBusyCursor Busy;
 	qsort(g_TabObjNet, g_NbrObjNet, sizeof(ObjetNetListStruct),
 				(int (*)(const void *, const void *)) TriNetCode);
 
-	Affiche_1_Parametre(frame, -1,"",_("Done"),RED);
+	Affiche_1_Parametre(frame, -1, wxEmptyString,_("Done"),RED);
 
 	/* Compression des numeros de NetCode a des valeurs consecutives */
-	Affiche_1_Parametre(frame, 46,_("Sorting"),"",GREEN);
+	Affiche_1_Parametre(frame, 46,_("Sorting"), wxEmptyString,GREEN);
 	LastNetCode = NetCode = 0;
 	for (i = 0; i < g_NbrObjNet; i++)
 		{
@@ -279,7 +279,7 @@ wxBusyCursor Busy;
 		g_TabObjNet[i].m_NetCode = NetCode;
 		}
 
-	Affiche_1_Parametre(frame, -1,"",_("Done"),GREEN);
+	Affiche_1_Parametre(frame, -1, wxEmptyString,_("Done"),GREEN);
 
 	/* Affectation du m_FlagOfConnection en fonction de connection ou non */
 	SetUnconnectedFlag( BaseTabObjNet, g_NbrObjNet);
@@ -308,7 +308,7 @@ ObjetNetListStruct *ObjetNet;
 			(ObjetNet[i].m_Type != NET_GLOBBUSLABELMEMBER ) )
 			continue;
 		if( ObjetNet[i].m_NetCode == SheetLabel->m_NetCode ) continue;
-		if( stricmp(ObjetNet[i].m_Label, SheetLabel->m_Label) != 0) continue;
+		if( ObjetNet[i].m_Label->CmpNoCase(*SheetLabel->m_Label) != 0) continue;
 
 		/* Propagation du Netcode a tous les Objets de meme NetCode */
 		if( ObjetNet[i].m_NetCode )
@@ -318,9 +318,8 @@ ObjetNetListStruct *ObjetNet;
 }
 
 /*****************************************************************************/
-/* int ListeObjetConnection(SCH_SCREEN *Window, ObjetNetListStruct *ObjNet) */
+static int ListeObjetConnection(wxWindow * frame, SCH_SCREEN *Window, ObjetNetListStruct *ObjNet)
 /*****************************************************************************/
-
 /* Routine generant la liste des objets relatifs aux connection
 	entree:
 		Window: pointeur sur l'ecran a traiter
@@ -328,7 +327,6 @@ ObjetNetListStruct *ObjetNet;
 			si NULL: la routine compte seulement le nombre des objets
 			sinon: pointe le tableau a remplir
 */
-static int ListeObjetConnection(wxWindow * frame, SCH_SCREEN *Window, ObjetNetListStruct *ObjNet)
 {
 int ii, NbrItem = 0, NumSheet;
 EDA_BaseStruct *DrawList;
@@ -414,12 +412,12 @@ int NumInclude;
 					ObjNet[NbrItem].m_Type = NET_LABEL;
 					if (STRUCT->m_Layer ==  LAYER_GLOBLABEL)
 						ObjNet[NbrItem].m_Type = NET_GLOBLABEL;
-					ObjNet[NbrItem].m_Label = STRUCT->m_Text.GetData();
+					ObjNet[NbrItem].m_Label = & STRUCT->m_Text;
 					ObjNet[NbrItem].m_SheetNumber = NumSheet;
 					ObjNet[NbrItem].m_Start = STRUCT->m_Pos;
 					ObjNet[NbrItem].m_End = ObjNet[NbrItem].m_Start;
 					/* Si c'est un Bus, eclatement en Label */
-					if ( ii ) EclateBus(ObjNet + NbrItem);
+					if ( ii ) ConvertBusToMembers(ObjNet + NbrItem);
 					}
 				NbrItem += ii+1;
 				break;
@@ -435,12 +433,12 @@ int NumInclude;
 					ObjNet[NbrItem].m_Type = NET_LABEL;
 					if (STRUCT->m_Layer ==  LAYER_GLOBLABEL)
 							ObjNet[NbrItem].m_Type = NET_GLOBLABEL;
-					ObjNet[NbrItem].m_Label = STRUCT->m_Text.GetData();
+					ObjNet[NbrItem].m_Label = & STRUCT->m_Text;
 					ObjNet[NbrItem].m_SheetNumber = NumSheet;
 					ObjNet[NbrItem].m_Start = STRUCT->m_Pos;
 					ObjNet[NbrItem].m_End = ObjNet[NbrItem].m_Start;
 					/* Si c'est un Bus, eclatement en Label */
-					if ( ii ) EclateBus(ObjNet + NbrItem);
+					if ( ii ) ConvertBusToMembers(ObjNet + NbrItem);
 					}
 				NbrItem += ii+1;
 				break;
@@ -449,7 +447,7 @@ int NumInclude;
 				DrawLibItem = (EDA_SchComponentStruct *) DrawList;
 				memcpy(TransMat, DrawLibItem->m_Transform, sizeof(TransMat));
 				PartX = DrawLibItem->m_Pos.x; PartY = DrawLibItem->m_Pos.y;
-				Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+				Entry = FindLibPart(DrawLibItem->m_ChipName, wxEmptyString, FIND_ROOT);
 
 				if( Entry == NULL) break;
 				if(Entry->m_Drawings == NULL) break ;
@@ -476,7 +474,7 @@ int NumInclude;
 						ObjNet[NbrItem].m_Window = Window;
 						ObjNet[NbrItem].m_ElectricalType = Pin->m_PinType;
 						ObjNet[NbrItem].m_PinNum = Pin->m_PinNum;
-						ObjNet[NbrItem].m_Label = (char*)Pin->m_PinName.GetData();
+						ObjNet[NbrItem].m_Label = & Pin->m_PinName;
 						ObjNet[NbrItem].m_SheetNumber = NumSheet;
 						ObjNet[NbrItem].m_Start.x = x2;
 						ObjNet[NbrItem].m_Start.y = y2;
@@ -493,7 +491,7 @@ int NumInclude;
 							ObjNet[NbrItem].m_Type = NET_PINLABEL;
 							ObjNet[NbrItem].m_Window = Window;
 							ObjNet[NbrItem].m_SheetNumber = NumSheet;
-							ObjNet[NbrItem].m_Label = (char*)Pin->m_PinName.GetData();
+							ObjNet[NbrItem].m_Label = & Pin->m_PinName;
 							ObjNet[NbrItem].m_Start.x = x2;
 							ObjNet[NbrItem].m_Start.y = y2;
 							ObjNet[NbrItem].m_End = ObjNet[NbrItem].m_Start;
@@ -529,28 +527,28 @@ int NumInclude;
 						ObjNet[NbrItem].m_Type = NET_SHEETLABEL;
 						ObjNet[NbrItem].m_Window = Window;
 						ObjNet[NbrItem].m_ElectricalType = SheetLabel->m_Shape;
-						ObjNet[NbrItem].m_Label = SheetLabel->m_Text.GetData();
+						ObjNet[NbrItem].m_Label = & SheetLabel->m_Text;
 						ObjNet[NbrItem].m_SheetNumber = NumSheet;
 						ObjNet[NbrItem].m_NumInclude = NumInclude;
 						ObjNet[NbrItem].m_Start = SheetLabel->m_Pos;
 						ObjNet[NbrItem].m_End = ObjNet[NbrItem].m_Start;
 						/* Si c'est un Bus, eclatement en Label */
-						if ( ii ) EclateBus(ObjNet + NbrItem);
+						if ( ii ) ConvertBusToMembers(ObjNet + NbrItem);
 						}
 					NbrItem += ii+1;
 					}
 				break;
 
 			case DRAW_SHEETLABEL_STRUCT_TYPE :
-				DisplayError(frame, " Netlist: Type DRAW_SHEETLABEL inattendu");
+				DisplayError(frame, wxT("Netlist: Type DRAW_SHEETLABEL inattendu"));
 				break;
 
 			default:
 			{
-			char BufLine[1024];
-				sprintf(BufLine," Netlist: Type struct %d inattendu",
+			wxString msg;
+				msg.Printf( wxT("Netlist: Type struct %d inattendu"),
 									DrawList->m_StructType);
-				DisplayError(frame, BufLine);
+				DisplayError(frame, msg);
 				break;
 			}
 		}
@@ -608,7 +606,7 @@ ObjetNetListStruct *LabelInTst, *Lim;
 
 
 /**************************************************/
-int IsBusLabel( const char * LabelDrawList )
+int IsBusLabel( const wxChar * LabelDrawList )
 /**************************************************/
 
 /* Routine qui verifie si le Label a une notation de type Bus
@@ -621,10 +619,12 @@ int IsBusLabel( const char * LabelDrawList )
 char * Num;
 char BufLine[1024];
 	
-	if ( strchr(LabelDrawList,'[') == NULL )  /* 1er [ trouve : c'est une notation de Bus */
+	strcpy(BufLine, (const char*)LabelDrawList );
+
+	/* Search for  '[' because a bus label is like "busname[nn..mm]" */
+	if ( strchr(BufLine,'[') == NULL )
 		return(0);
 
-	strcpy(BufLine, LabelDrawList);
 
 	Num = strtok(BufLine,"[");
 	RootBusNameLength = strlen(Num);
@@ -634,32 +634,32 @@ char BufLine[1024];
 	Num = strtok(NULL,".]");
 	LastNumWireBus = atoi(Num);
 
-	if( FirstNumWireBus < 0 )	  FirstNumWireBus = 0;
-	if( LastNumWireBus < 0 )	 LastNumWireBus = 0;
+	if( FirstNumWireBus < 0 ) FirstNumWireBus = 0;
+	if( LastNumWireBus < 0 ) LastNumWireBus = 0;
 	if( FirstNumWireBus > LastNumWireBus )
-		{
+	{
 		EXCHG( FirstNumWireBus, LastNumWireBus);
-		}
+	}
 	return(LastNumWireBus - FirstNumWireBus + 1 );
 }
 
 
-	/*************************************************/
-	/* void EclateBus(ObjetNetListStruct *BusLabel ) */
-	/*************************************************/
-
+/*************************************************/
+static int ConvertBusToMembers(ObjetNetListStruct * BusLabel)
+/*************************************************/
 /* Routine qui eclate un label type Bus en autant de Label qu'il contient de membres,
-	et qui remplit les structures avec le type NET_BUSLABELMEMBER
+	et qui cree les structures avec le type NET_GLOBBUSLABELMEMBER, NET_BUSLABELMEMBER
+	ou NET_SHEETBUSLABELMEMBER
 	entree = pointeur sur l'ObjetNetListStruct initialise corresp au buslabel
 	suppose que FirstNumWireBus, LastNumWireBus et RootBusNameLength sont a jour
 	modifie l'ObjetNetListStruct de base et remplit les suivants
+	m_Label is a pointer to a new wxString
+	m_Label must be deallocated by the user (only for a NET_GLOBBUSLABELMEMBER,
+	NET_BUSLABELMEMBER or a NET_SHEETBUSLABELMEMBER object type)
 */
-
-static int EclateBus(ObjetNetListStruct * BusLabel)
 {
 int NumItem, BusMember;
-char ConvertWire[40];
-char BufLine[1024];
+wxString BufLine;
 
 	if( BusLabel->m_Type == NET_GLOBLABEL )
 				BusLabel->m_Type = NET_GLOBBUSLABELMEMBER;
@@ -667,42 +667,37 @@ char BufLine[1024];
 				BusLabel->m_Type = NET_SHEETBUSLABELMEMBER;
 	else BusLabel->m_Type = NET_BUSLABELMEMBER;
 
-	strncpy(BufLine, BusLabel->m_Label, RootBusNameLength);
-
 	/* Convertion du BusLabel en la racine du Label + le numero du fil */
+	BufLine = BusLabel->m_Label->Left(RootBusNameLength);
 	BusMember = FirstNumWireBus;
-	BufLine[RootBusNameLength] = 0;
-	sprintf( ConvertWire, "%d", BusMember);
-	strcat(BufLine, ConvertWire);
-	BusLabel->m_Label = strdup(BufLine);
+	BufLine << BusMember;
+	BusLabel->m_Label = new wxString(BufLine);
 	BusLabel->m_Member = BusMember;
 
 	NumItem = 1;
 
 	for ( BusMember++; BusMember <= LastNumWireBus; BusMember++)
-		{
+	{
 		*(BusLabel+1) = *BusLabel; BusLabel ++; NumItem++;
 		/* Convertion du BusLabel en la racine du Label + le numero du fil */
-		BufLine[RootBusNameLength] = 0;
-		sprintf(ConvertWire, "%d", BusMember);
-		strcat(BufLine, ConvertWire);
-		BusLabel->m_Label = strdup(BufLine);
+		BufLine = BusLabel->m_Label->Left(RootBusNameLength);
+		BusMember = FirstNumWireBus;
+		BufLine << BusMember;
+		BusLabel->m_Label = new wxString(BufLine);
 		BusLabel->m_Member = BusMember;
-		}
+	}
 	return( NumItem);
 }
 
-	/*******************************************************************/
-	/* int PropageNetCode( int OldNetCode, int NewNetCode, int IsBus ) */
-	/*******************************************************************/
-
+/**********************************************************************/
+static void PropageNetCode( int OldNetCode, int NewNetCode, int IsBus )
+/**********************************************************************/
 /* PropageNetCode propage le netcode NewNetCode sur tous les elements
 	appartenant a l'ancien netcode OldNetCode
  Si IsBus == 0; c'est le membre NetCode qui est propage
  Si IsBus != 0; c'est le membre BusNetCode qui est propage
 */
 
-static void PropageNetCode( int OldNetCode, int NewNetCode, int IsBus )
 {
 int jj;
 ObjetNetListStruct * Objet = g_TabObjNet;
@@ -733,9 +728,8 @@ ObjetNetListStruct * Objet = g_TabObjNet;
 }
 
 /***************************************************************************/
-/* void PointToPointConnect(ObjetNetListStruct *Ref, int IsBus, int start) */
+static void PointToPointConnect(ObjetNetListStruct *Ref, int IsBus, int start)
 /***************************************************************************/
-
 /* Routine qui verifie si l'element *Ref est connecte a
 	d'autres elements de la liste des objets du schema, selon le mode Point
 	a point ( Extremites superposees )
@@ -754,7 +748,6 @@ ObjetNetListStruct * Objet = g_TabObjNet;
 	de la feuille de schema
 ( il ne peut y avoir connexion physique entre elements de differentes sheets)
 */
-static void PointToPointConnect(ObjetNetListStruct *Ref, int IsBus, int start)
 {
 int i, NetCode;
 ObjetNetListStruct *Point = g_TabObjNet;
@@ -913,7 +906,7 @@ ObjetNetListStruct *ObjetNet;
 			(ObjetNet[i].m_Type == NET_GLOBBUSLABELMEMBER ) ||
 			(ObjetNet[i].m_Type == NET_PINLABEL ) )
 			{
-			if( stricmp(ObjetNet[i].m_Label, LabelRef->m_Label) != 0) continue;
+			if( ObjetNet[i].m_Label->CmpNoCase(*LabelRef->m_Label) != 0) continue;
 
 			/* Ici 2 labels identiques */
 

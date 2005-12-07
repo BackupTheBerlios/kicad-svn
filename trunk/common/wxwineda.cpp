@@ -46,11 +46,13 @@ void WinEDA_EnterText::GetData(char * buffer, int lenmax)
 {
 	m_Modify = m_FrameText->IsModified();
 	if (buffer)
-		{
+	{
 		m_NewText = m_FrameText->GetValue();
-		strncpy(buffer, m_NewText.GetData(), lenmax-1);
+		int ii, ll = m_NewText.Len(); 
+		for ( ii = 0; ii < ll && ii < (lenmax-1); ii++ );
+			buffer[ii] = m_NewText.GetChar(ii);
 		buffer[lenmax-1] = 0;
-		}
+	}
 }
 
 	/* retourne la dimension de la zone occupee par la "frame" */
@@ -98,22 +100,23 @@ wxPoint aff_pos = pos;
 
 	m_FrameText = new wxTextCtrl(parent, -1, TextToEdit,
 								aff_pos, wxSize(framelen, -1));
-char TextSize[80];
+wxString value;
 
 	if ( vertical_align )
-		{
+	{
 		aff_pos.y += m_FrameText->GetSize().y + 10;
 		if ( Title ) aff_pos.y += 14;
-		}
+	}
 	else
-		{
+	{
 		aff_pos.x += m_FrameText->GetSize().x + 10;
-		}
+	}
 
-	sprintf( TextSize,  ( m_Internal_Unit > 1000 ) ? "%.4f" : "%.3f",
+	value.Printf(( m_Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
 		To_User_Unit(m_Units, textsize, m_Internal_Unit) );
-	m_FrameSize = new wxTextCtrl(parent, -1, TextSize, aff_pos ,wxSize(70,-1));
-	if ( Title != "")
+
+	m_FrameSize = new wxTextCtrl(parent, -1, value, aff_pos ,wxSize(70,-1));
+	if ( ! Title.IsEmpty())
 		{
 		new wxStaticText(parent, -1,
                             m_Units ? _("Size (mm):") :  _("Size (\"):"),
@@ -150,9 +153,11 @@ wxString text = m_FrameText->GetValue();
 int WinEDA_GraphicTextCtrl::GetTextSize(void)
 {
 int textsize;
-
+double dtmp;
+	
+	m_FrameSize->GetValue().ToDouble(&dtmp);
 	textsize = (int)From_User_Unit( m_Units,
-							atof(m_FrameSize->GetValue().GetData()),
+							dtmp,
 							m_Internal_Unit);
 	// Limitation de la taille du texte a de valeurs raisonnables
 	if ( textsize < 10 ) textsize = 10;
@@ -180,24 +185,26 @@ wxString text;
 
 	m_Units = units;
 	m_Internal_Unit = internal_unit;
-	text = (title == "" ) ? _("Pos ") : title.GetData();
+	if ( title.IsEmpty() ) text = _("Pos ");
+	else text = title;
 	text << (m_Units ? _("X (mm):") :  _("X (\"):"));
 	m_TextX = new wxStaticText(parent, -1, text,
 							wxPoint(aff_pos.x, aff_pos.y ),
 							wxSize(-1,-1), 0 );
 	aff_pos.y += 14;
-	m_FramePosX = new wxTextCtrl(parent, -1, "", aff_pos );
+	m_FramePosX = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos );
 
 
 	aff_pos.y += m_FramePosX->GetSize().y;
-	text = (title == "" ) ? _("Pos ") : title.GetData();
+	if ( title.IsEmpty() ) text = _("Pos ");
+	else text = title;
 	text << (m_Units ? _("Y (mm):") :  _("Y (\"):"));
 	m_TextY = new wxStaticText(parent, -1, text,
 							wxPoint(aff_pos.x, aff_pos.y),
 							wxSize(-1,-1), 0 );
 
 	aff_pos.y += 14;
-	m_FramePosY = new wxTextCtrl(parent, -1, "", aff_pos,
+	m_FramePosY = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos,
 								wxSize(-1,-1), 0 );
 	aff_pos.y += m_FramePosY->GetSize().y;
 
@@ -232,11 +239,11 @@ wxPoint WinEDA_PositionCtrl::GetCoord(void)
 */
 {
 wxPoint coord;
-double value;
+double value = 0;
 
-	value = atof(m_FramePosX->GetValue().GetData());
+	m_FramePosX->GetValue().ToDouble(&value);
 	coord.x = From_User_Unit(m_Units, value, m_Internal_Unit);
-	value = atof(m_FramePosY->GetValue().GetData());
+	m_FramePosY->GetValue().ToDouble(&value);
 	coord.y = From_User_Unit(m_Units, value, m_Internal_Unit);
 
 	return coord;
@@ -260,12 +267,12 @@ wxString msg;
 	m_Pos_To_Edit.x = x_value;
 	m_Pos_To_Edit.y = y_value;
 	
-	msg.Printf( ( m_Internal_Unit > 1000 ) ? "%.4f" : "%.3f",
+	msg.Printf( ( m_Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
 		To_User_Unit(m_Units, m_Pos_To_Edit.x,m_Internal_Unit) );
 	m_FramePosX->Clear();
 	m_FramePosX->SetValue(msg);
 	
-	msg.Printf( ( m_Internal_Unit > 1000 ) ? "%.4f" : "%.3f",
+	msg.Printf( ( m_Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
 		To_User_Unit(m_Units, m_Pos_To_Edit.y,m_Internal_Unit) );
 	m_FramePosY->Clear();
 	m_FramePosY->SetValue(msg);
@@ -310,7 +317,6 @@ WinEDA_ValueCtrl::WinEDA_ValueCtrl(wxWindow *parent, const wxString & title,
 						int internal_unit )
 {
 wxPoint aff_pos = pos;
-char buffer[256];
 wxString label = title;
 
 	m_Units = units;
@@ -334,16 +340,14 @@ wxString label = title;
 	m_Text = new wxStaticText(parent, -1, label, aff_pos,
 							wxSize(-1,-1), 0 );
 	aff_pos.y += 14;
-	if ( m_Units >= CENTIMETRE )
-		{
-		sprintf(buffer , "%d",  m_Value);
-		}
+wxString stringvalue;
+	if ( m_Units >= CENTIMETRE ) stringvalue << m_Value;
 	else
 		{
-		sprintf(buffer , ( m_Internal_Unit > 1000 ) ? "%.4f" : "%.3f",
+		stringvalue.Printf( ( m_Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
 			To_User_Unit(m_Units, m_Value,m_Internal_Unit) );
 		}
-	m_ValueCtrl = new wxTextCtrl(parent, -1, buffer, aff_pos );
+	m_ValueCtrl = new wxTextCtrl(parent, -1, stringvalue, aff_pos );
 
 
 	m_WinSize.x = m_ValueCtrl->GetSize().x;
@@ -366,16 +370,11 @@ wxSize WinEDA_ValueCtrl::GetDimension(void)
 int WinEDA_ValueCtrl::GetValue(void)
 {
 int coord;
+double dtmp = 0;
 
-	if ( m_Units >= CENTIMETRE )
-		{
-		coord = (int)(atof(m_ValueCtrl->GetValue().GetData()) + 0.5);
-		}
-	else
-		{
-		coord = From_User_Unit(m_Units,
-				atof(m_ValueCtrl->GetValue().GetData()),m_Internal_Unit);
-		}
+	m_ValueCtrl->GetValue().ToDouble(&dtmp);
+	if ( m_Units >= CENTIMETRE ) coord = (int) round(dtmp);
+	else coord = From_User_Unit(m_Units, dtmp, m_Internal_Unit);
 	return coord;
 }
 
@@ -386,11 +385,11 @@ wxString buffer;
 
 	if ( m_Units >= CENTIMETRE )
 		{
-		buffer.Printf("%d",  m_Value);
+		buffer << m_Value;
 		}
 	else
 		{
-		buffer.Printf( (m_Internal_Unit > 1000 ) ? "%.4f" : "%.3f",
+		buffer.Printf( (m_Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
 			To_User_Unit(m_Units, m_Value,m_Internal_Unit ) );
 		}
 	m_ValueCtrl->SetValue(buffer);
@@ -418,7 +417,7 @@ wxString label = title;
 	m_Text = new wxStaticText(parent, -1, label, aff_pos,
 							wxSize(-1,-1), 0 );
 	aff_pos.y += 14;
-	buffer.Printf("%lf",  m_Value);
+	buffer.Printf(wxT("%lf"),  m_Value);
 	m_ValueCtrl = new wxTextCtrl(parent, -1, buffer, aff_pos );
 
 	m_WinSize.x = m_ValueCtrl->GetSize().x;
@@ -440,9 +439,9 @@ wxSize WinEDA_DFloatValueCtrl::GetDimension(void)
 
 double WinEDA_DFloatValueCtrl::GetValue(void)
 {
-double coord;
+double coord = 0;
 
-	sscanf(m_ValueCtrl->GetValue().GetData(), "%lf", &coord);
+	m_ValueCtrl->GetValue().ToDouble(&coord);
 	return coord;
 }
 
@@ -451,7 +450,7 @@ void WinEDA_DFloatValueCtrl::SetValue(double new_value)
 wxString buffer;
 	m_Value = new_value;
 
-	buffer.Printf("%lf",  m_Value);
+	buffer.Printf( wxT("%lf"),  m_Value);
 	m_ValueCtrl->SetValue(buffer);
 }
 

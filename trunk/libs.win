@@ -14,9 +14,11 @@ KICAD_BIN = /f/kicad/winexe
 
 #Define the wxWidget path:
 ifndef WXWIN
-WXWIN=/f/wxWidgets-2.6.2
+WXWIN=/f/wxWidgets-2.6.2-utf8
 endif
-WXLIBVERSION = 2.6
+WXLIBVERSION = -2.6
+#define/undef the unicode prefix
+UNICODELIB = u
 
 
 #comment this for static wxWidgets link
@@ -28,7 +30,7 @@ OBJSUFF = .o
 FINAL = 1
 
 #setup.h is in "$(WXWIN)/lib/wx/include/msw-ansi-release-xxxx"; Adjust exact name
-ALL_CPPFLAGS += -I$(WXWIN)/lib/wx/include/msw-ansi-release-static-$(WXLIBVERSION)
+ALL_CPPFLAGS += -I$(WXWIN)/lib/wx/include/msw-unicode-release-static$(WXLIBVERSION)
 
 EDACPPFLAGS = $(ALL_CPPFLAGS) $(ALL_CXXFLAGS)
 
@@ -37,14 +39,14 @@ EDALIBS = $(EXTRALIBS)
 # Attention: l'ordre des librairies semble avoir de l'importance
 #Warning: Library order seems important
 WXLIB_BASE = -L$(WXWIN)/lib --subsystem,windows -mwindows\
-	-lwx_msw-$(WXLIBVERSION) -lwxexpat-$(WXLIBVERSION)\
-	-lwxpng-$(WXLIBVERSION) -lwxjpeg-$(WXLIBVERSION)\
-	-lwxzlib-$(WXLIBVERSION)
+	-lwx_msw$(UNICODELIB)$(WXLIBVERSION) -lwxexpat$(WXLIBVERSION)\
+	-lwxpng$(WXLIBVERSION) -lwxjpeg$(WXLIBVERSION)\
+	-lwxzlib$(WXLIBVERSION)
 
 SYSWXLIB =  -mthreads $(WXLIB_BASE)\
 	-lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm\
 	-lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32\
 	-lwsock32 -lgdi32
 
-LIBS3D = -lwx_msw_gl-$(WXLIBVERSION) /mingw/lib/libglu32.a -lopengl32
+LIBS3D = -lwx_msw$(UNICODELIB)_gl$(WXLIBVERSION) /mingw/lib/libglu32.a -lopengl32
 

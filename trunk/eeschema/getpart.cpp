@@ -59,9 +59,10 @@ EDA_SchComponentStruct * WinEDA_SchematicFrame::Load_Component(wxDC * DC,
 int ii;
 LibDrawField * Field;
 EDA_LibComponentStruct *Entry = NULL;
-EDA_SchComponentStruct * DrawLibItem;
+EDA_SchComponentStruct * DrawLibItem = NULL;
 LibraryStruct *Library = NULL;
 wxString Name, keys, msg;
+bool AllowWildSeach = TRUE;
 	
 	g_ItemToRepeat = NULL;
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
@@ -70,14 +71,14 @@ wxString Name, keys, msg;
 	Name = GetComponentName(this, HistoryList, _("Component selection:"),
 			UseLibBrowser ? SelectFromLibBrowser : NULL);
 	Name.MakeUpper();
-	if( Name == "" )
+	if( Name.IsEmpty() )
 	{
 		DrawPanel->m_IgnoreMouseEvents = FALSE;
 		DrawPanel->MouseToCursorSchema();
 		return NULL;	/* annulation de commande */
 	}
 
-	if ( libname != ""  )
+	if ( ! libname.IsEmpty()  )
 	{
 		Library = g_LibraryList;
 		while (Library)
@@ -87,8 +88,9 @@ wxString Name, keys, msg;
 		}
 	}
 	
-	if( Name[0] == '=' )
+	if( Name.GetChar(0) == '=' )
 	{
+		AllowWildSeach = FALSE;
 		keys = Name.AfterFirst('=');
 		if( DataBaseGetName(this, keys, Name) == 0 )
 		{
@@ -98,8 +100,9 @@ wxString Name, keys, msg;
 		}
 	}
 
-	else if( Name == "*" )
+	else if( Name == wxT("*") )
 	{
+		AllowWildSeach = FALSE;
 		if( GetNameOfPartToLoad(this, Library, Name) == 0 )
 		{
 			DrawPanel->m_IgnoreMouseEvents = FALSE;
@@ -108,8 +111,9 @@ wxString Name, keys, msg;
 		}
 	}
 
-	else if( (Name.Contains("?")) || (Name.Contains("*")) )
+	else if( Name.Contains( wxT("?")) || Name.Contains( wxT("*")) )
 	{
+		AllowWildSeach = FALSE;
 		if( DataBaseGetName(this, keys, Name) == 0 )
 		{
 			DrawPanel->m_IgnoreMouseEvents = FALSE;
@@ -118,15 +122,29 @@ wxString Name, keys, msg;
 		}
 	}
 
+	Entry = FindLibPart(Name.GetData(), libname, FIND_ROOT);
+	if( (Entry == NULL) && AllowWildSeach )	/* Attemp to search with wildcard */
+	{
+		AllowWildSeach = FALSE;
+		wxString wildname = wxChar('*') + Name + wxChar('*');
+		Name = wildname;
+		if( DataBaseGetName(this, keys, Name) )
+			Entry = FindLibPart(Name.GetData(), libname, FIND_ROOT);
+		if( Entry == NULL)
+		{
+			DrawPanel->m_IgnoreMouseEvents = FALSE;
+			DrawPanel->MouseToCursorSchema();
+			return NULL;
+		}
+	}
+
+
 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	DrawPanel->MouseToCursorSchema();
-	Entry = FindLibPart(Name.GetData(), libname, FIND_ROOT);
-
 	if( Entry == NULL)
 	{
 		msg = _("Failed to find part ") + Name + _(" in library");
 		DisplayError(this, msg, 10);
-		DrawLibItem = NULL;
 		return NULL;
 	}
 
@@ -138,7 +156,7 @@ wxString Name, keys, msg;
 	DrawLibItem = new EDA_SchComponentStruct(m_CurrentScreen->m_Curseur);
 	DrawLibItem->m_Multi = 1;  /* Selection de l'unite 1 dans le boitier */
 	DrawLibItem->m_Convert = 1;
-	DrawLibItem->m_ChipName = strdup(Name);
+	DrawLibItem->m_ChipName = Name;
 	DrawLibItem->m_TimeStamp = GetTimeStamp();
 	DrawLibItem->m_Flags = IS_NEW | IS_MOVED;
 
@@ -155,8 +173,8 @@ wxString Name, keys, msg;
 	DrawLibItem->m_Field[VALUE].m_VJustify = Entry->m_Name.m_VJustify;
 
 	msg = Entry->m_Prefix.m_Text;
-	if ( msg == "" ) msg = "U";
-	msg += "?";
+	if ( msg.IsEmpty() ) msg = wxT("U");
+	msg += wxT("?");
 
 	/* Init champ Reference */
 	DrawLibItem->m_Field[REFERENCE].m_Pos.x =
@@ -173,7 +191,7 @@ wxString Name, keys, msg;
 	/* Init des autres champs si predefinis dans la librairie */
 	for( Field = Entry->Fields; Field != NULL; Field = (LibDrawField*)Field->Pnext )
 	{
-		if( Field->m_Text == "" ) continue;
+		if( Field->m_Text.IsEmpty() ) continue;
 		ii = Field->m_FieldId;
 		if( ii < 2 ) continue;
 		if( ii >= NUMBER_OF_FIELDS ) continue;
@@ -300,7 +318,7 @@ EDA_LibComponentStruct * LibEntry;
 
 	if (DrawComponent == NULL) return;
 
-	LibEntry = FindLibPart(DrawComponent->m_ChipName, "", FIND_ROOT);
+	LibEntry = FindLibPart(DrawComponent->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 	if( LibEntry == NULL ) return;
 
 	m_UnitCount = LibEntry->m_UnitCount;
@@ -338,12 +356,12 @@ EDA_LibComponentStruct *LibEntry;
 
 	if (DrawComponent == NULL) return;
 
-	LibEntry = FindLibPart(DrawComponent->m_ChipName, "", FIND_ROOT);
+	LibEntry = FindLibPart(DrawComponent->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 	if( LibEntry == NULL ) return;
 
 	if( (ii = LookForConvertPart(LibEntry) ) < 2 )
 	{
-		DisplayError(this, "No Convert found", 10); return;
+		DisplayError(this, wxT("No Convert found"), 10); return;
 	}
 
 	/* Efface le trace precedent */

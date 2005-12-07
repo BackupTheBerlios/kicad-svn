@@ -88,7 +88,7 @@ wxStaticText * Text;
 	m_GetExtraFunction = FALSE;
 	
 	SetFont(*g_DialogFont);
-	s_ItemName = "";
+	s_ItemName.Empty();
 	m_Text =  & s_ItemName;
 	pos.x = 5; pos.y = START_Y;
 	
@@ -123,13 +123,14 @@ wxStaticText * Text;
 	Button = new wxButton(this, ID_LIST_ALL, _("List All"), pos);
 	Button->SetForegroundColour(wxColor(0, 80, 0));
 
+#ifndef __WXMAC__
 	if ( m_AuxTool )	/* The selection can be done by an extra function */
 	{
 		pos.y += 30;
 		Button = new wxButton(this, ID_EXTRA_TOOL, _("By Lib Browser"), pos);
 		Button->SetForegroundColour(wxColor(80, 0, 80));
 	}
-	
+#endif	
 	
 	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
 	WinSize.y = MAX(WinSize.y, Button->GetRect().GetBottom());
@@ -156,15 +157,15 @@ void WinEDA_SelectCmp::Accept(wxCommandEvent& event)
 			break;
 
 		case ID_ACCEPT_KEYWORD:
-			*m_Text = "= " + m_TextCtrl->GetValue();
+			*m_Text = wxT("= ") + m_TextCtrl->GetValue();
 			break;
 
 		case ID_CANCEL:
-			*m_Text = "";
+			*m_Text = wxEmptyString;
 			break;
 	
 		case ID_LIST_ALL:
-			*m_Text = "*";
+			*m_Text = wxT("*");
 			break;
 	
 	}
@@ -239,7 +240,8 @@ int ii, c_max;
 		}
 	
 		/* shift the list */
-		if ( HistoryList.GetCount() < s_HistoryMaxCount ) HistoryList.Add("");
+		if ( HistoryList.GetCount() < s_HistoryMaxCount )
+			HistoryList.Add(wxT(""));
 		
 		c_max = HistoryList.GetCount() - 2;
 		for ( ii = c_max; ii >= 0 ; ii -- ) HistoryList[ii+1] = HistoryList[ii];

@@ -2,8 +2,8 @@
 	/* Definitions for the Component classes for EESchema */
 	/*****************************************************/
 
-#ifndef COMPONENT_CLASS
-#define COMPONENT_CLASS
+#ifndef COMPONENT_CLASS_H
+#define COMPONENT_CLASS_H
 
 #ifndef eda_global
 #define eda_global extern
@@ -34,18 +34,18 @@ typedef enum
 eda_global wxString g_FieldNameList[]
 #ifdef MAIN
  = {
-	"Ref",			/* Reference of part, i.e. "IC21" */
-	"Name",			/* Value of part, i.e. "3.3K" */
-	"Pcb",			/* Footprint, i.e. "16DIP300" */
-	"Sheet",		/* for components which are a schematic file, schematic file name, i.e. "cnt16.sch" */
-	"Fld1",			/* User fields */
-	"Fld2",
-	"Fld3",
-	"Fld4",
-	"Fld5",
-	"Fld6",
-	"Fld7",
-	"Fld8"
+	wxT("Ref"),			/* Reference of part, i.e. "IC21" */
+	wxT("Name"),			/* Value of part, i.e. "3.3K" */
+	wxT("Pcb"),			/* Footprint, i.e. "16DIP300" */
+	wxT("Sheet"),		/* for components which are a schematic file, schematic file name, i.e. "cnt16.sch" */
+	wxT("Fld1"),			/* User fields */
+	wxT("Fld2"),
+	wxT("Fld3"),
+	wxT("Fld4"),
+	wxT("Fld5"),
+	wxT("Fld6"),
+	wxT("Fld7"),
+	wxT("Fld8")
 }
 #endif
 ;
@@ -61,7 +61,7 @@ public:
 	int m_FieldId;
 
 public:
-	PartTextStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = "");
+	PartTextStruct(const wxPoint & pos = wxPoint(0,0), const wxString & text = wxEmptyString);
 	~PartTextStruct(void);
 	void PartTextCopy(PartTextStruct * target);
 	void Place(WinEDA_DrawFrame * frame, wxDC * DC);
@@ -78,7 +78,7 @@ public:
 class DrawPartStruct: public EDA_BaseStruct
 {
 public:
-	char * m_ChipName;			/* Key to look for in the library, i.e. "74LS00". */
+	wxString m_ChipName;			/* Key to look for in the library, i.e. "74LS00". */
 	PartTextStruct m_Field[NUMBER_OF_FIELDS];
 	wxPoint m_Pos;				/* Exact position of part. */
 
@@ -112,5 +112,5 @@ public:
 };
 
 
-#endif /* COMPONENT_CLASS */
+#endif /* COMPONENT_CLASS_H */
 

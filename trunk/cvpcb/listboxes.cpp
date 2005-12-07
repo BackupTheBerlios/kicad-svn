@@ -21,7 +21,7 @@ ListBoxBase::ListBoxBase(WinEDA_CvpcbFrame * parent,
 				wxLC_SINGLE_SEL|wxLC_REPORT | wxLC_VIRTUAL)
 {
 	m_Parent = parent;
-    InsertColumn(0, "");
+    InsertColumn(0, wxEmptyString);
 	SetColumnWidth(0, wxLIST_AUTOSIZE );
 }
 
@@ -187,7 +187,8 @@ wxSize size(10,10);
 	for (ii = 1 ; Composant != NULL; Composant = Composant->Pnext, ii++ )
 		{
 		msg.Printf(CMP_FORMAT ,ii,
-			Composant->Reference, Composant->Valeur, Composant->Module);
+			Composant->m_Reference.GetData(), Composant->m_Valeur.GetData(),
+			Composant->m_Module.GetData());
 		m_ListCmp->m_StringList.Add(msg);
 		}
 	m_ListCmp->SetItemCount(m_ListCmp->m_StringList.Count() );
@@ -226,7 +227,7 @@ wxSize size(10,10);
 
 	for ( ii = 0; Module != NULL; Module = Module->Pnext, ii++ )
 	{
-		msg.Printf("%3d %s", ii+1, Module->Module);
+		msg.Printf( wxT("%3d %s"), ii+1, Module->m_Module.GetData());
 		m_ListMod->m_StringList.Add(msg);
 	}
 	m_ListMod->SetItemCount(m_ListMod->m_StringList.Count() );
@@ -261,22 +262,22 @@ wxString msg;
 	selection = event.GetIndex();
 	Module = BaseListePkg;
 	for ( ii = selection; Module != NULL; Module = Module->Pnext, ii-- )
-		{
+	{
 		if ( ii > 0 ) continue;
-		strncpy(CurrentPkg, Module->Module, sizeof(CurrentPkg)-1);
+		g_CurrentPkg = Module->m_Module;
 		break;
-		}
+	}
 
 	if( m_Parent->DrawFrame && (selection >= 0) )
-		{
+	{
 		m_Parent->CreateScreenCmp(); /* refresh general */
-		}
+	}
 
-	if(Module && Module->Doc ) msg = Module->Doc;
+	if ( Module ) msg = Module->m_Doc;
 	m_Parent->SetStatusText(msg,0);
 
-	msg = "KeyW: ";
-	if( Module && Module->KeyWord ) msg += Module->KeyWord;
+	msg = wxT("KeyW: ");
+	if( Module ) msg += Module->m_KeyWord;
 	m_Parent->SetStatusText(msg, 1);
 }
 
@@ -293,11 +294,11 @@ STOREMOD * Module;
 
 	Module = BaseListePkg;
 	for ( ; Module != NULL; Module = Module->Pnext, selection-- )
-		{
+	{
 		if ( selection > 0 ) continue;
-		strncpy(CurrentPkg, Module->Module, sizeof(CurrentPkg)-1);
+		g_CurrentPkg = Module->m_Module;
 		break;
-		}
+	}
 
 	if( Module ) m_Parent->SetNewPkg();
 }

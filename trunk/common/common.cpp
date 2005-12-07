@@ -10,6 +10,7 @@
 #include "wxstruct.h"
 #include "base_struct.h"
 #include "common.h"
+#include "macros.h"
 
 /***************************************************/
 wxSize SetBestFontPointSize(wxDC * DC, wxFont * Font, int ReferencePointSize)
@@ -22,7 +23,7 @@ wxSize SetBestFontPointSize(wxDC * DC, wxFont * Font, int ReferencePointSize)
 	and they are truncated on display
 */
 {
-static wxString msgtst("MMMMMWWWWW");// This is a text to compute a font optimal size
+static wxString msgtst(wxT("MMMMMWWWWW"));// This is a text to compute a font optimal size
 wxSize FontSizeInPixels;
 int best_pointsize, ref_size;
 #define TST_SIZE 10
@@ -84,21 +85,20 @@ wxString GenDate(void)
 /* Return the string date "day month year" like "23 jun 2005"
 */
 {
-static char * mois[12] =
+wxString mois[12] =
 	{
-	"jan", "feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"
+	wxT("jan"), wxT("feb"), wxT("mar"), wxT("apr"), wxT("may"), wxT("jun"),
+	wxT("jul"), wxT("aug"), wxT("sep"), wxT("oct"), wxT("nov"), wxT("dec")
 	};
 time_t buftime;
 struct tm * Date;
 wxString string_date;
-char Line[1024];
 
 	time(&buftime);
 	Date = gmtime(&buftime);
-	sprintf(Line,"%d %s %d", Date->tm_mday,
-							mois[Date->tm_mon],
+	string_date.Printf( wxT("%d %s %d"), Date->tm_mday,
+							mois[Date->tm_mon].GetData(),
 							Date->tm_year + 1900);
-	string_date = Line;
 	return(string_date);
 }
 
@@ -108,19 +108,18 @@ void * MyMalloc (size_t nb_octets)
 /* My memory allocation */
 {
 void * pt_mem;
-char txt[60];
-
 	if (nb_octets == 0)
-		{
-		DisplayError(NULL, "Allocate 0 bytes !!");
+	{
+		DisplayError(NULL, wxT("Allocate 0 bytes !!"));
 		return(NULL);
-		}
+	}
 	pt_mem = malloc(nb_octets);
 	if (pt_mem == NULL)
-		{
-		sprintf(txt,"Out of memory: allocation %d bytes", nb_octets);
-		DisplayError(NULL, txt);
-		}
+	{
+		wxString msg;
+		msg.Printf( wxT("Out of memory: allocation %d bytes"), nb_octets);
+		DisplayError(NULL, msg);
+	}
 	return(pt_mem);
 }
 
@@ -165,14 +164,14 @@ wxString layer_name_list[] = {
 	
 // Same as layer_name_list, without space, not internationalized
 wxString layer_name_list_for_filename[] = {
-	"Copper", "InnerL1", "InnerL2", "InnerL3",
-	"InnerL4", "InnerL5", "InnerL6", "InnerL7",
-	"InnerL8", "InnerL9", "InnerL10", "InnerL11",
-	"InnerL12", "InnerL13", "InnerL14", "Component",
-	"AdhesCop", "AdhesCmp", "SoldPCop", "SoldPCmp",
-	"SilkSCop", "SilkSCmp", "MaskCopp", "MaskCmp",
-	"Drawings", "Comments", "Eco1", "Eco2",
-	"Edges Pcb", "---", "---", "---"
+	wxT("Copper"), wxT("InnerL1"), wxT("InnerL2"), wxT("InnerL3"),
+	wxT("InnerL4"), wxT("InnerL5"), wxT("InnerL6"), wxT("InnerL7"),
+	wxT("InnerL8"), wxT("InnerL9"), wxT("InnerL10"), wxT("InnerL11"),
+	wxT("InnerL12"), wxT("InnerL13"), wxT("InnerL14"), wxT("Component"),
+	wxT("AdhesCop"), wxT("AdhesCmp"), wxT("SoldPCop"), wxT("SoldPCmp"),
+	wxT("SilkSCop"), wxT("SilkSCmp"), wxT("MaskCopp"), wxT("MaskCmp"),
+	wxT("Drawings"), wxT("Comments"), wxT("Eco1"), wxT("Eco2"),
+	wxT("Edges Pcb"), wxT("---"), wxT("---"), wxT("---")
 	};
 	if ( layer_number >= 31 ) layer_number = 31;
 
@@ -273,13 +272,13 @@ void Affiche_1_Parametre(WinEDA_DrawFrame * frame , int pos_X,
 }
 
 /****************************************************************************/
-void AfficheDoc(WinEDA_DrawFrame * frame, const char * Doc, const char * KeyW)
+void AfficheDoc(WinEDA_DrawFrame * frame, const wxString & Doc, const wxString & KeyW)
 /****************************************************************************/
 /*
  Routine d'affichage de la documentation associee a un composant
 */
 {
-wxString Line1("Doc:  "), Line2("KeyW: ");
+wxString Line1( wxT("Doc:  ")), Line2( wxT("KeyW: "));
 int color = BLUE;
 
 #if ( (wxMAJOR_VERSION < 2) || ((wxMAJOR_VERSION == 2) && (wxMINOR_VERSION <= 4)) )
@@ -313,7 +312,7 @@ static int OldTimeStamp, NewTimeStamp;
 }
 
 /*************************************************/
-void valeur_param(int valeur,char * buf_texte)
+void valeur_param(int valeur,wxString & buf_texte)
 /*************************************************/
 /* Retourne pour affichage la valeur d'un parametre, selon type d'unites choisies
 	entree : valeur en mils , buffer de texte
@@ -324,15 +323,14 @@ void valeur_param(int valeur,char * buf_texte)
 extern bool UnitMetric;
 
 	if ( UnitMetric )
-		{
-		sprintf(buf_texte,"% 3.3f      ",(float) valeur * 0.00254);
-		buf_texte[8] = buf_texte[9] = 'm' ;
-		}
+	{
+		buf_texte.Printf( wxT("%3.3f    "),(float) valeur * 0.00254);
+		buf_texte << wxT("mm") ;
+	}
 	else
-		{
-		sprintf(buf_texte,"% 2.4f      ",(float) valeur * 0.0001);
-		buf_texte[8] = '"'; buf_texte[9] = ' ';
-		}
-	buf_texte[10] = 0 ;
+	{
+		buf_texte.Printf( wxT("%2.4f    "),(float) valeur * 0.0001);
+		buf_texte << wxT("\" ");
+	}
 }
 

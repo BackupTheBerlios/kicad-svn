@@ -24,10 +24,10 @@ STOREMOD * Module, * NextMod;
 	if( BaseListePkg == NULL) return;
 
 	for ( Module = BaseListePkg; Module != NULL; Module = NextMod)
-		{
+	{
 		NextMod = Module->Pnext;
-		free(Module);
-		}
+		delete Module;
+	}
 
 	nblib = 0;
 	BaseListePkg = NULL;
@@ -43,19 +43,14 @@ void FreeMemoryComponants(void)
 */
 {
 STORECMP * Cmp, * NextCmp;
-STOREPIN * Pin, * NextPin;
 
 	if( BaseListeCmp == NULL ) return;
 
 	for( Cmp = BaseListeCmp; Cmp != NULL; Cmp = NextCmp )
-		{
+	{
 		NextCmp = Cmp->Pnext;
-		for( Pin = Cmp->Pins; Pin != NULL; Pin = NextPin )
-			{
-			NextPin = Pin->Pnext; free( Pin );
-			}
-		free(Cmp);
-		}
+		delete Cmp;
+	}
 
 	nbcomp = 0;
 	BaseListeCmp = NULL;

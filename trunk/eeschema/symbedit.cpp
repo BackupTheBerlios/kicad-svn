@@ -39,17 +39,17 @@ EDA_LibComponentStruct *LibEntry = NULL;
 LibEDA_BaseStruct *DrawEntry;
 wxString FullFileName, mask;
 FILE * ImportFile;
-char Line[1024];
+wxString msg;
 
 	if(CurrentDrawItem) return;
 	if( CurrentLibEntry == NULL) return;
 
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 
-	mask = "*" + g_SymbolExtBuffer;
+	mask = wxT("*") + g_SymbolExtBuffer;
 	FullFileName = EDA_FileSelector( _("Import symbol drawings:"),
 					g_RealLibDirBuffer,		 /* Chemin par defaut */
-					"",		 /* nom fichier par defaut */
+					wxEmptyString,		 /* nom fichier par defaut */
 					g_SymbolExtBuffer,		 /* extension par defaut */
 					mask,				/* Masque d'affichage */
 					this,
@@ -61,15 +61,15 @@ char Line[1024];
 	DrawPanel->MouseToCursorSchema();
 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
 
 	/* Chargement de 1 symbole */
-	ImportFile = fopen(FullFileName.GetData(),"rt");
+	ImportFile = wxFopen(FullFileName, wxT("rt"));
 	if (ImportFile == NULL)
 	{
-		sprintf(Line, _("Failed to open Symbol File <%s>"), FullFileName.GetData());
-		DisplayError(this, Line, 20);
+		msg.Printf( _("Failed to open Symbol File <%s>"), FullFileName.GetData());
+		DisplayError(this, msg, 20);
 		return;
 	}
 
@@ -138,25 +138,25 @@ FILE * ExportFile;
 	if( LibEntry->m_Drawings == NULL ) return;
 
 	/* Creation du fichier symbole */
-	mask = "*" + g_SymbolExtBuffer;
+	mask = wxT("*") + g_SymbolExtBuffer;
 	FullFileName = EDA_FileSelector( _("Export symbol drawings:"),
 					g_RealLibDirBuffer,		/* Chemin par defaut */
-					"",		 		/* nom fichier par defaut */
+					wxEmptyString,		 		/* nom fichier par defaut */
 					g_SymbolExtBuffer,		/* extension par defaut */
 					mask,					/* Masque d'affichage */
 					this,
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "" ) return;
+	if ( FullFileName.IsEmpty() ) return;
 
-	ExportFile = fopen(FullFileName.GetData(),"wt");
+	ExportFile = wxFopen(FullFileName, wxT("wt") );
 	if ( ExportFile == NULL )
-		{
+	{
 		msg.Printf(_("Unable to create <%s>"), FullFileName.GetData());
 		DisplayError(this, msg);
 		return;
-		}
+	}
 
 	msg.Printf(_("Save Symbol in [%s]"), FullFileName.GetData());
 	Affiche_Message(msg);
@@ -169,12 +169,12 @@ FILE * ExportFile;
 
 	/* Creation du commentaire donnant le nom du composant */
 	fprintf(ExportFile,"# SYMBOL %s\n#\n",
-            LibEntry->m_Name.m_Text.GetData());
+           (const char*) LibEntry->m_Name.m_Text.GetData());
 
 	/* Generation des lignes utiles */
-	fprintf(ExportFile,"DEF %s",LibEntry->m_Name.m_Text.GetData());
-	if(LibEntry->m_Prefix.m_Text != "")
-		fprintf(ExportFile," %s",LibEntry->m_Prefix.m_Text.GetData());
+	fprintf(ExportFile,"DEF %s", (const char*)LibEntry->m_Name.m_Text.GetData());
+	if( ! LibEntry->m_Prefix.m_Text.IsEmpty())
+		fprintf(ExportFile," %s", (const char*)LibEntry->m_Prefix.m_Text.GetData());
 	else fprintf(ExportFile," ~");
 
 	fprintf(ExportFile," %d %d %c %c %d %d %c\n",
@@ -335,7 +335,7 @@ int * ptref, *ptcomp;
 			if( REFSTRUCT->m_Pos.x != CMPSTRUCT->m_Pos.x) return(FALSE);
 			if( REFSTRUCT->m_Pos.y != CMPSTRUCT->m_Pos.y) return(FALSE);
 			if( REFSTRUCT->m_Size != CMPSTRUCT->m_Size) return(FALSE);
-			if(strcmp(REFSTRUCT->m_Text,CMPSTRUCT->m_Text) != 0)
+			if( REFSTRUCT->m_Text != CMPSTRUCT->m_Text )
 				return(FALSE);
 			break;
 

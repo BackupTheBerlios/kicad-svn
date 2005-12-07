@@ -127,7 +127,7 @@ WinEDA_SetPageFrame::WinEDA_SetPageFrame(WinEDA_DrawFrame *parent,
 wxPoint pos;
 wxSize size;
 int dimy = 24+17, POSX;
-char Line[80];
+wxString Line;
 BASE_SCREEN * BASE_SCREEN;
 
 	m_Parent = parent;
@@ -144,27 +144,27 @@ BASE_SCREEN * BASE_SCREEN;
 		{
 		UserSizeX = (double)g_Sheet_user.m_Size.x * 25.4 / 1000 ;
 		UserSizeY = (double)g_Sheet_user.m_Size.y * 25.4 / 1000;
-		Buf_Size_X.Printf("%.2f", UserSizeX);
-		Buf_Size_Y.Printf("%.2f", UserSizeY);
+		Buf_Size_X.Printf( wxT("%.2f"), UserSizeX);
+		Buf_Size_Y.Printf( wxT("%.2f"), UserSizeY);
 		}
 	else
 		{
 		UserSizeX = (double)g_Sheet_user.m_Size.x / 1000;
 		UserSizeY = (double)g_Sheet_user.m_Size.y / 1000;
-		Buf_Size_X.Printf("%.3f", UserSizeX );
-		Buf_Size_Y.Printf("%.3f", UserSizeY );
+		Buf_Size_X.Printf( wxT("%.3f"), UserSizeX );
+		Buf_Size_Y.Printf( wxT("%.3f"), UserSizeY );
 		}
 
 	PageSizeBox->GetSize(&size.x, &size.y);
 	pos.x = 5; pos.y += size.y + 20;
 	size.y = -1;
 	TextUserSizeX = new WinEDA_EnterText(this,
-				UnitMetric ? "User Size X: (mm)" : "User Size X: (\")",
+				UnitMetric ? wxT("User Size X: (mm)") : wxT("User Size X: (\")"),
 				Buf_Size_X, pos, size);
 
 	pos.y += dimy;
 	TextUserSizeY = new WinEDA_EnterText(this,
-				UnitMetric ? "User Size Y: (mm)" : "User Size Y: (\")",
+				UnitMetric ? wxT("User Size Y: (mm)") : wxT("User Size Y: (\")"),
 				Buf_Size_Y, pos, size);
 
 
@@ -180,10 +180,10 @@ BASE_SCREEN * BASE_SCREEN;
 						_("Cancel"), pos );
 
 	pos.y = Button->GetDefaultSize().y + 15;
-	sprintf(Line, _("Number of sheets: %d"), BASE_SCREEN->m_NumberOfSheet);
+	Line.Printf( _("Number of sheets: %d"), BASE_SCREEN->m_NumberOfSheet);
 	new wxStaticText(this, -1, Line, pos);
 	pos.x += 150;
-	sprintf(Line, _("Sheet number: %d"), BASE_SCREEN->m_SheetNumber);
+	Line.Printf( _("Sheet number: %d"), BASE_SCREEN->m_SheetNumber);
 	new wxStaticText(this, -1, Line, pos);
 
 	size.x = LEN_EXT; size.y = -1;
@@ -204,22 +204,22 @@ BASE_SCREEN * BASE_SCREEN;
 
 	pos.y += dimy;
 	TextComment1 = new WinEDA_EnterText(this,
-				"Comment1:",  BASE_SCREEN->m_Commentaire1.GetData(),
+				wxT("Comment1:"),  BASE_SCREEN->m_Commentaire1.GetData(),
 				pos, size);
 
 	pos.y += dimy;
 	TextComment2 = new WinEDA_EnterText(this,
-				"Comment2:", BASE_SCREEN->m_Commentaire2.GetData(),
+				wxT("Comment2:"), BASE_SCREEN->m_Commentaire2.GetData(),
 				pos, size);
 
 	pos.y += dimy;
 	TextComment3 = new WinEDA_EnterText(this,
-				"Comment3:", BASE_SCREEN->m_Commentaire3.GetData(),
+				wxT("Comment3:"), BASE_SCREEN->m_Commentaire3.GetData(),
 				pos, size);
 
 	pos.y += dimy;
 	TextComment4 = new WinEDA_EnterText(this,
-				"Comment4:", BASE_SCREEN->m_Commentaire4.GetData(),
+				wxT("Comment4:"), BASE_SCREEN->m_Commentaire4.GetData(),
 				pos, size);
 }
 
@@ -250,7 +250,8 @@ void WinEDA_SetPageFrame::SavePageSettings(wxCommandEvent& event)
 */
 {
 BASE_SCREEN * screen = m_Parent->m_CurrentScreen;
-
+double dtmp;
+	
 	screen->m_Revision = TextRevision->GetData();
 	screen->m_Company = TextCompany->GetData();
 	screen->m_Title = TextTitle->GetData();
@@ -261,24 +262,24 @@ BASE_SCREEN * screen = m_Parent->m_CurrentScreen;
 
 	Buf_Size_X = TextUserSizeX->GetData();
 	Buf_Size_Y = TextUserSizeY->GetData();
-	UserSizeX = atof( Buf_Size_X.GetData() );
-	UserSizeY = atof( Buf_Size_Y.GetData() );
+	Buf_Size_X.ToDouble(&dtmp); UserSizeX = dtmp;
+	Buf_Size_Y.ToDouble(&dtmp); UserSizeY = dtmp;
 
 	if ( SelectedSheet )
-		{
+	{
 		screen->m_CurrentSheet = SelectedSheet;
-		}
+	}
 
 	if ( UnitMetric )
-		{
+	{
 		g_Sheet_user.m_Size.x = (int)(UserSizeX * 1000 / 25.4 );
 		g_Sheet_user.m_Size.y = (int)(UserSizeY * 1000 / 25.4 );
-		}
+	}
 	else
-		{
+	{
 		g_Sheet_user.m_Size.x = (int)(UserSizeX * 1000 );
 		g_Sheet_user.m_Size.y = (int)(UserSizeY * 1000 );
-		}
+	}
 
 	if ( g_Sheet_user.m_Size.x < 6000 )g_Sheet_user.m_Size.x = 6000;
 	if ( g_Sheet_user.m_Size.x > 44000 )g_Sheet_user.m_Size.x = 44000;

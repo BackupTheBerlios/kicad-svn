@@ -358,7 +358,7 @@ EDA_BaseStruct * DrawItem;
 				#undef STRUCT
 				#define STRUCT ((EDA_SchComponentStruct*)DrawItem)
 				EDA_LibComponentStruct * Entry;
-				Entry = FindLibPart( STRUCT->m_ChipName, "", FIND_ROOT);
+				Entry = FindLibPart( STRUCT->m_ChipName, wxEmptyString, FIND_ROOT);
 				if( Entry == NULL ) break;
 				LibEDA_BaseStruct * DrawLibItem = Entry->m_Drawings;
 				for ( ; DrawLibItem != NULL; DrawLibItem = DrawLibItem->Next())

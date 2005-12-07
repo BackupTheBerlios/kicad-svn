@@ -48,7 +48,7 @@ wxPoint pos;
 
 		case ID_CONFIG_READ:
 			{
-			wxString mask("*"); mask += g_Prj_Config_Filename_ext;
+			wxString mask( wxT("*") ); mask += g_Prj_Config_Filename_ext;
 			wxString FullFileName = ScreenSch->m_FileName;
 			ChangeFileNameExt( FullFileName, g_Prj_Config_Filename_ext );
 			
@@ -61,7 +61,7 @@ wxPoint pos;
 					wxOPEN,
 					TRUE					/* ne change pas de repertoire courant */
 					);
-			if ( FullFileName == "") break;
+			if ( FullFileName.IsEmpty() ) break;
 			if ( ! wxFileExists(FullFileName) )
 				{
 				wxString msg = _("File ") + FullFileName +_("not found");;
@@ -72,7 +72,7 @@ wxPoint pos;
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_SchematicFrame::Process_Config internal error");
+			DisplayError(this, wxT("WinEDA_SchematicFrame::Process_Config internal error") );
 		}
 }
 
@@ -101,13 +101,13 @@ bool success = TRUE;
 	}
 
 	/* Traitement des variables particulieres: */
-	SetRealLibraryPath("library");
+	SetRealLibraryPath( wxT("library") );
 
 	// If the list is void, load the libraries "power.lib" and "device.lib"
 	if ( g_LibName_List.GetCount() == 0 )
 	{
-		g_LibName_List.Add("power");
-		g_LibName_List.Add("device");
+		g_LibName_List.Add( wxT("power") );
+		g_LibName_List.Add( wxT("device") );
 	}
 
 	if ( EDA_Appl->SchematicFrame )
@@ -129,7 +129,7 @@ void WinEDA_SchematicFrame::Save_Config(wxWindow * displayframe)
 {
 wxString path;
 wxString FullFileName;
-wxString mask("*");
+wxString mask( wxT("*") );
 	
 	mask += g_Prj_Config_Filename_ext;
 	FullFileName = ScreenSch->m_FileName.AfterLast('/') /*ConfigFileName*/;
@@ -145,7 +145,7 @@ wxString mask("*");
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	/* ecriture de la configuration */
 	EDA_Appl->WriteProjectConfig(FullFileName, GROUP, ParamCfgList);

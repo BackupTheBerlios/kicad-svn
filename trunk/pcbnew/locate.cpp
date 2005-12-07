@@ -32,9 +32,9 @@ A REVOIR
 
 
 
-/********************************************************/
-MODULE * ReturnModule(BOARD * pcb, const char * reference)
-/********************************************************/
+/*************************************************************/
+MODULE * ReturnModule(BOARD * pcb, const wxString & reference)
+/*************************************************************/
 /*
  Recherche d'un module par sa reference
 	Retourne:
@@ -46,21 +46,21 @@ MODULE * Module = pcb->m_Modules;
 
 	for(  ; Module != NULL ; Module = (MODULE *) Module->Pnext )
 		{
-		if( stricmp(reference, Module->m_Reference->GetText()) == 0 )
+		if( reference.CmpNoCase(Module->m_Reference->m_Text) == 0 )
 			return Module;
 		}
 	return NULL;
 }
 
 
-/***************************************************/
-D_PAD * ReturnPad(MODULE * module, const char * name)
-/***************************************************/
+/********************************************************/
+D_PAD * ReturnPad(MODULE * module, const wxString & name)
+/********************************************************/
 /* Recherche d'un pad par son nom, pour le module Module
 */
 {
 D_PAD * pt_pad ;
-char buf[80];
+wxString buf;
 
 	if( module == NULL ) return NULL;
 
@@ -69,7 +69,7 @@ char buf[80];
 	for ( ; pt_pad != NULL; pt_pad = (D_PAD*)pt_pad->Pnext )
 		{
 		pt_pad->ReturnStringPadName(buf);
-		if( stricmp(StrPurge(buf), name) == 0 )
+		if( buf.CmpNoCase(name) == 0 )
 			return pt_pad;
 		}
 	return(NULL);

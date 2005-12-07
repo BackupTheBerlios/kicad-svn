@@ -40,7 +40,7 @@ WinEDA3D_DrawFrame::WinEDA3D_DrawFrame(WinEDA_BasePcbFrame * parent,
 		wxPoint(-1,-1), wxSize(-1,-1) )
 /*******************************************************************/
 {
-	m_FrameName = "Frame3D";
+	m_FrameName = wxT("Frame3D");
     m_Canvas = NULL;
 	m_Parent = parent;
 	m_ParentAppl = app_parent;
@@ -53,6 +53,10 @@ WinEDA3D_DrawFrame::WinEDA3D_DrawFrame(WinEDA_BasePcbFrame * parent,
 
 	GetSettings();
 	SetSize(m_FramePos.x, m_FramePos.y, m_FrameSize.x, m_FrameSize.y);
+	// Create the status line
+int dims[5] = { -1, 100, 100, 100, 140};
+	CreateStatusBar(5);
+	SetStatusWidths(5,dims);
 	ReCreateMenuBar();
 	ReCreateHToolbar();
 //	ReCreateAuxiliaryToolbar();
@@ -92,16 +96,16 @@ void WinEDA3D_DrawFrame::GetSettings(void)
 /****************************************/
 {
 wxString text;
-	
+
 	if( m_ParentAppl->m_EDA_Config )
 	{
-		text = m_FrameName + "Pos_x";
+		text = m_FrameName + wxT("Pos_x");
 		m_ParentAppl->m_EDA_Config->Read(text, &m_FramePos.x);
-		text = m_FrameName + "Pos_y";
+		text = m_FrameName + wxT("Pos_y");
 		m_ParentAppl->m_EDA_Config->Read(text, &m_FramePos.y);
-		text = m_FrameName + "Size_x";
+		text = m_FrameName + wxT("Size_x");
 		m_ParentAppl->m_EDA_Config->Read(text, &m_FrameSize.x, 600);
-		text = m_FrameName + "Size_y";
+		text = m_FrameName + wxT("Size_y");
 		m_ParentAppl->m_EDA_Config->Read(text, &m_FrameSize.y, 400);
 	}
 #ifdef __WXMAC__
@@ -121,13 +125,13 @@ wxString text;
 	m_FrameSize = GetSize();
 	m_FramePos = GetPosition();
 
-	text = m_FrameName + "Pos_x";
+	text = m_FrameName + wxT("Pos_x");
 	m_ParentAppl->m_EDA_Config->Write(text, (long)m_FramePos.x);
-	text = m_FrameName + "Pos_y";
+	text = m_FrameName + wxT("Pos_y");
 	m_ParentAppl->m_EDA_Config->Write(text, (long)m_FramePos.y);
-	text = m_FrameName + "Size_x";
+	text = m_FrameName + wxT("Size_x");
 	m_ParentAppl->m_EDA_Config->Write(text, (long)m_FrameSize.x);
-	text = m_FrameName + "Size_y";
+	text = m_FrameName + wxT("Size_y");
 	m_ParentAppl->m_EDA_Config->Write(text, (long)m_FrameSize.y);
 }
 
@@ -208,7 +212,7 @@ void WinEDA3D_DrawFrame::Process_Special_Functions(wxCommandEvent& event)
 		case ID_RELOAD3D_BOARD:
 			NewDisplay();
 			break;
-		
+
 		case ID_ROTATE3D_X_POS:
 			g_Parm_3D_Visu.m_ROTX += ROT_ANGLE;
 			break;
@@ -238,10 +242,10 @@ void WinEDA3D_DrawFrame::Process_Special_Functions(wxCommandEvent& event)
 		case ID_MENU_SCREENCOPY_JPEG:
 			m_Canvas->TakeScreenshot(event);
 		break;
-		
+
 		default:
 			wxMessageBox(
-				"WinEDA3D_DrawFrame::Process_Special_Functions() error: unknown command");
+				wxT("WinEDA3D_DrawFrame::Process_Special_Functions() error: unknown command"));
 			return;
     }
 	m_Canvas->DisplayStatus();

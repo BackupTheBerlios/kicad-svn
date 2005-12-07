@@ -80,7 +80,7 @@ int nb_segm_non_modifies = 0;
 
 	if (Netcode <= 0 ) return;
 
-	if( ! IsOK(this, "Change largeur NET ?") ) return;
+	if( ! IsOK(this, _("Change track width (entire NET) ?") ) ) return;
 
 	/* balayage des segments */
 	for( pt_segm = m_Pcb->m_Track; pt_segm != NULL; pt_segm = (TRACK*) pt_segm->Pnext )

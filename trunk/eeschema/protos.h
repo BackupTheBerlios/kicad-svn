@@ -29,9 +29,9 @@ bool DataBaseGetName(WinEDA_DrawFrame * frame,
 bool SegmentIntersect(int Sx1, int Sy1, int Sx2, int Sy2, int Px1, int Py1);
 
 /****************/
-/* EECREATE.CPP */
+/* BUS_WIRE_JUNCTION.CPP */
 /****************/
-void IncrementLabelMember(char * Line);
+void IncrementLabelMember(wxString & name);
 
 /****************/
 /* EDITPART.CPP */
@@ -64,7 +64,7 @@ SCH_SCREEN * LookForScreenSheet(DrawSheetStruct * Sheet);
 /* Functions common to all EELibs?.c modules: */
 int LibraryEntryCompare(EDA_LibComponentStruct *LE1, EDA_LibComponentStruct *LE2);
 int NumOfLibraries(void);
-EDA_LibComponentStruct *FindLibPart(const char *Name, const wxString & LibName, int Alias);
+EDA_LibComponentStruct *FindLibPart(const wxChar *Name, const wxString & LibName, int Alias);
 
 void DrawingLibInGhost(WinEDA_DrawPanel * panel, wxDC * DC, EDA_LibComponentStruct *LibEntry,
 						EDA_SchComponentStruct * DrawLibItem, int PartX, int PartY,
@@ -95,7 +95,7 @@ EDA_LibComponentStruct * Read_Component_Definition(WinEDA_DrawFrame * frame, cha
 		FILE *f, int *LineNum);
 /* Routine to Read a DEF/ENDDEF part entry from given open file. */
 
-LibraryStruct *FindLibrary(const char *Name);
+LibraryStruct *FindLibrary(const wxString & Name);
 int LoadDocLib(WinEDA_DrawFrame * frame, const wxString & FullDocLibName, const wxString & Libname);
 PriorQue *LoadLibraryAux(WinEDA_DrawFrame * frame, LibraryStruct * library,
 			FILE *f, int *NumOfParts);
@@ -103,7 +103,7 @@ LibraryStruct * LoadLibraryName(WinEDA_DrawFrame * frame,
 				const wxString & FullLibName, const wxString & LibName);
 void LoadLibraries(WinEDA_DrawFrame * frame);
 void FreeCmpLibrary(wxWindow * frame, const wxString & LibName);
-const char **GetLibNames(void);
+const wxChar **GetLibNames(void);
 bool DrawLibPart(WinEDA_DrawPanel * panel, wxDC * DC,
 			EDA_SchComponentStruct *DrawLibItem, int DrawMode, int color = -1);
 
@@ -220,7 +220,7 @@ void RedrawStructList(WinEDA_DrawPanel * panel, wxDC * DC, EDA_BaseStruct *Struc
 									int Color = -1);
 void RedrawOneStruct(WinEDA_DrawPanel * panel, wxDC * DC, EDA_BaseStruct *Struct, int DrawMode,
 									int Color = -1);
-void ReEDA_DrawLineStruct(WinEDA_DrawPanel * panel, wxDC * DC, EDA_DrawLineStruct *Struct, int DrawMode,
+void Redraw_DrawLineStruct(WinEDA_DrawPanel * panel, wxDC * DC, EDA_DrawLineStruct *Struct, int DrawMode,
 									int Color = -1);
 void ReDrawBusEntryStruct(WinEDA_DrawPanel * panel, wxDC * DC, DrawBusEntryStruct *Struct, int DrawMode,
 									int Color = -1);
@@ -260,7 +260,7 @@ int CountCmpNumber(void);
 
 void PutTextInfo(WinEDA_DrawPanel * panel, wxDC * DC, int Orient, const wxPoint & PosX,
 							const wxSize& size,
-							const char *Str, int DrawMode, int color);
+							const wxString & Str, int DrawMode, int color);
 
 /***************/
 /* EECONFIG.CPP */
@@ -329,9 +329,8 @@ void SuppressDuplicateDrawItem(EDA_LibComponentStruct * LibEntry);
 /**************/
 /* NETLIST.CPP */
 /**************/
-int IsBusLabel(const char * LabelDrawList);
+int IsBusLabel(const wxChar * LabelDrawList);
 void * BuildNetList(WinEDA_DrawFrame * frame, SCH_SCREEN * Window);
-void FreeTabNetList(void * TabNetItems, int NbrNetItems);
 void InstallNetlistFrame(WinEDA_DrawFrame *parent, wxPoint &pos);
 
 /***************/

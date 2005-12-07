@@ -146,7 +146,7 @@ public:
 
 
 public:
-	EDA_TextStruct(const wxString & text = "");
+	EDA_TextStruct(const wxString & text = wxEmptyString);
 	virtual ~EDA_TextStruct(void);
 	void CreateDrawData(void);
 	int GetLength(void) { return m_Text.Length(); };

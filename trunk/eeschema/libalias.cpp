@@ -47,7 +47,7 @@ unsigned ii;
 		CmpEntry = (LibCmpEntry*) FindLibPart(List[ii].GetData(), Lib->m_Name, FIND_ALIAS);
 		if(CmpEntry && CmpEntry->Type != ALIAS )
 		{
-			DisplayError(NULL, "BuildListAlias err: alias is a ROOT entry!");
+			DisplayError(NULL, wxT("BuildListAlias err: alias is a ROOT entry!"));
 		}
 		else
 		{

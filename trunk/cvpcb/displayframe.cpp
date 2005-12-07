@@ -38,16 +38,16 @@ END_EVENT_TABLE()
 	/*********************************************************************/
 
 WinEDA_DisplayFrame::WinEDA_DisplayFrame( wxWindow * father, WinEDA_App *parent,
-			char *title,
+			const wxString & title,
 			const wxPoint& pos, const wxSize& size):
 			WinEDA_BasePcbFrame(father, parent, CVPCB_DISPLAY_FRAME, title, pos, size)
 {
-	m_FrameName = "CmpFrame";
+	m_FrameName = wxT("CmpFrame");
 	m_Draw_Axes = TRUE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;				// TRUE pour avoir la axes dessinee
 	m_Draw_Sheet_Ref = FALSE;		// TRUE pour avoir le cartouche dessiné
 
-	SetIcon(wxIcon("icon_cvpcb"));	// Give an icon
+	SetIcon(wxIcon( wxT("icon_cvpcb")));	// Give an icon
 	SetTitle(title);
 
 	m_Pcb = new BOARD(NULL, this);
@@ -108,26 +108,26 @@ void WinEDA_DisplayFrame::ReCreateHToolbar(void)
 	m_HToolBar = new WinEDA_Toolbar(TOOLBAR_MAIN, this, ID_H_TOOLBAR, TRUE);
 	SetToolBar(m_HToolBar);
 
-	m_HToolBar->AddTool(ID_OPTIONS_SETUP, "",
+	m_HToolBar->AddTool(ID_OPTIONS_SETUP, wxEmptyString,
 					BITMAP(display_options_xpm),
 					_("Display Options"));
 
 	m_HToolBar->AddSeparator();
 
-	m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, "", BITMAP(zoom_in_xpm),
+	m_HToolBar->AddTool(ID_ZOOM_PLUS_BUTT, wxEmptyString, BITMAP(zoom_in_xpm),
 					_("zoom + (F1)"));
 
-	m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, "", BITMAP(zoom_out_xpm),
+	m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, wxEmptyString, BITMAP(zoom_out_xpm),
 					_("zoom - (F2)"));
 
-	m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, "", BITMAP(repaint_xpm),
+	m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, wxEmptyString, BITMAP(repaint_xpm),
 					_("redraw (F3)"));
 
-	m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, "", BITMAP(zoom_optimal_xpm),
+	m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, wxEmptyString, BITMAP(zoom_optimal_xpm),
 					_("1:1 zoom"));
 
 	m_HToolBar->AddSeparator();
-	m_HToolBar->AddTool(ID_CVPCB_SHOW3D_FRAME, "", BITMAP(show_3d_xpm),
+	m_HToolBar->AddTool(ID_CVPCB_SHOW3D_FRAME, wxEmptyString, BITMAP(show_3d_xpm),
 					_("1:1 zoom"));
 
 	// after adding the buttons to the toolbar, must call Realize() to reflect
@@ -280,7 +280,7 @@ wxClientDC dc(DrawPanel);
 	switch ( id )	// Arret eventuel de la commande de déplacement en cours
 		{
 		default:
-			wxMessageBox("WinEDA_DisplayFrame::Process_Special_Functions error");
+			wxMessageBox( wxT("WinEDA_DisplayFrame::Process_Special_Functions error"));
 			break;
 		}
 

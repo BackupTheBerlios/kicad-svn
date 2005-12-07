@@ -35,21 +35,21 @@ LibraryStruct * LibTmp;
 EDA_LibComponentStruct *LibEntry;
 int err = 1;
 
-	mask = "*" + g_LibExtBuffer;
+	mask = wxT("*") + g_LibExtBuffer;
 	Name = EDA_FileSelector( _("Import part:"),
-					"",				/* Chemin par defaut */
-					"",		 	/* nom fichier par defaut */
+					wxEmptyString,				/* Chemin par defaut */
+					wxEmptyString,		 	/* nom fichier par defaut */
 					g_LibExtBuffer,	/* extension par defaut */
 					mask,			/* Masque d'affichage */
 					this,
 					0,
 					TRUE
 					);
-	if ( Name == "" ) return;
+	if ( Name == wxEmptyString ) return;
 
 	LibTmp = g_LibraryList; g_LibraryList = NULL;
 
-	LoadLibraryName(this, Name, "$tmplib$");
+	LoadLibraryName(this, Name, wxT("$tmplib$"));
 
 	if ( g_LibraryList )
 	{
@@ -95,9 +95,11 @@ int err;
 	Name = CurrentLibEntry->m_Name.m_Text;
 	Name.MakeLower();
 
-	mask = "*" + g_LibExtBuffer;
+	mask = wxT("*") + g_LibExtBuffer;
+	wxString def_path;
+	if ( create_lib ) def_path = g_RealLibDirBuffer;
 	Name = EDA_FileSelector( create_lib ? _("New Library") : _("Export part:"),
-					create_lib ? g_RealLibDirBuffer : "",	/* Chemin par defaut */
+					def_path,	/* Chemin par defaut */
 					Name,		 	/* nom fichier par defaut */
 					g_LibExtBuffer,	/* extension par defaut */
 					mask,			/* Masque d'affichage */
@@ -105,7 +107,7 @@ int err;
 					wxSAVE,
 					TRUE
 					);
-	if ( Name == "" ) return;
+	if ( Name == wxEmptyString ) return;
 
 
 	/* Creation d'une librairie standard pour sauvegarde */
@@ -114,7 +116,7 @@ int err;
 	LibTmp = g_LibraryList;
 	CurLibTmp = CurrentLib;
 
-	NewLib = new LibraryStruct(LIBRARY_TYPE_EESCHEMA, "$libTmp$", Name);
+	NewLib = new LibraryStruct(LIBRARY_TYPE_EESCHEMA, wxT("$libTmp$"), Name);
 	g_LibraryList = NewLib;
 
 	/* Sauvegarde du composant: */

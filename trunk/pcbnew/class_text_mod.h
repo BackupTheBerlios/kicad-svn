@@ -34,7 +34,6 @@ public:
    
 	/* Gestion du texte */
 	void SetWidth(int new_width);
-	const char * GetText(void);
 	int GetLength(void);		/* text length */
 	int Pitch(void);			/* retourne le pas entre 2 caracteres */
 	int GetDrawRotation(void);	// Return text rotation for drawings and plotting

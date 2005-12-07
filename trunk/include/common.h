@@ -35,16 +35,16 @@
 #define ESC 27
 
 #ifdef __WINDOWS__
-#define CVPCB_EXE "cvpcb.exe"
-#define PCBNEW_EXE "pcbnew.exe"
-#define EESCHEMA_EXE "eeschema.exe"
-#define GERBVIEW_EXE "gerbview.exe"
+#define CVPCB_EXE wxT("cvpcb.exe")
+#define PCBNEW_EXE wxT("pcbnew.exe")
+#define EESCHEMA_EXE wxT("eeschema.exe")
+#define GERBVIEW_EXE wxT("gerbview.exe")
 
 #else
-#define CVPCB_EXE "cvpcb"
-#define PCBNEW_EXE "pcbnew"
-#define EESCHEMA_EXE "eeschema"
-#define GERBVIEW_EXE "gerbview"
+#define CVPCB_EXE wxT("cvpcb")
+#define PCBNEW_EXE wxT("pcbnew")
+#define EESCHEMA_EXE wxT("eeschema")
+#define GERBVIEW_EXE wxT("gerbview")
 #endif
 
 
@@ -84,13 +84,13 @@ enum paramcfg_id	/* type du parametre dans la structure ParamConfig */
 class PARAM_CFG_BASE
 {
 public:
-	const char * m_Ident;			/* Abreviation de reperage des debuts de lignes */
+	const wxChar * m_Ident;			/* Abreviation de reperage des debuts de lignes */
 	paramcfg_id m_Type;				/* flag type des parametres */
-	const char * m_Group;			/* Nom du groupe (rubrique) de classement */
+	const wxChar * m_Group;			/* Nom du groupe (rubrique) de classement */
 	bool m_Setup;					/* TRUE -> inscription en setup (registration base)*/
 
 public:
-	PARAM_CFG_BASE(const char * ident, const paramcfg_id type, const char * group = NULL);
+	PARAM_CFG_BASE(const wxChar * ident, const paramcfg_id type, const wxChar * group = NULL);
 	~PARAM_CFG_BASE() {};
 };
 
@@ -102,12 +102,12 @@ public:
 	int m_Default;			/* valeur par defaut */
 
 public:
-	PARAM_CFG_INT(const char * ident, int * ptparam,
+	PARAM_CFG_INT(const wxChar * ident, int * ptparam,
 				int default_val = 0, int min = INT_MINVAL, int max = INT_MAXVAL,
-				const char * group = NULL);
-	PARAM_CFG_INT(bool Insetup, const char * ident, int * ptparam,
+				const wxChar * group = NULL);
+	PARAM_CFG_INT(bool Insetup, const wxChar * ident, int * ptparam,
 				int default_val = 0, int min = INT_MINVAL, int max = INT_MAXVAL,
-				const char * group = NULL);
+				const wxChar * group = NULL);
 };
 
 class PARAM_CFG_SETCOLOR : public PARAM_CFG_BASE
@@ -117,10 +117,10 @@ public:
 	int m_Default;					/* valeur par defaut */
 
 public:
-	PARAM_CFG_SETCOLOR(const char * ident, int * ptparam,
-				int default_val, const char * group = NULL);
-	PARAM_CFG_SETCOLOR(bool Insetup, const char * ident, int * ptparam,
-				int default_val, const char * group = NULL);
+	PARAM_CFG_SETCOLOR(const wxChar * ident, int * ptparam,
+				int default_val, const wxChar * group = NULL);
+	PARAM_CFG_SETCOLOR(bool Insetup, const wxChar * ident, int * ptparam,
+				int default_val, const wxChar * group = NULL);
 };
 
 class PARAM_CFG_DOUBLE : public PARAM_CFG_BASE
@@ -131,12 +131,12 @@ public:
 	double m_Min, m_Max;			/* valeurs extremes du parametre */
 
 public:
-	PARAM_CFG_DOUBLE(const char * ident, double * ptparam,
+	PARAM_CFG_DOUBLE(const wxChar * ident, double * ptparam,
 				double default_val = 0.0, double min = 0.0, double max = 10000.0,
-				const char * group = NULL);
-	PARAM_CFG_DOUBLE(bool Insetup, const char * ident, double * ptparam,
+				const wxChar * group = NULL);
+	PARAM_CFG_DOUBLE(bool Insetup, const wxChar * ident, double * ptparam,
 				double default_val = 0.0, double min = 0.0, double max = 10000.0,
-				const char * group = NULL);
+				const wxChar * group = NULL);
 };
 
 class PARAM_CFG_BOOL : public PARAM_CFG_BASE
@@ -146,10 +146,10 @@ public:
 	int m_Default;					/* valeur par defaut */
 
 public:
-	PARAM_CFG_BOOL(const char * ident, bool * ptparam,
-				int default_val = FALSE,const char * group = NULL);
-	PARAM_CFG_BOOL(bool Insetup, const char * ident, bool * ptparam,
-				int default_val = FALSE,const char * group = NULL);
+	PARAM_CFG_BOOL(const wxChar * ident, bool * ptparam,
+				int default_val = FALSE,const wxChar * group = NULL);
+	PARAM_CFG_BOOL(bool Insetup, const wxChar * ident, bool * ptparam,
+				int default_val = FALSE,const wxChar * group = NULL);
 };
 
 
@@ -159,8 +159,8 @@ public:
 	wxString * m_Pt_param;				/* pointeur sur le parametre a configurer */
 
 public:
-	PARAM_CFG_WXSTRING(const char * ident, wxString * ptparam, const char * group = NULL);
-	PARAM_CFG_WXSTRING(bool Insetup, const char * ident, wxString * ptparam, const char * group = NULL);
+	PARAM_CFG_WXSTRING(const wxChar * ident, wxString * ptparam, const wxChar * group = NULL);
+	PARAM_CFG_WXSTRING(bool Insetup, const wxChar * ident, wxString * ptparam, const wxChar * group = NULL);
 };
 
 class PARAM_CFG_LIBNAME_LIST : public PARAM_CFG_BASE
@@ -169,7 +169,7 @@ public:
 	wxArrayString * m_Pt_param;		/* pointeur sur le parametre a configurer */
 
 public:
-	PARAM_CFG_LIBNAME_LIST(const char * ident, wxArrayString * ptparam, const char * group = NULL);
+	PARAM_CFG_LIBNAME_LIST(const wxChar * ident, wxArrayString * ptparam, const wxChar * group = NULL);
 };
 
 
@@ -203,7 +203,7 @@ public:
 	wxString m_Name;
 
 public:
-	W_PLOT(const wxSize & size, const wxPoint & offset, char * name)
+	W_PLOT(const wxSize & size, const wxPoint & offset, const wxString & name)
 	{
 		m_Size = size; m_Offset = offset, m_Name = name;
 	}
@@ -212,18 +212,18 @@ public:
 
 /* Standard page sizes in 1/1000 inch */
 #if defined EDA_BASE
-W_PLOT g_Sheet_A4(wxSize(11700,8267), wxPoint(0,0),"A4" );
-W_PLOT g_Sheet_A3(wxSize(16535,11700),wxPoint(0,0),"A3" );
-W_PLOT g_Sheet_A2(wxSize(23400,16535),wxPoint(0,0),"A2" );
-W_PLOT g_Sheet_A1(wxSize(33070,23400),wxPoint(0,0),"A1" );
-W_PLOT g_Sheet_A0(wxSize(46800,33070),wxPoint(0,0),"A0" );
-W_PLOT g_Sheet_A(wxSize(11000,8000),wxPoint(0,0),"A" );
-W_PLOT g_Sheet_B(wxSize(16000,11000),wxPoint(0,0),"B" );
-W_PLOT g_Sheet_C(wxSize(22000,16000),wxPoint(0,0),"C" );
-W_PLOT g_Sheet_D(wxSize(32000,22000),wxPoint(0,0),"D" );
-W_PLOT g_Sheet_E(wxSize(44000,32000),wxPoint(0,0),"E" );
-W_PLOT g_Sheet_GERBER(wxSize(32000,32000),wxPoint(0,0),"GERBER" );
-W_PLOT g_Sheet_user(wxSize(16000,11000),wxPoint(0,0),"User" );
+W_PLOT g_Sheet_A4(wxSize(11700,8267), wxPoint(0,0), wxT("A4") );
+W_PLOT g_Sheet_A3(wxSize(16535,11700),wxPoint(0,0),wxT("A3") );
+W_PLOT g_Sheet_A2(wxSize(23400,16535),wxPoint(0,0),wxT("A2") );
+W_PLOT g_Sheet_A1(wxSize(33070,23400),wxPoint(0,0),wxT("A1") );
+W_PLOT g_Sheet_A0(wxSize(46800,33070),wxPoint(0,0),wxT("A0") );
+W_PLOT g_Sheet_A(wxSize(11000,8000),wxPoint(0,0),wxT("A") );
+W_PLOT g_Sheet_B(wxSize(16000,11000),wxPoint(0,0),wxT("B") );
+W_PLOT g_Sheet_C(wxSize(22000,16000),wxPoint(0,0),wxT("C") );
+W_PLOT g_Sheet_D(wxSize(32000,22000),wxPoint(0,0),wxT("D") );
+W_PLOT g_Sheet_E(wxSize(44000,32000),wxPoint(0,0),wxT("E") );
+W_PLOT g_Sheet_GERBER(wxSize(32000,32000),wxPoint(0,0),wxT("GERBER") );
+W_PLOT g_Sheet_user(wxSize(16000,11000),wxPoint(0,0),wxT("User") );
 #else
 extern W_PLOT g_Sheet_A4 ;
 extern W_PLOT g_Sheet_A3 ;
@@ -243,7 +243,7 @@ extern W_PLOT g_Sheet_user ;
 COMMON_GLOBL int g_LastKey;			/* code de la derniere touche actionnéé */
 COMMON_GLOBL wxString g_ProductName
 #ifdef EDA_BASE
-= ( "KiCad E.D.A.  " )
+= wxT("KiCad E.D.A.  ")
 #endif
 ;
 
@@ -277,7 +277,7 @@ COMMON_GLOBL bool g_IsPrinting;		// TRUE si impression au lieu de trace a l'ecra
 /* Gloabl variables for project handling */
 COMMON_GLOBL wxString g_Prj_Config_Filename_ext
 #ifdef EDA_BASE
-= ( ".pro" )
+= wxT(".pro" )
 #endif
 ;
 COMMON_GLOBL wxFileConfig * g_Prj_Config;				// Configuration locale, propre au projet
@@ -412,7 +412,7 @@ void ChangeFileNameExt( wxString & FullFileName, const wxString & NewExt );
 				   Retourne FullFileName */
 
 int ExecuteFile(wxWindow * frame, const wxString & ExecFile,
-			const wxString & param = "");
+			const wxString & param = wxEmptyString);
 void AddDelimiterString( wxString & string );
 
 void SetRealLibraryPath(const wxString & shortlibname); /* met a jour
@@ -457,24 +457,19 @@ char * StrPurge(char * text);
 char * DateAndTime(char * line);
 				/* Retourne la chaine de caractere donnant date+heure */
 
-int StrNumCmp(const char *str1,const char *str2);
-	/* routine (compatible qsort() ) de comparaision pour classement alphab‚tique
-	Analogue a strcmp() mais les nombres sont compar‚s selon leur valeur num‚rique
-	et non pas par leur code ascii */
-
-int StrLenNumCmp(const char *str1,const char *str2, int NbMax);
+int StrLenNumCmp(const wxChar *str1,const wxChar *str2, int NbMax);
 	/*
 	routine (compatible qsort() ) de comparaision pour classement alphab‚tique
 	Analogue a strncmp() mais les nombres sont compar‚s selon leur valeur num‚rique
 	et non pas par leur code ascii */
 
-int StrNumICmp(const char *str1,const char *str2);
+int StrNumICmp(const wxChar *str1,const wxChar *str2);
 	/* routine (compatible qsort() ) de comparaison pour classement alphab‚tique,
 	avec lower case == upper case.
 	Analogue a stricmp() mais les nombres sont compar‚s selon leur valeur num‚rique
 	et non pas par leur code ascii */
 
-int StrLenNumICmp(const char *str1,const char *str2, int NbMax);
+int StrLenNumICmp(const wxChar *str1,const wxChar *str2, int NbMax);
 	/* routine (compatible qsort() ) de comparaison pour classement alphab‚tique,
 	avec lower case == upper case.
 	Analogue a stricmp() mais les nombres sont compar‚s selon leur valeur num‚rique
@@ -524,7 +519,7 @@ void Affiche_1_Parametre(WinEDA_DrawFrame * frame ,
 	color = couleur d'affichage
 */
 
-void AfficheDoc(WinEDA_DrawFrame * frame, const char * Doc, const char * KeyW);
+void AfficheDoc(WinEDA_DrawFrame * frame, const wxString & Doc, const wxString & KeyW);
 	/* Routine d'affichage de la documentation associee a un composant */
 
 int GetTimeStamp(void);
@@ -534,7 +529,7 @@ int GetCommandOptions(const int argc, const char **argv, const char * stringtst,
 		const char ** optarg, int * optind);
 
 
-void valeur_param(int valeur,char * buf_texte);
+void valeur_param(int valeur,wxString & buf_texte);
 /* Retourne pour affichage la valeur d'un parametre, selon type d'unites choisies
 	entree : valeur en mils , buffer de texte
 	retourne en buffer : texte : valeur exprimee en pouces ou millimetres

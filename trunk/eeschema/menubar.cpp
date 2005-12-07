@@ -95,7 +95,7 @@ wxMenuBar * menuBar = GetMenuBar();
 		int max_file = m_Parent->m_LastProjectMaxCount;
 		for ( ii = 0; ii < max_file; ii++ )
 		{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			item = new wxMenuItem(m_FilesMenu, ID_LOAD_FILE_1 + ii,
 						GetLastProject(ii));
 			m_FilesMenu->Append(item);
@@ -115,7 +115,7 @@ wxMenuBar * menuBar = GetMenuBar();
 	    item->SetBitmap(palette_xpm);
 		configmenu->Append(item);
 
-		item = new wxMenuItem(configmenu, ID_OPTIONS_SETUP, "&Options");
+		item = new wxMenuItem(configmenu, ID_OPTIONS_SETUP, _("&Options"));
 	    item->SetBitmap(preference_xpm);
 		configmenu->Append(item);
 
@@ -166,7 +166,7 @@ wxMenuBar * menuBar = GetMenuBar();
 			}
 		for ( ii = 0; ii < max_file; ii++ )
 			{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			item = new wxMenuItem(m_FilesMenu, ID_LOAD_FILE_1 + ii,
 						GetLastProject(ii));
 			m_FilesMenu->Append(item);

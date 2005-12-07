@@ -164,7 +164,7 @@ wxString grid_choice[6] = { _("Normal (50 mils)"),
 				break;
 
 			default:
-				DisplayError(this,"WinEDA_SetOptionsFrame: Grid value not handle");
+				DisplayError(this, wxT("WinEDA_SetOptionsFrame: Grid value not handle"));
 				break;
 		}
 	}

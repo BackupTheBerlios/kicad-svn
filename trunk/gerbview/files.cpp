@@ -29,7 +29,7 @@ wxClientDC dc(DrawPanel);
 		case ID_MENU_LOAD_FILE:
 		case ID_LOAD_FILE:
 			if ( ! Clear_Pcb(&dc, TRUE) ) return;
-			LoadOneGerberFile("", &dc, 0);
+			LoadOneGerberFile(wxEmptyString, &dc, 0);
 			break;
 
 		case ID_MENU_INC_LAYER_AND_APPEND_FILE:
@@ -37,7 +37,7 @@ wxClientDC dc(DrawPanel);
 			{
 			int layer = GetScreen()->m_Active_Layer;
 			GetScreen()->m_Active_Layer++;
-			if( ! LoadOneGerberFile("", &dc, 0) )
+			if( ! LoadOneGerberFile(wxEmptyString, &dc, 0) )
 				GetScreen()->m_Active_Layer = layer;
 			SetToolbars();
 			}
@@ -45,7 +45,7 @@ wxClientDC dc(DrawPanel);
 
 		case ID_MENU_APPEND_FILE:
 		case ID_APPEND_FILE:
-			LoadOneGerberFile("", &dc, 0);
+			LoadOneGerberFile(wxEmptyString, &dc, 0);
 			break;
 
 		case ID_MENU_NEW_BOARD:
@@ -74,7 +74,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_GERBVIEW_LOAD_DCODE_FILE:
-			LoadDCodeFile(this, "", &dc);
+			LoadDCodeFile(this, wxEmptyString, &dc);
 			break;
 
 
@@ -84,10 +84,12 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_MENU_SAVE_BOARD_AS:
-			SaveGerberFile("", &dc);
+			SaveGerberFile(wxEmptyString, &dc);
 			break;
 
-		default: DisplayError(this, "File_io Internal Error"); break;
+		default:
+			DisplayError(this, wxT("File_io Internal Error") );
+			break;
 		}
 }
 
@@ -109,19 +111,19 @@ wxString filename = FullFileName;
 wxString path = wxPathOnly(FullFileName);
 
 	ActiveScreen = GetScreen();
-	if( filename == "")
+	if( filename == wxEmptyString)
 		{
-		wxString mask = "*" + g_PhotoFilenameExt;
+		wxString mask = wxT("*") + g_PhotoFilenameExt;
 		filename = EDA_FileSelector(_("GERBER PLOT files:"),
 					path,					/* Chemin par defaut */
-					"",					 	/* nom fichier par defaut */
+					wxEmptyString,					 	/* nom fichier par defaut */
 					g_PhotoFilenameExt,			/* extension par defaut */
 					mask,					/* Masque d'affichage */
 					this,
 					0,
 					FALSE
 					);
-		if ( filename == "" ) return FALSE;
+		if ( filename == wxEmptyString ) return FALSE;
 		}
 
 	GetScreen()->m_FileName = filename;
@@ -153,14 +155,14 @@ wxString filename = FullFileName;
 
 	ActiveScreen = frame->GetScreen();
 
-	if( filename == "")
+	if( filename == wxEmptyString)
 		{
-		wxString penfilesmask("*");
+		wxString penfilesmask( wxT("*") );
 		penfilesmask += g_PenFilenameExt;
 		filename = frame->GetScreen()->m_FileName;
 		ChangeFileNameExt(filename,g_PenFilenameExt);
 		filename = EDA_FileSelector(_("D CODES files:"),
-					"",						/* Chemin par defaut */
+					wxEmptyString,						/* Chemin par defaut */
 					filename, 				/* nom fichier par defaut */
 					g_PenFilenameExt,			/* extension par defaut */
 					penfilesmask,			/* Masque d'affichage */
@@ -168,7 +170,7 @@ wxString filename = FullFileName;
 					0,
 					TRUE
 					);
-		if ( filename == "" ) return;
+		if ( filename == wxEmptyString ) return;
 		}
 
 	frame->Read_D_Code_File(filename);
@@ -186,12 +188,12 @@ bool WinEDA_GerberFrame::SaveGerberFile(const wxString & FullFileName, wxDC * DC
 {
 wxString filename = FullFileName;
 
-	if( filename == "" )
+	if( filename == wxEmptyString )
 		{
-		wxString mask("*");
+		wxString mask( wxT("*"));
 		mask += g_PhotoFilenameExt;
 		filename = EDA_FileSelector(_("Gerber files:"),
-					"",						/* Chemin par defaut */
+					wxEmptyString,						/* Chemin par defaut */
 					GetScreen()->m_FileName,	 	/* nom fichier par defaut */
 					g_PhotoFilenameExt,			/* extension par defaut */
 					mask,					/* Masque d'affichage */
@@ -199,7 +201,7 @@ wxString filename = FullFileName;
 					wxSAVE,
 					FALSE
 					);
-			if ( filename == "" ) return FALSE;
+			if ( filename.IsEmpty() ) return FALSE;
 		}
 
 	GetScreen()->m_FileName = filename;

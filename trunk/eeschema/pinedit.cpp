@@ -122,7 +122,7 @@ wxPoint MousePos = parent->GetScreen()->m_Curseur;
 		WinEDA_PinPropertiesFrame * frame = new WinEDA_PinPropertiesFrame(parent, pos);
 		frame->ShowModal(); frame->Destroy();
 		}
-	else DisplayError(parent, "Error: Not a Pin!");
+	else DisplayError(parent, wxT("Error: Not a Pin!") );
 	parent->GetScreen()->m_Curseur = MousePos;
 	parent->DrawPanel->MouseToCursorSchema();
 }
@@ -139,7 +139,7 @@ wxPoint pos;
 int tmp, ii;
 wxString number;
 LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
-char PinNum[1024];
+wxString StringPinNum;
 wxButton * Button;
 
 	m_Parent = parent;
@@ -147,12 +147,9 @@ wxButton * Button;
 
 	Centre();
 
-	PinNum[0] = 0;
 	if ( CurrentPin )
 	{
-		strncpy(PinNum,(char*)&CurrentPin->m_PinNum, 4);
-		PinNum[4] = 0;
-
+		CurrentPin->ReturnPinStringNum(StringPinNum);
 		m_Parent->InitEditOnePin();
 	}
 
@@ -176,7 +173,7 @@ wxButton * Button;
 
 	pos.y += 58;
 	m_PinNumCtrl = new WinEDA_GraphicTextCtrl(this, _("Pin Num :"),
-				PinNum,
+				StringPinNum,
 				CurrentPin ? CurrentPin->m_SizeNum : LastPinNumSize,
 				UnitMetric, pos, 190 ,FALSE);
 
@@ -188,7 +185,7 @@ wxButton * Button;
 	pos.x += 5; pos.y += 20;
 	wxStaticText * title = new wxStaticText(this, -1,_("Pin lenght :"), pos);
 	pos.y += title->GetSize().y + 2;
-	number.Printf("%d", CurrentPin ? CurrentPin->m_PinLen : LastPinSize);
+	number.Printf( wxT("%d"), CurrentPin ? CurrentPin->m_PinLen : LastPinSize);
 	m_PinSize = new wxSpinCtrl(this,-1,number, pos,
 				wxSize(60, -1), wxSP_ARROW_KEYS | wxSP_WRAP,
 				0, 2000);
@@ -601,7 +598,7 @@ LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 wxString buf;
 
 	buf = newname;
-	buf.Replace(" ", "_");
+	buf.Replace( wxT(" "), wxT("_"));
 
 	if ( newsize >= 0 ) CurrentPin->m_SizeName = newsize;
 
@@ -635,14 +632,14 @@ LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 wxString buf;
 
 	buf = newnum;
-	buf.Replace(" ", "_");
+	buf.Replace( wxT(" "), wxT("_"));
 
 	if(CurrentPin == NULL ) return;
 
 	CurrentPin->m_PinNum = 0;
 
 	if ( newsize >= 0) CurrentPin->m_SizeNum = newsize;
-	strncpy( (char*)&CurrentPin->m_PinNum, buf.GetData(), 4);
+	CurrentPin->SetPinNumFromString(buf);
 	m_Parent->GetScreen()->SetModify();
 
 	Pin = (LibDrawPin *) CurrentLibEntry->m_Drawings;
@@ -991,7 +988,7 @@ void WinEDA_LibeditFrame::RepeatPinItem(wxDC * DC, LibDrawPin * SourcePin)
 /* Creation d'une nouvelle pin par copie de la précédente ( fct REPEAT) */
 {
 LibDrawPin * Pin;
-char Line[1024];
+wxString msg;
 int ox = 0, oy = 0;
 
 	if(CurrentLibEntry == NULL ) return;
@@ -1006,13 +1003,11 @@ int ox = 0, oy = 0;
 	Pin->m_Pos.x += g_RepeatStep.x; ox = Pin->m_Pos.x;
 	Pin->m_Pos.y += - g_RepeatStep.y; oy = Pin->m_Pos.y; // ici axe Y comme en math
 	/*** Increment du numero de label ***/
-	strcpy(Line,Pin->m_PinName.GetData() );
-	IncrementLabelMember(Line);
-	Pin->m_PinName = Line;
+	IncrementLabelMember(Pin->m_PinName);
 
-	strncpy(Line,(char*) &Pin->m_PinNum, 4);
-	IncrementLabelMember(Line);
-	strncpy( (char*)&Pin->m_PinNum, Line, 4);
+	Pin->ReturnPinStringNum(msg);
+	IncrementLabelMember(msg);
+	Pin->SetPinNumFromString(msg);
 
 	CurrentDrawItem = Pin;
 

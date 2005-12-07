@@ -203,7 +203,7 @@ int layer = Segment->m_Layer;
 					}
 				break;
 
-			default: DisplayError(this, "Type Drawing Inconnu");
+			default: DisplayError(this, wxT("Type Drawing Inconnu") );
 				break;
 			}
 		}

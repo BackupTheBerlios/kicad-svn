@@ -30,9 +30,9 @@ void WinEDA_LibeditFrame::DisplayLibInfos(void)
 /**********************************************/
 /* Affiche dans la zone messages la librairie , et le composant edite */
 {
-wxString msg = "Libedit: ";
+wxString msg = wxT("Libedit: ");
 
-	msg += CurrentLib ? CurrentLib->m_FullFileName : "No Lib";
+	msg += CurrentLib ? CurrentLib->m_FullFileName : wxT("No Lib");
 	SetTitle(msg);
 
 	msg = _(" Part:   ");
@@ -43,11 +43,11 @@ wxString msg = "Libedit: ";
 	else
 		{
 			msg += CurrentLibEntry->m_Name.m_Text;
-		if (CurrentAliasName != "" )
-			msg << "  Alias " << CurrentAliasName;
+		if ( !CurrentAliasName.IsEmpty() )
+			msg << wxT("  Alias ") << CurrentAliasName;
 		}
-char UnitLetter[] = "?ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	msg << "   Unit " << UnitLetter[CurrentUnit];
+wxChar UnitLetter[] = wxT("?ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	msg << wxT("   Unit ") << UnitLetter[CurrentUnit];
 
 	if ( CurrentConvert > 1 ) msg += _("   Convert");
 	else msg += _("   Normal");
@@ -81,7 +81,6 @@ LibraryStruct *Lib;
 bool WinEDA_LibeditFrame::LoadOneLibraryPart(void)
 {
 int i;
-char **PartNames = NULL;
 wxString msg;
 wxString CmpName;
 EDA_LibComponentStruct *LibEntry = NULL;
@@ -111,7 +110,7 @@ EDA_LibComponentStruct *LibEntry = NULL;
 
 	if( LibEntry == NULL)
 	{
-		msg = _("Component "); msg << PartNames[i] << _(" not found");
+		msg = _("Component "); msg << CmpName << _(" not found");
 		DisplayError(this, msg, 20);
 		return FALSE;
 	}
@@ -134,27 +133,27 @@ retourne
 	CurrentLibEntry pointe la copie ainsi creee
 */
 {
-char Line[256];
-const char * CmpName, *RootName = NULL;
+wxString msg;
+const wxChar * CmpName, *RootName = NULL;
 
 	if( (LibEntry == NULL) || (Library == NULL) ) return(1);
 
 	CmpName = LibEntry->m_Name.m_Text.GetData();
-	CurrentAliasName = "";
+	CurrentAliasName.Empty();
 	if( LibEntry->Type != ROOT)
 		{
 		RootName = ((EDA_LibCmpAliasStruct*)LibEntry)->m_RootName.GetData() ;
 		if( !noMsg )
 			{
-			sprintf(Line, "<%s> is Alias of <%s>", CmpName, RootName);
+			msg.Printf( wxT("<%s> is Alias of <%s>"), CmpName, RootName);
 			}
 
 		LibEntry = FindLibPart(RootName,Library->m_Name,FIND_ROOT);
 
 		if( LibEntry == NULL)
 			{
-			sprintf(Line,"Root Part <%s> not found", RootName);
-			DisplayError(this, Line, 20);
+			msg.Printf( wxT("Root Part <%s> not found"), RootName);
+			DisplayError(this, msg, 20);
 			return(1);
 			}
 		CurrentAliasName = CmpName;
@@ -228,7 +227,7 @@ int err;
 
 	if(CurrentLib == NULL)
 	{
-		DisplayError(this, "No Library specified"); return;
+		DisplayError(this, wxT("No Library specified")); return;
 	}
 
 	Name = MakeFileName(g_RealLibDirBuffer, CurrentLib->m_Name, g_LibExtBuffer);
@@ -243,14 +242,14 @@ int err;
 	if ( err )
 	{
 		msg = _("Error while saving Library File ") + Name;
-		Affiche_1_Parametre(this, 1," *** ERROR : **", msg,BLUE);
+		Affiche_1_Parametre(this, 1, wxT(" *** ERROR : **"), msg,BLUE);
 		DisplayError(this, msg);
 	}
 	else
 	{
-		msg = _("Library File ") + Name + " Ok";
+		msg = _("Library File ") + Name + wxT(" Ok");
 		ChangeFileNameExt(Name,DOC_EXT);
-		wxString msg1 = _("Document File ") + Name + " Ok";
+		wxString msg1 = _("Document File ") + Name + wxT(" Ok");
 		Affiche_1_Parametre(this, 1,msg, msg1,BLUE);
 	}
 }
@@ -271,7 +270,7 @@ LibCmpEntry * CmpEntry;
 	CmpEntry = FindLibPart(Name.GetData(), CurrentLib->m_Name, FIND_ALIAS);
 	if ( CmpEntry == NULL ) return;
 
-	AfficheDoc(this, CmpEntry->m_Doc.GetData(),CmpEntry->m_KeyWord.GetData());
+	AfficheDoc(this, CmpEntry->m_Doc,CmpEntry->m_KeyWord);
 }
 
 /*********************************************/
@@ -289,11 +288,11 @@ void WinEDA_LibeditFrame::DeleteOnePart(void)
 		alias deviennent dependants de celui ci.
 */
 {
-char CmpName[256];
+wxString CmpName;
 int NumOfParts;
 EDA_LibComponentStruct *LibEntry;
 WinEDAListBox * ListBox;
-const char ** ListNames;
+const wxChar ** ListNames;
 wxString msg;
 
 	CurrentDrawItem = NULL;
@@ -317,7 +316,7 @@ wxString msg;
 			PQNext(CurrentLib->m_Entries, LibEntry, NULL);
 	}
 
-	ListNames = (const char**) MyZMalloc((NumOfParts+1) * sizeof(char*));
+	ListNames = (const wxChar**) MyZMalloc((NumOfParts+1) * sizeof(wxChar*));
 	LibEntry = (EDA_LibComponentStruct *) PQFirst(&CurrentLib->m_Entries, FALSE);
 	msg.Printf( _("Select Component (%d items)"), NumOfParts);
 	NumOfParts = 0;
@@ -330,7 +329,7 @@ wxString msg;
 	}
 
 	ListBox = new WinEDAListBox(this, msg,
-						ListNames, "", NULL /*DisplayCmpDoc*/,
+						ListNames, wxEmptyString, NULL /*DisplayCmpDoc*/,
 						wxColour(255,255,200));
 
 
@@ -338,8 +337,8 @@ wxString msg;
 
 	if( ii >= 0)
 	{
-		strcpy(CmpName, ListNames[ii]);
-		LibEntry = FindLibPart(CmpName, CurrentLib->m_Name, FIND_ALIAS);
+		CmpName = ListNames[ii];
+		LibEntry = FindLibPart(CmpName.GetData(), CurrentLib->m_Name, FIND_ALIAS);
 
 		if( LibEntry == NULL )
 			DisplayError(this, _("Component not found"), 20);
@@ -347,7 +346,7 @@ wxString msg;
 		else
 		{
 			msg = _("Delete component ") + LibEntry->m_Name.m_Text +
-				_(" in library ") + CurrentLib->m_Name + "?";
+				_(" in library ") + CurrentLib->m_Name + wxT("?");
 			if( IsOK(this, msg) )
 			{
 				DeletePartInLib( CurrentLib, LibEntry );
@@ -377,7 +376,7 @@ EDA_LibComponentStruct * NewStruct;
 
 	Get_Message( _("Name: "), msg, this);
 	if ( msg.IsEmpty() ) return;
-	msg.MakeUpper(); msg.Replace(" ","_");
+	msg.MakeUpper(); msg.Replace(wxT(" "), wxT("_") );
 
 	/* Test: y a t-il un composant deja de ce nom */
 	if(CurrentLib)
@@ -394,15 +393,15 @@ EDA_LibComponentStruct * NewStruct;
 
 	NewStruct =  new EDA_LibComponentStruct( msg);
 
-	msg = "";
+	msg.Empty();
 	Get_Message( _("Prefix: "), msg, this);
-	if ( msg == "") msg = "U";
+	if ( msg.IsEmpty()) msg = wxT("U");
 	msg.MakeUpper();
 	NewStruct->m_Prefix.m_Text = msg;
 
-	msg = "1";
+	msg = wxT("1");
 	Get_Message( _("Number of Parts for this component: "), msg, this);
-	if ( msg == "") msg ="1";
+	if ( msg.IsEmpty() ) msg = wxT("1");
 	if( IsOK(this, _("Has a convert drawing ?")) ) g_AsDeMorgan = 1;
 	else g_AsDeMorgan = 0;
 
@@ -455,7 +454,7 @@ EDA_LibCmpAliasStruct * AliasEntry;
 		/* Remove alias name from the root component alias list */
 		if( RootEntry == NULL )
 		{
-			DisplayError(this, "Warning: for Alias, root not found", 30);
+			DisplayError(this, wxT("Warning: for Alias, root not found"), 30);
 		}
 		else
 		{
@@ -466,7 +465,7 @@ EDA_LibCmpAliasStruct * AliasEntry;
 				if ( index != wxNOT_FOUND ) RootEntry->m_AliasList.RemoveAt(index);
 			}
 			if ( index == wxNOT_FOUND )
-				DisplayError(this, "Warning: Root for Alias as no alias list", 30);
+				DisplayError(this, wxT("Warning: Root for Alias as no alias list"), 30);
 		}
 
 		/* Effacement memoire pour cet alias */
@@ -496,7 +495,7 @@ EDA_LibCmpAliasStruct * AliasEntry;
 	if( AliasEntry == NULL )
 	{
 		wxString msg;
-		msg.Printf("Warning: Alias <%s> not found", AliasName.GetData());
+		msg.Printf(wxT("Warning: Alias <%s> not found"), AliasName.GetData());
 		DisplayError(this, msg, 30);
 	}
 
@@ -534,17 +533,15 @@ EDA_LibCmpAliasStruct * AliasEntry;
 		if( AliasEntry == NULL )
 		{	// Should not occurs. If happens, this is an error (or bug)
 			wxString msg;
-			msg.Printf("Warning: Alias <%s> not found", AliasName.GetData());
+			msg.Printf( wxT("Warning: Alias <%s> not found"), AliasName.GetData());
 			DisplayError(this, msg, 30);
-			AliasName = strtok(NULL," \t\n");
 			continue;
 		}
 		if( AliasEntry->Type != ALIAS )
 		{	// Should not occurs. If happens, this is an error (or bug)
 			wxString msg;
-			msg.Printf("Warning: <%s> is not an Alias", AliasName.GetData());
+			msg.Printf( wxT("Warning: <%s> is not an Alias"), AliasName.GetData());
 			DisplayError(this, msg, 30);
-			AliasName = strtok(NULL," \t\n");
 			continue;
 		}
 		AliasEntry->m_RootName = Entry->m_Name.m_Text;
@@ -563,7 +560,7 @@ void WinEDA_LibeditFrame::SaveOnePartInMemory(void)
 {
 EDA_LibComponentStruct *Entry;
 EDA_LibCmpAliasStruct *AliasEntry;
-char Line[256];
+wxString msg;
 bool NewCmp = TRUE;
 
 	if(CurrentLibEntry == NULL)
@@ -586,9 +583,9 @@ bool NewCmp = TRUE;
 	if( (Entry = FindLibPart(CurrentLibEntry->m_Name.m_Text.GetData(),
 				CurrentLib->m_Name, FIND_ROOT)) != NULL)
 	{
-		sprintf(Line, _("Component %s exists, Change it ?"),
+		msg.Printf( _("Component %s exists, Change it ?"),
 					Entry->m_Name.m_Text.GetData());
-		if( !IsOK(this, Line) ) return;
+		if( !IsOK(this, msg) ) return;
 		NewCmp = FALSE;
 	}
 
@@ -625,8 +622,8 @@ bool NewCmp = TRUE;
 		CurrentLib->m_NumOfParts ++;
 	}
 
-	sprintf(Line, _("Component %s saved in %s"),
+	msg.Printf( _("Component %s saved in %s"),
 			Entry->m_Name.m_Text.GetData(), CurrentLib->m_Name.GetData());
-	Affiche_Message(Line);
+	Affiche_Message(msg);
 }
 

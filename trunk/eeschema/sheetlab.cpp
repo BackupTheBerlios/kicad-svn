@@ -27,7 +27,7 @@ static wxSize NetSheetTextSize(DEFAULT_SIZE_TEXT, DEFAULT_SIZE_TEXT);
 #define NBSHAPES 5
 static wxString shape_list[NBSHAPES] =
 {
- "Input", "Output", "Bidi", "TriState", "Passive"
+ wxT("Input"), wxT("Output"), wxT("Bidi"), wxT("TriState"), wxT("Passive")
 };
 
 enum id_Textdit
@@ -290,19 +290,19 @@ DrawSheetLabelStruct * NewSheetLabel;
 	switch(CurrentTypeLabel)
 		{
 		default: CurrentTypeLabel = NET_INPUT;
-		case NET_INPUT: Text = "Pin Input: ";
+		case NET_INPUT: Text = wxT("Pin Input: ");
 			break;
 
-		case NET_OUTPUT: Text = "Pin Output: ";
+		case NET_OUTPUT: Text = wxT("Pin Output: ");
 			break;
 
-		case NET_BIDI: Text = "Pin BiDi: ";
+		case NET_BIDI: Text = wxT("Pin BiDi: ");
 			break;
 
-		case NET_TRISTATE: Text = "Pin TriStat: ";
+		case NET_TRISTATE: Text = wxT("Pin TriStat: ");
 			break;
 
-		case NET_UNSPECIFIED: Text = "Pin Unspec.: ";
+		case NET_UNSPECIFIED: Text = wxT("Pin Unspec.: ");
 			break;
 
 		}
@@ -344,7 +344,7 @@ DrawGlobalLabelStruct * GLabel = NULL;
 	Window = (SCH_SCREEN *) Sheet->m_Son;
 	if ( Window == NULL )
 		{
-		DisplayError(this, "No Subhierarchy", 10); return NULL;
+		DisplayError(this, wxT("No Subhierarchy"), 10); return NULL;
 		}
 
 	DrawStruct = Window->EEDrawList;
@@ -370,7 +370,7 @@ DrawGlobalLabelStruct * GLabel = NULL;
 
 	if( (GLabel == NULL ) || SheetLabel )
 	{
-		DisplayError(this, "No New Global Label found", 10);
+		DisplayError(this, _("No New Global Label found"), 10);
 		return NULL;
 	}
 
@@ -415,7 +415,7 @@ DrawSheetLabelStruct* SheetLabel, *NextLabel;
 	{
 		if (DrawStruct->m_StructType != DRAW_SHEET_STRUCT_TYPE)
 		{
-			DisplayError(this, "DeleteSheetLabel error: m_Parent != DRAW_SHEET_STRUCT_TYPE");
+			DisplayError(this, wxT("DeleteSheetLabel error: m_Parent != DRAW_SHEET_STRUCT_TYPE"));
 			return;
 		}
 

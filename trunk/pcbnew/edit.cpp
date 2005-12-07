@@ -82,7 +82,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 					if (m_ID_current_state == 0)
 					{
 						DisplayError(this,
-						"WinEDA_PcbFrame::OnLeftClick() err: m_Flags != 0");
+						wxT("WinEDA_PcbFrame::OnLeftClick() err: m_Flags != 0") );
 						return;
 					}
 				}
@@ -135,7 +135,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				{
 				Place_Mire((MIREPCB *)DrawStruct, DC);
 				}
-			else DisplayError(this, "Internal err: Struct not TYPEMIRE");
+			else DisplayError(this, wxT("Internal err: Struct not TYPEMIRE"));
 			break;
 
 		case ID_PCB_CIRCLE_BUTT:
@@ -206,7 +206,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				GetScreen()->m_CurrentItem = DrawStruct =
 					Begin_Zone();
 				}
-			else DisplayError(this, "Edit: zone internal error");
+			else DisplayError(this, wxT("Edit: zone internal error"));
 			break;
 
 		case ID_TEXT_COMMENT_BUTT:
@@ -221,7 +221,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				Place_Texte_Pcb((TEXTE_PCB *)DrawStruct, DC);
 				DrawPanel->m_AutoPAN_Request = FALSE;
 				}
-			else DisplayError(this, "Internal err: Struct not TYPETEXTE");
+			else DisplayError(this, wxT("Internal err: Struct not TYPETEXTE"));
 			break;
 
 		case ID_COMPONENT_BUTT:
@@ -229,7 +229,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				{
 				DrawPanel->MouseToCursorSchema();
 				GetScreen()->m_CurrentItem = DrawStruct =
-						Load_Module_From_Library("", DC);
+						Load_Module_From_Library(wxEmptyString, DC);
 				if ( DrawStruct )
 					StartMove_Module((MODULE *)DrawStruct, DC);
 				}
@@ -238,7 +238,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				Place_Module((MODULE *)DrawStruct, DC);
 				DrawPanel->m_AutoPAN_Request = FALSE;
 				}
-			else DisplayError(this, "Internal err: Struct not TYPEMODULE");
+			else DisplayError(this, wxT("Internal err: Struct not TYPEMODULE"));
 			break;
 
 		case ID_PCB_COTATION_BUTT:
@@ -261,7 +261,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 					Begin_Cotation((COTATION * )DrawStruct, DC);
 				DrawPanel->m_AutoPAN_Request = TRUE;
 				}
-			else DisplayError(this, "Internal err: Struct not COTATION");
+			else DisplayError(this, wxT("Internal err: Struct not COTATION"));
 			break;
 
 		case ID_PCB_DELETE_ITEM_BUTT:
@@ -286,8 +286,8 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 
 		default :
 			DrawPanel->SetCursor(wxCURSOR_ARROW);
-			DisplayError(this, "WinEDA_PcbFrame::OnLeftClick() id error");
-			SetToolID(0, wxCURSOR_ARROW,"");
+			DisplayError(this, wxT("WinEDA_PcbFrame::OnLeftClick() id error"));
+			SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			break;
 		}
 }
@@ -408,7 +408,7 @@ int itmp;
 				m_CurrentScreen->BlockLocate.m_BlockDrawStruct = NULL;
 			}
 			if (m_ID_current_state == 0 )
-				SetToolID(0, wxCURSOR_ARROW,"");
+				SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			else SetCursor(DrawPanel->m_PanelCursor = DrawPanel->m_PanelDefaultCursor);
 			break;
 
@@ -418,7 +418,7 @@ int itmp;
 				{
 				GetScreen()->ForceCloseManageCurseur(this, &dc);
 				}
-			SetToolID(0, wxCURSOR_ARROW,"");
+			SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			break;
 		}
 
@@ -552,7 +552,7 @@ int itmp;
 			break;
 
 		case ID_NO_SELECT_BUTT:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 		case ID_PCB_HIGHLIGHT_BUTT:
@@ -566,7 +566,7 @@ int itmp;
 			break;
 
 		case ID_POPUP_CLOSE_CURRENT_TOOL:
-			SetToolID( 0, wxCURSOR_ARROW, "");
+			SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			break;
 
 
@@ -1071,23 +1071,23 @@ int itmp;
 		case ID_POPUP_PCB_DISPLAY_FOOTPRINT_DOC:
 		{
 			wxString msg = FindKicadHelpPath();
-			msg += EDA_Appl->m_EDA_CommonConfig->Read("module_doc_file",
-					"pcbnew/footprints.pdf");
-			GetAssociatedDocument(this, "", msg);
+			msg += EDA_Appl->m_EDA_CommonConfig->Read(wxT("module_doc_file"),
+					wxT("pcbnew/footprints.pdf"));
+			GetAssociatedDocument(this, wxEmptyString, msg);
 		}
 			break;
 
 		case ID_MENU_ARCHIVE_NEW_MODULES:
-			Archive_Modules("", TRUE);
+			Archive_Modules(wxEmptyString, TRUE);
 			break;
 
 		case ID_MENU_ARCHIVE_ALL_MODULES:
-			Archive_Modules("", FALSE);
+			Archive_Modules(wxEmptyString, FALSE);
 			break;
 
 		default:
 		{
-			DisplayError(this, "WinEDA_PcbFrame::Process_Special_Functions() id error");
+			DisplayError(this, wxT("WinEDA_PcbFrame::Process_Special_Functions() id error"));
 			break;
 		}
 	}
@@ -1114,9 +1114,9 @@ static void Process_Move_Item(WinEDA_PcbFrame * frame,
 		default:
 			wxString msg;
 			msg.Printf(
-				"WinEDA_PcbFrame::Move_Item Error: Bad DrawType %d",
+				wxT("WinEDA_PcbFrame::Move_Item Error: Bad DrawType %d"),
 				DrawStruct->m_StructType);
-			DisplayError(frame, (char*)msg.GetData() );
+			DisplayError(frame, msg );
 			break;
 		}
 }
@@ -1224,7 +1224,7 @@ wxClientDC dc(DrawPanel);
 			if ( DrawStruct == NULL ) break;
 			if ( DrawStruct->m_StructType != TYPEDRAWSEGMENT )
 				{
-				DisplayError(this,"DrawStruct Type error");
+				DisplayError(this, wxT("DrawStruct Type error"));
 				DrawPanel->m_AutoPAN_Request = FALSE;
 				break;
 				}
@@ -1292,8 +1292,8 @@ void WinEDA_PcbFrame::RemoveStruct(EDA_BaseStruct * Item, wxDC * DC)
 		case TYPEPCB:
 		default:
 			{
-			char Line[256];
-			sprintf(Line," Remove: StructType %d Inattendu",
+			wxString Line;
+			Line.Printf( wxT("Remove: StructType %d Inattendu"),
 										Item->m_StructType);
 			DisplayError(this, Line);
 			}

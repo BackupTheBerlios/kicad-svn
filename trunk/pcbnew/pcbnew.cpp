@@ -1,6 +1,6 @@
-	/***************************/
-	/* PCBNEW: main programme  */
-	/***************************/
+	/*************************/
+	/* PCBNEW: main program  */
+	/*************************/
 
 #define MAIN
 #define eda_global
@@ -24,7 +24,7 @@
 
 #include "eda_dde.h"
 
-wxString Main_Title("PCBNEW 19-oct-05");
+wxString Main_Title( wxT("PCBNEW 02-dec-05") );
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -35,7 +35,7 @@ bool WinEDA_App::OnInit(void)
 wxString FFileName;
 
 	EDA_Appl = this;
-	InitEDA_Appl("pcbnew");
+	InitEDA_Appl( wxT("pcbnew") );
 
     if ( m_Checker && m_Checker->IsAnotherRunning() )
     {
@@ -52,7 +52,7 @@ wxString FFileName;
 
 	if(argc > 1)
 		{
-		FFileName = MakeFileName("", argv[1], PcbExtBuffer);
+		FFileName = MakeFileName(wxEmptyString, argv[1], PcbExtBuffer);
 		wxSetWorkingDirectory( wxPathOnly(FFileName) );
 		}
 
@@ -67,10 +67,10 @@ wxString FFileName;
 
 	if( adr_lowmem == NULL )
 	{
-		printf("No Memory, Fatal err Memory alloc\n") ;
+		printf( "No Memory, Fatal err Memory alloc\n" );
 		return(FALSE) ;
 	}
-	m_PcbFrame = new WinEDA_PcbFrame(NULL, this, "PcbNew",
+	m_PcbFrame = new WinEDA_PcbFrame(NULL, this, wxT("PcbNew"),
 				 wxPoint(0,0), wxSize(600,400) );
 	m_PcbFrame->SetTitle(Main_Title);
 	ScreenPcb->SetParentFrame(m_PcbFrame);
@@ -88,12 +88,12 @@ wxString FFileName;
 	m_PcbFrame->Zoom_Automatique(TRUE);
 
 	/* Load file specified in the command line. */
-	if ( FFileName != "")
-		{
+	if ( ! FFileName.IsEmpty() )
+	{
 		wxClientDC dc(m_PcbFrame->DrawPanel);
 		m_PcbFrame->DrawPanel->PrepareGraphicContext(&dc);
 		m_PcbFrame->LoadOnePcbFile(FFileName, &dc, FALSE);
-		}
+	}
 
 	return TRUE;
 }

@@ -44,6 +44,7 @@ BASE_SCREEN::BASE_SCREEN(EDA_BaseStruct * parent, WinEDA_DrawFrame * frame_sourc
 	m_UndoList = NULL;
 	m_RedoList = NULL;
 	m_UndoRedoCountMax = 1;
+	m_FirstRedraw = TRUE;
 	InitDatas();
 }
 

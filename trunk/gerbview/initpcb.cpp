@@ -136,7 +136,7 @@ int layer = GetScreen()->m_Active_Layer;
 				break;
 
 			default:
-				DisplayError(this, "Type Draw inconnu/inattendu");
+				DisplayError(this, wxT("Type Draw inconnu/inattendu"));
 				break;
 			}
 		}
@@ -197,10 +197,10 @@ void WinEDA_GerberFrame::Erase_Current_Layer(wxDC * DC, bool query)
 TRACK * pt_segm;
 EDA_BaseStruct * PtNext;
 int layer = GetScreen()->m_Active_Layer;
-char line[256];
+wxString msg;
 
-	sprintf(line, _("Delete Layer %d"), layer+1);
-	if( query && ! IsOK(this, line) ) return;
+	msg.Printf( _("Delete Layer %d"), layer+1);
+	if( query && ! IsOK(this, msg) ) return;
 
 	/* Marquage des pistes a effacer */
 	for( pt_segm = m_Pcb->m_Track; pt_segm != NULL; pt_segm = (TRACK*) PtNext)

@@ -23,27 +23,27 @@ int savecmp(void)
 */
 {
 STORECMP * Cmp;
-wxString FichCmp;
+wxString FullFileName;
 char Line[1024];
 
 	/* calcul du nom du fichier */
-	FichCmp = FFileName;
-	ChangeFileNameExt(FichCmp, g_ExtCmpBuffer);
+	FullFileName = FFileName;
+	ChangeFileNameExt(FullFileName, g_ExtCmpBuffer);
 
-	dest = fopen(FichCmp.GetData(),"wt") ;
+	dest = wxFopen(FullFileName, wxT("wt") );
 	if( dest == NULL ) return(0);	/* Erreur ecriture */
 
 	fprintf(dest,"%s", EnteteCmpMod);
-	fprintf(dest," Genere par %12.12s", Main_Title.GetData());
+	fprintf(dest," Genere par %12.12s", CONV_TO_UTF8(Main_Title));
 	fprintf(dest," le %s\n", DateAndTime(Line));
 
 	for ( Cmp = BaseListeCmp ; Cmp != NULL ; Cmp = Cmp->Pnext )
 		{
 		fprintf(dest,"\nBeginCmp\n");
-		fprintf(dest,"TimeStamp = %s;\n",Cmp->TimeStamp);
-		fprintf(dest,"Reference = %s;\n",Cmp->Reference);
-		fprintf(dest,"ValeurCmp = %s;\n",Cmp->Valeur);
-		fprintf(dest,"IdModule  = %s;\n",Cmp->Module);
+		fprintf(dest,"TimeStamp = %s;\n", CONV_TO_UTF8(Cmp->m_TimeStamp));
+		fprintf(dest,"Reference = %s;\n", CONV_TO_UTF8(Cmp->m_Reference));
+		fprintf(dest,"ValeurCmp = %s;\n", CONV_TO_UTF8(Cmp->m_Valeur));
+		fprintf(dest,"IdModule  = %s;\n", CONV_TO_UTF8(Cmp->m_Module));
 		fprintf(dest,"EndCmp\n");
 		}
 	fprintf(dest,"\nEndListe\n") ;
@@ -52,178 +52,113 @@ char Line[1024];
 	return(1) ;
 }
 
-	/**************/
-	/* loadcmp()  */
-	/**************/
-
-/* recupere la liste des associations composants/empreintes */
-
-
+/****************/
 int loadcmp(void)
+/***************/
+/* recupere la liste des associations composants/empreintes
+*/
 {
-int ii , kk ;
-char ireforcad[80], valeur[80] , ilib[80] , itmp[80], namecmp[80];
-char * pt_item = itmp, * pt_ligne = itmp, *pt_start;
-int Version;
-int state = 0;
+wxString timestamp, valeur, ilib, namecmp;
+bool read_cmp_data = FALSE, eof = FALSE;
 STORECMP * Cmp;
-char Line[1024];
-wxString FichCmp;
+char Line[1024], * ident, *data;
+wxString FullFileName;
 
 	/* calcul du nom du fichier */
-	FichCmp = FFileName;
-	ChangeFileNameExt(FichCmp, g_ExtCmpBuffer);
+	FullFileName = FFileName;
+	ChangeFileNameExt(FullFileName, g_ExtCmpBuffer);
 
-	source = fopen(FichCmp.GetData(),"rt") ;
-	if (source == NULL ) return(0) ;
+	source = wxFopen(FullFileName, wxT("rt") );
+	if (source == NULL )
+	{
+		return(0) ;
+	}
 
 	/* Identification du Type de fichier CmpMod */
 	if ( fgets(Line,79,source) == 0 ) return(0);
-	if( strnicmp(Line, EnteteCmpMod, 11 ) == 0 ) Version = 1;
-	else
-		{
-		Version = 0;
-		fseek(source,0,0);
-		}
-
-	/* lecture de la liste , Nouveau type */
-	if( Version )
-	  while( fgets(Line,79,source) != 0 )
-		{
+	if( strnicmp(Line, EnteteCmpMod, 11 ) != 0 ) /* old file version*/
+	{
+		fclose(source) ;
+		DisplayError( NULL, wxT("Old version of Componaent file, recreate it!"));
+		return(0) ;
+	}
+	
+	/* lecture de la liste */
+	while( ! eof && fgets(Line,79,source) != 0 )
+	{
 		if( strnicmp(Line, "EndListe", 8 ) == 0 ) break;
 
 		/* Recherche du debut de description du composant */
 		if( strnicmp(Line, "BeginCmp", 8 ) != 0 ) continue;
-		memset(ireforcad, 0, sizeof(ireforcad));
-		memset(valeur, 0, sizeof(valeur));
-		memset(ilib, 0, sizeof(ilib));
-		memset(itmp, 0, sizeof(itmp));
-		memset(namecmp, 0, sizeof(namecmp));
-		state = 1;
+		timestamp.Empty();
+		valeur.Empty();
+		ilib.Empty();
+		namecmp.Empty();
+		read_cmp_data = TRUE;
 
-		while( state > 0 )
+		while( ! eof && read_cmp_data )
+		{
+			if( fgets(Line, 1024,source) == 0 )
 			{
-			if( fgets(Line,79,source) == 0 )
-				{
-				state = -1; break;
-				}
-
+				eof = TRUE; break;
+			}
+			
 			if( strnicmp(Line, "EndCmp", 6 ) == 0 )
-				{
-				state = 0; break;
-				}
+			{
+				read_cmp_data = TRUE; break;
+			}
 
-			pt_item = NULL;
+			ident = strtok ( Line,"=;\n\r");
+			data = strtok ( NULL,";\n\r");
+			if( strnicmp(ident, "TimeStamp", 9) == 0)
+			{
+				timestamp = CONV_FROM_UTF8(data);
+				timestamp.Trim(TRUE);
+				timestamp.Trim(FALSE);
+				continue;
+			}
 
-			/* Lecture Time Stamp */
-			if( strnicmp(Line, "TimeStamp =", 11) == 0)
-				{
-				pt_ligne = Line + 11; pt_item = ireforcad;
-				}
+			if( strnicmp(ident, "Reference", 9) == 0)
+			{
+				namecmp = CONV_FROM_UTF8(data);
+				namecmp.Trim(TRUE);
+				namecmp.Trim(FALSE);
+				continue;
+			}
 
-			/* lecture Reference (nom du composant) */
-			if( strnicmp(Line, "Reference =", 11) == 0)
-				{
-				pt_ligne = Line + 11; pt_item = namecmp;
-				}
+			if( strnicmp(ident, "ValeurCmp", 9) == 0)
+			{
+				valeur = CONV_FROM_UTF8(data);
+				valeur.Trim(TRUE);
+				valeur.Trim(FALSE);
+				continue;
+			}
 
-			/* lecture valeur du composant */
-			if( strnicmp(Line, "ValeurCmp =", 11) == 0)
-				{
-				pt_ligne = Line + 11; pt_item = valeur;
-				}
-
-			/* lecture nom de l'empreinte du composant */
-			if( strnicmp(Line, "IdModule  =", 11) == 0)
-				{
-				pt_ligne = Line + 11; pt_item = ilib;
-				}
-
-			/* Copie de la ligne utile dans le buffer correspondant */
-			if( pt_item == NULL) continue;	/* Ligne vide ou non comprise */
-			while(*pt_ligne == ' ') pt_ligne++;
-			pt_start = pt_item;
-			while(*pt_ligne != ';')
-				{
-				if(*pt_ligne < ' ') break;
-				*pt_item = *pt_ligne; pt_item++; pt_ligne++;
-				}
-			/* suppression des blancs inutiles en fin de ligne */
-			while( (*pt_item <= ' ') && ( pt_item > pt_start) )
-				*(pt_item--) = 0;
-			} /* Fin lecture description de 1 composant */
+			if( strnicmp(ident, "IdModule", 8) == 0)
+			{
+				ilib = CONV_FROM_UTF8(data);
+				ilib.Trim(TRUE);
+				ilib.Trim(FALSE);
+				continue;
+			}
+		} /* Fin lecture description de 1 composant */
 
 		/* Recherche du composant correspondant en netliste et
 			 mise a jour de ses parametres */
-		if(state < 0 ) continue; /* Erreur */
-
 		for ( Cmp = BaseListeCmp ; Cmp != NULL ; Cmp = Cmp->Pnext )
-			{
-			if (selection_type == 1 )
-				{
-				if(strnicmp(ireforcad,Cmp->TimeStamp,8) != 0 )
-					continue ;
-				}
-			else
-				if(stricmp(namecmp,Cmp->Reference) != 0 ) continue;
-
-			/* recalcul de la valeur des ‚l‚ments,en ‚liminant les blancs*/
-			kk = 0 ;
-			while((itmp[kk] = Cmp->Valeur[kk]) > ' ' ) kk++;
-			itmp[kk] = 0 ;
-			if (stricmp(valeur,itmp) != 0 ) continue ;
-
-			/* composant identifi‚ , copie du nom du module correspondant */
-			strncpy(Cmp->Module, ilib, sizeof(Cmp->Module) - 1);
-			}
-		}
-
-
-	/* lecture de la liste , ancien type */
-	else while ( fgets(Line,79,source)  != 0)
 		{
-		/* lecture reference orcad (si elle existe) du composant */
-		if ( Line[0] == '$' )
-			{
-			ii = 0 ; while( Line[ii] >= ' ')
-				{
-				ireforcad[ii] = Line[ii+1] ; ii++ ;
-				}
-			ireforcad[ii] = 0 ;
-			fgets(Line,79,source) ;
-			}
-
-		/* lecture nom du composant */
-		ii = 0 ; while( Line[ii] >= ' ') ii++ ; Line[ii] = 0 ;
-
-		/* lecture valeur du composant(‚limination des blancs */
-		if ( fgets(valeur,79,source) == 0) break ;
-		ii = 0 ; while( valeur[ii] > ' ') ii++ ; valeur[ii] = 0 ;
-
-		/* lecture nom de l'empreinte du composant */
-		if ( fgets(ilib,79,source) == 0) break ;
-		ii = 0 ; while( ilib[ii] >= ' ') ii++ ; ilib[ii] = 0 ;
-
-		for ( Cmp = BaseListeCmp ; Cmp != NULL ; Cmp = Cmp->Pnext )
-			{
 			if (selection_type == 1 )
-				{
-				if(strnicmp(ireforcad,Cmp->TimeStamp,8) != 0 )
+			{
+				if( timestamp != Cmp->m_TimeStamp )
 					continue ;
-				}
-			else
-				if (stricmp(Line,Cmp->Reference) != 0 ) continue ;
-
-			/* recalcul de la valeur des ‚l‚ments,en ‚liminant les blancs*/
-			kk = 0 ;
-			while((itmp[kk] = Cmp->Valeur[kk]) > ' ' ) kk++ ;
-			itmp[kk] = 0 ;
-			if (stricmp(valeur,itmp) != 0 ) continue ;
-
-			/* composant identifi‚ , copie du nom du module correspondant */
-			strncpy(Cmp->Module, ilib, sizeof(Cmp->Module) - 1);
 			}
+			else
+				if( namecmp != Cmp->m_Reference ) continue;
+
+			/* composant identifie , copie du nom du module correspondant */
+			Cmp->m_Module= ilib;
 		}
+	}
 	fclose(source) ;
 	return(1) ;
 }

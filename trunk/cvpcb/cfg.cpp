@@ -38,11 +38,11 @@ wxString FullFileName = FileName ;
 	EDA_Appl->ReadProjectConfig(FullFileName,
 		GROUP, ParamCfgList, FALSE);
 
-	if ( PkgInExtBuffer == "" ) PkgInExtBuffer = ".pkg";
-	if ( NetInExtBuffer == "" ) NetInExtBuffer = ".net",
+	if ( PkgInExtBuffer.IsEmpty() ) PkgInExtBuffer = wxT(".pkg");
+	if ( NetInExtBuffer.IsEmpty() ) NetInExtBuffer = wxT(".net"),
 
 	/* Inits autres variables */
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules"));
 }
 
 
@@ -62,7 +62,7 @@ void Save_Config(wxWindow * parent)
 /* enregistrement de la config */
 {
 wxString path, FullFileName;
-wxString mask("*");
+wxString mask( wxT("*"));
 	
 	FullFileName = FFileName;
 	ChangeFileNameExt( FullFileName, g_Prj_Config_Filename_ext );
@@ -77,7 +77,7 @@ wxString mask("*");
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty()) return;
 
 	/* ecriture de la configuration */
 	EDA_Appl->WriteProjectConfig(FullFileName, GROUP, ParamCfgList);

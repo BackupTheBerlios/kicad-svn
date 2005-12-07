@@ -31,7 +31,7 @@ static bool ReCreatePrjConfig(const wxString & local_config_filename,
 	g_Prj_Config  = NULL;
 	
 	// Init local Config filename
-	if ( local_config_filename == "" ) g_Prj_Config_LocalFilename =  "kicad";
+	if ( local_config_filename.IsEmpty() ) g_Prj_Config_LocalFilename = wxT("kicad");
 	else g_Prj_Config_LocalFilename = local_config_filename;
 
 	ChangeFileNameExt( g_Prj_Config_LocalFilename, g_Prj_Config_Filename_ext );
@@ -39,9 +39,9 @@ static bool ReCreatePrjConfig(const wxString & local_config_filename,
 	// Init local config filename
 	if ( ForceUseLocalConfig || wxFileExists(g_Prj_Config_LocalFilename) )
 	{
-		g_Prj_Default_Config_FullFilename = "";
-		g_Prj_Config = new wxFileConfig("", "",
-			g_Prj_Config_LocalFilename,	"",
+		g_Prj_Default_Config_FullFilename.Empty();
+		g_Prj_Config = new wxFileConfig(wxEmptyString, wxEmptyString,
+			g_Prj_Config_LocalFilename,	wxEmptyString,
 			wxCONFIG_USE_RELATIVE_PATH);
 		g_Prj_Config->DontCreateOnDemand();
 
@@ -50,23 +50,23 @@ static bool ReCreatePrjConfig(const wxString & local_config_filename,
 		// Test de la bonne version du fichier (ou groupe) de configuration
 	int version = -1, def_version = 0;
 		g_Prj_Config->SetPath(GroupName);
-		version = g_Prj_Config->Read( "version", def_version);
-		g_Prj_Config->SetPath("/");
+		version = g_Prj_Config->Read( wxT("version"), def_version);
+		g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
 		if ( version > 0 ) return TRUE;
 		else delete g_Prj_Config;	// Version incorrecte
 	}
 
 
 	// Fichier local non trouve ou invalide
-	g_Prj_Config_LocalFilename = "";
+	g_Prj_Config_LocalFilename.Empty();
 	g_Prj_Default_Config_FullFilename =
 				ReturnKicadDatasPath() +
-				"template/kicad" +
+				wxT("template/kicad") +
 				g_Prj_Config_Filename_ext;
 		
 	// Recreate new config
-	g_Prj_Config = new wxFileConfig("", "",
-			"",	g_Prj_Default_Config_FullFilename,
+	g_Prj_Config = new wxFileConfig(wxEmptyString, wxEmptyString,
+			wxEmptyString,	g_Prj_Default_Config_FullFilename,
 			wxCONFIG_USE_RELATIVE_PATH);
 	g_Prj_Config->DontCreateOnDemand();
 
@@ -90,18 +90,18 @@ wxString msg;
 	(en fait si groupe vide) */
 char date[1024];
     DateAndTime(date);
-	g_Prj_Config->SetPath("/");
-	g_Prj_Config->Write("update", date);
+	g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
+	g_Prj_Config->Write( wxT("update"), date);
 	msg = GetAppName();
-	g_Prj_Config->Write("last_client", msg);
+	g_Prj_Config->Write( wxT("last_client"), msg);
 
 	/* ecriture de la configuration */
 	g_Prj_Config->DeleteGroup(GroupName);	// Erase all datas
 	g_Prj_Config->Flush();
 
 	g_Prj_Config->SetPath(GroupName);
-	g_Prj_Config->Write("version", CONFIG_VERSION);
-	g_Prj_Config->SetPath("/");
+	g_Prj_Config->Write( wxT("version"), CONFIG_VERSION);
+	g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
 
 	for( ; *List != NULL ; List++)
 		{
@@ -190,7 +190,7 @@ char date[1024];
 		}
 	}
 	
-	g_Prj_Config->SetPath("/");
+	g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
 	delete g_Prj_Config;
 	g_Prj_Config = NULL; 
 }
@@ -219,19 +219,19 @@ wxString timestamp;
 
 	ReCreatePrjConfig(local_config_filename, GroupName, FALSE);
 
-	g_Prj_Config->SetPath("/");
-	timestamp = g_Prj_Config->Read("update");
-	if ( Load_Only_if_New && (timestamp != "" ) &&
+	g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
+	timestamp = g_Prj_Config->Read( wxT("update") );
+	if ( Load_Only_if_New && ( !timestamp.IsEmpty() ) &&
 		 (timestamp == EDA_Appl->m_CurrentOptionFileDateAndTime) )
 		return FALSE;
 	
 	EDA_Appl->m_CurrentOptionFileDateAndTime = timestamp;
 	
-	if ( g_Prj_Default_Config_FullFilename != "")
+	if ( ! g_Prj_Default_Config_FullFilename.IsEmpty() )
 		EDA_Appl->m_CurrentOptionFile = g_Prj_Default_Config_FullFilename;
 	else
 	{
-		if ( wxPathOnly(g_Prj_Config_LocalFilename) == "" )
+		if ( wxPathOnly(g_Prj_Config_LocalFilename).IsEmpty() )
 			EDA_Appl->m_CurrentOptionFile =
 				wxGetCwd() + STRING_DIR_SEP + g_Prj_Config_LocalFilename;
 		else	
@@ -279,16 +279,16 @@ wxString timestamp;
 			{
 				#undef PTCFG
 				#define PTCFG ((PARAM_CFG_DOUBLE *)pt_cfg) 
-				double ftmp; wxString msg;
+				double ftmp = 0; wxString msg;
 				if ( pt_cfg->m_Setup)
-					msg = m_EDA_Config->Read(pt_cfg->m_Ident, "" );
+					msg = m_EDA_Config->Read(pt_cfg->m_Ident, wxT("") );
 				else
-					msg = g_Prj_Config->Read(pt_cfg->m_Ident, "" );
+					msg = g_Prj_Config->Read(pt_cfg->m_Ident, wxT("") );
 				
-				if ( msg == "" ) ftmp = PTCFG->m_Default;
+				if ( msg.IsEmpty() ) ftmp = PTCFG->m_Default;
 				else
 				{
-					ftmp = (double) atof(msg.GetData());
+					msg.ToDouble(&ftmp);
 					if( (ftmp < PTCFG->m_Min) || (ftmp > PTCFG->m_Max) )
 						ftmp = PTCFG->m_Default;
 				}
@@ -331,8 +331,8 @@ wxString timestamp;
 				while ( 1 )
 				{
 					id_lib = pt_cfg->m_Ident; id_lib << indexlib; indexlib++;
-					libname = g_Prj_Config->Read(id_lib, "");
-					if( libname == "" ) break;
+					libname = g_Prj_Config->Read(id_lib, wxT("") );
+					if( libname.IsEmpty() ) break;
 					libname_list->Add(libname);
 				}
 				break;
@@ -354,8 +354,8 @@ wxString timestamp;
 /* Constructeurs des descripteurs de structs de configuration */
 /**************************************************************/
 
-PARAM_CFG_BASE::PARAM_CFG_BASE(const char * ident, const paramcfg_id type,
-			const char * group)
+PARAM_CFG_BASE::PARAM_CFG_BASE(const wxChar * ident, const paramcfg_id type,
+			const wxChar * group)
 {
 	m_Ident = ident;
 	m_Type = type;
@@ -364,9 +364,9 @@ PARAM_CFG_BASE::PARAM_CFG_BASE(const char * ident, const paramcfg_id type,
 }
 
 
-PARAM_CFG_INT::PARAM_CFG_INT(const char * ident, int * ptparam,
+PARAM_CFG_INT::PARAM_CFG_INT(const wxChar * ident, int * ptparam,
 				int default_val, int min, int max,
-				const char * group)
+				const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_INT, group)
 {
 	m_Pt_param = ptparam;
@@ -375,9 +375,9 @@ PARAM_CFG_INT::PARAM_CFG_INT(const char * ident, int * ptparam,
 	m_Max = max;
 }
 
-PARAM_CFG_INT::PARAM_CFG_INT(bool Insetup, const char * ident, int * ptparam,
+PARAM_CFG_INT::PARAM_CFG_INT(bool Insetup, const wxChar * ident, int * ptparam,
 				int default_val, int min, int max,
-				const char * group)
+				const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_INT, group)
 {
 	m_Pt_param = ptparam;
@@ -387,16 +387,16 @@ PARAM_CFG_INT::PARAM_CFG_INT(bool Insetup, const char * ident, int * ptparam,
 	m_Setup = Insetup;
 }
 
-PARAM_CFG_SETCOLOR::PARAM_CFG_SETCOLOR(const char * ident, int * ptparam,
-				int default_val, const char * group)
+PARAM_CFG_SETCOLOR::PARAM_CFG_SETCOLOR(const wxChar * ident, int * ptparam,
+				int default_val, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_SETCOLOR, group)
 {
 	m_Pt_param = ptparam;
 	m_Default = default_val;
 }
 
-PARAM_CFG_SETCOLOR::PARAM_CFG_SETCOLOR(bool Insetup, const char * ident, int * ptparam,
-				int default_val, const char * group)
+PARAM_CFG_SETCOLOR::PARAM_CFG_SETCOLOR(bool Insetup, const wxChar * ident, int * ptparam,
+				int default_val, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_SETCOLOR, group)
 {
 	m_Pt_param = ptparam;
@@ -404,9 +404,9 @@ PARAM_CFG_SETCOLOR::PARAM_CFG_SETCOLOR(bool Insetup, const char * ident, int * p
 	m_Setup = Insetup;
 }
 
-PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(const char * ident, double * ptparam,
+PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(const wxChar * ident, double * ptparam,
 				double default_val, double min , double max,
-				const char * group)
+				const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_DOUBLE, group)
 {
 	m_Pt_param = ptparam;
@@ -414,9 +414,9 @@ PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(const char * ident, double * ptparam,
 	m_Min = min;
 	m_Max = max;
 }
-PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(bool Insetup, const char * ident, double * ptparam,
+PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(bool Insetup, const wxChar * ident, double * ptparam,
 				double default_val, double min , double max,
-				const char * group)
+				const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_DOUBLE, group)
 {
 	m_Pt_param = ptparam;
@@ -426,16 +426,16 @@ PARAM_CFG_DOUBLE::PARAM_CFG_DOUBLE(bool Insetup, const char * ident, double * pt
 	m_Setup = Insetup;
 }
 
-PARAM_CFG_BOOL::PARAM_CFG_BOOL(const char * ident, bool * ptparam,
-				int default_val, const char * group)
+PARAM_CFG_BOOL::PARAM_CFG_BOOL(const wxChar * ident, bool * ptparam,
+				int default_val, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_BOOL, group)
 {
 	m_Pt_param = ptparam;
 	m_Default = default_val ? TRUE : FALSE;
 }
 
-PARAM_CFG_BOOL::PARAM_CFG_BOOL(bool Insetup, const char * ident, bool * ptparam,
-				int default_val, const char * group)
+PARAM_CFG_BOOL::PARAM_CFG_BOOL(bool Insetup, const wxChar * ident, bool * ptparam,
+				int default_val, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_BOOL, group)
 {
 	m_Pt_param = ptparam;
@@ -443,23 +443,23 @@ PARAM_CFG_BOOL::PARAM_CFG_BOOL(bool Insetup, const char * ident, bool * ptparam,
 	m_Setup = Insetup;
 }
 
-PARAM_CFG_WXSTRING::PARAM_CFG_WXSTRING(const char * ident,
-					wxString * ptparam, const char * group)
+PARAM_CFG_WXSTRING::PARAM_CFG_WXSTRING(const wxChar * ident,
+					wxString * ptparam, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_WXSTRING, group)
 {
 	m_Pt_param = ptparam;
 }
 
-PARAM_CFG_WXSTRING::PARAM_CFG_WXSTRING(bool Insetup, const char * ident,
-					wxString * ptparam, const char * group)
+PARAM_CFG_WXSTRING::PARAM_CFG_WXSTRING(bool Insetup, const wxChar * ident,
+					wxString * ptparam, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_WXSTRING, group)
 {
 	m_Pt_param = ptparam;
 	m_Setup = Insetup;
 }
 
-PARAM_CFG_LIBNAME_LIST::PARAM_CFG_LIBNAME_LIST(const char * ident,
-					wxArrayString * ptparam, const char * group)
+PARAM_CFG_LIBNAME_LIST::PARAM_CFG_LIBNAME_LIST(const wxChar * ident,
+					wxArrayString * ptparam, const wxChar * group)
 			: PARAM_CFG_BASE(ident, PARAM_LIBNAME_LIST, group)
 {
 	m_Pt_param = ptparam;

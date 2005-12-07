@@ -63,10 +63,10 @@ void Affiche_1_Segment(WinEDA_DrawPanel * panel, wxDC * DC, int ux0, int uy0, in
 /* LOCATE.C : */
 /**************/
 
-MODULE * ReturnModule(BOARD * Pcb, const char * name);
+MODULE * ReturnModule(BOARD * Pcb, const wxString & name);
 	/* Recherche d'une empreinte par son nom */
 
-D_PAD * ReturnPad(MODULE * Module, const char * name);
+D_PAD * ReturnPad(MODULE * Module, const wxString & name);
 	/* Recherche d'un pad par son nom, pour le module Module */
 
 TRACK * Locate_Via(BOARD * Pcb, int pX, int pY, int layer);

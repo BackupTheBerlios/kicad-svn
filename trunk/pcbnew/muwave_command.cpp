@@ -41,7 +41,7 @@ wxClientDC dc(DrawPanel);
 			{
 				GetScreen()->ForceCloseManageCurseur(this, &dc);
 			}
-			SetToolID(0, wxCURSOR_ARROW,"");
+			SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			break;
 	}
 
@@ -69,7 +69,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_PcbFrame::ProcessMuWaveFunctions() id error");
+			DisplayError(this, wxT("WinEDA_PcbFrame::ProcessMuWaveFunctions() id error"));
 			break;
 	}
 
@@ -106,8 +106,8 @@ void WinEDA_PcbFrame::MuWaveCommand(wxDC * DC, const wxPoint& MousePos)
 
 		default :
 			DrawPanel->SetCursor(wxCURSOR_ARROW);
-			DisplayError(this, "WinEDA_PcbFrame::MuWaveCommand() id error");
-			SetToolID(0, wxCURSOR_ARROW,"");
+			DisplayError(this, wxT("WinEDA_PcbFrame::MuWaveCommand() id error"));
+			SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			break;
 	}
 }

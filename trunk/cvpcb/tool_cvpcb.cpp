@@ -102,17 +102,17 @@ wxMenuBar * menuBar = GetMenuBar();
 		m_FilesMenu->Append(item);
 
 		m_FilesMenu->AppendSeparator();
-		item = new wxMenuItem(m_FilesMenu, ID_EXIT, _("E&xit"), _("Quit Cvpcb" ));
+		item = new wxMenuItem(m_FilesMenu, ID_CVPCB_QUIT, _("E&xit"), _("Quit Cvpcb" ));
 	    item->SetBitmap(exit_xpm);
 		m_FilesMenu->Append(item);
 
 // Creation des selections des anciens fichiers
 		m_FilesMenu->AppendSeparator();
 		for ( ii = 0; ii < 10; ii++ )
-			{
-			if ( GetLastProject(ii) == "" ) break;
+		{
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
-			}
+		}
 
 		// Menu Configuration:
 		wxMenu * configmenu = new wxMenu;
@@ -160,7 +160,7 @@ wxMenuBar * menuBar = GetMenuBar();
 			}
 		for ( ii = 0; ii < max_file; ii++ )
 			{
-			if ( GetLastProject(ii) == "" ) break;
+			if ( GetLastProject(ii).IsEmpty() ) break;
 			m_FilesMenu->Append(ID_LOAD_FILE_1 + ii, GetLastProject(ii) );
 			}
 		}

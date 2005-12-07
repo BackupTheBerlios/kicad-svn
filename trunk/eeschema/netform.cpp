@@ -51,7 +51,7 @@ FILE *f = NULL;
 
 	if ( g_NetFormat < NET_TYPE_CUSTOM1 )
 	{
-		if ((f = fopen(FileNameNL, "wt")) == NULL)
+		if ((f = wxFopen(FileNameNL, wxT("wt"))) == NULL)
 		{
 			wxString msg =  _("Failed to create file ") + FileNameNL;
 			DisplayError(frame, msg);
@@ -95,7 +95,7 @@ wxBusyCursor Busy;
 			break;
 
 		default:
-			DisplayError(frame, "WriteNetList() err: Unknown Netlist Format");
+			DisplayError(frame, wxT("WriteNetList() err: Unknown Netlist Format"));
 			break;
 	}
 }
@@ -128,7 +128,7 @@ LibEDA_BaseStruct *DEntry;
 		 /* already tested ? : */
 		if( Component->m_FlagControlMulti == 1 ) continue; /* yes */
 	
-		Entry = FindLibPart(Component->m_ChipName, "", FIND_ROOT);
+		Entry = FindLibPart(Component->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
 		if( Entry  == NULL) continue;
 			
 		/* Power symbol and other component which have the reference starting by
@@ -199,14 +199,14 @@ wxString NetName;
 				( g_TabObjNet[jj].m_Type != NET_LABEL) &&
 				( g_TabObjNet[jj].m_Type != NET_PINLABEL) ) continue;
 
-			NetName = g_TabObjNet[jj].m_Label;
+			NetName = * g_TabObjNet[jj].m_Label;
 			break;
 		}
 		
-		if( NetName != "" )
+		if( ! NetName.IsEmpty() )
 		{
 			if( g_TabObjNet[jj].m_Type != NET_PINLABEL )
-				NetName << "_" << g_TabObjNet[jj].m_SheetNumber;
+				NetName << wxT("_") << g_TabObjNet[jj].m_SheetNumber;
 		}
 		else
 		{
@@ -232,9 +232,9 @@ int ii;
 FILE * tmpfile;
 wxString TmpFullFileName = FullFileName;	
 	
-	ChangeFileNameExt(TmpFullFileName, ".tmp");
+	ChangeFileNameExt(TmpFullFileName, wxT(".tmp"));
 
-	if ((tmpfile = fopen(TmpFullFileName, "wt")) == NULL)
+	if ((tmpfile = wxFopen(TmpFullFileName, wxT("wt"))) == NULL)
 	{
 		wxString msg =  _("Failed to create file ") + TmpFullFileName;
 		DisplayError(frame, msg);
@@ -257,23 +257,23 @@ wxString TmpFullFileName = FullFileName;
 			if( ! Component->m_Field[FOOTPRINT].IsVoid() )
 			{
 				FootprintName = Component->m_Field[FOOTPRINT].m_Text;
-				FootprintName.Replace(" ", "_");
+				FootprintName.Replace(wxT(" "), wxT("_"));
 			}
 
 			fprintf( tmpfile, "\n$BeginComponent\n" );
 			fprintf(tmpfile, "TimeStamp=%8.8lX\n", Component->m_TimeStamp);
-			fprintf(tmpfile, "Footprint=%s\n", FootprintName.GetData());
-			Line =  "Reference=" + Component->m_Field[REFERENCE].m_Text + "\n";
-			Line.Replace(" ", "_");
-			fprintf(tmpfile, Line.GetData());
+			fprintf(tmpfile, "Footprint=%s\n", CONV_TO_UTF8(FootprintName));
+			Line =  wxT("Reference=") + Component->m_Field[REFERENCE].m_Text + wxT("\n");
+			Line.Replace(wxT(" "), wxT("_"));
+			fprintf(tmpfile, CONV_TO_UTF8(Line));
 
 			Line = Component->m_Field[VALUE].m_Text;
-			Line.Replace(" ", "_");
-			fprintf(tmpfile, "Value=%s\n", Line.GetData());
+			Line.Replace( wxT(" "), wxT("_"));
+			fprintf(tmpfile, "Value=%s\n", CONV_TO_UTF8(Line));
 
 			Line = Component->m_ChipName;
-			Line.Replace(" ", "_");
-			fprintf(tmpfile, "Libref=%s\n", Line.GetData());
+			Line.Replace(wxT(" "), wxT("_"));
+			fprintf(tmpfile, "Libref=%s\n", CONV_TO_UTF8(Line));
 
 			// Write pin list:
 			fprintf( tmpfile, "$BeginPinList\n" );
@@ -281,9 +281,10 @@ wxString TmpFullFileName = FullFileName;
 			{
 				ObjetNetListStruct *Pin = s_SortedComponentPinList[ii];
 				if( ! Pin ) continue;
-				netname = ReturnPinNetName(Pin, "$-%.6d");
-				if ( netname == "" ) netname = "?";
-				fprintf( tmpfile,"%.4s=%s\n",(char *)&Pin->m_PinNum, netname.GetData());
+				netname = ReturnPinNetName(Pin, wxT("$-%.6d"));
+				if ( netname.IsEmpty() ) netname = wxT("?");
+				fprintf( tmpfile,"%.4s=%s\n",(char *)&Pin->m_PinNum,
+					CONV_TO_UTF8(netname));
 			}
 
 			fprintf( tmpfile, "$EndPinList\n" );
@@ -304,15 +305,15 @@ wxString TmpFullFileName = FullFileName;
 	
 	// Call the external module (plug in )
 	
-	if ( g_NetListerCommandLine == "" ) return;
+	if ( g_NetListerCommandLine.IsEmpty() ) return;
 
 wxString CommandFile;
 	if ( wxIsAbsolutePath(g_NetListerCommandLine) )
 		CommandFile = g_NetListerCommandLine;
 	else CommandFile = FindKicadFile(g_NetListerCommandLine);
 	
-	CommandFile += " " + TmpFullFileName;
-	CommandFile += " " + FullFileName;
+	CommandFile += wxT(" ") + TmpFullFileName;
+	CommandFile += wxT(" ") + FullFileName;
 
 	wxExecute(CommandFile, wxEXEC_SYNC);
 	
@@ -362,11 +363,11 @@ BASE_SCREEN *CurrScreen;
 EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *Component;
 int ii, nbitems;
-const char * text;
+wxString text;
 wxArrayString SpiceCommandAtBeginFile, SpiceCommandAtEndFile;
 wxString msg;
 #define BUFYPOS_LEN 4
-char bufnum[BUFYPOS_LEN+1];
+wxChar bufnum[BUFYPOS_LEN+1];
 
 	DateAndTime(Line);
 	fprintf( f, "* %s (Spice format) creation date: %s\n\n", NETLIST_HEAD_STRING, Line );
@@ -378,23 +379,25 @@ char bufnum[BUFYPOS_LEN+1];
 	{
 		for ( DrawList = CurrScreen->EEDrawList; DrawList != NULL; DrawList = DrawList->Pnext )
 		{
-			char ident;
+			wxChar ident;
 			if ( DrawList->m_StructType != DRAW_TEXT_STRUCT_TYPE ) continue;
 			#define DRAWTEXT ((DrawTextStruct *) DrawList)
-			text = DRAWTEXT->m_Text.GetData(); if ( ! text ) continue;
-			ident = *text;
+			text = DRAWTEXT->m_Text; if ( text.IsEmpty() ) continue;
+			ident = text.GetChar(0);
 			if ( ident != '.' && ident != '-' && ident != '+' ) continue;
-			if( (strnicmp(text + 1, "pspice",6 ) == 0 ) ||
-				(strnicmp(text + 1, "gnucap",6 ) == 0 ) )
+			text.Remove(0,1);	//Remove the first char.
+			text.Remove(6);		//text contains 6 char.
+			if( ( text == wxT("pspice") ) || ( text == wxT("gnucap") ) )
 			{
-				/* Put the Y position as an ascii string, for sort by verical position,
+				/* Put the Y position as an ascii string, for sort by vertical position,
 				using usual sort string by alphabetic value */
 				int ypos = DRAWTEXT->m_Pos.y;
 				for ( ii = 0; ii < BUFYPOS_LEN; ii++ )
 				{
 					bufnum[BUFYPOS_LEN-1-ii] = (ypos & 63) + ' '; ypos >>= 6;
 				}
-				msg.Printf("%s %s",bufnum, text + 8);	// First BUFYPOS_LEN char are the Y position
+				text = DRAWTEXT->m_Text.AfterFirst( ' ');
+				msg.Printf( wxT("%s %s"),bufnum, text.GetData());	// First BUFYPOS_LEN char are the Y position
 				if ( ident == '+' ) SpiceCommandAtEndFile.Add(msg);
 				else SpiceCommandAtBeginFile.Add(msg);
 			}
@@ -407,7 +410,12 @@ char bufnum[BUFYPOS_LEN+1];
 	{
 		SpiceCommandAtBeginFile.Sort();
 		for(ii= 0; ii < nbitems; ii++ )
-			fprintf( f, "%s\n", SpiceCommandAtBeginFile[ii].GetData() + BUFYPOS_LEN + 1 );
+		{
+			SpiceCommandAtBeginFile[ii].Remove(0, BUFYPOS_LEN);
+			SpiceCommandAtBeginFile[ii].Trim(TRUE);
+			SpiceCommandAtBeginFile[ii].Trim(FALSE);
+			fprintf( f, "%s\n", CONV_TO_UTF8(SpiceCommandAtBeginFile[ii]) );
+		}
 	}
 	fprintf( f, "\n" );
 
@@ -421,24 +429,25 @@ char bufnum[BUFYPOS_LEN+1];
 			DrawList = Component = FindNextComponentAndCreatPinList(DrawList);
 			if ( Component == NULL ) break;
 
-			fprintf(f, "%s ", Component->m_Field[REFERENCE].m_Text.GetData());
+			fprintf(f, "%s ", CONV_TO_UTF8(Component->m_Field[REFERENCE].m_Text));
 
 			// Write pin list:
 			for (ii = 0; ii < s_SortedPinCount; ii++)
 			{
 				ObjetNetListStruct *Pin = s_SortedComponentPinList[ii];
 				if( ! Pin ) continue;
-				wxString NetName = ReturnPinNetName(Pin, "N-%.6d");
-				if ( NetName == "" ) NetName = "?";
-				if( use_netnames) fprintf( f," %s", NetName.GetData());
+				wxString NetName = ReturnPinNetName(Pin, wxT("N-%.6d"));
+				if ( NetName.IsEmpty() ) NetName = wxT("?");
+				if( use_netnames) fprintf( f," %s", CONV_TO_UTF8(NetName));
 				else	// Use number for net names (with net number = 0 for "GND"
 				{
 					// NetName = "0" is "GND" net for Spice
-					if( NetName == "0" || NetName == "GND" ) fprintf( f," 0");
+					if( NetName == wxT("0") || NetName == wxT("GND") )
+						fprintf( f," 0");
 					else fprintf( f," %d", Pin->m_NetCode);
 				}
 			}
-			fprintf(f, " %s\n",  Component->m_Field[VALUE].m_Text.GetData());
+			fprintf(f, " %s\n", CONV_TO_UTF8(Component->m_Field[VALUE].m_Text));
 		}
 	}
 
@@ -452,7 +461,12 @@ char bufnum[BUFYPOS_LEN+1];
 		fprintf( f, "\n" );
 		SpiceCommandAtEndFile.Sort();
 		for(ii= 0; ii < nbitems; ii++ )
-			fprintf( f, "%s\n", SpiceCommandAtEndFile[ii].GetData() + BUFYPOS_LEN +1);
+		{
+			SpiceCommandAtEndFile[ii].Remove(0,  + BUFYPOS_LEN);
+			SpiceCommandAtEndFile[ii].Trim(TRUE);
+			SpiceCommandAtEndFile[ii].Trim(FALSE);
+			fprintf( f, "%s\n", CONV_TO_UTF8(SpiceCommandAtEndFile[ii]));
+		}
 	}
 
 	fprintf( f, "\n.end\n" );
@@ -493,25 +507,26 @@ int ii;
 			if( ! Component->m_Field[FOOTPRINT].IsVoid() )
 			{
 				FootprintName = Component->m_Field[FOOTPRINT].m_Text;
-				FootprintName.Replace( " ", "_");
+				FootprintName.Replace( wxT(" "), wxT("_") );
 			}
-			else FootprintName = "$noname";
+			else FootprintName = wxT("$noname");
 
 			Line = Component->m_Field[REFERENCE].m_Text;
-			Line.Replace( " ", "_");
-			fprintf(f, " ( %8.8lX %s %s",
+			Line.Replace( wxT(" "), wxT("_") );
+			fprintf(f, " ( %8.8lX %s",
 						Component->m_TimeStamp,
-						FootprintName.GetData(), Line.GetData());
+						CONV_TO_UTF8(FootprintName));
+			fprintf(f, "  %s", CONV_TO_UTF8(Line));
 
 			Line = Component->m_Field[VALUE].m_Text;
-			Line.Replace( " ", "_");
-			fprintf(f, " %s", Line.GetData());
+			Line.Replace( wxT(" "), wxT("_") );
+			fprintf(f, " %s", CONV_TO_UTF8(Line));
 
 			if ( with_pcbnew )	// Add the lib name for this component
 			{
 				Line = Component->m_ChipName;
-				Line.Replace( " ", "_");
-				fprintf(f, " {Lib=%s}", Line.GetData());
+				Line.Replace( wxT(" "), wxT("_") );
+				fprintf(f, " {Lib=%s}", CONV_TO_UTF8(Line));
 			}
 			fprintf(f, "\n");
 
@@ -520,9 +535,10 @@ int ii;
 			{
 				ObjetNetListStruct *Pin = s_SortedComponentPinList[ii];
 				if( ! Pin ) continue;
-				wxString netname = ReturnPinNetName(Pin, "N-%.6d");
-				if ( netname == "" ) netname = " ?";
-				fprintf( f,"  ( %4.4s %s )\n",(char *)&Pin->m_PinNum, netname.GetData());
+				wxString netname = ReturnPinNetName(Pin, wxT("N-%.6d"));
+				if ( netname.IsEmpty() ) netname = wxT(" ?");
+				fprintf( f,"  ( %4.4s %s )\n",(char *)&Pin->m_PinNum,
+						CONV_TO_UTF8(netname));
 			}
 
 			fprintf(f, " )\n");
@@ -565,7 +581,7 @@ int ii;
 			if (s_SortedPinCount >= MAXPIN)
 			{
 				/* Log message for Internal error */
-				DisplayError(NULL, "AddPinToComponentPinList err: MAXPIN reached"); return;
+				DisplayError(NULL, wxT("AddPinToComponentPinList err: MAXPIN reached")); return;
 			}
 		}
 	}
@@ -585,16 +601,16 @@ static void EraseDuplicatePins(ObjetNetListStruct **TabPin, int NbrPin)
 int ii, jj;
 
 	for (ii = 0; ii < NbrPin-1; ii++)
-		{
+	{
 		if( TabPin[ii] == NULL) continue;	/* Deja supprime */
 		if( TabPin[ii]->m_PinNum != TabPin[ii+1]->m_PinNum) continue;
 		/* 2 Pins doublees */
 		for( jj = ii+1; jj < NbrPin ; jj++ )
-			{
+		{
 			if( TabPin[ii]->m_PinNum != TabPin[jj]->m_PinNum) break;
 			TabPin[jj] = NULL;
-			}
 		}
+	}
 }
 
 
@@ -630,7 +646,7 @@ BASE_SCREEN * screen;
 							  Component->m_Field[REFERENCE].m_Text) != 0 )
 						break;
 
-					Entry = FindLibPart(Component2->m_ChipName, "", FIND_ROOT);
+					Entry = FindLibPart(Component2->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
  					if( Entry  == NULL) break;
 					if( Component2->m_Field[REFERENCE].m_Text[0] == '#' ) break;
 
@@ -678,7 +694,6 @@ char Line[5];
 	return (Num1 - Num2);
 }
 
-
 /*************************************************************************/
 static void WriteGENERICListOfNets( FILE * f, ObjetNetListStruct *ObjNet )
 /*************************************************************************/
@@ -688,15 +703,18 @@ elements qui y sont connectes
 {
 int ii, jj;
 int NetCode, LastNetCode = -1;
+int SameNetcodeCount = 0;
 EDA_SchComponentStruct * Cmp;
-const char * NetName, * CmpRef;
+wxString NetName, CmpRef;
 wxString NetcodeName;
-
+char FirstItemInNet[1024];
+	
 	for (ii = 0; ii < g_NbrObjNet; ii++)
 	{
 		if( (NetCode = ObjNet[ii].m_NetCode) != LastNetCode )	// New net found, write net id;
 		{
-			NetName = NULL;
+			SameNetcodeCount = 0;		// Items count for this net
+			NetName.Empty();
 			for (jj = 0; jj < g_NbrObjNet; jj++)	// Find a label (if exists) for this net
 			{
 				if( ObjNet[jj].m_NetCode != NetCode) continue;
@@ -704,44 +722,51 @@ wxString NetcodeName;
 					( ObjNet[jj].m_Type != NET_LABEL) &&
 					( ObjNet[jj].m_Type != NET_PINLABEL) ) continue;
 
-				NetName = g_TabObjNet[jj].m_Label; break;
+				NetName = * g_TabObjNet[jj].m_Label; break;
 			}
 
-			NetcodeName.Printf("Net %d ", NetCode);
-			NetcodeName += "\"";
-			if( NetName)
+			NetcodeName.Printf( wxT("Net %d "), NetCode);
+			NetcodeName += wxT("\"");
+			if( ! NetName.IsEmpty() )
 			{
 				NetcodeName += NetName;
 				if( g_TabObjNet[jj].m_Type != NET_PINLABEL)	// usual net name, add it the sheet number
-					NetcodeName << "_" << g_TabObjNet[jj].m_SheetNumber;
+					NetcodeName << wxT("_") << g_TabObjNet[jj].m_SheetNumber;
 			}
-			NetcodeName += "\"";
-			fprintf( f, "%s\n", NetcodeName.GetData());
-
+			NetcodeName += wxT("\"");
 			LastNetCode = NetCode;
 		}
 
-		// Print the pin list for this net:
-		switch ( ObjNet[ii].m_Type )
-		{
-			case NET_PIN :
-				Cmp = (EDA_SchComponentStruct*) ObjNet[ii].m_Link;
-				CmpRef = Cmp->m_Field[REFERENCE].m_Text.GetData();
-				if ( *CmpRef == '#' )	//Pseudo component do not wxrite it
-					break;
-				fprintf( f, " %s %.4s\n", CmpRef, (char*) & ObjNet[ii].m_PinNum);
-				break;
+		if ( ObjNet[ii].m_Type != NET_PIN ) continue;
 
-			default:
-				break;
+		Cmp = (EDA_SchComponentStruct*) ObjNet[ii].m_Link;
+		CmpRef = Cmp->m_Field[REFERENCE].m_Text;
+		if ( CmpRef == '#' ) continue;	// Pseudo component (Like Power symbol)
+
+		// Print the pin list for this net, if  2 or more items are connected:
+		SameNetcodeCount++;
+		if ( SameNetcodeCount == 1 )	/* first item for this net found,
+				Print this connection, when a second item will be found */
+		{
+			sprintf(FirstItemInNet, " %s %.4s\n", CONV_TO_UTF8(CmpRef),
+					(const char*) & ObjNet[ii].m_PinNum);
 		}
+		if ( SameNetcodeCount == 2 )	// Second item for this net found, Print the Net name, and the first item
+		{
+			fprintf( f, "%s\n", CONV_TO_UTF8(NetcodeName));
+			fputs( FirstItemInNet, f);
+		}
+		
+		if ( SameNetcodeCount >= 2 )
+			fprintf( f, " %s %.4s\n", CONV_TO_UTF8(CmpRef),
+					(const char*) & ObjNet[ii].m_PinNum);
 	}
 }
 
 
 
 /* Generation des netlistes au format CadStar */
-wxString StartLine(".");
+wxString StartLine( wxT("."));
 
 /*********************************************************/
 static void WriteNetListCADSTAR(wxWindow * frame, FILE *f)
@@ -773,7 +798,7 @@ Connexions:
             U1         14
 */
 {
-wxString StartCmpDesc = StartLine + "ADD_COM";
+wxString StartCmpDesc = StartLine + wxT("ADD_COM");
 wxString msg;
 wxString FootprintName;
 char Line[1024];
@@ -781,10 +806,11 @@ BASE_SCREEN *CurrScreen;
 EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *Component;
 
-	fprintf( f, "%sHEA\n", StartLine.GetData());
+	fprintf( f, "%sHEA\n", CONV_TO_UTF8(StartLine));
 	DateAndTime(Line);
-	fprintf( f, "%sTIM %s\n", StartLine.GetData(), Line );
-	fprintf( f, "%sAPP \"%s\"\n", StartLine.GetData(), Main_Title.GetData() );
+	fprintf( f, "%sTIM %s\n", CONV_TO_UTF8(StartLine), Line );
+	fprintf( f, "%sAPP ", CONV_TO_UTF8(StartLine) );
+	fprintf( f, "\"%s\"\n", CONV_TO_UTF8(Main_Title) );
 	fprintf( f, "\n");
 
 	/* Create netlist module section */
@@ -799,17 +825,18 @@ EDA_SchComponentStruct *Component;
 			if( ! Component->m_Field[FOOTPRINT].IsVoid() )
 			{
 				FootprintName = Component->m_Field[FOOTPRINT].m_Text;
-				FootprintName.Replace(" ","_");
+				FootprintName.Replace(wxT(" "), wxT("_"));
 			}
-			else FootprintName = "$noname";
+			else FootprintName = wxT("$noname");
 
 			msg = Component->m_Field[REFERENCE].m_Text;
-			msg.Replace( " ", "_");
-			fprintf(f, "%s     %s",StartCmpDesc.GetData(), msg.GetData());
+			msg.Replace( wxT(" "), wxT("_"));
+			fprintf(f, "%s     ", CONV_TO_UTF8(StartCmpDesc));
+			fprintf(f, "%s", CONV_TO_UTF8(msg));
 
 			msg = Component->m_Field[VALUE].m_Text;
-			msg.Replace(" ","_");
-			fprintf(f, "     \"%s\"", msg.GetData());
+			msg.Replace(wxT(" "), wxT("_"));
+			fprintf(f, "     \"%s\"", CONV_TO_UTF8(msg));
 			fprintf(f, "\n");
 
 			}
@@ -821,7 +848,7 @@ EDA_SchComponentStruct *Component;
 
 	WriteListOfNetsCADSTAR( f, g_TabObjNet );
 
-	fprintf( f, "\n%sEND\n", StartLine.GetData() );
+	fprintf( f, "\n%sEND\n", CONV_TO_UTF8(StartLine) );
 }
 
 /*************************************************************************/
@@ -830,13 +857,13 @@ static void WriteListOfNetsCADSTAR( FILE * f, ObjetNetListStruct *ObjNet )
 /* Ecrit dans le fichier f la liste des nets ( classee par NetCodes ), et des
 pins qui y sont connectes
 format:
-..ADD_TER    RR2        6          "$42"
-..TER        U1         100
+.ADD_TER    RR2        6          "$42"
+.TER        U1         100
             CA         6
 */
 {
-wxString InitNetDesc = StartLine + "ADD_TER";
-wxString StartNetDesc = StartLine + "TER";
+wxString InitNetDesc = StartLine + wxT("ADD_TER");
+wxString StartNetDesc = StartLine + wxT("TER");
 wxString NetcodeName, InitNetDescLine;
 int ii, jj, print_ter = 0;
 int NetCode, LastNetCode = -1;
@@ -858,18 +885,18 @@ wxString NetName;
 					( ObjNet[jj].m_Type != NET_LABEL) &&
 					( ObjNet[jj].m_Type != NET_PINLABEL) ) continue;
 
-				NetName = ObjNet[jj].m_Label; break;
+				NetName = * ObjNet[jj].m_Label; break;
 			}
-			NetcodeName = "\"";
+			NetcodeName = wxT("\"");
 			if( ! NetName.IsEmpty() )
 			{
 				NetcodeName += NetName;
 				if( g_TabObjNet[jj].m_Type != NET_PINLABEL)
-					NetcodeName << "_" << g_TabObjNet[jj].m_SheetNumber;
+					NetcodeName << wxT("_") << g_TabObjNet[jj].m_SheetNumber;
 			}
 			else	// this net has no name: create a default name $<net number>
-				NetcodeName <<  "$" << NetCode;
-			NetcodeName += "\"";
+				NetcodeName <<  wxT("$") << NetCode;
+			NetcodeName += wxT("\"");
 			LastNetCode = NetCode;
 			print_ter = 0;
 		}
@@ -887,24 +914,31 @@ wxString NetName;
 		switch ( print_ter )
 		{
 			case 0:
-				InitNetDescLine.Printf( "\n%s   %s   %.4s     %s",
+				{
+				char buf[5];
+				wxString str_pinnum;
+				strncpy(buf, (char*) & ObjNet[ii].m_PinNum,4); buf[4] = 0;
+				str_pinnum = CONV_FROM_UTF8(buf);
+				InitNetDescLine.Printf( wxT("\n%s   %s   %.4s     %s"),
 						InitNetDesc.GetData(),
 						Cmp->m_Field[REFERENCE].m_Text.GetData(),
-						(char*) & ObjNet[ii].m_PinNum,NetcodeName.GetData());
+						str_pinnum.GetData(), NetcodeName.GetData());
+				}
 				print_ter++;
 				break;
 
 			case 1:
-				fprintf( f, "%s\n", InitNetDescLine.GetData());
-				fprintf( f, "%s       %s   %.4s\n", StartNetDesc.GetData(),
-						Cmp->m_Field[REFERENCE].m_Text.GetData(),
+				fprintf( f, "%s\n", CONV_TO_UTF8(InitNetDescLine));
+				fprintf( f, "%s       %s   %.4s\n",
+						CONV_TO_UTF8(StartNetDesc),
+						CONV_TO_UTF8(Cmp->m_Field[REFERENCE].m_Text),
 						(char*) & ObjNet[ii].m_PinNum );
 				print_ter++;
 				break;
 
 			default:
-			fprintf( f, "            %s   %.4s\n",
-					Cmp->m_Field[REFERENCE].m_Text.GetData(),
+				fprintf( f, "            %s   %.4s\n",
+					CONV_TO_UTF8(Cmp->m_Field[REFERENCE].m_Text),
 					(char*) & ObjNet[ii].m_PinNum );
 				break;
 		}
@@ -916,7 +950,8 @@ wxString NetName;
 		{
 			if( ObjNet[jj].m_NetCode != NetCode) break;
 			if( ObjNet[jj].m_Type != NET_PIN ) continue;
-		EDA_SchComponentStruct * tstcmp = (EDA_SchComponentStruct *) ObjNet[jj].m_Link;
+			EDA_SchComponentStruct * tstcmp = 
+				(EDA_SchComponentStruct *) ObjNet[jj].m_Link;
 			if( Cmp->m_Field[REFERENCE].m_Text != tstcmp->m_Field[REFERENCE].m_Text ) continue;
 
 			if ( ObjNet[jj].m_PinNum == ObjNet[ii].m_PinNum ) ObjNet[jj].m_Flag = 1;

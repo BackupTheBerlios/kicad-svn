@@ -22,8 +22,8 @@
 #include "kicad.h"
 #include "prjconfig.h"
 
-#define ZIP_EXT ".zip"
-#define ZIP_MASK "*.zip"
+#define ZIP_EXT wxT(".zip")
+#define ZIP_MASK wxT("*.zip")
 
 static void Create_NewPrj_Config( const wxString PrjFullFileName);
 
@@ -64,14 +64,14 @@ wxString fullfilename;
 			SetLastProject(m_PrjFileName);
 			fullfilename = EDA_FileSelector( _("Load Project files:"),
 					path,		  		/* Chemin par defaut */
-					"",					/* nom fichier par defaut */
+					wxEmptyString,					/* nom fichier par defaut */
 					g_Prj_Config_Filename_ext,	/* extension par defaut */
-					"*" + g_Prj_Config_Filename_ext, /* Masque d'affichage */
+					wxT("*") + g_Prj_Config_Filename_ext, /* Masque d'affichage */
 					this,
 					wxOPEN,
 					FALSE
 					);
-			if ( fullfilename == "" ) break;
+			if ( fullfilename.IsEmpty() ) break;
 				
 			ChangeFileNameExt(fullfilename, g_Prj_Config_Filename_ext);
 			m_PrjFileName = fullfilename;
@@ -86,14 +86,14 @@ wxString fullfilename;
 
 
 		case ID_SAVE_AND_ZIP_FILES:
-			CreateZipArchive("");
+			CreateZipArchive(wxEmptyString);
 			break;
 			
 		case ID_READ_ZIP_ARCHIVE:
-			UnZipArchive("");
+			UnZipArchive(wxEmptyString);
 			break;
 		
-        default: DisplayError(this, "WinEDA_MainFrame::Process_Files error");
+        default: DisplayError(this, wxT("WinEDA_MainFrame::Process_Files error"));
 			break;
 		}
 }
@@ -107,10 +107,10 @@ static void Create_NewPrj_Config(const wxString PrjFullFileName)
 {
 wxString msg;
 	// Init default config filename
-	g_Prj_Config_LocalFilename = "";
+	g_Prj_Config_LocalFilename.Empty();
 	g_Prj_Default_Config_FullFilename =
 				ReturnKicadDatasPath() +
-				"template/kicad" +
+				wxT("template/kicad") +
 				g_Prj_Config_Filename_ext;
 
 	if ( ! wxFileExists(g_Prj_Default_Config_FullFilename) )
@@ -138,7 +138,7 @@ wxString msg;
 	g_BoardFileName = wxFileNameFromPath(PrjFullFileName);
 	ChangeFileNameExt(g_BoardFileName, g_BoardExtBuffer);
 	
-	EDA_Appl->WriteProjectConfig(PrjFullFileName, "/general", CfgParamList);
+	EDA_Appl->WriteProjectConfig(PrjFullFileName, wxT("/general"), CfgParamList);
 }
 
 
@@ -152,43 +152,43 @@ wxString filename = FullFileName;
 wxString msg;
 wxString old_cwd = wxGetCwd();
 	
-	if ( filename == "" )
+	if ( filename.IsEmpty() )
 		filename = EDA_FileSelector( _("Unzip Project:"),
-					"",		  		/* Chemin par defaut */
-					"",				/* nom fichier par defaut */
+					wxEmptyString,		  		/* Chemin par defaut */
+					wxEmptyString,				/* nom fichier par defaut */
 					ZIP_EXT,		/* extension par defaut */
 					ZIP_MASK,		/* Masque d'affichage */
 					this,
 					wxOPEN,
 					TRUE
 					);
-	if ( filename == "" ) return;
+	if ( filename.IsEmpty() ) return;
 
-	msg = _("\nOpen ") + filename + "\n";
+	msg = _("\nOpen ") + filename + wxT("\n");
 	PrintMsg( msg );
 
 wxString target_dirname = wxDirSelector ( _("Target Directory"),
-				"", 0, wxDefaultPosition, this);
-	if ( target_dirname == "" ) return;
+				wxEmptyString, 0, wxDefaultPosition, this);
+	if ( target_dirname.IsEmpty() ) return;
 		
 	wxSetWorkingDirectory(target_dirname);
-	msg = _("Unzip in ") + target_dirname + "\n";
+	msg = _("Unzip in ") + target_dirname + wxT("\n");
 	PrintMsg( msg );
 	
 wxFileSystem zipfilesys;
 	zipfilesys.AddHandler(new wxZipFSHandler);
-	filename += "#zip:";
+	filename += wxT("#zip:");
 	zipfilesys.ChangePathTo(filename);
 	
 wxFSFile * zipfile = NULL;
-wxString localfilename	= zipfilesys.FindFirst("*.*");
+wxString localfilename	= zipfilesys.FindFirst( wxT("*.*") );
 	
-	while (localfilename != "")
+	while ( !localfilename.IsEmpty() )
 	{
 		zipfile = zipfilesys.OpenFile(localfilename);
 		if (zipfile == NULL)
 		{
-			DisplayError(this,"Zip file read error");
+			DisplayError(this, wxT("Zip file read error"));
 			break;
 		}
 		wxString unzipfilename = localfilename.AfterLast(':');
@@ -207,7 +207,7 @@ wxString localfilename	= zipfilesys.FindFirst("*.*");
 		delete zipfile;
 		localfilename = zipfilesys.FindNext();
 	}
-	PrintMsg( "** end **\n" );
+	PrintMsg( wxT("** end **\n") );
 	
 	wxSetWorkingDirectory(old_cwd);
 }
@@ -221,12 +221,12 @@ wxString zip_file_fullname;
 wxString msg;
 wxString curr_path = wxGetCwd();
 	
-	if ( filename == "" )
+	if ( filename.IsEmpty() )
 	{
 		filename = m_PrjFileName;
-		ChangeFileNameExt(filename, ".zip");
+		ChangeFileNameExt(filename, wxT(".zip"));
 		filename = EDA_FileSelector( _("Archive Project files:"),
-					"",		  		/* Chemin par defaut */
+					wxEmptyString, 		/* Chemin par defaut */
 					filename,		/* nom fichier par defaut */
 					ZIP_EXT,		/* extension par defaut */
 					ZIP_MASK,		/* Masque d'affichage */
@@ -235,30 +235,31 @@ wxString curr_path = wxGetCwd();
 					FALSE
 					);
 	}
-	if ( filename == "" ) return;
+	if ( filename.IsEmpty() ) return;
 
 
 wxFileName zip_name(filename);
 	zip_file_fullname = zip_name.GetFullName();
 	AddDelimiterString( zip_file_fullname );
 
-char * Ext_to_arch[] = {    /* Liste des extensions des fichiers à sauver */
-	"*.sch", "*.lib", "*.cmp", "*.brd", "*.net", "*.pro", "*.pho",
+wxChar * Ext_to_arch[] = {    /* Liste des extensions des fichiers à sauver */
+	wxT("*.sch"), wxT("*.lib"), wxT("*.cmp"), wxT("*.brd"),
+	wxT("*.net"), wxT("*.pro"), wxT("*.pho"),
 	NULL};
 int ii = 0;
-wxString zip_cmd = "-O " + zip_file_fullname;
+wxString zip_cmd = wxT("-O ") + zip_file_fullname;
 	filename = wxFindFirstFile(Ext_to_arch[ii]);
-	while ( filename != "" )
+	while ( !filename.IsEmpty() )
 	{
 	wxFileName name(filename);
 	wxString fullname = name.GetFullName();
 		AddDelimiterString( fullname );
-		zip_cmd += " " + fullname;
-		msg = _("Compress file ") + fullname + "\n";
+		zip_cmd += wxT(" ") + fullname;
+		msg = _("Compress file ") + fullname + wxT("\n");
 		PrintMsg(msg);
 
 		filename = wxFindNextFile();
-		while (filename == "")
+		while (filename.IsEmpty() )
 		{
 			ii++;
 			if (Ext_to_arch[ii]) filename = wxFindFirstFile(Ext_to_arch[ii]);
@@ -267,17 +268,17 @@ wxString zip_cmd = "-O " + zip_file_fullname;
 	}
 
 #ifdef __WINDOWS__
-#define ZIPPER "minizip.exe"
+#define ZIPPER wxT("minizip.exe")
 #else
-#define ZIPPER "minizip"
+#define ZIPPER wxT("minizip")
 #endif	
 	if ( ExecuteFile(this, ZIPPER, zip_cmd) >= 0 )
 	{
 		msg = _("\nCreate Zip Archive ") + zip_file_fullname;
 		PrintMsg( msg );
-		PrintMsg( "\n** end **\n" );
+		PrintMsg( wxT("\n** end **\n") );
 	}
-	else PrintMsg("Minizip command error, abort\n");
+	else PrintMsg( wxT("Minizip command error, abort\n") );
 	
 	wxSetWorkingDirectory(curr_path);
 }

@@ -39,18 +39,19 @@ void WinEDA_BasePcbFrame::Compile_Ratsnest( wxDC * DC, bool display_status_pcb )
 	Si display_status_pcb : affichage des résultats en bas d'ecran
 */
 {
-
+wxString msg;
+	
 	affiche_chevelu = TRUE;
 
 	/* construction de la liste des coordonnées des pastilles */
 	m_Pcb->m_Status_Pcb = 0;		/* réinit total du calcul */
 	build_liste_pads() ;
 	MsgPanel->EraseMsgBox() ;  /* effacement du bas d'ecran */
-	sprintf(cbuf," %d",m_Pcb->m_NbPads) ;
-	Affiche_1_Parametre(this, 1,"pads",cbuf,RED) ;
+	msg.Printf( wxT(" %d"),m_Pcb->m_NbPads) ;
+	Affiche_1_Parametre(this, 1, wxT("pads"), msg,RED) ;
 
-	sprintf(cbuf," %d",m_Pcb->m_NbNets) ;
-	Affiche_1_Parametre(this, 8,"Nets",cbuf,CYAN) ;
+	msg.Printf( wxT(" %d"),m_Pcb->m_NbNets) ;
+	Affiche_1_Parametre(this, 8, wxT("Nets"), msg,CYAN) ;
 
 	reattribution_reference_piste(display_status_pcb);
 	Build_Board_Ratsnest(DC );	/* calcul du chevelu general */
@@ -385,7 +386,7 @@ EQUIPOT * equipot;
 		/* fin de liste trouvee: calcul du chevelu du net "net_code" */
 		equipot = GetEquipot(m_Pcb, current_net_code);
 		if(equipot == NULL)
-			DisplayError(this, "Gen ratsnest err: NULL equipot");
+			DisplayError(this, wxT("Gen ratsnest err: NULL equipot") );
 		else
 			{
 			equipot->m_NbNodes = nbpads;
@@ -708,7 +709,7 @@ EQUIPOT ** BufPtEquipot;
 	pad_courant = m_Pcb->m_Pads;
 	for( ; ii > 0 ; pad_courant++, ii-- )
 		{
-		if( (*pad_courant)->m_Netname == "") // pad non connecte
+		if( (*pad_courant)->m_Netname.IsEmpty()) // pad non connecte
 			{
 			(*pad_courant)->m_NetCode = 0 ; continue ;
 			}
@@ -757,7 +758,7 @@ EQUIPOT ** BufPtEquipot;
 
 		pt_equipot->m_NetCode = ii; // Mise a jour du numero d'equipot
 		pt_equipot->m_NbNodes  = 0;
-		pt_equipot->m_Netname = "";
+		pt_equipot->m_Netname.Empty();
 
 		BufPtEquipot[ii] = pt_equipot;
 		PtStruct =  (EDA_BaseStruct *) pt_equipot;
@@ -782,7 +783,7 @@ EQUIPOT ** BufPtEquipot;
 		jj = (*pad_courant)->m_NetCode;
 		pt_equipot = BufPtEquipot[jj];
 		pt_equipot->m_NbNodes ++;
-		if(pt_equipot->m_Netname == "")
+		if(pt_equipot->m_Netname.IsEmpty())
 			{
 			pt_equipot->m_Netname = (*pad_courant)->m_Netname;
 			}

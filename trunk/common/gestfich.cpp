@@ -32,38 +32,38 @@
 // Path list for online help
 static wxString s_HelpPathList[] = {
 #ifdef __WINDOWS__
-	"c:/kicad/help/",
-	"d:/kicad/help/",
+	wxT("c:/kicad/help/"),
+	wxT("d:/kicad/help/"),
 #else
-	"/usr/local/kicad/help/",
-	"/usr/share/doc/kicad/",
+	wxT("/usr/local/kicad/help/"),
+	wxT("/usr/share/doc/kicad/"),
 #endif
-	"end_list"	// End of list symbol, do not change
+	wxT("end_list")	// End of list symbol, do not change
 };
 
 // Path list for kicad data files
 static wxString s_KicadDataPathList[] = {
 #ifdef __WINDOWS__
-	"c:/kicad/",
-	"d:/kicad/",
+	wxT("c:/kicad/"),
+	wxT("d:/kicad/"),
 #else
-	"/usr/local/kicad/",
-	"/usr/share/kicad/",
+	wxT("/usr/local/kicad/"),
+	wxT("/usr/share/kicad/"),
 #endif
-	"end_list"	// End of list symbol, do not change
+	wxT("end_list")	// End of list symbol, do not change
 };
 
 // Path list for kicad binary files
 static wxString s_KicadBinaryPathList[] = {
 #ifdef __WINDOWS__
-	"c:/kicad/winexe/",
-	"d:/kicad/winexe/",
+	wxT("c:/kicad/winexe/"),
+	wxT("d:/kicad/winexe/"),
 #else
-	"/usr/local/kicad/linux/",
-	"/usr/local/bin/",
-	"/usr/bin/",
+	wxT("/usr/local/kicad/linux/"),
+	wxT("/usr/local/bin/"),
+	wxT("/usr/bin/"),
 #endif
-	"end_list"	// End of list symbol, do not change
+	wxT("end_list")	// End of list symbol, do not change
 };
 extern WinEDA_App * EDA_Appl;
 
@@ -92,11 +92,11 @@ wxString Cwd, ext, path;
 
 	Cwd = default_path;
 	ext = default_ext;
-	path = wxPathOnly(reduced_filename) +"/";
-	reduced_filename.Replace("\\","/");
-	Cwd.Replace("\\","/");
-	if ( Cwd.Last() != '/' ) Cwd += "/";
-	path.Replace("\\","/");
+	path = wxPathOnly(reduced_filename) + UNIX_STRING_DIR_SEP;
+	reduced_filename.Replace(WIN_STRING_DIR_SEP,UNIX_STRING_DIR_SEP);
+	Cwd.Replace(WIN_STRING_DIR_SEP,UNIX_STRING_DIR_SEP);
+	if ( Cwd.Last() != '/' ) Cwd += UNIX_STRING_DIR_SEP;
+	path.Replace(WIN_STRING_DIR_SEP,UNIX_STRING_DIR_SEP);
 
 #ifdef __WINDOWS__
 	path.MakeLower();
@@ -112,21 +112,21 @@ wxString Cwd, ext, path;
 	}
 	else	// Si fichier dans repertoire courant -> chemin = ./
 	{
-		Cwd = wxGetCwd() + "/";
+		Cwd = wxGetCwd() + UNIX_STRING_DIR_SEP;
 #ifdef __WINDOWS__
 		Cwd.MakeLower();
 #endif
-		Cwd.Replace("\\","/");
+		Cwd.Replace(WIN_STRING_DIR_SEP,UNIX_STRING_DIR_SEP);
 		if ( path == Cwd )
 		{	// lib est dans répertoire courant -> Chemin = "./"
 			reduced_filename.Remove(0, Cwd.Length());
-			wxString tmp = "./" + reduced_filename;
+			wxString tmp = wxT("./") + reduced_filename;
 			reduced_filename = tmp;
 		}
 	}
 
 	// Suppression extension standard:
-	if ( (ext != "") && reduced_filename.Contains(ext) )
+	if ( !ext.IsEmpty() && reduced_filename.Contains(ext) )
 		reduced_filename.Truncate(reduced_filename.Length() - ext.Length());
 
 	return(reduced_filename);
@@ -154,20 +154,20 @@ wxString MakeFileName( const wxString & dir,
 wxString fullfilename;
 int ii;
 
-	if ( dir != "" )
+	if ( ! dir.IsEmpty() )
 	{
-		if( ! shortname.Contains("/") && ! shortname.Contains("\\")
-			&& ! shortname.Contains(":") )
+		if( ! shortname.Contains( UNIX_STRING_DIR_SEP ) && ! shortname.Contains( WIN_STRING_DIR_SEP)
+			&& ! shortname.Contains( wxT(":") ) )
 		{ /* aucun chemin n'est donne */
 			fullfilename = dir;
 		}
 	}
 
 	fullfilename += shortname;
-	fullfilename.Replace("\\", "/");
+	fullfilename.Replace( WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP );
 
 	/* Placement de l'extension s'il n'y en a pas deja une */
-	if( ext == "") return(fullfilename);
+	if( ext.IsEmpty() ) return(fullfilename);
 
 	/* Recherche d'une eventuelle extension */
 	ii = fullfilename.Length();	/* Pointe la fin du texte */
@@ -196,11 +196,11 @@ void ChangeFileNameExt( wxString & FullFileName, const wxString & NewExt )
 wxString FileName;
 
 	FileName = FullFileName.BeforeLast('.');
-	if (FileName != "" ) FileName += NewExt;
+	if ( !FileName.IsEmpty() ) FileName += NewExt;
 	else  FileName = FullFileName + NewExt;
 
-	if ( FileName.StartsWith("\"") and ( FileName.Last() != '"' ) )
-		FileName += "\"";
+	if ( FileName.StartsWith( wxT("\"")) and ( FileName.Last() != '"' ) )
+		FileName += wxT("\"");
 	FullFileName = FileName;
 }
 
@@ -212,9 +212,9 @@ void AddDelimiterString( wxString & string )
 {
 wxString text;
 
-	if ( ! string.StartsWith("\"") ) text = "\"";
+	if ( ! string.StartsWith( wxT("\"")) ) text = wxT("\"");
 	text += string;
-	if( (text.Last() != '"' ) || (text.length() <= 1) ) text += "\"";
+	if( (text.Last() != '"' ) || (text.length() <= 1) ) text += wxT("\"");
 	string = text;
 }
 
@@ -270,9 +270,9 @@ wxString curr_cwd = wxGetCwd();
 wxString defaultname = FileName;
 wxString defaultpath = Path;
 
-	defaultname.Replace("/", STRING_DIR_SEP);
-	defaultpath.Replace("/", STRING_DIR_SEP);
-	if ( defaultpath == "" ) defaultpath = wxGetCwd();
+	defaultname.Replace(wxT("/"), STRING_DIR_SEP);
+	defaultpath.Replace(wxT("/"), STRING_DIR_SEP);
+	if ( defaultpath.IsEmpty() ) defaultpath = wxGetCwd();
 
 	fullfilename = wxFileSelector( wxString(Title),
 					defaultpath,
@@ -313,64 +313,64 @@ wxString FindKicadHelpPath(void)
 wxString FullPath, LangFullPath, tmp;
 wxString LocaleString;
 bool PathFound = FALSE;
-	
+
 	/* find kicad/help/ */
 	tmp = EDA_Appl->m_BinDir;
 	if ( tmp.Last() == '/' ) tmp.RemoveLast();
 	FullPath = tmp.BeforeLast('/'); 	// Idem cd ..
-	FullPath += "/help/";
-	LocaleString = EDA_Appl->m_Locale.GetCanonicalName();
-	
-	if ( FullPath.Contains("kicad") )
+	FullPath += wxT("/help/");
+	LocaleString = EDA_Appl->m_Locale->GetCanonicalName();
+
+	if ( FullPath.Contains( wxT("kicad")) )
 	{
 		if ( wxDirExists(FullPath) ) PathFound = TRUE;
 	}
-		
+
 	/* find kicad/help/ from environment variable  KICAD */
 	if ( ! PathFound && EDA_Appl->m_Env_Defined )
 	{
-		FullPath = EDA_Appl->m_KicadEnv + "/help/";
+		FullPath = EDA_Appl->m_KicadEnv + wxT("/help/");
 		if ( wxDirExists(FullPath) ) PathFound = TRUE;
 	}
 
 	/* find kicad/help/ from default path list:
-		/usr/local/kicad/help or c:/kicad/help 
+		/usr/local/kicad/help or c:/kicad/help
 	(see s_HelpPathList) */
 	int ii = 0;
 	while ( ! PathFound )
 	{
 		FullPath = s_HelpPathList[ii++];
-		if ( FullPath == "end_list" ) break;
+		if ( FullPath == wxT("end_list") ) break;
 		if ( wxDirExists(FullPath) ) PathFound = TRUE;
 	}
 
 
 	if ( PathFound )
 	{
-		LangFullPath = FullPath + LocaleString + "/";
-		
+		LangFullPath = FullPath + LocaleString + UNIX_STRING_DIR_SEP;
+
 		if ( wxDirExists(LangFullPath) ) return LangFullPath;
 
-		LangFullPath = FullPath + LocaleString.Left(2) + "/";
+		LangFullPath = FullPath + LocaleString.Left(2) + UNIX_STRING_DIR_SEP;
 		if ( wxDirExists(LangFullPath) ) return LangFullPath;
 
-		LangFullPath = FullPath + "en/";
+		LangFullPath = FullPath + wxT("en/");
 		if ( wxDirExists(LangFullPath) ) return LangFullPath;
 		else
 		{
-			LangFullPath = FullPath + "fr/";
+			LangFullPath = FullPath + wxT("fr/");
 			if ( wxDirExists(LangFullPath) ) return LangFullPath;
 		}
 		return FullPath;
 	}
-	return "";
+	return wxEmptyString;
 }
 
 /********************************************************/
 wxString FindKicadFile(const wxString & shortname)
 /********************************************************/
 /* Search the executable file shortname in kicad binary path
-	and return full file name if found or shortname 
+	and return full file name if found or shortname
 	kicad binary path is
 	kicad/winexe or kicad/linux
 
@@ -397,12 +397,12 @@ wxString FullFileName;
 	}
 
 	/* find binary file from default path list:
-		/usr/local/kicad/linux or c:/kicad/winexe 
+		/usr/local/kicad/linux or c:/kicad/winexe
 	(see s_KicadDataPathList) */
 	int ii = 0;
 	while ( 1 )
 	{
-		if ( s_KicadDataPathList[ii] == "end_list" ) break;
+		if ( s_KicadDataPathList[ii] == wxT("end_list") ) break;
 		FullFileName = s_KicadBinaryPathList[ii++] + shortname;
 		if ( wxFileExists(FullFileName) ) return FullFileName;
 	}
@@ -422,14 +422,14 @@ wxString FullFileName;
 
 	if ( wxFileExists(FullFileName) )
 	{
-		if( param != "" ) FullFileName += " " + param;
+		if( !param.IsEmpty() ) FullFileName += wxT(" ") + param;
 		wxExecute(FullFileName);
 		return 0;
 	}
 
 
 	wxString msg;
-	msg.Printf("Command file <%s> not found", FullFileName.GetData() );
+	msg.Printf( wxT("Command file <%s> not found"), FullFileName.GetData() );
 	DisplayError(frame, msg, 20);
 	return -1;
 }
@@ -451,8 +451,8 @@ Remarque:
 */
 {
 bool PathFound = FALSE;
-	
-	if ( g_UserLibDirBuffer != "" )	// Chemin impose par la configuration
+
+	if ( ! g_UserLibDirBuffer.IsEmpty() )	// Chemin impose par la configuration
 	{
 		g_RealLibDirBuffer = g_UserLibDirBuffer;
 		PathFound = TRUE;
@@ -470,8 +470,8 @@ bool PathFound = FALSE;
 	}
 
 
-	g_RealLibDirBuffer.Replace("\\", "/");
-	if ( g_RealLibDirBuffer.Last() != '/' ) g_RealLibDirBuffer +=  "/";
+	g_RealLibDirBuffer.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
+	if ( g_RealLibDirBuffer.Last() != '/' ) g_RealLibDirBuffer +=  UNIX_STRING_DIR_SEP;
 }
 
 /***********************************/
@@ -489,7 +489,7 @@ Remarque:
 {
 bool PathFound = FALSE;
 wxString data_path;
-	
+
 	if ( EDA_Appl->m_Env_Defined )	// Chemin impose par la variable d'environnement
 	{
 		data_path = EDA_Appl->m_KicadEnv;
@@ -498,34 +498,34 @@ wxString data_path;
 	else 	// Chemin cherche par le chemin des executables
 	{		// le chemin est bindir../
 		wxString tmp = EDA_Appl->m_BinDir;
-		if ( tmp.Contains("kicad") )
+		if ( tmp.Contains( wxT("kicad") ) )
 		{
 			if ( tmp.Last() == '/' ) tmp.RemoveLast();
 			data_path = tmp.BeforeLast('/'); // id cd ../
-			data_path += "/";
+			data_path += UNIX_STRING_DIR_SEP;
 			if ( wxDirExists(data_path) ) PathFound = TRUE;
 		}
 	}
 
 	/* find kicad from default path list:
-		/usr/local/kicad/ or c:/kicad/ 
+		/usr/local/kicad/ or c:/kicad/
 	(see s_KicadDataPathList) */
 	int ii = 0;
 	while ( ! PathFound )
 	{
-		if ( s_KicadDataPathList[ii] == "end_list" ) break;
+		if ( s_KicadDataPathList[ii] == wxT("end_list") ) break;
 		data_path = s_KicadDataPathList[ii++];
 		if ( wxDirExists(data_path) ) PathFound = TRUE;
 	}
 
 	if ( PathFound )
 	{
-		data_path.Replace("\\", "/");
-		if ( data_path.Last() != '/' ) data_path +=  "/";
+		data_path.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
+		if ( data_path.Last() != '/' ) data_path +=  UNIX_STRING_DIR_SEP;
 	}
-	
-	else data_path = "";
-		
+
+	else data_path.Empty();
+
 	return data_path;
 }
 
@@ -537,22 +537,22 @@ wxString GetEditorName(void)
 */
 {
 	wxString editorname = g_EditorName;
-	
-	if ( editorname == "" )	// We get the prefered editor name from environment variable
+
+	if ( editorname.IsEmpty() )	// We get the prefered editor name from environment variable
 	{
-		wxGetEnv("EDITOR", &editorname);
+		wxGetEnv(wxT("EDITOR"), &editorname);
 	}
-	if ( editorname == "" )	// We must get a prefered editor name
+	if ( editorname.IsEmpty() )	// We must get a prefered editor name
 	{
 	DisplayInfo(NULL, _("No default editor found, you must choose it") );
 	wxString mask;
 #ifdef __WINDOWS__
-	mask = "*.exe";
+	mask = wxT("*.exe");
 #endif
 	editorname = EDA_FileSelector(_("Prefered Editor:"),
-					"",						/* Default path */
-					"",						/* default filename */
-					"",					/* default filename extension */
+					wxEmptyString,						/* Default path */
+					wxEmptyString,						/* default filename */
+					wxEmptyString,					/* default filename extension */
 					mask,				/* filter for filename list */
 					NULL,					/* parent frame */
 					wxOPEN,					/* wxSAVE, wxOPEN ..*/
@@ -560,10 +560,10 @@ wxString GetEditorName(void)
 					);
 	}
 
-	if ( (editorname != "") && EDA_Appl->m_EDA_CommonConfig)
+	if ( (!editorname.IsEmpty()) && EDA_Appl->m_EDA_CommonConfig)
 	{
 		g_EditorName = editorname;
-		EDA_Appl->m_EDA_CommonConfig->Write("Editor", g_EditorName);
+		EDA_Appl->m_EDA_CommonConfig->Write( wxT("Editor"), g_EditorName);
 	}
 	return g_EditorName;
 }

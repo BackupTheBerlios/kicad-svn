@@ -86,7 +86,7 @@ WinEDA_ConfigFrame * CfgFrame = new WinEDA_ConfigFrame(this, pos);
 
 WinEDA_ConfigFrame::WinEDA_ConfigFrame(WinEDA_GerberFrame *parent,
 		const wxPoint& framepos):
-		wxDialog(parent, -1, "", framepos, wxSize(300, 180),
+		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(300, 180),
 		wxDEFAULT_DIALOG_STYLE|wxFRAME_FLOAT_ON_PARENT )
 {
 #define LEN_EXT 100

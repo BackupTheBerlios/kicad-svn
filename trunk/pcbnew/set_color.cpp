@@ -57,7 +57,7 @@ static ColorButton Msg_Layers_Tech=
 
 static ColorButton Layer_1_Butt=
 {
-	"",
+	wxEmptyString,
 	CUIVRE_N,		/* Title */
 	ADR(CUIVRE_N),	/* adr du parametre optionnel */
 	TRUE		  	/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -65,7 +65,7 @@ static ColorButton Layer_1_Butt=
 
 static ColorButton Layer_2_Butt=
 {
-	"",
+	wxEmptyString,
 	1,				/* Title */
 	ADR(1),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -73,7 +73,7 @@ static ColorButton Layer_2_Butt=
 
 static ColorButton Layer_3_Butt=
 {
-	"",
+	wxEmptyString,
 	2,				/* Title */
 	ADR(2),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -81,7 +81,7 @@ static ColorButton Layer_3_Butt=
 
 static ColorButton Layer_4_Butt=
 {
-	"",
+	wxEmptyString,
 	3,				/* Title */
 	ADR(3),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -89,7 +89,7 @@ static ColorButton Layer_4_Butt=
 
 static ColorButton Layer_5_Butt=
 {
-	"",
+	wxEmptyString,
 	4,				/* Title */
 	ADR(4),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -97,7 +97,7 @@ static ColorButton Layer_5_Butt=
 
 static ColorButton Layer_6_Butt=
 {
-	"",
+	wxEmptyString,
 	5,				/* Title */
 	ADR(5),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -105,7 +105,7 @@ static ColorButton Layer_6_Butt=
 
 static ColorButton Layer_7_Butt=
 {
-	"",
+	wxEmptyString,
 	6,				/* Title */
 	ADR(6),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -113,7 +113,7 @@ static ColorButton Layer_7_Butt=
 
 static ColorButton Layer_8_Butt=
 {
-	"",
+	wxEmptyString,
 	7,				/* Title */
 	ADR(7),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -121,7 +121,7 @@ static ColorButton Layer_8_Butt=
 
 static ColorButton Layer_9_Butt=
 {
-	"",
+	wxEmptyString,
 	8,				/* Title */
 	ADR(8),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -129,7 +129,7 @@ static ColorButton Layer_9_Butt=
 
 static ColorButton Layer_10_Butt=
 {
-	"",
+	wxEmptyString,
 	9,		/* Title */
 	ADR(9),			/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -137,7 +137,7 @@ static ColorButton Layer_10_Butt=
 
 static ColorButton Layer_11_Butt=
 {
-	"",
+	wxEmptyString,
 	10,		/* Title */
 	ADR(10),   		/* adr du parametre optionnel */
 	TRUE			/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -145,7 +145,7 @@ static ColorButton Layer_11_Butt=
 
 static ColorButton Layer_12_Butt=
 {
-	"",
+	wxEmptyString,
 	11,	/* Title */
 	ADR(11),	/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -153,7 +153,7 @@ static ColorButton Layer_12_Butt=
 
 static ColorButton Layer_13_Butt=
 {
-	"",
+	wxEmptyString,
 	12,			/* Title */
 	ADR(12),			/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -161,7 +161,7 @@ static ColorButton Layer_13_Butt=
 
 static ColorButton Layer_14_Butt=
 {
-	"",
+	wxEmptyString,
 	13,			/* Title */
 	ADR(13),			/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -169,7 +169,7 @@ static ColorButton Layer_14_Butt=
 
 static ColorButton Layer_15_Butt=
 {
-	"",
+	wxEmptyString,
 	14,				/* Title */
 	ADR(14),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -177,7 +177,7 @@ static ColorButton Layer_15_Butt=
 
 static ColorButton Layer_16_Butt=
 {
-	"",
+	wxEmptyString,
 	CMP_N,	 	/* Title */
 	ADR(CMP_N),			/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -185,7 +185,7 @@ static ColorButton Layer_16_Butt=
 
 static ColorButton Layer_17_Butt=
 {
-	"",
+	wxEmptyString,
 	ADHESIVE_N_CU,	  		/* Title */
 	ADR(ADHESIVE_N_CU),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -193,7 +193,7 @@ static ColorButton Layer_17_Butt=
 
 static ColorButton Layer_18_Butt=
 {
-	"",
+	wxEmptyString,
 	ADHESIVE_N_CMP,			/* Title */
 	ADR(ADHESIVE_N_CMP),	/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -201,7 +201,7 @@ static ColorButton Layer_18_Butt=
 
 static ColorButton Layer_19_Butt=
 {
-	"",
+	wxEmptyString,
 	SOLDERPASTE_N_CU,				/* Title */
 	ADR(SOLDERPASTE_N_CU),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -209,7 +209,7 @@ static ColorButton Layer_19_Butt=
 
 static ColorButton Layer_20_Butt=
 {
-	"",
+	wxEmptyString,
 	SOLDERPASTE_N_CMP,			/* Title */
 	ADR(SOLDERPASTE_N_CMP),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -217,7 +217,7 @@ static ColorButton Layer_20_Butt=
 
 static ColorButton Layer_21_Butt=
 {
-	"",
+	wxEmptyString,
 	SILKSCREEN_N_CU,	 		/* Title */
 	ADR(SILKSCREEN_N_CU),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -225,7 +225,7 @@ static ColorButton Layer_21_Butt=
 
 static ColorButton Layer_22_Butt=
 {
-	"",
+	wxEmptyString,
 	SILKSCREEN_N_CMP,	 		/* Title */
 	ADR(SILKSCREEN_N_CMP),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -233,7 +233,7 @@ static ColorButton Layer_22_Butt=
 
 static ColorButton Layer_23_Butt=
 {
-	"",
+	wxEmptyString,
 	SOLDERMASK_N_CU,				/* Title */
 	ADR(SOLDERMASK_N_CU),	/* adr du parametre optionnel */
 	TRUE					/* adr du parametre display on/off */
@@ -241,7 +241,7 @@ static ColorButton Layer_23_Butt=
 
 static ColorButton Layer_24_Butt=
 {
-	"",
+	wxEmptyString,
 	SOLDERMASK_N_CMP,				/* Title */
 	ADR(SOLDERMASK_N_CMP),	/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -249,7 +249,7 @@ static ColorButton Layer_24_Butt=
 
 static ColorButton Layer_25_Butt=
 {
-	"",
+	wxEmptyString,
 	DRAW_N,				/* Title */
 	ADR(DRAW_N),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -257,7 +257,7 @@ static ColorButton Layer_25_Butt=
 
 static ColorButton Layer_26_Butt=
 {
-	"",
+	wxEmptyString,
 	COMMENT_N,			/* Title */
 	ADR(COMMENT_N),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -265,7 +265,7 @@ static ColorButton Layer_26_Butt=
 
 static ColorButton Layer_27_Butt=
 {
-	"",
+	wxEmptyString,
 	ECO1_N,			/* Title */
 	ADR(ECO1_N),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -273,7 +273,7 @@ static ColorButton Layer_27_Butt=
 
 static ColorButton Layer_28_Butt=
 {
-	"",
+	wxEmptyString,
 	ECO2_N,			/* Title */
 	ADR(ECO2_N),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -281,7 +281,7 @@ static ColorButton Layer_28_Butt=
 
 static ColorButton Layer_29_Butt=
 {
-	"",
+	wxEmptyString,
 	EDGE_N,			/* Title */
 	ADR(EDGE_N),		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -290,12 +290,12 @@ static ColorButton Layer_29_Butt=
 
 static ColorButton Msg_Others_Items=
 {
-	"Others", -1					/* Title */
+	wxT("Others"), -1					/* Title */
 };
 
 static ColorButton Via_Normale_Butt=
 {
-	"*",
+	wxT("*"),
 	VIA_NORMALE,			/* Title */
 	&g_DesignSettings.m_ViaColor[VIA_NORMALE],	/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -303,7 +303,7 @@ static ColorButton Via_Normale_Butt=
 
 static ColorButton Via_Aveugle_Butt=
 {
-	"*",
+	wxT("*"),
 	VIA_ENTERREE,		/* Title */
 	&g_DesignSettings.m_ViaColor[VIA_ENTERREE],		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -311,7 +311,7 @@ static ColorButton Via_Aveugle_Butt=
 
 static ColorButton Via_Borgne_Butt=
 {
-	"*",
+	wxT("*"),
 	VIA_BORGNE,		/* Title */
 	&g_DesignSettings.m_ViaColor[VIA_BORGNE],		/* adr du parametre optionnel */
 	TRUE		/* parametre display on/off = bit ITEM_NOT_SHOW */
@@ -593,7 +593,7 @@ wxString msg;
 			}
 			if( laytool_list[ii]->m_LayerNumber >= 0 )
 			{
-				if ( laytool_list[ii]->m_Title == "*" )
+				if ( laytool_list[ii]->m_Title == wxT("*") )
 				{
 					msg = g_ViaType_Name[laytool_list[ii]->m_LayerNumber];
 				}
@@ -612,7 +612,7 @@ wxString msg;
 		butt_ID = laytool_list[ii]->m_Id;
 
 		laytool_list[ii]->m_CheckBox = new wxCheckBox(this,
-						ID_COLOR_CHECKBOX_ONOFF, "",
+						ID_COLOR_CHECKBOX_ONOFF, wxEmptyString,
 						pos);
 
 		if ( laytool_list[ii]->m_NoDisplayIsColor )
@@ -656,7 +656,7 @@ wxString msg;
 
 		if( laytool_list[ii]->m_LayerNumber >= 0 )
 		{
-			if ( laytool_list[ii]->m_Title == "*" )
+			if ( laytool_list[ii]->m_Title == wxT("*") )
 			{
 				msg = g_ViaType_Name[laytool_list[ii]->m_LayerNumber];
 			}

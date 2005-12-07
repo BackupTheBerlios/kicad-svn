@@ -22,7 +22,7 @@ void DeleteStructure( EDA_BaseStruct * PtStruct )
 EDA_BaseStruct *PtNext, *PtBack;
 int IsDeleted;
 int typestruct;
-char Line[256];
+wxString Line;
 
 	if( PtStruct == NULL) return ;
 
@@ -35,7 +35,7 @@ char Line[256];
 	switch( typestruct )
 		{
 		case TYPE_NOT_INIT:
-			DisplayError(NULL, "DeleteStruct: Type Structure Non Initialise");
+			DisplayError(NULL, wxT("DeleteStruct: Type Not Init"));
 			break;
 
 		 case PCB_EQUIPOT_STRUCT_TYPE:
@@ -134,7 +134,7 @@ char Line[256];
 		case TYPEPCB:
 
 		default:
-			sprintf(Line," DeleteStructure: Type %d Inattendu",
+			Line.Printf( wxT(" DeleteStructure: unexpected Type %d"),
 										PtStruct->m_StructType);
 			DisplayError(NULL, Line);
 			break;

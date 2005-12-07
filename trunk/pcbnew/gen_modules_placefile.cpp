@@ -16,8 +16,8 @@ class LIST_MOD		/* Permet de lister les elements utiles des modules */
 {
 public:
 	MODULE * m_Module;
-	const char * m_Reference;
-	const char * m_Value;
+	const wxChar * m_Reference;
+	const wxChar * m_Value;
 };
 
 
@@ -74,9 +74,9 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 
 	/* Init nom fichier */
 	NameLayerCmp = m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(NameLayerCmp,"-cmp.pos");
+	ChangeFileNameExt(NameLayerCmp, wxT("-cmp.pos"));
 
-	LayerCmp = fopen(NameLayerCmp.GetData(),"wt");
+	LayerCmp = wxFopen(NameLayerCmp, wxT("wt"));
 	if (LayerCmp == 0)
 		{
 		msg = _("Unable to create ") + NameLayerCu;
@@ -86,8 +86,8 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 	if( GenCu )
 		{
 		NameLayerCu = m_CurrentScreen->m_FileName;
-		ChangeFileNameExt(NameLayerCu,"-copper.pos");
-		LayerCu = fopen(NameLayerCu.GetData(),"wt");
+		ChangeFileNameExt(NameLayerCu, wxT("-copper.pos"));
+		LayerCu = wxFopen(NameLayerCu, wxT("wt"));
 		if (LayerCu == 0)
 			{
 			msg = _("Unable to create ") + NameLayerCu;
@@ -104,7 +104,7 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 	if( GenCu )
 		Affiche_1_Parametre(this,32,_("Copper side place file:"),NameLayerCu,BLUE);
 
-	msg = ""; msg << NbMod;
+	msg.Empty(); msg << NbMod;
 	Affiche_1_Parametre(this,65, _("Module count"), msg, RED);
 
 
@@ -118,8 +118,8 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 		if( (Module->m_Attributs & MOD_CMS)  == 0 ) continue;
 
 		Liste[ii].m_Module = Module;
-		Liste[ii].m_Reference = Module->m_Reference->GetText();
-		Liste[ii].m_Value = Module->m_Value->GetText();
+		Liste[ii].m_Reference = Module->m_Reference->m_Text;
+		Liste[ii].m_Value = Module->m_Value->m_Text;
 		ii++;
 		}
 
@@ -133,7 +133,7 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 	fputs(Line,LayerCmp);
 	if( GenCu ) fputs(Line,LayerCu);
 
-	sprintf(Line,"### Printed by PcbNew version %s\n", Main_Title.GetData() );
+	sprintf(Line,"### Printed by PcbNew version %s\n", CONV_TO_UTF8(Main_Title) );
 	fputs(Line,LayerCmp);
 	if( GenCu ) fputs(Line,LayerCu);
 
@@ -157,11 +157,11 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 
 	/* Generation lignes utiles du fichier */
 	for ( ii = 0 ; ii < NbMod; ii++)
-		{
+	{
 		wxPoint module_pos;
-		sprintf(Line,"%-8.8s %-16.16s ",
-			Liste[ii].m_Reference,
-			Liste[ii].m_Value);
+		wxString ref = Liste[ii].m_Reference;
+		wxString val = Liste[ii].m_Value;
+		sprintf(Line,"%-8.8s %-16.16s ", CONV_TO_UTF8(ref), CONV_TO_UTF8(val) );
 
 		module_pos = Liste[ii].m_Module->m_Pos;
 		module_pos.x -= File_Place_Offset.x;
@@ -176,30 +176,30 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 		to_point(text);
 
 		if (Liste[ii].m_Module->m_Layer == CMP_N)
-			{
+		{
 			strcat(Line,"Cmp.\n");
 			fputs(Line, LayerCmp);
-			}
+		}
 
 		else if (Liste[ii].m_Module->m_Layer == CUIVRE_N)
-			{
+		{
 			strcat(Line,"Cu\n");
 			fputs(Line, LayerCu);
-			}
 		}
+	}
 
 	/* Generation fin du fichier */
 	fputs("## End\n", LayerCmp); 
 	fclose(LayerCmp);
 	if( GenCu )
-		{
+	{
 		fputs("## End\n", LayerCu);
 		fclose(LayerCu);
-		}
+	}
 	MyFree(Liste);
 
-	msg = "Cmp File: " + NameLayerCmp;
-	if( GenCu ) msg += "\nCu File: " + NameLayerCu;
+	msg = wxT("Cmp File: ") + NameLayerCmp;
+	if( GenCu ) msg += wxT("\nCu File: ") + NameLayerCu;
 
 	DisplayInfo(this, msg);
 }
@@ -228,9 +228,9 @@ wxPoint module_pos;
 
 	/* Init nom fichier */
 	FullFileName = m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(FullFileName,".rpt");
+	ChangeFileNameExt(FullFileName, wxT(".rpt"));
 
-	rptfile = fopen(FullFileName.GetData(),"wt");
+	rptfile = wxFopen(FullFileName, wxT("wt"));
 	if (rptfile == NULL)
 		{
 		msg = _("Unable to create ") + FullFileName;
@@ -241,7 +241,7 @@ wxPoint module_pos;
 	sprintf(Line,"## Module report - date %s\n", DateAndTime(Buff) );
 	fputs(Line,rptfile);
 
-	sprintf(Line,"## Created by PcbNew version %s\n", Main_Title.GetData() );
+	sprintf(Line,"## Created by PcbNew version %s\n", CONV_TO_UTF8(Main_Title) );
 	fputs(Line,rptfile);
 	fputs("## Unit = inches, Angle = deg.\n",rptfile);
 
@@ -269,23 +269,23 @@ wxPoint module_pos;
 	Module = (MODULE*)m_Pcb->m_Modules;
 	for( ; Module != NULL; Module = Module->Next() )
 		{
-		sprintf(Line,"$MODULE \"%s\"\n", Module->m_Reference->m_Text.GetData());
+		sprintf(Line,"$MODULE \"%s\"\n", CONV_TO_UTF8(Module->m_Reference->m_Text));
 		fputs(Line, rptfile);
 			
-		sprintf(Line,"reference \"%s\"\n", Module->m_Reference->m_Text.GetData());
+		sprintf(Line,"reference \"%s\"\n", CONV_TO_UTF8(Module->m_Reference->m_Text));
 		fputs(Line, rptfile);
-		sprintf(Line,"value \"%s\"\n", Module->m_Value->m_Text.GetData());
+		sprintf(Line,"value \"%s\"\n", CONV_TO_UTF8(Module->m_Value->m_Text));
 		fputs(Line, rptfile);
-		sprintf(Line,"footprint \"%s\"\n", Module->m_LibRef.GetData());
+		sprintf(Line,"footprint \"%s\"\n", CONV_TO_UTF8(Module->m_LibRef));
 		fputs(Line, rptfile);
 
-		msg = "attribut"; 
-		if ( Module->m_Attributs & MOD_VIRTUAL ) msg += " virtual";
-		if ( Module->m_Attributs & MOD_CMS ) msg += " smd";
+		msg =  wxT("attribut"); 
+		if ( Module->m_Attributs & MOD_VIRTUAL ) msg += wxT(" virtual");
+		if ( Module->m_Attributs & MOD_CMS ) msg +=  wxT(" smd");
 		if ( (Module->m_Attributs & (MOD_VIRTUAL|MOD_CMS)) == 0 )
-			msg += " none";
-		msg += "\n";
-		fputs(msg.GetData(), rptfile);
+			msg +=  wxT(" none");
+		msg +=  wxT("\n");
+		fputs(CONV_TO_UTF8(msg), rptfile);
 		
 		module_pos = Module->m_Pos;
 		module_pos.x -= File_Place_Offset.x;

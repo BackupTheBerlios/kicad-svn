@@ -73,7 +73,7 @@ wxClientDC dc(DrawPanel);
 					wxOPEN,
 					TRUE				/* ne change pas de repertoire courant */
 					);
-			if ( FullFileName == "") break;
+			if ( FullFileName.IsEmpty()) break;
 			if ( ! wxFileExists(FullFileName) )
 				{
 				wxString msg;
@@ -85,7 +85,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_PcbFrame::Process_Config internal error");
+			DisplayError(this, wxT("WinEDA_PcbFrame::Process_Config internal error"));
 		}
 }
 
@@ -104,7 +104,7 @@ bool Read_Config(const wxString & project_name)
 wxString FullFileName;
 int ii;
 
-	g_Prj_Config_Filename_ext = ".pro";
+	g_Prj_Config_Filename_ext = wxT(".pro");
 	FullFileName = project_name;
 	ChangeFileNameExt(FullFileName, g_Prj_Config_Filename_ext);
 
@@ -116,7 +116,7 @@ int ii;
 
 	/* Traitement des variables particulieres: */
 
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 
 	if (ScreenPcb)
 	{
@@ -145,7 +145,7 @@ void WinEDA_PcbFrame::Update_config(wxWindow * displayframe)
 wxString FullFileName;
 wxString mask;
 
-	mask = "*" + g_Prj_Config_Filename_ext;
+	mask = wxT("*") + g_Prj_Config_Filename_ext;
 	FullFileName = GetScreen()->m_FileName.AfterLast('/');
 	ChangeFileNameExt(FullFileName, g_Prj_Config_Filename_ext);
 
@@ -158,13 +158,13 @@ wxString mask;
 					wxSAVE,
 					TRUE
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 
 	g_PcbDefaultGrid = GetScreen()->GetGrid();
 	Pcbdiv_grille = GetScreen()->m_Diviseur_Grille;
 
 	/* ecriture de la configuration */
-	EDA_Appl->WriteProjectConfig(FullFileName, "/pcbnew", ParamCfgList);
+	EDA_Appl->WriteProjectConfig(FullFileName, wxT("/pcbnew"), ParamCfgList);
 }
 
 

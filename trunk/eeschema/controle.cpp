@@ -46,7 +46,7 @@ EDA_BaseStruct * WinEDA_SchematicFrame::
 EDA_BaseStruct *DrawStruct;
 LibDrawPin * Pin;
 EDA_SchComponentStruct * LibItem;
-const char * Text;
+wxString Text;
 char Line[1024];
 wxString msg;
 int ii;
@@ -57,8 +57,8 @@ int ii;
 		DrawMarkerStruct * Marker = (DrawMarkerStruct *) DrawStruct;
 		ii = Marker->m_Type;
 		Text = Marker->GetComment();
-		if(Text == NULL ) Text = "NoComment";
-		msg.Printf( "%s >> %s" , NameMarqueurType[ii],Text);
+		if(Text.IsEmpty() ) Text = wxT("NoComment");
+		msg = NameMarqueurType[ii]; msg << wxT(" << ") << Text;
 		Affiche_Message(msg);
 		return(DrawStruct);
 		}
@@ -67,7 +67,7 @@ int ii;
 			NOCONNECTITEM);
 	if( DrawStruct )
 		{
-		Affiche_Message("");
+		Affiche_Message(wxEmptyString);
 		return(DrawStruct);
 		}
 
@@ -75,7 +75,7 @@ int ii;
 			JUNCTIONITEM);
 	if( DrawStruct )
 		{
-		Affiche_Message("");
+		Affiche_Message(wxEmptyString);
 		return(DrawStruct);
 		}
 
@@ -103,11 +103,11 @@ int ii;
 				pinnum[3] = (Pin->m_PinNum >> 24 ) & 255;
 				pinnum[4] = 0;
 				sprintf(Line,"$PIN: %s $PART: %s", pinnum,
-							LibItem->m_Field[REFERENCE].m_Text.GetData());
+							CONV_TO_UTF8(LibItem->m_Field[REFERENCE].m_Text));
 				SendCommand(MSG_TO_PCB, Line);
 			}
 		}
-		else  Affiche_Message("");
+		else  Affiche_Message(wxEmptyString);
 		return(DrawStruct);
 	}
 
@@ -119,7 +119,7 @@ int ii;
 		LibItem = (EDA_SchComponentStruct * )Field->m_Parent;
 		LibItem->Display_Infos(this);
 
-		sprintf(Line,"$PART: %s", LibItem->m_Field[REFERENCE].m_Text.GetData() );
+		sprintf(Line,"$PART: %s", CONV_TO_UTF8(LibItem->m_Field[REFERENCE].m_Text) );
 		SendCommand(MSG_TO_PCB, Line);
 
 		return(DrawStruct);
@@ -139,10 +139,10 @@ int ii;
 		/* envoi id pin a pcbnew */
 		if(Pin->m_PinNum)
 		{
-			char pinnum[80];
+			wxString pinnum;
 			Pin->ReturnPinStringNum(pinnum);
-			sprintf(Line,"$PIN: %s $PART: %s", pinnum,
-						LibItem->m_Field[REFERENCE].m_Text.GetData());
+			sprintf(Line,"$PIN: %s $PART: %s", CONV_TO_UTF8(pinnum),
+						CONV_TO_UTF8(LibItem->m_Field[REFERENCE].m_Text));
 			SendCommand(MSG_TO_PCB, Line);
 		}
 
@@ -157,7 +157,8 @@ int ii;
 		LibItem = (EDA_SchComponentStruct *) DrawStruct;
 		LibItem->Display_Infos(this);
 
-		sprintf(Line,"$PART: %s", LibItem->m_Field[REFERENCE].m_Text.GetData());
+		sprintf(Line,"$PART: %s",
+			CONV_TO_UTF8(LibItem->m_Field[REFERENCE].m_Text));
 		SendCommand(MSG_TO_PCB, Line);
 
 		return(DrawStruct);

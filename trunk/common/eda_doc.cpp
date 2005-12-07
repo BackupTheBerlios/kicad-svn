@@ -17,6 +17,7 @@
 #include <wx/mimetype.h>
 #include <wx/tokenzr.h>
 
+#include "fctsys.h"
 #include "wxstruct.h"
 #include "common.h"
 
@@ -24,23 +25,23 @@
 static wxMimeTypesManager * mimeDatabase;
 static const wxFileTypeInfo EDAfallbacks[] =
 	{
-	wxFileTypeInfo("text/pdf",
-					"xpdf %s",
-					"xpdf -p %s"
-                    "pdf document (from Kicad)",
-					"pdf", "PDF", NULL),
+	wxFileTypeInfo(wxT("text/pdf"),
+					wxT("xpdf %s"),
+					wxT("xpdf -p %s"),
+                    wxT("pdf document (from Kicad)"),
+					wxT("pdf"), wxT("PDF"), NULL),
 
-	wxFileTypeInfo("text/html",
-                   "wxhtml %s",
-					"wxhtml %s"
-                    "html document (from Kicad)",
-                    "htm", "html", NULL),
+	wxFileTypeInfo(wxT("text/html"),
+                   wxT("wxhtml %s"),
+					wxT("wxhtml %s"),
+                    wxT("html document (from Kicad)"),
+                    wxT("htm"), wxT("html"), NULL),
 
-	wxFileTypeInfo("application/sch",
-                    "eeschema %s",
-					"eeschema -p %s"
-                    "sch document (from Kicad)",
-                    "sch", "SCH", NULL),
+	wxFileTypeInfo(wxT("application/sch"),
+                    wxT("eeschema %s"),
+					wxT("eeschema -p %s"),
+                    wxT("sch document (from Kicad)"),
+                    wxT("sch"), wxT("SCH"), NULL),
 	// must terminate the table with this!
 	wxFileTypeInfo()
 };
@@ -65,14 +66,14 @@ bool success = FALSE;
 	if ( wxIsAbsolutePath(DocName) ) fullfilename = DocName;
 	else
 		{
-		docpath = LibPath + "doc/" ;
+		docpath = LibPath + wxT("doc/");
 		fullfilename = docpath + DocName;
 		}
 
 #ifdef __WINDOWS__
-	fullfilename.Replace("/", "\\");
+	fullfilename.Replace(UNIX_STRING_DIR_SEP, WIN_STRING_DIR_SEP);
 #else
-	fullfilename.Replace("\\", "/");
+	fullfilename.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
 #endif
 
 	if ( wxIsWild(fullfilename) )
@@ -81,14 +82,14 @@ bool success = FALSE;
 			EDA_FileSelector(_("Doc Files"),	/* Titre de la fenetre */
 					wxPathOnly(fullfilename),		/* Chemin par defaut */
 					fullfilename,				/* nom fichier par defaut */
-					"",						/* extension par defaut */
-					"",						/* Masque d'affichage */
+					wxEmptyString,				/* extension par defaut */
+					wxEmptyString,				/* Masque d'affichage */
 					frame,					/* parent frame */
 					wxOPEN,					/* wxSAVE, wxOPEN ..*/
 					TRUE,	/* true = ne change pas le repertoire courant */
 					wxPoint(-1,-1)
 					);
-		if ( fullfilename == "") return FALSE;
+		if ( fullfilename.IsEmpty() ) return FALSE;
 		}
 
 	if ( ! wxFileExists(fullfilename) )
@@ -124,17 +125,19 @@ wxString ext, command, type;
 	if ( ! success)
 	{
 #ifdef __LINUX__
-		if ( ext == "pdf" )
+		if ( ext == wxT("pdf") )
 		{
-			success = TRUE; command = "";
-			if ( wxFileExists("/usr/bin/xpdf") )
-				command = "xpdf " + fullfilename;
-			else if ( wxFileExists("/usr/bin/konqueror") )
-				command = "konqueror " + fullfilename;
-			if ( command == "" ) // not started
+			success = TRUE; command.Empty();
+			if ( wxFileExists( wxT("/usr/bin/xpdf")) )
+				command = wxT("xpdf ") + fullfilename;
+			else if ( wxFileExists( wxT("/usr/bin/konqueror") ))
+				command = wxT("konqueror ") + fullfilename;
+			else if ( wxFileExists( wxT("/usr/bin/gpdf") ))
+				command = wxT("gpdf ") + fullfilename;
+			if ( command.IsEmpty() ) // not started
 			{
 				DisplayError(frame,
-					_(" Cannot find the PDF viewer (xpdf or konqueror) in /usr/bin/") );
+					_(" Cannot find the PDF viewer (xpdf, gpdf or konqueror) in /usr/bin/") );
 				success = FALSE;
 			}
 			else wxExecute(command);

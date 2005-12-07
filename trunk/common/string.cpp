@@ -96,23 +96,11 @@ struct tm * Date;
 }
 
 
-/**********************************************/
-int StrNumCmp(const char *str1,const char *str2)
-/**********************************************/
+/************************************************************/
+int StrLenNumCmp(const wxChar *str1,const wxChar *str2, int NbMax)
+/************************************************************/
 /*
 routine (compatible qsort() ) de comparaison pour classement alphab‚tique
-Analogue a strcmp() mais les nombres sont comparés selon leur valeur num‚rique
-et non pas par leur code ascii
-*/
-{
-	return StrLenNumCmp( str1, str2, 32735);
-}
-
-/************************************************************/
-int StrLenNumCmp(const char *str1,const char *str2, int NbMax)
-/************************************************************/
-/*
-routine (compatible qsort() ) de comparaision pour classement alphab‚tique
 Analogue a strncmp() mais les nombres sont compar‚s selon leur valeur num‚rique
 et non pas par leur code ascii
 */
@@ -150,7 +138,7 @@ int nb1 = 0 , nb2 = 0;
 
 
 /***********************************************/
-int StrNumICmp(const char *str1,const char *str2)
+int StrNumICmp(const wxChar *str1,const wxChar *str2)
 /***********************************************/
 /*
 routine (compatible qsort() ) de comparaison pour classement alphabétique,
@@ -164,12 +152,12 @@ et non pas par leur code ascii
 
 
 /**************************************************************/
-int StrLenNumICmp(const char *str1,const char *str2, int NbMax)
+int StrLenNumICmp(const wxChar *str1,const wxChar *str2, int NbMax)
 /**************************************************************/
 /*
-routine (compatible qsort() ) de comparaison pour classement alphab‚tique,
+routine (compatible qsort() ) de comparaison pour classement alphabetique,
 avec lower case == upper case.
-Analogue a stricmp() mais les nombres sont compar‚s selon leur valeur num‚rique
+Analogue a stricmp() mais les nombres sont compares selon leur valeur numerique
 et non pas par leur code ascii
 */
 {
@@ -217,8 +205,8 @@ bool WildCompareString(const wxString & pattern, const wxString & string_to_tst,
 	retourne FALSE si differences
 */
 {
-const char *cp = NULL, *mp = NULL;
-const char * wild, * string;
+const wxChar *cp = NULL, *mp = NULL;
+const wxChar * wild, * string;
 wxString _pattern, _string_to_tst;
 
 	if ( case_sensitive )

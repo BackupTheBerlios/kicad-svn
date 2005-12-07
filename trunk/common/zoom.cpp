@@ -41,9 +41,11 @@
 void WinEDA_DrawFrame::Recadre_Trace(bool ToMouse)
 /**************************************************/
 /* Calcule les offsets de trace.
-	Les offsets sont ajustés a un miultiple du pas de grille
-	si ToMouse == TRUE, l'affichage est recentré sur la position
-	pointee par la souris
+	Les offsets sont ajustés a un multiple du pas de grille
+	si ToMouse == TRUE, le curseur souris (curseur "systeme") est replace
+	en position curseur graphique (curseur kicad)
+	
+	Note: Mac OS ** do not ** allow moving mouse cursor by program.
 */
 {
 
@@ -281,7 +283,7 @@ wxClientDC dc(this);
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_DrawPanel::Process_Popup_Zoom() ID error");
+			DisplayError(this, wxT("WinEDA_DrawPanel::Process_Popup_Zoom() ID error") );
 			break;
 		}
 
@@ -310,33 +312,33 @@ int zoom_list[] = {1, 2, 4, 8 , 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
 wxString zoom_msg = _("Zoom: ");
 wxString grid_msg = _("Grid:"), msg;
 int ii;
-char line[256];
+wxString line;
 
 grid_list_struct grid_list_pcb[] =
 {
-	{ 1000, ID_POPUP_GRID_LEVEL_1000, " 100" },
-	{ 500,  ID_POPUP_GRID_LEVEL_500, " 50" },
-	{ 250,  ID_POPUP_GRID_LEVEL_250, " 25" },
-	{ 200,  ID_POPUP_GRID_LEVEL_200, " 20" },
-	{ 100,  ID_POPUP_GRID_LEVEL_100, " 10" },
-	{ 50,   ID_POPUP_GRID_LEVEL_50,  " 5" },
-	{ 25,   ID_POPUP_GRID_LEVEL_25,  " 2.5" },
-	{ 20,   ID_POPUP_GRID_LEVEL_20,  " 2" },
-	{ 10,   ID_POPUP_GRID_LEVEL_10,  " 1" },
-	{ 5,    ID_POPUP_GRID_LEVEL_5,   " 0.5" },
-	{ 2,    ID_POPUP_GRID_LEVEL_2,   " 0.2" },
-	{ 1,    ID_POPUP_GRID_LEVEL_1,   " 0.1" },
+	{ 1000, ID_POPUP_GRID_LEVEL_1000, wxT(" 100") },
+	{ 500,  ID_POPUP_GRID_LEVEL_500, wxT(" 50") },
+	{ 250,  ID_POPUP_GRID_LEVEL_250, wxT(" 25") },
+	{ 200,  ID_POPUP_GRID_LEVEL_200, wxT(" 20") },
+	{ 100,  ID_POPUP_GRID_LEVEL_100, wxT(" 10") },
+	{ 50,   ID_POPUP_GRID_LEVEL_50,  wxT(" 5") },
+	{ 25,   ID_POPUP_GRID_LEVEL_25,  wxT(" 2.5") },
+	{ 20,   ID_POPUP_GRID_LEVEL_20,  wxT(" 2") },
+	{ 10,   ID_POPUP_GRID_LEVEL_10,  wxT(" 1") },
+	{ 5,    ID_POPUP_GRID_LEVEL_5,   wxT(" 0.5") },
+	{ 2,    ID_POPUP_GRID_LEVEL_2,   wxT(" 0.2") },
+	{ 1,    ID_POPUP_GRID_LEVEL_1,   wxT(" 0.1") },
 	{ 0,    ID_POPUP_GRID_USER,  _("grid user") }
 };
 
 grid_list_struct grid_list_schematic[] =
 {
-	{ 50,	ID_POPUP_GRID_LEVEL_50,  " 50" },
-	{ 25,	ID_POPUP_GRID_LEVEL_25,  " 25" },
-	{ 10,	ID_POPUP_GRID_LEVEL_10,  " 10" },
-	{ 5,	ID_POPUP_GRID_LEVEL_5,  " 5" },
-	{ 2,	ID_POPUP_GRID_LEVEL_2,  " 2" },
-	{ 1,	ID_POPUP_GRID_LEVEL_1,  " 1" },
+	{ 50,	ID_POPUP_GRID_LEVEL_50,  wxT(" 50") },
+	{ 25,	ID_POPUP_GRID_LEVEL_25,  wxT(" 25") },
+	{ 10,	ID_POPUP_GRID_LEVEL_10,  wxT(" 10") },
+	{ 5,	ID_POPUP_GRID_LEVEL_5,  wxT(" 5") },
+	{ 2,	ID_POPUP_GRID_LEVEL_2,  wxT(" 2") },
+	{ 1,	ID_POPUP_GRID_LEVEL_1,  wxT(" 1") },
 	{ 0,	ID_POPUP_GRID_USER,		_("grid user") }
 };
 
@@ -355,13 +357,13 @@ wxMenu * zoom_choice = new wxMenu;
 	/* Creation de la liste minimale des zooms: */
 	zoom = m_Parent->m_CurrentScreen->GetZoom();
 	for ( ii = 0; zoom_list[ii] <= 128; ii ++ )	// Create zoom choice 1 .. 128
-		{
-		sprintf(line,"%u", zoom_list[ii]);
+	{
+		line.Printf( wxT("%u"), zoom_list[ii]);
 		zoom_choice->Append(ID_POPUP_ZOOM_LEVEL_1 + ii,
-				zoom_msg + line,"",TRUE);
+				zoom_msg + line, wxEmptyString,TRUE);
 		if( zoom == zoom_list[ii] )
 			zoom_choice->Check(ID_POPUP_ZOOM_LEVEL_1 + ii, TRUE);
-		}
+	}
 
 wxMenu * grid_choice = new wxMenu;
 	grid = m_Parent->m_CurrentScreen->GetGrid();
@@ -373,9 +375,9 @@ wxMenu * grid_choice = new wxMenu;
 		case CVPCB_DISPLAY_FRAME:
 			for ( ; zoom_list[ii] <= 1024; ii ++ )	// Create zoom choice 256 .. 1024
 				{
-				sprintf(line,"%u", zoom_list[ii]);
+				line.Printf( wxT("%u"), zoom_list[ii]);
 				zoom_choice->Append(ID_POPUP_ZOOM_LEVEL_1 + ii,
-					zoom_msg + line,"",TRUE);
+					zoom_msg + line, wxEmptyString,TRUE);
 				if( zoom == zoom_list[ii] )
 				zoom_choice->Check(ID_POPUP_ZOOM_LEVEL_1 + ii, TRUE);
 				}
@@ -386,7 +388,7 @@ wxMenu * grid_choice = new wxMenu;
 			for ( ii = 0; ; ii ++ )	// Create grid list
 			{
 				msg = grid_msg + grid_list_pcb[ii].m_msg;
-				grid_choice->Append(grid_list_pcb[ii].m_id, msg, "", TRUE);
+				grid_choice->Append(grid_list_pcb[ii].m_id, msg, wxEmptyString, TRUE);
 				if( grid_list_pcb[ii].m_value <= 0 )
 				{
 					if ( m_Parent->m_CurrentScreen->m_UserGridIsON )
@@ -408,7 +410,7 @@ wxMenu * grid_choice = new wxMenu;
 					break;
 				msg = grid_msg + grid_list_schematic[ii].m_msg;
 				grid_choice->Append(grid_list_schematic[ii].m_id,
-					msg,"",TRUE);
+					msg, wxEmptyString, TRUE);
 				if( grid.x == grid_list_schematic[ii].m_value )
 					grid_choice->Check(grid_list_schematic[ii].m_id, TRUE);
 			}
@@ -444,7 +446,7 @@ int id = event.GetId();
 			break;
 
 		default:
-			DisplayError(this,"WinEDA_DrawFrame::Process_Zoom id Error");
+			DisplayError(this, wxT("WinEDA_DrawFrame::Process_Zoom id Error") );
 			break;
 		}
 }

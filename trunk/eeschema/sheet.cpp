@@ -121,7 +121,7 @@ wxString FileName;
 	FileName = m_FileNameWin->GetText();
 	FileName.Trim(FALSE); FileName.Trim(TRUE);
 	
-	if ( FileName == "" )
+	if ( FileName.IsEmpty() )
 		{
 		DisplayError(this, _("No Filename! Aborted") );
 		EndModal (FALSE);
@@ -140,7 +140,7 @@ wxString FileName;
 		m_CurrentSheet->m_Field[VALUE].m_Size.y =
 		m_SheetNameWin->GetTextSize();
 
-	if( (m_CurrentSheet->m_Field[VALUE].m_Text == "") )
+	if( (m_CurrentSheet->m_Field[VALUE].m_Text.IsEmpty() ) )
 		m_CurrentSheet->m_Field[VALUE].m_Text =
 			m_CurrentSheet->m_Field[SHEET_FILENAME].m_Text;
 
@@ -219,7 +219,7 @@ DrawSheetLabelStruct* sheetlabel;
 
 	if( Sheet->m_StructType != DRAW_SHEET_STRUCT_TYPE)
 		{
-		DisplayError(this, "WinEDA_SchematicFrame::ReSizeSheet: Bad SructType");
+		DisplayError(this, wxT("WinEDA_SchematicFrame::ReSizeSheet: Bad SructType"));
 		return;
 		}
 

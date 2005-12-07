@@ -118,7 +118,7 @@ ConfigCvpcbFrame * ConfigFrame = new ConfigCvpcbFrame(this, pos);
 #define YSIZE 420
 #define LEN_EXT 150
 ConfigCvpcbFrame::ConfigCvpcbFrame(WinEDA_CvpcbFrame *parent, wxPoint& winpos):
-		wxDialog(parent, -1, "", winpos, wxSize(XSIZE, YSIZE),
+		wxDialog(parent, -1, wxEmptyString, winpos, wxSize(XSIZE, YSIZE),
 		DIALOG_STYLE )
 {
 int dimy = 39;
@@ -232,7 +232,7 @@ wxSize winsize(XSIZE, YSIZE);
 	pos.x = LISTLIB_POSX; pos.y += m_PkgExtCtrl->GetDimension().y + 25;
 	size.x = winsize.x - pos.x -10;
 	wxString DocModuleFileName =
-		EDA_Appl->m_EDA_CommonConfig->Read("module_doc_file", "pcbnew/footprints.pdf");
+		EDA_Appl->m_EDA_CommonConfig->Read( wxT("module_doc_file"), wxT("pcbnew/footprints.pdf"));
 	m_TextHelpModulesFileName = new WinEDA_EnterText(this,
 				_("Module Doc File:"),  DocModuleFileName,
 				pos, size);
@@ -243,23 +243,23 @@ wxSize winsize(XSIZE, YSIZE);
 	new wxStaticBox(this, -1,_("Files ext:"), pos, size);
 
 	pos.x += 5; pos.y += 15;
-	text.Printf("%s     %s", _("Cmp ext:"), g_ExtCmpBuffer.GetData() );
+	text.Printf( wxT("%s     %s"), _("Cmp ext:"), g_ExtCmpBuffer.GetData() );
 	new wxStaticText(this, -1,text , pos);
 
 	pos.y += 15;
-	text.Printf("%s      %s", _("Lib ext:"), LibExtBuffer.GetData());
+	text.Printf( wxT("%s      %s"), _("Lib ext:"), LibExtBuffer.GetData());
 	new wxStaticText(this, -1,text , pos);
 
 	pos.y += 15;
-	text.Printf("%s %s", _("NetOut ext:"), NetExtBuffer.GetData());
+	text.Printf( wxT("%s %s"), _("NetOut ext:"), NetExtBuffer.GetData());
 	new wxStaticText(this, -1,text , pos);
 
 	pos.y += 15;
-	text.Printf("%s  %s", _("Equiv ext:"), g_EquivExtBuffer.GetData());
+	text.Printf( wxT("%s  %s"), _("Equiv ext:"), g_EquivExtBuffer.GetData());
 	new wxStaticText(this, -1,text , pos);
 
 	pos.y += 15;
-	text.Printf("%s  %s", _("Retro ext:"), ExtRetroBuffer.GetData());
+	text.Printf( wxT("%s  %s"), _("Retro ext:"), ExtRetroBuffer.GetData());
 	new wxStaticText(this, -1,text , pos);
 
 	SetClientSize(winsize);
@@ -291,14 +291,14 @@ wxString msg;
 	if ( ! m_DoUpdate ) return;
 	NetInExtBuffer = m_NetInputExtCtrl->GetData();
 	PkgInExtBuffer = m_PkgExtCtrl->GetData();
-	EDA_Appl->m_EDA_CommonConfig->Write("module_doc_file",
-			m_TextHelpModulesFileName->GetData());
+	EDA_Appl->m_EDA_CommonConfig->Write( wxT("module_doc_file"),
+			m_TextHelpModulesFileName);
 
 	msg = m_LibDirCtrl->GetData();
 	if ( msg != g_UserLibDirBuffer )
 	{
 		g_UserLibDirBuffer = m_LibDirCtrl->GetData();
-		SetRealLibraryPath("modules");
+		SetRealLibraryPath( wxT("modules") );
 		listlib();
 		ListModIsModified = 1;
 		m_Parent->BuildModListBox();
@@ -325,9 +325,9 @@ void ConfigCvpcbFrame::SaveCfg(wxCommandEvent& event)
 void ConfigCvpcbFrame::ReadOldCfg(wxCommandEvent& event)
 /******************************************************/
 {
-char line[1024];
+wxString line;
 
-	NetInNameBuffer.Replace("\\", "/");
+	NetInNameBuffer.Replace(WIN_STRING_DIR_SEP, UNIX_STRING_DIR_SEP);
 	
 wxString FullFileName = NetInNameBuffer.AfterLast('/');
 	
@@ -342,12 +342,12 @@ wxString FullFileName = NetInNameBuffer.AfterLast('/');
 					wxOPEN,
 					TRUE				/* ne change pas de repertoire courant */
 					);
-	if ( FullFileName == "") return;
+	if ( FullFileName.IsEmpty() ) return;
 	if ( ! wxFileExists(FullFileName) )
-		{
-		sprintf(line,_("File %s not found"), FullFileName.GetData());
+	{
+		line.Printf( _("File %s not found"), FullFileName.GetData());
 		DisplayError(this, line); return;
-		}
+	}
 
 	Read_Config( FullFileName );
 	m_DoUpdate = FALSE;
@@ -371,7 +371,7 @@ int ii;
 	m_ListLibr->Delete(ii);
 	
 	g_UserLibDirBuffer = m_LibDirCtrl->GetData();
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 	listlib();
 
 	m_Parent->BuildModListBox();
@@ -393,24 +393,24 @@ wxString FullFileName, ShortLibName, mask;
 	if ( ii < 0 ) ii = 0;
 
 	Update();
-	mask = "*" + LibExtBuffer;
+	mask = wxT("*") + LibExtBuffer;
 	FullFileName = EDA_FileSelector( _("Libraries"),
 					g_RealLibDirBuffer,		/* Chemin par defaut */
-					"",					/* nom fichier par defaut */
+					wxEmptyString,					/* nom fichier par defaut */
 					LibExtBuffer,		/* extension par defaut */
 					mask,				/* Masque d'affichage */
 					this,
 					0,
 					TRUE				/* ne chage pas de repertoire courant */
 					);
-	if (FullFileName == "" ) return;
+	if (FullFileName == wxEmptyString ) return;
 
 	ShortLibName = MakeReducedFileName(FullFileName,g_RealLibDirBuffer,LibExtBuffer);
 
 	g_LibName_List.Insert(ShortLibName, ii);
 	
 	g_UserLibDirBuffer = m_LibDirCtrl->GetData();
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 	listlib();
 	ListModIsModified = 1;
 
@@ -447,10 +447,10 @@ wxString FullFileName, ShortLibName, mask;
 	if ( ii < 0 ) ii = 0;
 
 	Update();
-	mask = "*" + g_EquivExtBuffer;
+	mask = wxT("*") + g_EquivExtBuffer;
 	FullFileName = EDA_FileSelector( _("Equiv"),
 					g_RealLibDirBuffer,		/* Chemin par defaut */
-					"",					/* nom fichier par defaut */
+					wxEmptyString,					/* nom fichier par defaut */
 					g_EquivExtBuffer,		/* extension par defaut */
 					mask,				/* Masque d'affichage */
 					this,
@@ -458,7 +458,7 @@ wxString FullFileName, ShortLibName, mask;
 					TRUE				/* ne chage pas de repertoire courant */
 					);
 
-	if (FullFileName == "" ) return;
+	if (FullFileName == wxEmptyString ) return;
 
 	ShortLibName = MakeReducedFileName(FullFileName,g_RealLibDirBuffer,g_EquivExtBuffer);
 
@@ -466,7 +466,7 @@ wxString FullFileName, ShortLibName, mask;
 
 	/* Mise a jour de l'affichage */
 	g_UserLibDirBuffer = m_LibDirCtrl->GetData();
-	SetRealLibraryPath("modules");
+	SetRealLibraryPath( wxT("modules") );
 	listlib();
 	
 	m_ListEquiv->Clear();
@@ -495,7 +495,7 @@ void ConfigCvpcbFrame::CreateListFormatsNetListes(wxPoint pos)
 /************************************************************/
 {
 wxString Net_Select[] =
-	{"&PcbNew", "&ViewLogic", "View &Net + Pkg"};
+	{ wxT("&PcbNew"), wxT("&ViewLogic"), wxT("View &Net + Pkg"});
 
 	m_NetFormatBox = new wxRadioBox(this, FORMAT_NETLIST,
 						_("NetList Formats:"),
@@ -503,7 +503,7 @@ wxString Net_Select[] =
 						3,Net_Select,1,wxRA_SPECIFY_COLS);
 
 	switch( g_NetType )
-		{
+	{
 		case TYPE_NON_SPECIFIE:
 		case TYPE_ORCADPCB2:
 			m_NetFormatBox->SetSelection(0);
@@ -522,6 +522,6 @@ wxString Net_Select[] =
 
 		default:
 			break;
-		}
+	}
 }
 

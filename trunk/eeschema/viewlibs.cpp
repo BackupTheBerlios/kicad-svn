@@ -55,7 +55,7 @@ wxPoint pos;
 		case ID_LIBVIEW_VIEWDOC:
 			LibEntry = FindLibPart(g_CurrentViewComponentName.GetData(),
          					g_CurrentViewLibraryName.GetData(), FIND_ALIAS);
-			if( LibEntry && (LibEntry->m_DocFile != "") )
+			if( LibEntry && ( !LibEntry->m_DocFile.IsEmpty()) )
 				GetAssociatedDocument(this, g_RealLibDirBuffer, LibEntry->m_DocFile );
 			break;
 
@@ -83,7 +83,7 @@ wxPoint pos;
 		default:
 		{
 			wxString msg;
-			msg << "WinEDA_ViewlibFrame::Process_Special_Functions error: id = " << id;
+			msg << wxT("WinEDA_ViewlibFrame::Process_Special_Functions error: id = ") << id;
 			DisplayError( this, msg);
 			break;
 		}
@@ -131,7 +131,7 @@ LibraryStruct * Lib;
 	Lib = SelectLibraryFromList(this);
 	if ( Lib )
 	{
-		g_CurrentViewComponentName = "";
+		g_CurrentViewComponentName.Empty();
 		g_CurrentViewLibraryName = Lib->m_Name;
 		DisplayLibInfos();
 		if ( m_LibList )
@@ -153,13 +153,13 @@ void WinEDA_ViewlibFrame::SelectAndViewLibraryPart(int option)
 {
 LibraryStruct * Lib;
 
-	if(g_CurrentViewLibraryName == "") SelectCurrentLibrary();
-	if(g_CurrentViewLibraryName == "" ) return;
+	if(g_CurrentViewLibraryName.IsEmpty() ) SelectCurrentLibrary();
+	if(g_CurrentViewLibraryName.IsEmpty() ) return;
 
 	Lib = FindLibrary(g_CurrentViewLibraryName.GetData());
 	if ( Lib == NULL ) return;
 
-	if ( (g_CurrentViewComponentName == "") || ( option == NEW_PART ) )
+	if ( (g_CurrentViewComponentName.IsEmpty()) || ( option == NEW_PART ) )
 		{
 		ViewOneLibraryContent(Lib, NEW_PART);
 		return;
@@ -195,7 +195,7 @@ wxClientDC dc(DrawPanel);
 
 	if (NumOfParts == 0)
 		{
-		DisplayError(this, "No Library or Library is empty!");
+		DisplayError(this, wxT("No Library or Library is empty!"));
 		return;
 		}
 
@@ -276,8 +276,8 @@ void WinEDA_ViewlibFrame::RedrawActiveWindow(wxDC * DC, bool EraseBg)
 {
 EDA_LibComponentStruct * LibEntry = NULL;
 LibCmpEntry * ViewCmpEntry = NULL;
-const char *RootName, * CmpName;
-char Line[1024], Msg[1024];
+const wxChar * RootName, * CmpName;
+wxString Msg;
 
 	ActiveScreen = GetScreen();
 
@@ -293,8 +293,6 @@ char Line[1024], Msg[1024];
 	DC->SetBackground(*wxBLACK_BRUSH );
 	DC->SetBackgroundMode(wxTRANSPARENT);
 
-	Msg[0] = 0;
-
 	if ( EraseBg ) DrawPanel->EraseScreen(DC);
 
 	DrawPanel->DrawBackGround(DC);
@@ -305,16 +303,17 @@ char Line[1024], Msg[1024];
 		if( LibEntry->Type != ROOT)
 			{
 			RootName = ((EDA_LibCmpAliasStruct*)LibEntry)->m_RootName.GetData();
-			sprintf(Msg, _("Current Part: <%s> (is Alias of <%s>)"), CmpName, RootName);
-			LibEntry = FindLibPart(RootName,g_CurrentViewLibraryName.GetData(),FIND_ROOT);
+			Msg.Printf( _("Current Part: <%s> (is Alias of <%s>)"),
+					CmpName, RootName);
+			LibEntry = FindLibPart(RootName,g_CurrentViewLibraryName,FIND_ROOT);
 
 			if( LibEntry == NULL)
-				{
-				sprintf(Line,_("Error: Root Part <%s> not found"), RootName);
-				DisplayError(this, Line);
-				}
+			{
+				Msg.Printf( _("Error: Root Part <%s> not found"), RootName);
+				DisplayError(this, Msg);
+			}
 			else
-				{
+			{
 				/* Affichage du composant ROOT, avec nom de l'alias */
 				wxString RealName;
 				RealName = LibEntry->m_Name.m_Text;
@@ -324,17 +323,16 @@ char Line[1024], Msg[1024];
 				DrawLibEntry(DrawPanel, DC, LibEntry, 0, 0,
 						g_ViewUnit, g_ViewConvert, GR_DEFAULT_DRAWMODE);
 				LibEntry->m_Name.m_Text = RealName;
-				}
 			}
+		}
 
 		else
 			{
-			sprintf( Msg, _("Current Part: <%s>"), ViewCmpEntry->m_Name.m_Text.GetData());
+			Msg.Printf( _("Current Part: <%s>"), ViewCmpEntry->m_Name.m_Text.GetData());
 			DrawLibEntry(DrawPanel, DC, LibEntry, 0, 0,
 					g_ViewUnit, g_ViewConvert, GR_DEFAULT_DRAWMODE);
 			}
-		AfficheDoc(this, ViewCmpEntry->m_Doc.GetData(),
-      			ViewCmpEntry->m_KeyWord.GetData());
+		AfficheDoc(this, ViewCmpEntry->m_Doc, ViewCmpEntry->m_KeyWord);
 		}
 
 	SetStatusText(Msg,0);

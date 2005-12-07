@@ -320,7 +320,8 @@ Routine recherchant les connexions deja faites relatives a 1 net
 TRACK * pt_start_conn, * pt_end_conn;
 int ii, nb_net_noconnect = 0;
 LISTE_PAD * pt_pad;
-
+wxString msg;
+	
 	if(net_code == 0) return;
 
 	if ( (m_Pcb->m_Status_Pcb & LISTE_CHEVELU_OK) == 0 )
@@ -354,11 +355,11 @@ LISTE_PAD * pt_pad;
 	nb_net_noconnect = Test_1_Net_Ratsnest(DC, net_code);
 
 	/* Affichage des resultats */
-	sprintf(cbuf,"links %d nc %d  net:nc %d",
+	msg.Printf( wxT("links %d nc %d  net:nc %d"),
 				 m_Pcb->m_NbLinks, m_Pcb->GetNumNoconnect(),
 				 nb_net_noconnect);
 
-	Affiche_Message(cbuf);
+	Affiche_Message(msg);
 	return;
 }
 
@@ -542,11 +543,11 @@ int masque_layer;
 	if( m_Pcb->m_NbPads == 0 ) return;
 	a_color = CYAN;
 	if(affiche)
-		Affiche_1_Parametre(this, POS_AFF_CHREF,"DataBase","Netcodes",a_color);
+		Affiche_1_Parametre(this, POS_AFF_CHREF, wxT("DataBase"), wxT("Netcodes"),a_color);
 
 	recalcule_pad_net_code();
 
-	if(affiche) Affiche_1_Parametre(this, -1,"","Gen Pads ",a_color);
+	if(affiche) Affiche_1_Parametre(this, -1,wxEmptyString, wxT("Gen Pads "),a_color);
 
 	//////////////////////////////////////////////////////
 	// Connexion des pistes accrochees a 1 pad au moins //
@@ -557,7 +558,8 @@ int masque_layer;
 	qsort(pt_mem, m_Pcb->m_NbPads, sizeof( D_PAD *),
 			(int(*)(const void *, const void *)) tri_par_X);
 
-	if(affiche) Affiche_1_Parametre(this, -1,"","Conn Pads",a_color);
+	if(affiche)
+		Affiche_1_Parametre(this, -1,wxEmptyString, wxT("Conn Pads"),a_color);
 
 	/* Raz des flags particuliers des segments de piste */
 	pt_piste = m_Pcb->m_Track;
@@ -601,7 +603,8 @@ int masque_layer;
 	/*  Les pointeurs .start et .end sont mis a jour, s'ils etaient NULLs.
 		La connexion est alors du type segment a segment
 	*/
-	if(affiche)Affiche_1_Parametre(this, POS_AFF_CHREF,"","Conn Segm", a_color);
+	if(affiche)
+		Affiche_1_Parametre(this, POS_AFF_CHREF,wxEmptyString, wxT("Conn Segm"), a_color);
 
 	for ( pt_piste = m_Pcb->m_Track; pt_piste != NULL; pt_piste = (TRACK*) pt_piste->Pnext)
 		{
@@ -623,7 +626,8 @@ int masque_layer;
 	////////////////////////////////
 
 	a_color = YELLOW;
-	if(affiche)Affiche_1_Parametre(this, POS_AFF_CHREF,"","Net->Segm",a_color);
+	if(affiche)
+		Affiche_1_Parametre(this, POS_AFF_CHREF,wxEmptyString, wxT("Net->Segm"),a_color);
 
 	while(new_passe_request)
 		{
@@ -681,12 +685,12 @@ int masque_layer;
 			}
 		}
 
-	if( affiche ) Affiche_1_Parametre(this, -1,"","Reclasse ",a_color);
+	if( affiche ) Affiche_1_Parametre(this, -1,wxEmptyString, wxT("Reorder "),a_color);
 
 	/* Reclassemment des pistes par numero de net: */
 	RebuildTrackChain(m_Pcb);
 
-	if( affiche ) Affiche_1_Parametre(this, -1,"","         ",a_color);
+	if( affiche ) Affiche_1_Parametre(this, -1,wxEmptyString, wxT("         "),a_color);
 }
 
 /*

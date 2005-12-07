@@ -51,7 +51,7 @@ class StructColors
 {
 public:
 	unsigned char m_Blue, m_Green, m_Red, m_Numcolor;
-	char* m_Name;
+	wxChar* m_Name;
 	int m_LightColor;
 };
 
@@ -59,30 +59,30 @@ extern StructColors ColorRefs[NBCOLOR];
 #ifdef MAIN
 StructColors ColorRefs[NBCOLOR]	=
 {
-	 { 0,  0,	0,  BLACK, "BLACK", DARKDARKGRAY},
-	 { 192,  0,  0, BLUE, "BLUE", LIGHTBLUE},
-	 { 0, 160,  0,  GREEN, "GREEN", LIGHTGREEN },
-	 { 160, 160, 0,  CYAN, "CYAN", LIGHTCYAN },
-	 { 0,  0, 160,  RED, "RED", LIGHTRED },
-	 { 160,  0, 160,  MAGENTA, "MAGENTA", LIGHTMAGENTA },
-	 { 0, 128, 128,  BROWN, "BROWN", YELLOW },
-	 { 192, 192, 192,  LIGHTGRAY, "GRAY", WHITE },
-	 { 128,  128,  128,  DARKGRAY, "DARKGRAY", LIGHTGRAY },
-	 { 255,	  0, 0,  LIGHTBLUE, "LIGHTBLUE",  LIGHTBLUE },
-	 { 0, 255, 0, LIGHTGREEN, "LIGHTGREEN", LIGHTGREEN },
-	 { 255, 255, 0, LIGHTCYAN, "LIGHTCYAN", LIGHTCYAN },
-	 { 0,  0, 255, LIGHTRED, "LIGHTRED", LIGHTRED },
-	 { 255,  0, 255, LIGHTMAGENTA, "LIGHTMAGENTA", LIGHTMAGENTA },
-	 { 0, 255, 255, YELLOW, "YELLOW", YELLOW },
-	 { 255, 255, 255, WHITE, "WHITE", WHITE },
-	 {  64,  64, 64,  DARKDARKGRAY, "DARKDARKGRAY",  DARKGRAY },
-	 {  64,	  0,  0,  DARKBLUE, "DARKBLUE", BLUE },
-	 {	  0,  64,  0,  DARKGREEN, "DARKGREEN",  GREEN },
-	 {  64,  64,  0,  DARKCYAN, "DARKCYAN",  CYAN },
-	 {	  0,   0, 80,  DARKRED, "DARKRED",  RED },
-	 {  64,   0, 64,  DARKMAGENTA, "DARKMAGENTA" },
-	 {	  0,  64, 64,  DARKBROWN, "DARKBROWN",  BROWN },
- 	 {	128, 255, 255,   LIGHTYELLOW, "LIGHTYELLOW",   LIGHTYELLOW }
+	 { 0,  0,	0,  BLACK, wxT("BLACK"), DARKDARKGRAY},
+	 { 192,  0,  0, BLUE, wxT("BLUE"), LIGHTBLUE},
+	 { 0, 160,  0,  GREEN, wxT("GREEN"), LIGHTGREEN },
+	 { 160, 160, 0,  CYAN, wxT("CYAN"), LIGHTCYAN },
+	 { 0,  0, 160,  RED, wxT("RED"), LIGHTRED },
+	 { 160,  0, 160,  MAGENTA, wxT("MAGENTA"), LIGHTMAGENTA },
+	 { 0, 128, 128,  BROWN, wxT("BROWN"), YELLOW },
+	 { 192, 192, 192,  LIGHTGRAY, wxT("GRAY"), WHITE },
+	 { 128,  128,  128,  DARKGRAY, wxT("DARKGRAY"), LIGHTGRAY },
+	 { 255,	  0, 0,  LIGHTBLUE, wxT("LIGHTBLUE"),  LIGHTBLUE },
+	 { 0, 255, 0, LIGHTGREEN, wxT("LIGHTGREEN"), LIGHTGREEN },
+	 { 255, 255, 0, LIGHTCYAN, wxT("LIGHTCYAN"), LIGHTCYAN },
+	 { 0,  0, 255, LIGHTRED, wxT("LIGHTRED"), LIGHTRED },
+	 { 255,  0, 255, LIGHTMAGENTA, wxT("LIGHTMAGENTA"), LIGHTMAGENTA },
+	 { 0, 255, 255, YELLOW, wxT("YELLOW"), YELLOW },
+	 { 255, 255, 255, WHITE, wxT("WHITE"), WHITE },
+	 {  64,  64, 64,  DARKDARKGRAY, wxT("DARKDARKGRAY"),  DARKGRAY },
+	 {  64,	  0,  0,  DARKBLUE, wxT("DARKBLUE"), BLUE },
+	 {	  0,  64,  0,  DARKGREEN, wxT("DARKGREEN"),  GREEN },
+	 {  64,  64,  0,  DARKCYAN, wxT("DARKCYAN"),  CYAN },
+	 {	  0,   0, 80,  DARKRED, wxT("DARKRED"),  RED },
+	 {  64,   0, 64,  DARKMAGENTA, wxT("DARKMAGENTA"), MAGENTA },
+	 {	  0,  64, 64,  DARKBROWN, wxT("DARKBROWN"),  BROWN },
+ 	 {	128, 255, 255,   LIGHTYELLOW, wxT("LIGHTYELLOW"),   LIGHTYELLOW }
    };
 #endif /* ifdef MAIN */
 

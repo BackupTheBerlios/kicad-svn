@@ -50,7 +50,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SHOW_POLAR_COORD:
-			Affiche_Message("");
+			Affiche_Message(wxEmptyString);
 			DisplayOpt.DisplayPolarCood = m_OptionsToolBar->GetToolState(id);
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			break;
@@ -79,7 +79,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		default:
-			DisplayError(this, "WinEDA_ModuleEditFrame::OnSelectOptionToolbar error");
+			DisplayError(this, wxT("WinEDA_ModuleEditFrame::OnSelectOptionToolbar error") );
 			break;
 		}
 

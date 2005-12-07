@@ -213,7 +213,7 @@ CmpListStruct * BaseListeCmp;
 	else ii = ListeComposants(BaseListeCmp, Window, Window->m_SheetNumber);
 
 	if( ii != NbOfCmp )
-		DisplayError(this, "Internal error in AnnotateComponents()");
+		DisplayError(this, wxT("Internal error in AnnotateComponents()"));
 
 	/* Separation des Numeros de la reference: IC1 -> IC, et 1 dans .m_NumRef */
 	BreakReference(BaseListeCmp, NbOfCmp);
@@ -325,7 +325,7 @@ EDA_LibComponentStruct *Entry;
 
 			case DRAW_LIB_ITEM_STRUCT_TYPE :
 				DrawLibItem = (EDA_SchComponentStruct *) DrawList;
-  				Entry = FindLibPart(DrawLibItem->m_ChipName, "", FIND_ROOT);
+  				Entry = FindLibPart(DrawLibItem->m_ChipName.GetData(), wxEmptyString, FIND_ROOT);
  				if( Entry == NULL) break;
 				if ( BaseListeCmp == NULL )	/* Items counting only */
 				{
@@ -338,17 +338,17 @@ EDA_LibComponentStruct *Entry;
 				BaseListeCmp[NbrCmp].m_Sheet = NumSheet;
 				BaseListeCmp[NbrCmp].m_IsNew = FALSE;
 				BaseListeCmp[NbrCmp].m_TimeStamp = DrawLibItem->m_TimeStamp;
-				if( DrawLibItem->m_Field[REFERENCE].m_Text == "" )
-					DrawLibItem->m_Field[REFERENCE].m_Text = "DefRef?";
+				if( DrawLibItem->m_Field[REFERENCE].m_Text.IsEmpty() )
+					DrawLibItem->m_Field[REFERENCE].m_Text = wxT("DefRef?");
 				strncpy( BaseListeCmp[NbrCmp].m_TextRef,
-						DrawLibItem->m_Field[REFERENCE].m_Text.GetData(), 32);
+						CONV_TO_UTF8(DrawLibItem->m_Field[REFERENCE].m_Text), 32);
 
 				BaseListeCmp[NbrCmp].m_NumRef = -1;
 
-				if( DrawLibItem->m_Field[VALUE].m_Text == "" )
-					DrawLibItem->m_Field[VALUE].m_Text = "~";
+				if( DrawLibItem->m_Field[VALUE].m_Text.IsEmpty() )
+					DrawLibItem->m_Field[VALUE].m_Text = wxT("~");
 				strncpy( BaseListeCmp[NbrCmp].m_TextValue,
-						DrawLibItem->m_Field[VALUE].m_Text.GetData(), 32);
+						CONV_TO_UTF8(DrawLibItem->m_Field[VALUE].m_Text), 32);
 				NbrCmp++;
 				break;
 
@@ -415,7 +415,7 @@ EDA_SchComponentStruct *DrawLibItem;
 		if ( BaseListeCmp[ii].m_NumRef < 0 ) strcat( Text, "?" );
 		else sprintf( Text + strlen(Text),"%d",BaseListeCmp[ii].m_NumRef );
 
-		DrawLibItem->m_Field[REFERENCE].m_Text = Text;
+		DrawLibItem->m_Field[REFERENCE].m_Text = CONV_FROM_UTF8(Text);
 		DrawLibItem->m_Multi = BaseListeCmp[ii].m_Unit;
 	}
 }
@@ -440,7 +440,7 @@ char * Text;
 
 	/* Separation des Numeros de la reference: IC1 -> IC, et 1 dans .m_NumRef */
 	for ( ii = 0; ii < NbOfCmp ; ii++ )
-		{
+	{
 		BaseListeCmp[ii].m_NumRef = - 1;
 		Text = BaseListeCmp[ii].m_TextRef;
 		ll = strlen( Text ) - 1;
@@ -641,8 +641,9 @@ int CheckAnnotate(WinEDA_DrawFrame * frame, bool OneSheetOnly)
 int NbSheet, ii, NumSheet = 1, error, NbOfCmp;
 SCH_SCREEN *Window;
 CmpListStruct * ListeCmp = NULL;
-char Buff[80], BufLine[1024];
-
+wxString Buff;
+wxString msg;
+	
 	/* Comptage du nombre de feuilles de hierarchy */
 	Window = ScreenSch;
 	for ( NbSheet = 0 ; Window != NULL; Window = (SCH_SCREEN*)Window->Pnext )
@@ -650,10 +651,10 @@ char Buff[80], BufLine[1024];
 
 	Window = ScreenSch;
 	for ( ii = 1; Window != NULL; Window = (SCH_SCREEN*)Window->Pnext, ii++ )
-		{
+	{
 		Window->m_SheetNumber = ii; Window->m_NumberOfSheet = NbSheet;
-		}
-
+	}
+	
 	/* 1ere passe : Comptage du nombre de composants */
 
 	Window = (SCH_SCREEN*) frame->m_CurrentScreen;
@@ -678,13 +679,13 @@ char Buff[80], BufLine[1024];
 
 	/* 2eme passe : Remplissage du tableau des caracteristiques */
 	if( OneSheetOnly == 0 )
-		{
+	{
 		ii = 0; Window = ScreenSch;
 		for ( ; Window != NULL; Window = (SCH_SCREEN*)Window->Pnext )
-			{
+		{
 			ii += ListeComposants(ListeCmp + ii, Window, NumSheet);
-			}
 		}
+	}
 	else ListeComposants(ListeCmp, Window, NumSheet);
 
 	qsort( ListeCmp, NbOfCmp, sizeof(CmpListStruct),
@@ -697,45 +698,44 @@ char Buff[80], BufLine[1024];
 	/* comptage des elements non annotes */
 	error = 0;
 	for( ii = 0; ii < NbOfCmp-1 ; ii++ )
-		{
+	{
+		msg.Empty(); Buff.Empty();
 		if ( ListeCmp[ii].m_IsNew )
-			{
-			if( ListeCmp[ii].m_NumRef >= 0 )
-				sprintf( Buff,"%d",ListeCmp[ii].m_NumRef);
-			else strcpy(Buff,"?");
-			sprintf( BufLine,_("item not annotated: %s%s"), ListeCmp[ii].m_TextRef,Buff);
+		{
+			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
+			else Buff = wxT("?");
+			msg.Printf( _("item not annotated: %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
-				sprintf( BufLine+strlen(BufLine)," (unit %d)",
-										ListeCmp[ii].m_Unit);
-
-			DisplayError(NULL, BufLine);
-			error++; break;
+			{
+				Buff.Printf( _("( unit %d)"), ListeCmp[ii].m_Unit);
+				msg << Buff;
 			}
+			DisplayError(NULL, msg);
+			error++; break;
+		}
 
 		if( MAX(ListeCmp[ii].m_NbParts, 1) < ListeCmp[ii].m_Unit  )	// Annotate error
-			{
-			if( ListeCmp[ii].m_NumRef >= 0 )
-					sprintf( Buff,"%d",ListeCmp[ii].m_NumRef);
-			else strcpy(Buff,"?");
+		{
+			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
+			else Buff = wxT("?");
 
-			sprintf( BufLine,_("Error item %s%s"),
-						ListeCmp[ii].m_TextRef,Buff);
+			msg.Printf( _("Error item %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
 
-			sprintf( BufLine+strlen(BufLine),_(" unit %d and no more than %d parts"),
+			Buff.Printf( _(" unit %d and no more than %d parts"),
 										ListeCmp[ii].m_Unit, ListeCmp[ii].m_NbParts);
-
-			DisplayError(frame, BufLine);
+			msg << Buff;
+			DisplayError(frame, msg);
 			error++; break;
-			}
-
 		}
+	}
 
 	if ( error ) return error;
 
 	/* comptage des elements doublés (si tous sont annotés) */
 	for( ii = 0; (ii < NbOfCmp-1) && (error < 4); ii++ )
-		{
+	{
+		msg.Empty(); Buff.Empty();
 		if( (stricmp(ListeCmp[ii].m_TextRef,ListeCmp[ii+1].m_TextRef) != 0) ||
 			( ListeCmp[ii].m_NumRef != ListeCmp[ii+1].m_NumRef ) )
 			continue;
@@ -743,56 +743,56 @@ char Buff[80], BufLine[1024];
 
 		/* Il y a erreur si meme unite */
 		if( ListeCmp[ii].m_Unit == ListeCmp[ii+1].m_Unit )
-			{
+		{
 
-			if( ListeCmp[ii].m_NumRef >= 0 )
-					sprintf( Buff,"%d",ListeCmp[ii].m_NumRef);
-			else strcpy(Buff,"?");
+			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
+			else Buff = wxT("?");
 
-			sprintf( BufLine,_("Multiple item %s%s"),
-						ListeCmp[ii].m_TextRef,Buff);
+			msg.Printf( _("Multiple item %s%s"),
+						ListeCmp[ii].m_TextRef,Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
-					sprintf( BufLine+strlen(BufLine)," (unit %d)",
-										ListeCmp[ii].m_Unit);
-
-			DisplayError(frame, BufLine);
-			error++; continue;
+			{
+				Buff.Printf( _(" (unit %d)"), ListeCmp[ii].m_Unit);
+				msg << Buff;
 			}
+			DisplayError(frame, msg);
+			error++; continue;
+		}
 
 		/* Il y a erreur si unites differentes mais nombre de parts differentes
 		par boitier (ex U3 ( 1 part) et U3B sont incompatibles) */
 		if( ListeCmp[ii].m_NbParts != ListeCmp[ii+1].m_NbParts )
-			{
+		{
 
-			if( ListeCmp[ii].m_NumRef >= 0 )
-					sprintf( Buff,"%d",ListeCmp[ii].m_NumRef);
-			else strcpy(Buff,"?");
+			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
+			else Buff = wxT("?");
 
-			sprintf( BufLine,_("Multiple item %s%s"),
-						ListeCmp[ii].m_TextRef,Buff);
+			msg.Printf( _("Multiple item %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
-					sprintf( BufLine+strlen(BufLine)," (unit %d)",
-										ListeCmp[ii].m_Unit);
-
-			DisplayError(frame, BufLine);
-			error++;
+			{
+				Buff.Printf( _(" (unit %d)"), ListeCmp[ii].m_Unit);
+				msg << Buff;
 			}
+
+			DisplayError(frame, msg);
+			error++;
+		}
 
 		/* Il y a erreur si unites differentes ET valeurs différentes */
 		if( stricmp(ListeCmp[ii].m_TextValue,ListeCmp[ii+1].m_TextValue) != 0)
-			{
-			sprintf( BufLine,_("Diff values for %s%d%c (%s) et %s%d%c (%s)"),
+		{
+			msg.Printf( _("Diff values for %s%d%c (%s) and %s%d%c (%s)"),
 						ListeCmp[ii].m_TextRef, ListeCmp[ii].m_NumRef, ListeCmp[ii].m_Unit+'A'-1,
 						ListeCmp[ii].m_TextValue,
 						ListeCmp[ii+1].m_TextRef, ListeCmp[ii+1].m_NumRef, ListeCmp[ii+1].m_Unit+'A'-1,
 						ListeCmp[ii+1].m_TextValue);
 
-			DisplayError(frame, BufLine);
+			DisplayError(frame, msg);
 			error++;
-			}
 		}
+	}
 
 	MyFree(ListeCmp);
 	return(error);

@@ -193,7 +193,7 @@ bool PrinterError = FALSE;
 		DrawPanel->PrepareDC(dc);
 		m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
 		}
-	SetToolID(0, wxCURSOR_ARROW,"");
+	SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 
 	if ( g_PrintData == NULL )	// Premier appel a l'impression
     	{
@@ -293,8 +293,8 @@ wxString msg_scale_list[8] = {
 	// Create scale adjust option
 	if ( m_Parent->m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_Parent->m_EDA_Config->Read("PrintXFineScaleAdj", &m_XScaleAdjust);
-		m_Parent->m_Parent->m_EDA_Config->Read("PrintYFineScaleAdj", &m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintXFineScaleAdj"), &m_XScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintYFineScaleAdj"), &m_YScaleAdjust);
 	}
 	m_ScaleOption->GetSize(&size.x, &size.y);
 	pos.y += size.y + 15;
@@ -438,8 +438,8 @@ void WinEDA_PrintFrame::OnClose(wxCommandEvent& event)
 	if ( m_FineAdjustYscaleOpt ) m_YScaleAdjust = m_FineAdjustYscaleOpt->GetValue();
 	if ( m_Parent->m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_Parent->m_EDA_Config->Write("PrintXFineScaleAdj", m_XScaleAdjust);
-		m_Parent->m_Parent->m_EDA_Config->Write("PrintYFineScaleAdj", m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PrintXFineScaleAdj"), m_XScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PrintYFineScaleAdj"), m_YScaleAdjust);
 	}
 	Close(TRUE);
 }
@@ -455,7 +455,7 @@ wxString name, ext;
 
 	wxFileName::SplitPath(m_Parent->m_CurrentScreen->m_FileName,
 		(wxString*) NULL, & name, & ext);
-	name += "-" + ext;
+	name += wxT("-") + ext;
 	return name;
 }
 
@@ -488,7 +488,7 @@ void WinEDA_PrintFrame::SetPenWidth(wxSpinEvent& event)
 		PenMinWidth = WIDTH_MIN_VALUE;
 		wxBell();
 		}
-	m_Buff_Width.Printf("%d", PenMinWidth);
+	m_Buff_Width.Printf(wxT("%d"), PenMinWidth);
 	m_ButtPenWidth->SetValue(m_Buff_Width);
 }
 
@@ -640,10 +640,10 @@ wxString title = BuildPrintTitle();
 bool EDA_Printout::OnPrintPage(int page)
 /***************************************/
 {
-char Line[256];
+wxString msg;
 
-	sprintf(Line,_("Print page %d"), page);
-	m_Parent->Affiche_Message(Line);
+	msg.Printf(_("Print page %d"), page);
+	m_Parent->Affiche_Message(msg);
 
 
 #ifdef EESCHEMA

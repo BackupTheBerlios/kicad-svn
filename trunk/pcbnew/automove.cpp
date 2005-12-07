@@ -30,7 +30,7 @@ typedef enum {
 static int tri_modules(MODULE ** pt_ref, MODULE ** pt_compare);
 
 /* Variables locales */
-wxString ModulesMaskSelection = "*";
+wxString ModulesMaskSelection = wxT("*");
 int ModulesNewOrient;
 
 
@@ -68,7 +68,7 @@ bool on_state;
 				m_CurrentScreen->ForceCloseManageCurseur(this, &dc);
 				}
 			m_ID_current_state = 0;
-			DisplayToolMsg("");
+			DisplayToolMsg(wxEmptyString);
 			DrawPanel->SetCursor(wxCursor(wxCURSOR_ARROW) );
 			break;
 		}
@@ -164,7 +164,7 @@ bool on_state;
 			break;
 
 		default:
-			DisplayError(this, "AutoPlace command error");
+			DisplayError(this, wxT("AutoPlace command error") );
 			break;
 		}
 	SetToolbars();
@@ -298,7 +298,7 @@ ou sur tous les modules si Modulle == NULL
 		Module = m_Pcb->m_Modules;
 		for( ; Module != NULL; Module = (MODULE*)Module->Pnext)
 		{
-			if( WildCompareString(ModulesMaskSelection, Module->m_Reference->GetText()) )
+			if( WildCompareString(ModulesMaskSelection, Module->m_Reference->m_Text) )
 			{
 				if ( Fixe ) Module->m_ModuleStatus |= MODULE_is_LOCKED;
 				else Module->m_ModuleStatus &= ~MODULE_is_LOCKED;
@@ -318,9 +318,9 @@ void WinEDA_PcbFrame::ReOrientModules(const wxString & ModuleMask,
 */
 {
 MODULE * Module;
-char line[1024];
+wxString line;
 
-	sprintf(line,"Ok pour reorienter les modules a %d degres ?", Orient/10);
+	line.Printf( _("Ok to set module orientation to %d degrees ?"), Orient/10);
 	if( !IsOK(this, line ) )return;
 
 	Module = m_Pcb->m_Modules;
@@ -329,7 +329,7 @@ char line[1024];
 		if( (Module->m_ModuleStatus & MODULE_is_LOCKED ) && ! include_fixe )
 			continue;
 
-		if( WildCompareString(ModuleMask, Module->m_Reference->GetText(), FALSE ) )
+		if( WildCompareString(ModuleMask, Module->m_Reference->m_Text, FALSE ) )
 		{
 			m_CurrentScreen->SetModify();
 			Module->Draw(DrawPanel, DC, wxPoint(0,0), GR_XOR);

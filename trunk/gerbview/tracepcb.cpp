@@ -84,21 +84,7 @@ void WinEDA_GerberFrame::Trace_Gerber(wxDC * DC, int mode)
 EDA_BaseStruct * PtStruct;
 
 	if ( ! m_Pcb ) return;
-	/* Trace des elements particuliers de Drawings Pcb */
-
-	PtStruct = m_Pcb->m_Drawings;
-	for( ; PtStruct != NULL; PtStruct = PtStruct->Pnext )
-		{
-		switch(PtStruct->m_StructType)
-			{
-			case TYPETEXTE:
-				Trace_1_texte_pcb(DrawPanel, DC, (TEXTE_PCB*) PtStruct, 0, 0, mode);
-				break;
-
-			default: break;
-			}
-		}
-
+		
 	// Draw tracks and flashes
 	Trace_Pistes(DrawPanel, DC, m_Pcb, mode);
 

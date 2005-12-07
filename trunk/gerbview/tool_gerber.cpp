@@ -137,7 +137,7 @@ wxArrayString choices;
 		msg = _("Layer "); msg << ii+1;
 		choices.Add(msg);
 	}
-	m_SelLayerBox = new wxComboBox(m_HToolBar, ID_TOOLBARH_PCB_SELECT_LAYER,"",
+	m_SelLayerBox = new wxComboBox(m_HToolBar, ID_TOOLBARH_PCB_SELECT_LAYER, wxEmptyString,
 					wxDefaultPosition, wxSize(150, -1), choices, wxCB_READONLY);
 	m_SelLayerBox->SetSelection( GetScreen()->m_Active_Layer );
 	m_HToolBar->AddControl(m_SelLayerBox);
@@ -151,7 +151,7 @@ wxArrayString choices;
 		msg = _("Tool "); msg << ii + FIRST_DCODE;
 		choices.Add(msg);
 	}
-	m_SelLayerTool = new wxComboBox(m_HToolBar, ID_TOOLBARH_GERBER_SELECT_TOOL,"",
+	m_SelLayerTool = new wxComboBox(m_HToolBar, ID_TOOLBARH_GERBER_SELECT_TOOL, wxEmptyString,
 					wxDefaultPosition, wxSize(150, -1), choices, wxCB_READONLY);
 	m_HToolBar->AddControl(m_SelLayerTool);
 
@@ -239,11 +239,11 @@ void WinEDA_GerberFrame::ReCreateOptToolbar(void)
 					-1, -1, (wxObject *) NULL,
 					_("Display Polar Coord ON"));
 
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_INCH, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_INCH, wxEmptyString,
 					BITMAP(unit_inch_xpm),
 					_("Units = Inch"), wxITEM_CHECK );
 
-	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_MM, "",
+	m_OptionsToolBar->AddTool(ID_TB_OPTIONS_SELECT_UNIT_MM, wxEmptyString,
 					BITMAP(unit_mm_xpm),
 					_("Units = mm"), wxITEM_CHECK );
 

@@ -36,7 +36,7 @@ class COTATION: public EDA_BaseStruct
 	void UnLink( void );
 
 	/* Modification du texte de la cotation */
-	void SetText(char * NewText);
+	void SetText(const wxString & NewText);
 
 	void Copy(COTATION * source);
 

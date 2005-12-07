@@ -89,8 +89,7 @@ WinEDA_TextModPropertiesFrame::WinEDA_TextModPropertiesFrame(WinEDA_BasePcbFrame
 {
 wxPoint pos;
 int xx, yy;
-wxString txt_title;
-char Line[512];
+wxString txt_title, Line;
 wxButton * Button;
 MODULE * Module = NULL;
 #define VPOS0 40
@@ -109,9 +108,9 @@ MODULE * Module = NULL;
 	pos.x = 20; pos.y = 5;
 	if ( Module )
 		{
-		sprintf(Line,"Module %s (%s) orient %.1f",
-			Module->m_Reference->GetText(),
-			Module->m_Value->GetText(),
+		Line.Printf( _("Module %s (%s) orient %.1f"),
+			Module->m_Reference->m_Text.GetData(),
+			Module->m_Value->m_Text.GetData(),
 			(float)(Module->m_Orient/10) );
 
 		wxStaticText * ModText = new wxStaticText(this, -1, Line, pos );
@@ -132,11 +131,11 @@ MODULE * Module = NULL;
 	if(TextMod->m_Type == TEXT_is_REFERENCE) txt_title = _("Reference:");
 	else if(TextMod->m_Type == TEXT_is_VALUE) txt_title = _("Value:");
 	else if(TextMod->m_Type == TEXT_is_DIVERS) txt_title = _("Text:");
-	else txt_title = "???";
+	else txt_title = wxT("???");
 
 	pos.x = 5; pos.y = VPOS0 + 10;
-	m_Name = new WinEDA_EnterText(this, txt_title.GetData(),
-			TextMod->GetText(),
+	m_Name = new WinEDA_EnterText(this, txt_title,
+			TextMod->m_Text,
 			pos, wxSize( 200, -1) );
 
 	pos.y += 25 + m_Name->GetDimension().y;
@@ -227,7 +226,7 @@ TEXTE_MODULE * Text;
 		Module->m_Drawings->Pback = Text;
 	Module->m_Drawings = Text;
 
-	Text->m_Text = "text";
+	Text->m_Text = wxT("text");
 
 	Text->m_Size = ModuleTextSize;
 	Text->m_Width = ModuleTextWidth;

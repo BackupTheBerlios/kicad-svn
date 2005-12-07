@@ -148,35 +148,35 @@ eda_global bool Segments_45_Only ;		 /* Flag pour limiter l'inclinaison
 										edge pcb a 45 degres seulement */
 eda_global wxString PcbExtBuffer
 #ifdef MAIN
-(".brd")
+( wxT(".brd"))
 #endif
 ;
 eda_global wxString g_SaveFileName		// File Name for periodic saving
 #ifdef MAIN
-("$savepcb")
+( wxT("$savepcb") )
 #endif
 ;
 eda_global wxString NetNameBuffer;
 eda_global wxString NetExtBuffer
 #ifdef MAIN
-(".net")
+( wxT(".net") )
 #endif
 ;
 eda_global wxString NetCmpExtBuffer
 #ifdef MAIN
-(".cmp")
+( wxT(".cmp") )
 #endif
 ;
 
 // Gestion de la liste des librairies
 eda_global wxString LibExtBuffer
 #ifdef MAIN
-(".mod")
+( wxT(".mod") )
 #endif
 ;
 eda_global wxString g_Shapes3DExtBuffer		// extension des fichiers de formes 3D
 #ifdef MAIN
-(".wrl")
+( wxT(".wrl") )
 #endif
 ;
 
@@ -251,7 +251,7 @@ eda_global int nbptnewpiste ;		// nombre de points deja traces
 eda_global wxString g_ViaType_Name[4]
 #if defined MAIN
 	= {
-	"???",	// Unused
+	wxT("???"),	// Unused
 	_("Blind Via"),		// from inner layer to external layer (TOP or BOTTOM)
 	_("Buried Via"),	// from inner to inner layer
 	_("Standard Via")	// Usual via (from TOP to BOTTOM layer)

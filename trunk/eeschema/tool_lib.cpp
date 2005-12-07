@@ -42,51 +42,51 @@ void WinEDA_LibeditFrame::ReCreateVToolbar(void)
 		m_VToolBar = new WinEDA_Toolbar(TOOLBAR_TOOL, this, ID_V_TOOLBAR, FALSE);
 
 		// Set up toolbar
-		m_VToolBar->AddTool(ID_NO_SELECT_BUTT, "",
-				BITMAP(cursor_xpm), "", wxITEM_CHECK );
+		m_VToolBar->AddTool(ID_NO_SELECT_BUTT, wxEmptyString,
+				BITMAP(cursor_xpm), wxEmptyString, wxITEM_CHECK );
 		m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
 
 		m_VToolBar->AddSeparator();
-		m_VToolBar->AddTool(ID_LIBEDIT_PIN_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_PIN_BUTT, wxEmptyString,
 				BITMAP(pin_xpm),
 					_("Add Pins"), wxITEM_CHECK  );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_BODY_TEXT_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_BODY_TEXT_BUTT, wxEmptyString,
 				BITMAP(add_text_xpm),
 					_("Add graphic text"), wxITEM_CHECK  );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_BODY_RECT_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_BODY_RECT_BUTT, wxEmptyString,
 				BITMAP(add_rectangle_xpm),
 					_("Add rectangles"), wxITEM_CHECK );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_BODY_CIRCLE_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_BODY_CIRCLE_BUTT, wxEmptyString,
 				BITMAP(add_circle_xpm),
 					_("Add circles"), wxITEM_CHECK  );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_BODY_ARC_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_BODY_ARC_BUTT, wxEmptyString,
 				BITMAP(add_arc_xpm),
 					_("Add arcs"), wxITEM_CHECK  );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_BODY_LINE_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_BODY_LINE_BUTT, wxEmptyString,
 				BITMAP(add_polygon_xpm),
 					_( "Add lines and polygons"), wxITEM_CHECK  );
 
 		m_VToolBar->AddSeparator();
-		m_VToolBar->AddTool(ID_LIBEDIT_ANCHOR_ITEM_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_ANCHOR_ITEM_BUTT, wxEmptyString,
 				BITMAP(anchor_xpm),
 					_("Move part anchor"), wxITEM_CHECK  );
 
 		m_VToolBar->AddSeparator();
-		m_VToolBar->AddTool(ID_LIBEDIT_IMPORT_BODY_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_IMPORT_BODY_BUTT, wxEmptyString,
 				BITMAP(import_xpm),
 					_("Import existing drawings"), wxITEM_CHECK  );
 
-		m_VToolBar->AddTool(ID_LIBEDIT_EXPORT_BODY_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_EXPORT_BODY_BUTT, wxEmptyString,
 				BITMAP(export_xpm),
 					_("Export current drawing"), wxITEM_CHECK  );
 
 		m_VToolBar->AddSeparator();
-		m_VToolBar->AddTool(ID_LIBEDIT_DELETE_ITEM_BUTT, "",
+		m_VToolBar->AddTool(ID_LIBEDIT_DELETE_ITEM_BUTT, wxEmptyString,
 				BITMAP(delete_body_xpm),
 					_("Delete items"), wxITEM_CHECK  );
 
@@ -111,40 +111,40 @@ int ii;
 		SetToolBar(m_HToolBar);
 
 		// Set up toolbar
-		m_HToolBar->AddTool(ID_LIBEDIT_SAVE_CURRENT_LIB, "", BITMAP(save_library_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_SAVE_CURRENT_LIB, wxEmptyString, BITMAP(save_library_xpm),
 					_("Save current loaded library on disk (file update)") );
 
-		m_HToolBar->AddTool(ID_LIBEDIT_SELECT_CURRENT_LIB, "", BITMAP(library_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_SELECT_CURRENT_LIB, wxEmptyString, BITMAP(library_xpm),
 					_("Select working library") );
 
-		m_HToolBar->AddTool(ID_LIBEDIT_DELETE_PART, "", BITMAP(delete_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_DELETE_PART, wxEmptyString, BITMAP(delete_xpm),
 					_("Delete part in current library") );
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_LIBEDIT_NEW_PART, "", BITMAP(new_component_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_NEW_PART, wxEmptyString, BITMAP(new_component_xpm),
 				_("New part") );
 
 		m_HToolBar->AddTool(ID_LIBEDIT_SELECT_PART, BITMAP(add_component_xpm),
 					_("Select part to edit") );
 
-		m_HToolBar->AddTool(ID_LIBEDIT_SAVE_CURRENT_PART, "",
+		m_HToolBar->AddTool(ID_LIBEDIT_SAVE_CURRENT_PART, wxEmptyString,
 					BITMAP(save_part_in_mem_xpm),
 					_("Save current part into current loaded library (in memory)") );
 
-		m_HToolBar->AddTool(ID_LIBEDIT_IMPORT_PART, "", BITMAP(import_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_IMPORT_PART, wxEmptyString, BITMAP(import_xpm),
 					_("import part"));
 
-		m_HToolBar->AddTool(ID_LIBEDIT_EXPORT_PART, "", BITMAP(export_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_EXPORT_PART, wxEmptyString, BITMAP(export_xpm),
 					_("export part"));
 
 		m_HToolBar->AddTool(ID_LIBEDIT_CREATE_NEW_LIB_AND_SAVE_CURRENT_PART,
-					"", BITMAP(new_library_xpm),
+					wxEmptyString, BITMAP(new_library_xpm),
 					_("Create a new library an save current part into"));
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_LIBEDIT_UNDO, "", BITMAP(undo_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_UNDO, wxEmptyString, BITMAP(undo_xpm),
 					_("Undo last edition"));
-		m_HToolBar->AddTool(ID_LIBEDIT_REDO, "", BITMAP(redo_xpm),
+		m_HToolBar->AddTool(ID_LIBEDIT_REDO, wxEmptyString, BITMAP(redo_xpm),
 					_("Redo the last undo command"));
 
 		m_HToolBar->AddSeparator();
@@ -168,26 +168,26 @@ int ii;
 					-1, -1, (wxObject *) NULL,
 					_("zoom + (F1)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_MOINS_BUTT, wxEmptyString,
 					BITMAP(zoom_out_xpm),
 					_("zoom - (F2)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_REDRAW_BUTT, wxEmptyString,
 					BITMAP(repaint_xpm),
 					_("redraw (F3)"));
 
-		m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, "",
+		m_HToolBar->AddTool(ID_ZOOM_PAGE_BUTT, wxEmptyString,
 					BITMAP(zoom_optimal_xpm),
 					_("auto zoom") );
 
 		m_HToolBar->AddSeparator();
-		m_HToolBar->AddTool(ID_DE_MORGAN_NORMAL_BUTT, "",
+		m_HToolBar->AddTool(ID_DE_MORGAN_NORMAL_BUTT, wxEmptyString,
 					BITMAP(morgan1_xpm),
 					_("show as \"De Morgan\" normal part"), wxITEM_CHECK);
 		m_HToolBar->ToggleTool(ID_DE_MORGAN_NORMAL_BUTT,
 						(CurrentConvert <= 1) ? TRUE : FALSE);
 
-		m_HToolBar->AddTool(ID_DE_MORGAN_CONVERT_BUTT, "",
+		m_HToolBar->AddTool(ID_DE_MORGAN_CONVERT_BUTT, wxEmptyString,
 					BITMAP(morgan2_xpm),
 					_("show as \"De Morgan\" convert part"), wxITEM_CHECK);
 		m_HToolBar->ToggleTool(ID_DE_MORGAN_CONVERT_BUTT,
@@ -198,15 +198,15 @@ int ii;
 					wxNullBitmap,
 					FALSE,
 					-1, -1, (wxObject *) NULL,
-					"Documents");
+					_("Documents"));
 		m_HToolBar->EnableTool(ID_LIBEDIT_VIEW_DOC, FALSE);
 
 		m_HToolBar->AddSeparator();
-		m_SelpartBox = new wxComboBox(m_HToolBar, ID_LIBEDIT_SELECT_PART_NUMBER,"",
+		m_SelpartBox = new wxComboBox(m_HToolBar, ID_LIBEDIT_SELECT_PART_NUMBER,wxEmptyString,
 					wxDefaultPosition, wxSize(LISTBOX_WIDTH, -1), 0, NULL, wxCB_READONLY);
 		m_HToolBar->AddControl(m_SelpartBox);
 
-		m_SelAliasBox = new wxComboBox(m_HToolBar, ID_LIBEDIT_SELECT_ALIAS,"",
+		m_SelAliasBox = new wxComboBox(m_HToolBar, ID_LIBEDIT_SELECT_ALIAS,wxEmptyString,
 					wxDefaultPosition, wxSize(LISTBOX_WIDTH, -1), 0, NULL, wxCB_READONLY);
 		m_HToolBar->AddControl(m_SelAliasBox);
 

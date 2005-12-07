@@ -66,7 +66,7 @@ IMPLEMENT_DYNAMIC_CLASS(WinEDA_Tree, wxTreeCtrl)
 WinEDA_Tree::WinEDA_Tree(WinEDA_HierFrame *parent) :
 	wxTreeCtrl( (wxWindow*)parent, ID_TREECTRL_HIERARCHY,
 				wxDefaultPosition, wxDefaultSize,
-                wxTR_HAS_BUTTONS, wxDefaultValidator, "HierachyTreeCtrl")
+                wxTR_HAS_BUTTONS, wxDefaultValidator, wxT("HierachyTreeCtrl"))
 {
 	m_Parent = parent;
 	// Make an image list containing small icons
@@ -195,7 +195,7 @@ SCH_SCREEN * Screen;
 	{
 		if( nbsheets == (NB_MAX_SHEET + 1) )
 		{
-			DisplayError(this, "BuildListeSheets: Error: nbsheets > 200");
+			DisplayError(this, wxT("BuildListeSheets: Error: nbsheets > 200"));
 			nbsheets++;
 		}
 		return;
@@ -342,7 +342,7 @@ SCH_SCREEN * oldscreen = (SCH_SCREEN*) frame->m_CurrentScreen;
 			{
 			if( NewScreen->m_Type != SCHEMATIC_FRAME)
 				{
-				DisplayError(frame, "newscreen non type schematique");
+				DisplayError(frame, wxT("Bad new screen type"));
 				return;
 				}
 			NewScreen->m_RootSheet = Sheet;

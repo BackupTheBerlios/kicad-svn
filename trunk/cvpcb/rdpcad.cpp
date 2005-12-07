@@ -38,25 +38,27 @@ STORECMP * Cmp;
 	if( BaseListeCmp ) FreeMemoryComponants();
 
 	/* Ouverture du fichier source  */
-	source = fopen(FFileName.GetData(),"rt");
+	source = wxFopen(FFileName, wxT("rt"));
 	if (source == 0)
-		 {
-		 sprintf(cbuf,"File <%s> not found",FFileName.GetData());
-		 DisplayError(this, cbuf); return(-1);
-		 }
+	{
+		wxString msg;
+		msg.Printf( _("File <%s> not found"),FFileName.GetData());
+		DisplayError(this, msg); return(-1);
+	}
 
 	/* Lecture entete qui doit etre "{COMPONENT ORCAD.PCB" ou "{ OrCAD PCB"*/
 	fgets(Line,255,source) ;
 	i = strncmp(Line,"{COMPONENT ORCAD.PCB",9) ;	 /* net type PCAD */
 
 	if ( i != 0 )
-		{
-		sprintf(cbuf,"Unknown file format <%s>",Line) ;
-		DisplayError(this, cbuf);
+	{
+		wxString msg;
+		msg.Printf( _("Unknown file format <%s>"),Line) ;
+		DisplayError(this, msg);
 		fclose(source); return(-3) ;
-		}
+	}
 
-	SetStatusText("Netlist Format: Pcad", 0);
+	SetStatusText( _("Netlist Format: Pcad"), 0);
 
 	/* Lecture de la liste */
 
@@ -118,17 +120,16 @@ for ( ;; )
 
 		/* debut reference trouv‚ */
 		for ( k = 0 ; k < 8 ; i++ , k++ )
-			{
+		{
 			if ( Line[i] <= ' ' ) break ;
 			label[k] = Line[i] ;
-			}
+		}
 		/* classement du composant ,suivi de sa valeur */
-		Cmp = (STORECMP*) MyZMalloc( sizeof(STORECMP) );
-		Cmp->Type = STRUCT_COMPONANT;
+		Cmp = new STORECMP();
 		Cmp->Pnext = BaseListeCmp;
 		BaseListeCmp = Cmp;
-		strncpy( Cmp->Reference, label ,sizeof(Cmp->Reference) -1 );
-		strncpy(Cmp->Valeur, val, sizeof(Cmp->Valeur) -1 ) ;
+		Cmp->m_Reference = CONV_FROM_UTF8(label);
+		Cmp->m_Valeur = CONV_FROM_UTF8(val);
 		pin() ;
 		nbcomp++ ;
 		}

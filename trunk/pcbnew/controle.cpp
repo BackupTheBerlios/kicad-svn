@@ -30,15 +30,16 @@ char *idcmd, * text;
 WinEDA_PcbFrame * frame = EDA_Appl->m_PcbFrame;
 
 	strncpy(Line, cmdline, sizeof(Line) -1 );
-	frame->Affiche_Message(Line);
+	frame->Affiche_Message( CONV_FROM_UTF8(Line));
 
 	idcmd = strtok(Line," \n\r");
 	text = strtok(NULL," \n\r");
 	if( strcmp(idcmd,"$PART:") == 0)
 	{
 		MODULE * Module;
-		Module = ReturnModule(frame->m_Pcb, text);
-		msg.Printf(_("Locate module %s %s"), text, Module ? "Ok" : "not found");
+		msg = CONV_FROM_UTF8(text);
+		Module = ReturnModule(frame->m_Pcb, msg);
+		msg.Printf(_("Locate module %s %s"),msg.GetData(), Module ? wxT("Ok") : wxT("not found"));
 		frame->SetStatusText(msg);
 		if ( Module )
 		{
@@ -51,19 +52,20 @@ WinEDA_PcbFrame * frame = EDA_Appl->m_PcbFrame;
 	}
 
 	if( strcmp(idcmd,"$PIN:") == 0)
-		{
-		char PinName[20];
+	{
+		wxString PinName, ModName;
 		MODULE * Module;
 		D_PAD * Pad = NULL;
 		int netcode = -1;
-		strcpy(PinName,text);
+		PinName = CONV_FROM_UTF8(text);
 		text = strtok(NULL," \n\r");
 		if( strcmp(text, "$PART:") == 0 ) text = strtok(NULL,"\n\r");
 
 wxClientDC dc(frame->DrawPanel);
 	frame->DrawPanel->PrepareGraphicContext(&dc);
 
-		Module = ReturnModule(frame->m_Pcb, text);
+		ModName = CONV_FROM_UTF8(text);
+		Module = ReturnModule(frame->m_Pcb, ModName);
 		if( Module ) Pad = ReturnPad(Module, PinName);
 		if( Pad ) netcode = Pad->m_NetCode;
 		if ( netcode > 0 )
@@ -80,11 +82,11 @@ wxClientDC dc(frame->DrawPanel);
 		if ( Module == NULL )
 			msg.Printf( _("module %s not found"), text);
 		else if ( Pad == NULL )
-			msg.Printf( _("Pin %s (module %s) not found"), PinName, text);
+			msg.Printf( _("Pin %s (module %s) not found"), PinName.GetData(), ModName.GetData());
 		else
-			msg.Printf( _("Locate Pin %s (module %s)"), PinName, text);
+			msg.Printf( _("Locate Pin %s (module %s)"), PinName.GetData(),ModName.GetData());
 		frame->Affiche_Message(msg);
-		}
+	}
 }
 
 

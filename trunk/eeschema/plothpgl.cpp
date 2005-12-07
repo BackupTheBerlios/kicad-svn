@@ -227,7 +227,7 @@ wxString size_list[] =
 	Button->SetForegroundColour(wxColour(100,0,0) );
 
 	pos.x = 5; pos.y = low_y+5;
-	m_MsgBox = new wxTextCtrl(this, -1, "", pos, wxSize(SIZE_X-10, 110),
+	m_MsgBox = new wxTextCtrl(this, -1, wxEmptyString, pos, wxSize(SIZE_X-10, 110),
 			wxTE_MULTILINE | wxTE_READONLY);
 
 	low_y += m_MsgBox->GetSize().y;
@@ -253,7 +253,7 @@ void WinEDA_PlotHPGLFrame::SetPenWidth(wxSpinEvent & event)
 	if ( g_HPGL_Pen_Descr.m_Pen_Diam > 100 ) g_HPGL_Pen_Descr.m_Pen_Diam = 100;
 	if ( g_HPGL_Pen_Descr.m_Pen_Diam < 1 ) g_HPGL_Pen_Descr.m_Pen_Diam = 1;
 
-	m_Buff_Width.Printf("%d", g_HPGL_Pen_Descr.m_Pen_Diam);
+	m_Buff_Width.Printf( wxT("%d"), g_HPGL_Pen_Descr.m_Pen_Diam);
 	m_ButtPenWidth->SetValue(m_Buff_Width);
 }
 
@@ -266,7 +266,7 @@ void WinEDA_PlotHPGLFrame::SetPenSpeed(wxSpinEvent& event)
 	if ( g_HPGL_Pen_Descr.m_Pen_Speed > 40 ) g_HPGL_Pen_Descr.m_Pen_Speed = 40;
 	if ( g_HPGL_Pen_Descr.m_Pen_Speed < 1 ) g_HPGL_Pen_Descr.m_Pen_Speed = 1;
 
-	m_Buff_Speed.Printf("%d", g_HPGL_Pen_Descr.m_Pen_Speed);
+	m_Buff_Speed.Printf( wxT("%d"), g_HPGL_Pen_Descr.m_Pen_Speed);
 	m_ButtPenSpeed->SetValue(m_Buff_Speed);
 }
 
@@ -278,7 +278,7 @@ void WinEDA_PlotHPGLFrame::SetPenNum(wxSpinEvent& event)
 	if ( g_HPGL_Pen_Descr.m_Pen_Num > 8 ) g_HPGL_Pen_Descr.m_Pen_Num = 8;
 	if ( g_HPGL_Pen_Descr.m_Pen_Num < 1 ) g_HPGL_Pen_Descr.m_Pen_Num = 1;
 
-	m_Buff_PenNum.Printf("%d", g_HPGL_Pen_Descr.m_Pen_Num);
+	m_Buff_PenNum.Printf( wxT("%d"), g_HPGL_Pen_Descr.m_Pen_Num);
 	m_ButtPenNum->SetValue(m_Buff_PenNum);
 }
 
@@ -388,9 +388,9 @@ int margin;
 		wxSplitPath(screen->m_FileName.GetData(), (wxString*) NULL,
 				&ShortFileName, (wxString*) NULL);
 		wxString dirbuf = wxGetCwd() + STRING_DIR_SEP;
-		if( ShortFileName != "" )
-			PlotFileName = MakeFileName(dirbuf, ShortFileName, ".plt");
-		else PlotFileName = MakeFileName(dirbuf, g_DefaultSchematicFileName, ".plt");
+		if( ! ShortFileName.IsEmpty() )
+			PlotFileName = MakeFileName(dirbuf, ShortFileName, wxT(".plt"));
+		else PlotFileName = MakeFileName(dirbuf, g_DefaultSchematicFileName, wxT(".plt"));
 
 		InitPlotParametresHPGL(PlotOffset, g_PlotScaleX, g_PlotScaleY);
 		Plot_1_Page_HPGL(PlotFileName,screen);
@@ -416,14 +416,14 @@ EDA_SchComponentStruct *DrawLibItem;
 int x1=0, y1=0, x2=0, y2=0, layer;
 wxString msg;
 
-	PlotOutput = fopen(FullFileName.GetData(),"wt");
+	PlotOutput = wxFopen(FullFileName, wxT("wt"));
 	if (PlotOutput == 0)
 		{
 		msg = _("Unable to create ") + FullFileName;
 		DisplayError(this, msg); return ;
 		}
 
-	msg = _("Plot  ") + FullFileName + "\n";
+	msg = _("Plot  ") + FullFileName + wxT("\n");
 	m_MsgBox->AppendText(msg);
 
 	/* Init : */

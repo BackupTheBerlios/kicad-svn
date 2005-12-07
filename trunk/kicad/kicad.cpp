@@ -42,21 +42,22 @@ IMPLEMENT_APP(WinEDA_App)
 bool WinEDA_App::OnInit(void)
 {
 	EDA_Appl = this;
-	InitEDA_Appl("kicad");
+	InitEDA_Appl( wxT("kicad"));
 	
 	/* init kicad */
 	GetSettings();					// read current setup
 
-	m_MainFrame = new WinEDA_MainFrame(this, NULL, "KiCad",
+	m_MainFrame = new WinEDA_MainFrame(this, NULL, wxT("KiCad"),
 				 wxPoint(0,0), wxSize(600,400) );
 	if(argc > 1 ) m_MainFrame->m_PrjFileName = argv[1];
 	else if ( m_EDA_Config )
-		{
-		m_MainFrame->m_PrjFileName = m_EDA_Config->Read("LastProject", "noname.pro");
-		}
-	else m_MainFrame->m_PrjFileName = "noname.pro";
+	{
+		m_MainFrame->m_PrjFileName = m_EDA_Config->Read(wxT("LastProject"),
+				wxT("noname.pro") );
+	}
+	else m_MainFrame->m_PrjFileName = wxT("noname.pro");
 
-	m_MainFrame->SetTitle(Main_Title + " " + m_MainFrame->m_PrjFileName);
+	m_MainFrame->SetTitle(Main_Title + wxT(" ") + m_MainFrame->m_PrjFileName);
 	m_MainFrame->ReCreateMenuBar();
 	m_MainFrame->RecreateBaseHToolbar();
 
@@ -66,7 +67,7 @@ bool WinEDA_App::OnInit(void)
 
 	/* Preparation Affichage du logo */
 #ifdef SPLASH_OK
-wxString logoname( wxString(m_BinDir) + "logokicad.png" );
+wxString logoname( wxString(m_BinDir) + wxT("logokicad.png") );
 wxBitmap image;
 	if ( image.LoadFile( logoname, wxBITMAP_TYPE_PNG ) )
 		{
