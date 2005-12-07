@@ -12,6 +12,7 @@ env.Append(LIBS    = ['common', '3dviewer'])
 sources = Split("""
 	autosel.cpp
 	cfg.cpp
+	class_cvpcb.cpp
 	cvframe.cpp
 	cvpcb.cpp
 	displayframe.cpp
