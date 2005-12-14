@@ -265,7 +265,7 @@ void PutTextInfo(WinEDA_DrawPanel * panel, wxDC * DC, int Orient, const wxPoint 
 /***************/
 /* EECONFIG.CPP */
 /***************/
-bool Read_Config(void);
+bool Read_Config( const wxString & CfgFileName, bool ForceRereadConfig );
 
 
 /**************/

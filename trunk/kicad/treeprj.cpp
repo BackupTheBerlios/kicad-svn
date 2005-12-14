@@ -76,6 +76,7 @@ int id;
 	if ( ! m_TreeProject ) m_TreeProject = new WinEDA_TreePrj(this);
 	else m_TreeProject->DeleteAllItems();
 
+	m_TreeProject->SetFont(* g_StdFont);
 	if (m_Parent->m_PrjFileName.IsEmpty() ) Text = wxT("noname");
 	else Text = wxFileNameFromPath(m_Parent->m_PrjFileName);
 

@@ -35,6 +35,9 @@ BEGIN_EVENT_TABLE(WinEDA_SchematicFrame, wxFrame)
 	EVT_TOOL(ID_NEW_PROJECT, WinEDA_SchematicFrame::Process_Special_Functions)
 	EVT_TOOL(ID_LOAD_PROJECT, WinEDA_SchematicFrame::Process_Special_Functions)
 
+	EVT_MENU_RANGE(ID_PREFERENCES_FONT_INFOSCREEN, ID_PREFERENCES_FONT_END,
+		WinEDA_DrawFrame::ProcessFontPreferences)
+
 	EVT_MENU(ID_SAVE_PROJECT, WinEDA_SchematicFrame::Save_File)
 	EVT_MENU(ID_SAVE_ONE_SHEET, WinEDA_SchematicFrame::Save_File)
 	EVT_MENU(ID_SAVE_ONE_SHEET_AS, WinEDA_SchematicFrame::Save_File)

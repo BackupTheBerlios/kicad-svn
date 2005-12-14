@@ -29,14 +29,13 @@ WinEDA_MsgPanel::WinEDA_MsgPanel(WinEDA_DrawFrame *parent, int id,
 		wxPanel(parent, id, pos, size )
 {
 	m_Parent = parent;
-	m_MsgFont = new wxFont(9, wxSWISS, wxNORMAL, wxNORMAL);
+	SetFont( *g_MsgFont );
 }
 
 
 
 WinEDA_MsgPanel::~WinEDA_MsgPanel(void)
 {
-	delete m_MsgFont;
 }
 
 
@@ -68,38 +67,43 @@ void WinEDA_MsgPanel::Affiche_1_Parametre(int pos_X,const wxString & texte_H,
 		si "", par d'affichage sur cette ligne
 	color = couleur d'affichage
 */
-{	
+{
 static int old_pos_X;
 wxPoint pos;
 wxSize FontSizeInPixels, DrawSize;
 wxClientDC dc(this);
-	
+
+	DrawSize = GetClientSize();
+
 	dc.SetBackground(* wxBLACK_BRUSH );
 	dc.SetBackgroundMode(wxSOLID);
+//	dc.SetBackgroundMode(wxTRANSPARENT);
 	dc.SetTextBackground(GetBackgroundColour());
+	dc.SetFont(*g_MsgFont);
+	dc.GetTextExtent( wxT("W"), &FontSizeInPixels.x, &FontSizeInPixels.y );
 
-	FontSizeInPixels = SetBestFontPointSize(&dc, m_MsgFont, 10);
-		
 	if ( color >= 0 )
 	{
 		color &= MASKCOLOR;
 		dc.SetTextForeground(wxColour(
 			ColorRefs[color].m_Red,	ColorRefs[color].m_Green,
-			ColorRefs[color].m_Blue)	);
+			ColorRefs[color].m_Blue) );
 	}
 
-	pos.y = 0;
 	if ( pos_X >= 0 )
 	{
 		old_pos_X = pos.x = pos_X * (FontSizeInPixels.x + 2);
 	}
 	else pos.x = old_pos_X;
 
-	
-	if( !texte_H.IsEmpty()) dc.DrawText(texte_H.GetData(), pos.x, pos.y);
+
+	if( !texte_H.IsEmpty())
+	{
+		pos.y = (DrawSize.y/2) - FontSizeInPixels.y;;
+		dc.DrawText(texte_H.GetData(), pos.x, pos.y);
+	}
 	if( !texte_L.IsEmpty())
 	{
-		DrawSize = GetClientSize();
 		pos.y = DrawSize.y - FontSizeInPixels.y;
 		dc.DrawText(texte_L.GetData(), pos.x, pos.y);
 	}

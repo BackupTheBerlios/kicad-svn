@@ -40,6 +40,9 @@ BEGIN_EVENT_TABLE(WinEDA_PcbFrame, wxFrame)
 	EVT_TOOL(ID_SAVE_BOARD, WinEDA_PcbFrame::Files_io)
 	EVT_TOOL(ID_OPEN_MODULE_EDITOR, WinEDA_PcbFrame::Process_Special_Functions)
 
+	EVT_MENU_RANGE(ID_PREFERENCES_FONT_INFOSCREEN, ID_PREFERENCES_FONT_END,
+		WinEDA_DrawFrame::ProcessFontPreferences)
+
 	// Menu Files:
 
 	EVT_MENU(ID_MAIN_MENUBAR, WinEDA_PcbFrame::Process_Special_Functions)
@@ -81,7 +84,7 @@ BEGIN_EVENT_TABLE(WinEDA_PcbFrame, wxFrame)
 	EVT_MENU(ID_PCB_GEN_DRILL_FILE,WinEDA_PcbFrame::InstallDrillFrame)
 	EVT_MENU(ID_PCB_GEN_CMP_FILE,WinEDA_PcbFrame::Files_io)
 
-	// menu Miscellanous
+	// menu Miscellaneous
 	EVT_MENU(ID_MENU_LIST_NETS, WinEDA_PcbFrame::Liste_Equipot)
 	EVT_MENU(ID_PCB_GLOBAL_DELETE, WinEDA_PcbFrame::Process_Special_Functions)
 	EVT_MENU(ID_MENU_PCB_CLEAN, WinEDA_PcbFrame::Process_Special_Functions)

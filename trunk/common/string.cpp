@@ -95,6 +95,24 @@ struct tm * Date;
 	return(Line);
 }
 
+/*******************************/
+wxString DateAndTime(void)
+/*******************************/
+/* Retourne la chaine de caractere donnant date+heure */
+{
+time_t Time_Buf;
+struct tm * Date;
+wxString Line;
+
+	time(&Time_Buf);
+	Date = gmtime(&Time_Buf);
+	Line.Printf( wxT("%d/%d/%d-%2.2d:%2.2d:%2.2d"),
+			Date->tm_mday, Date->tm_mon + 1, Date->tm_year + 1900,
+			Date->tm_hour, Date->tm_min, Date->tm_sec );
+
+	return(Line);
+}
+
 
 /************************************************************/
 int StrLenNumCmp(const wxChar *str1,const wxChar *str2, int NbMax)

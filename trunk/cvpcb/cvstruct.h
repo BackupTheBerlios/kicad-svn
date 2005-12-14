@@ -51,6 +51,8 @@ public:
 	void ReCreateHToolbar(void);
 	virtual void ReCreateMenuBar(void);
 	void SetLanguage(wxCommandEvent& event);
+	void AddFontSelectionMenu(wxMenu * main_menu);
+	void ProcessFontPreferences(wxCommandEvent& event);
 
 	void ToFirstNA(wxCommandEvent& event);
 	void ToPreviousNA(wxCommandEvent& event);

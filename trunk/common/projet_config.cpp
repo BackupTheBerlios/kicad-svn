@@ -22,7 +22,7 @@ static bool ReCreatePrjConfig(const wxString & local_config_filename,
 		g_Prj_Config_LocalFilename
 		g_Prj_Default_Config_FullFilename
 	return:
-		TRUE di config locale
+		TRUE si config locale
 		FALSE si default config
 */
 {
@@ -88,10 +88,9 @@ wxString msg;
 	/* Write date ( surtout pour eviter bug de wxFileConfig
 	qui se trompe de rubrique si declaration [xx] en premiere ligne
 	(en fait si groupe vide) */
-char date[1024];
-    DateAndTime(date);
 	g_Prj_Config->SetPath(UNIX_STRING_DIR_SEP);
-	g_Prj_Config->Write( wxT("update"), date);
+	msg = DateAndTime();
+	g_Prj_Config->Write( wxT("update"), msg);
 	msg = GetAppName();
 	g_Prj_Config->Write( wxT("last_client"), msg);
 
@@ -223,7 +222,9 @@ wxString timestamp;
 	timestamp = g_Prj_Config->Read( wxT("update") );
 	if ( Load_Only_if_New && ( !timestamp.IsEmpty() ) &&
 		 (timestamp == EDA_Appl->m_CurrentOptionFileDateAndTime) )
+	{
 		return FALSE;
+	}
 	
 	EDA_Appl->m_CurrentOptionFileDateAndTime = timestamp;
 	

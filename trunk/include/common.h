@@ -261,15 +261,15 @@ COMMON_GLOBL int g_KeyPressed;
 // Font used by kicad.
 // these font have a size which do not depend on default size system font
 COMMON_GLOBL wxFont * g_StdFont;	/* Standard font used for status display ,in message panel */
-COMMON_GLOBL wxFont * g_SmallFont;	/* Small font */
 COMMON_GLOBL wxFont * g_DialogFont;	/* Normal font used in dialog box */
 COMMON_GLOBL wxFont * g_ItalicFont;	/* Italic font used in dialog box */
+COMMON_GLOBL wxFont * g_MsgFont;	/* Italic font used in msg panel (lower window) */
 COMMON_GLOBL wxFont * g_FixedFont;	/* Affichage de Texte en fenetres de dialogue,
 							fonte a pas fixe)*/
 COMMON_GLOBL int g_StdFontPointSize;	/* taille de la fonte */
-COMMON_GLOBL int g_SmallFontPointSize;	/* taille de la fonte */
 COMMON_GLOBL int g_DialogFontPointSize;	/* taille de la fonte */
 COMMON_GLOBL int g_FixedFontPointSize;	/* taille de la fonte */
+COMMON_GLOBL int g_MsgFontPointSize;	/* taille de la fonte */
 COMMON_GLOBL int g_FontMinPointSize;	/* taille minimum des fontes */
 
 COMMON_GLOBL bool g_IsPrinting;		// TRUE si impression au lieu de trace a l'ecran
@@ -455,6 +455,7 @@ char * StrPurge(char * text);
 				retourne un pointeur sur le 1er caractere non Space de text */
 
 char * DateAndTime(char * line);
+wxString DateAndTime(void);
 				/* Retourne la chaine de caractere donnant date+heure */
 
 int StrLenNumCmp(const wxChar *str1,const wxChar *str2, int NbMax);
@@ -500,11 +501,6 @@ void Affiche_InfosLicence(wxWindow * frame);
 /**************/
 /* common.cpp */
 /**************/
-wxSize SetBestFontPointSize(wxDC * DC, wxFont * Font, int ReferencePointSize);
-/* Compute a font size for texts showed in Msg_Panel or Status Lines.
-	The best size is equivalent to a point size = 9 for a 96 dpi
-	font like Arial font */
-
 void Affiche_1_Parametre(WinEDA_DrawFrame * frame ,
 			int pos_X,const wxString& texte_H,const wxString& texte_L,int color);
 /*

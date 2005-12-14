@@ -169,6 +169,7 @@ public:
 	void GetSettings(void);
 	void SaveSettings(void);
 	void SetLanguage(wxCommandEvent& event);
+	void ProcessFontPreferences(int id);
 
 	wxString GetLastProject(int rang);
 	void SetLastProject(const wxString & FullFileName);
@@ -225,7 +226,9 @@ public:
 	void OnMenuOpen(wxMenuEvent& event);
 	void OnMouseEvent(wxMouseEvent& event);
 	virtual void OnHotKey(wxDC * DC, int hotkey, EDA_BaseStruct * DrawStruct);
-
+	void AddFontSelectionMenu(wxMenu * main_menu);
+	void ProcessFontPreferences(wxCommandEvent& event);
+	
 	void Affiche_Message(const wxString & message);
 	void EraseMsgBox(void);
 	void Process_PageSettings(wxCommandEvent& event);
@@ -1179,7 +1182,6 @@ class WinEDA_MsgPanel: public wxPanel
 public:
 	WinEDA_DrawFrame * m_Parent;
 	int m_BgColor;			// couleur de fond
-	wxFont * m_MsgFont;
 
 public:
 	// Constructor and destructor

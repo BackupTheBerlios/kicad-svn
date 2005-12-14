@@ -102,7 +102,7 @@ public:
 	void DrawAncre(WinEDA_DrawPanel * panel, wxDC * DC,
 				const wxPoint & offset, int dim_ancre, int draw_mode);
 
-	/* miscellanous */
+	/* miscellaneous */
 	void Display_Infos(WinEDA_BasePcbFrame * frame);
 };
 

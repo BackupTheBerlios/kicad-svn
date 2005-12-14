@@ -241,7 +241,7 @@ wxPoint pos;
 
 	// Init Panel ERC
 	pos.x = 5; pos.y = 15;
-	new wxStaticBox(PanelERC,-1, _("Erc Diags:"), pos, wxSize(180,95) );
+	new wxStaticBox(PanelERC,-1, _("Erc Diags:"), pos, wxSize(210,95) );
 	pos.x = 10; pos.y += 22;
 	ErcTotalErrors = new wxStaticText(PanelERC, -1, _("-> Total Errors:  "), pos);
 	ErcTotalErrors->SetFont(*g_FixedFont);

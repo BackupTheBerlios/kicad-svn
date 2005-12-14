@@ -545,9 +545,9 @@ wxString GetEditorName(void)
 	if ( editorname.IsEmpty() )	// We must get a prefered editor name
 	{
 	DisplayInfo(NULL, _("No default editor found, you must choose it") );
-	wxString mask;
+	wxString mask(wxT("*"));
 #ifdef __WINDOWS__
-	mask = wxT("*.exe");
+	mask += wxT(".exe");
 #endif
 	editorname = EDA_FileSelector(_("Prefered Editor:"),
 					wxEmptyString,						/* Default path */

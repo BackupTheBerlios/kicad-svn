@@ -173,24 +173,24 @@ wxString msg;
 wxSize size(10,10);
 
 	if( m_ListCmp == NULL )
-		{
+	{
 		m_ListCmp = new ListBoxCmp(this, ID_CVPCB_LIST_COMPONANTS,
 							wxDefaultPosition, size,
 							0, NULL);
 		m_ListCmp->SetBackgroundColour(wxColour(225,255,255));
 		m_ListCmp->SetForegroundColour(wxColour(0,0,0));
-		g_FixedFont->SetPointSize(9);
 		m_ListCmp->SetFont(*g_FixedFont);
-		}
+	}
+	
 	m_ListCmp->m_StringList.Clear();
 	Composant = BaseListeCmp;
 	for (ii = 1 ; Composant != NULL; Composant = Composant->Pnext, ii++ )
-		{
+	{
 		msg.Printf(CMP_FORMAT ,ii,
 			Composant->m_Reference.GetData(), Composant->m_Valeur.GetData(),
 			Composant->m_Module.GetData());
 		m_ListCmp->m_StringList.Add(msg);
-		}
+	}
 	m_ListCmp->SetItemCount(m_ListCmp->m_StringList.Count() );
 
 	if ( BaseListeCmp ) m_ListCmp->SetSelection(0, TRUE);
@@ -219,7 +219,6 @@ wxSize size(10,10);
 							0, NULL);
 		m_ListMod->SetBackgroundColour(wxColour(225,255,225));
 		m_ListMod->SetForegroundColour(wxColour(0,0,0));
-		g_FixedFont->SetPointSize(9);
 		m_ListMod->SetFont(*g_FixedFont);
 	}
 	m_ListMod->m_StringList.Clear();

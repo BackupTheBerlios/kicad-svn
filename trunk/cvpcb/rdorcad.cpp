@@ -66,8 +66,8 @@ STORECMP * Cmp;
 
 	if ( i != 0 )
 	{
-		wxString msg;
-		msg.Printf( _("Unknown file format <%s>"),Line) ;
+		wxString msg, Lineconv = CONV_FROM_UTF8(Line);
+		msg.Printf( _("Unknown file format <%s>"), Lineconv.GetData());
 		DisplayError(this, msg);
 		fclose(source); return(-3) ;
 	}

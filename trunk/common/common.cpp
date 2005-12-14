@@ -12,43 +12,6 @@
 #include "common.h"
 #include "macros.h"
 
-/***************************************************/
-wxSize SetBestFontPointSize(wxDC * DC, wxFont * Font, int ReferencePointSize)
-/***************************************************/
-/* Compute a font point size for texts showed in Msg_Panel or Status Lines.
-	The best point size is equivalent to a point size = 10
-	for a 96 ppp Arial font
-	This is necessary because system or default fonts can be bigger if 
-	we have selected 120 ppp fonts (big fonts), and messages are too longs
-	and they are truncated on display
-*/
-{
-static wxString msgtst(wxT("MMMMMWWWWW"));// This is a text to compute a font optimal size
-wxSize FontSizeInPixels;
-int best_pointsize, ref_size;
-#define TST_SIZE 10
-	
-	ref_size = ReferencePointSize;		// Equiv size in ppp
-	
-	/* Measure real size with a test point size, and a 10 char text reference: */
-	Font->SetPointSize(TST_SIZE);
-	DC->SetFont(*Font);
-	DC->GetTextExtent(msgtst, &FontSizeInPixels.x, &FontSizeInPixels.y);
-	
-	// Compute font optimal size for msg texts (Size ref_size at 96 ppp):
-	best_pointsize = (ref_size*TST_SIZE*10)/FontSizeInPixels.x;	
-	
-	if ( Font->GetPointSize() != best_pointsize )
-	{
-		Font->SetPointSize(best_pointsize);
-		DC->SetFont(*Font);
-		DC->GetTextExtent(msgtst, &FontSizeInPixels.x, &FontSizeInPixels.y);
-	}
-	
-	FontSizeInPixels.x /= msgtst.Len();
-	
-	return FontSizeInPixels;
-}
 
 /******************************************************************/
 double To_User_Unit(bool is_metric, int val,int internal_unit_value)

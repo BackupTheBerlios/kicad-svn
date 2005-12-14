@@ -3,6 +3,7 @@
 		/*********************/
 #include "fctsys.h"
 #include "common.h"
+#include <wx/fontdlg.h>
 
 #include "cvpcb.h"
 #include "gr_basic.h"
@@ -96,6 +97,9 @@ BEGIN_EVENT_TABLE(WinEDA_CvpcbFrame, wxFrame)
 	EVT_MENU(ID_CVPCB_DISPLAY_LICENCE, WinEDA_CvpcbFrame::GetKicadAbout)
 	EVT_MENU(ID_CONFIG_REQ,WinEDA_CvpcbFrame::ConfigCvpcb)
 	EVT_MENU(ID_CONFIG_SAVE,WinEDA_CvpcbFrame::Update_Config)
+
+	EVT_MENU_RANGE(ID_PREFERENCES_FONT_INFOSCREEN, ID_PREFERENCES_FONT_END,
+		WinEDA_CvpcbFrame::ProcessFontPreferences)
 
 	EVT_MENU_RANGE(ID_LANGUAGE_CHOICE, ID_LANGUAGE_CHOICE_END,
 		WinEDA_CvpcbFrame::SetLanguage)
@@ -355,6 +359,26 @@ void WinEDA_CvpcbFrame::DisplayModule(wxCommandEvent& event)
 }
 
 
+/****************************************************************/
+void WinEDA_CvpcbFrame::AddFontSelectionMenu(wxMenu * main_menu)
+/*****************************************************************/
+/* create the submenu for fonte selection and setup fonte size
+*/
+{
+wxMenu * fontmenu = new wxMenu();
+	ADD_MENUITEM(fontmenu, ID_PREFERENCES_FONT_DIALOG, _("font for dialog boxes"),
+		fonts_xpm );
+	ADD_MENUITEM(fontmenu, ID_PREFERENCES_FONT_INFOSCREEN, _("font for Lists"),
+		fonts_xpm );
+	ADD_MENUITEM(fontmenu, ID_PREFERENCES_FONT_STATUS, _("font for Status Line"),
+		fonts_xpm );
+	ADD_MENUITEM_WITH_HELP_AND_SUBMENU(main_menu, fontmenu,
+		ID_PREFERENCES_FONT, _("&Font selection"),
+		_("Choose font type and size for dialogs, infos and status box"),
+		fonts_xpm);
+}
+
+
 /********************************************************/
 void WinEDA_CvpcbFrame::SetLanguage(wxCommandEvent& event)
 /********************************************************/
@@ -372,5 +396,40 @@ void WinEDA_CvpcbFrame::DisplayDocFile(wxCommandEvent & event)
 	wxString msg = FindKicadHelpPath();
 	msg += wxT("pcbnew/footprints.pdf");
 	GetAssociatedDocument(this, wxEmptyString, msg);
+}
+
+/********************************************************************/
+void WinEDA_CvpcbFrame::ProcessFontPreferences(wxCommandEvent& event)
+/********************************************************************/
+{
+int id = event.GetId();
+wxFont font;
+	
+	switch (id)
+	{
+		
+		case ID_PREFERENCES_FONT:
+		case ID_PREFERENCES_FONT_DIALOG:
+		case ID_PREFERENCES_FONT_STATUS:
+			WinEDA_BasicFrame::ProcessFontPreferences(id);
+			break;
+
+
+		case ID_PREFERENCES_FONT_INFOSCREEN:
+		{
+			font = wxGetFontFromUser(this, *g_FixedFont);
+			if ( font.Ok() )
+			{
+				int pointsize = font.GetPointSize();
+				*g_FixedFont = font;
+				g_FixedFontPointSize = pointsize;
+				m_ListMod->SetFont(*g_FixedFont);
+				m_ListCmp->SetFont(*g_FixedFont);
+			}
+			break;
+		}
+		default: DisplayError(this, wxT("WinEDA_DrawFrame::ProcessFontPreferences Internal Error") );
+			break;
+	}
 }
 

@@ -493,7 +493,7 @@ int ii = fieldId;
 	c->right.SameAs(m_NoteBook, wxRight);
 	c->bottom.SameAs(m_NoteBook, wxBottom);
 	PanelField[ii]->SetConstraints(c);
-	m_NoteBook->AddPage(PanelField[ii], g_FieldNameList[ii], FALSE);
+	m_NoteBook->AddPage(PanelField[ii], DrawPartStruct::ReturnFieldName(ii), FALSE);
 
 	pos.x = 10; pos.y = 10;
 	ShowFieldText[ii] = new wxCheckBox(PanelField[ii],-1,
@@ -544,7 +544,7 @@ int ii = fieldId;
 						_("Pos"), txtpos,
 						UnitMetric , pos );
 			FieldTextCtrl[ii] = new WinEDA_GraphicTextCtrl( PanelField[ii],
-						g_FieldNameList[ii],
+						DrawPartStruct::ReturnFieldName(ii),
 						CurrentLibEntry ?
 						CurrentLibEntry->m_Prefix.m_Text.GetData() : wxT("U"),
 						CurrentLibEntry ? CurrentLibEntry->m_Prefix.m_Size.x : DEFAULT_TEXT_SIZE,
@@ -572,7 +572,7 @@ int ii = fieldId;
 						_("Pos"), txtpos,
 						UnitMetric , pos);
 			FieldTextCtrl[ii] = new WinEDA_GraphicTextCtrl( PanelField[ii],
-						g_FieldNameList[ii],
+						DrawPartStruct::ReturnFieldName(ii),
 						CurrentLibEntry ? CurrentLibEntry->m_Name.m_Text.GetData() : NULL,
 						CurrentLibEntry ? CurrentLibEntry->m_Name.m_Size.x : DEFAULT_TEXT_SIZE,
 						UnitMetric ,
@@ -616,7 +616,7 @@ int ii = fieldId;
 						_("Pos"), fpos,
 						UnitMetric , pos);
 			FieldTextCtrl[ii] = new WinEDA_GraphicTextCtrl( PanelField[ii],
-						g_FieldNameList[ii],
+						DrawPartStruct::ReturnFieldName(ii),
 						ftext, fsize,
 						UnitMetric ,
 						wxPoint(pos.x, pos.y +FieldPosition[ii]->GetDimension().y + POSY_OFFSET),

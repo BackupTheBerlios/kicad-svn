@@ -10,7 +10,7 @@
 /* Message de presentation */
 eda_global wxString Main_Title
 #ifdef MAIN
- = wxT("KiCad (24-nov-2005)")
+ = wxT("KiCad (10-dec-2005)")
 #endif
 ;
 
@@ -33,6 +33,8 @@ public:
 	wxTextCtrl * m_DialogWin;
 	WinEDA_Toolbar * m_VToolBar;	// Toolbar Vertical bord d'ecran
 	wxString m_PrjFileName;
+	int m_LeftWin_Width;
+	int m_CommandWin_Height;
 
 private:
 	wxMenu * m_FilesMenu;

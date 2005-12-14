@@ -36,6 +36,32 @@ DrawPartStruct::~DrawPartStruct(void)
 {
 }
 
+/********************************************************/
+wxString DrawPartStruct::ReturnFieldName(int FieldNumber)
+/********************************************************/
+/* Return the Field name from its number (REFERENCE, VALUE ..)
+	FieldNameList cannot be static, because we want the text translation
+	for I18n
+*/
+{
+wxString FieldNameList[] = {
+	_("Ref"),		/* Reference of part, i.e. "IC21" */
+	_("Value"),		/* Value of part, i.e. "3.3K" */
+	_("Pcb"),		/* Footprint, i.e. "16DIP300" */
+	_("Sheet"),		/* for components which are a schematic file, schematic file name, i.e. "cnt16.sch" */
+	_("Fld1"),		/* User fields (1 to 8) */
+	_("Fld2"),
+	_("Fld3"),
+	_("Fld4"),
+	_("Fld5"),
+	_("Fld6"),
+	_("Fld7"),
+	_("Fld8") };
+	
+	return FieldNameList[FieldNumber];
+}
+
+
 /*******************************************************************/
 EDA_SchComponentStruct::EDA_SchComponentStruct(const wxPoint & pos):
 					DrawPartStruct(DRAW_LIB_ITEM_STRUCT_TYPE, pos)
@@ -448,24 +474,25 @@ EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 	y2 = pos.y + (DrawLibItem->m_Transform[1][0] * x1)
 		+ (DrawLibItem->m_Transform[1][1] * y1);
 
-	/* Y a t-il rotation */
+	/* If the component orientation is +/- 90 deg, the text orienation must be changed */
 	if(DrawLibItem->m_Transform[0][1])
-		{
+	{
 		if ( orient == TEXT_ORIENT_HORIZ)
 			orient = TEXT_ORIENT_VERT;
 		else orient = TEXT_ORIENT_HORIZ;
-		/* Y a t-il rotation, miroir (pour les justifications)*/
+		/* is it mirrored (for text justify)*/
 		EXCHG(hjustify, vjustify);
 		if (DrawLibItem->m_Transform[1][0] < 0 ) vjustify = - vjustify;
-		if (DrawLibItem->m_Transform[1][0] > 0 ) hjustify = - hjustify;
-		}
-	else
-		{	/* Texte horizontal: Y a t-il miroir (pour les justifications)*/
+		if (DrawLibItem->m_Transform[0][1] > 0 ) hjustify = - hjustify;
+	}
+	else	/* component horizontal: is it mirrored (for text justify)*/
+	{
 		if (DrawLibItem->m_Transform[0][0] < 0 )
 			hjustify = - hjustify;
 		if (DrawLibItem->m_Transform[1][1] > 0 )
 			vjustify = - vjustify;
-		}
+	}
+	
 	if ( orient == TEXT_ORIENT_VERT ) EXCHG(dx, dy);
 
 	if ( hjustify == GR_TEXT_HJUSTIFY_CENTER ) x1 = x2 - (dx/2);
@@ -474,7 +501,6 @@ EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 	if ( vjustify == GR_TEXT_VJUSTIFY_CENTER ) y1 = y2 - (dy/2);
 	else if ( vjustify == GR_TEXT_VJUSTIFY_BOTTOM ) y1 = y2 - dy;
 	else y1 = y2;
-	x2 = x1 + dx; y2 = y1 + dy;
 
 	BoundaryBox.SetX(x1);
 	BoundaryBox.SetY(y1);

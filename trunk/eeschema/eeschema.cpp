@@ -29,7 +29,7 @@
 static void CreateScreens(void);
 
 // Global variables
-wxString Main_Title( wxT("EESchema (02-dec-2005)") );
+wxString Main_Title( wxT("EESchema (10-dec-2005)") );
 
 	/************************************/
 	/* Called to initialize the program */
@@ -85,7 +85,7 @@ wxString FFileName;
 
 	else
 	{
-		Read_Config(); // Read config file ici si pas de fichier a charger
+		Read_Config(wxEmptyString, TRUE); // Read config file ici si pas de fichier a charger
 		SchematicFrame->DrawPanel->Refresh(TRUE);
 	}
 

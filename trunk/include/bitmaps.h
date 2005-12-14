@@ -6,6 +6,8 @@
 	#include "../bitmaps/cancel_tool.xpm"
 	#include "../bitmaps/Apply.xpm"
 
+	#include "../bitmaps/Fonts.xpm"
+
 	#include "../bitmaps/save.xpm"
 	#include "../bitmaps/save_as.xpm"
 	#include "../bitmaps/Save_Project.xpm"

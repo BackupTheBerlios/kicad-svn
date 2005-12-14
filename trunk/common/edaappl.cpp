@@ -34,7 +34,8 @@
 #endif
 
 
-#define FONT_DEFAULT_SIZE 9
+#define FONT_DEFAULT_SIZE 10	/* Default font size.
+				The real font size will be computed at run time */
 
 #ifdef __WINDOWS__
 #define SETBITMAPS(icon) item->SetBitmaps(apply_xpm, (icon))
@@ -87,6 +88,7 @@ WinEDA_App::~WinEDA_App(void)
 	delete g_DialogFont;
 	delete g_ItalicFont;
 	delete g_FixedFont;
+	delete g_MsgFont;
 	delete DrawPen;
 	delete DrawBrush;
 	if ( m_Checker ) delete m_Checker;
@@ -101,21 +103,7 @@ wxString ident;
 wxString EnvLang;
 
 	ident = name + wxT("-") + wxGetUserId();
-    m_Checker = new wxSingleInstanceChecker(ident);
-
-#if 0
-	/*Test for an UTF8 (unicode) environment */
-	wxGetEnv("LANG", &EnvLang);
-	/* If LANG is xx_XX.UTF8, export LANG=xx_XX */
-	wxString lang = EnvLang.AfterFirst('.');
-	if ( lang != "" )
-	{
-		printf("locale is %s\n", lang.GetData());
-		lang = EnvLang.BeforeFirst('.');
-		setlocale( LC_ALL, lang.GetData());
-		printf("Set locale %s to non UTF8 %s\n", EnvLang.GetData(), lang.GetData());
-	}
-#endif
+	m_Checker = new wxSingleInstanceChecker(ident);
 
 	/* Init environnement
 	(KICAD definit le chemin de kicad ex: set KICAD=d:\kicad) */
@@ -141,14 +129,14 @@ wxString EnvLang;
 
 	/* Creation des fontes utiles */
 	g_StdFontPointSize = FONT_DEFAULT_SIZE;
-	g_SmallFontPointSize = (FONT_DEFAULT_SIZE * 70) / 100;
+	g_MsgFontPointSize = FONT_DEFAULT_SIZE;
 	g_DialogFontPointSize = FONT_DEFAULT_SIZE;
 	g_FixedFontPointSize = FONT_DEFAULT_SIZE;
-	g_StdFont = new wxFont(g_StdFontPointSize, wxROMAN, wxNORMAL,  wxNORMAL);
-	g_SmallFont = new wxFont(g_SmallFontPointSize, wxROMAN, wxNORMAL,  wxNORMAL);
-	g_DialogFont = new wxFont(g_DialogFontPointSize, wxROMAN, wxNORMAL,  wxNORMAL);
-	g_ItalicFont = new wxFont(g_DialogFontPointSize, wxROMAN, wxFONTSTYLE_ITALIC,  wxNORMAL);
-	g_FixedFont = new wxFont(g_FixedFontPointSize, wxMODERN, wxNORMAL,  wxNORMAL);
+	g_StdFont = new wxFont(g_StdFontPointSize, wxFONTFAMILY_ROMAN, wxNORMAL, wxNORMAL);
+	g_MsgFont = new wxFont(g_StdFontPointSize, wxFONTFAMILY_ROMAN, wxNORMAL, wxNORMAL);
+	g_DialogFont = new wxFont(g_DialogFontPointSize, wxFONTFAMILY_ROMAN, wxNORMAL, wxNORMAL);
+	g_ItalicFont = new wxFont(g_DialogFontPointSize, wxFONTFAMILY_ROMAN, wxFONTSTYLE_ITALIC,  wxNORMAL);
+	g_FixedFont = new wxFont(g_FixedFontPointSize, wxFONTFAMILY_MODERN, wxNORMAL, wxNORMAL);
 
 	/* installation des gestionnaires de visu d'images (pour help) */
 	wxImage::AddHandler(new wxPNGHandler);
@@ -271,31 +259,42 @@ unsigned ii;
 	}
 
 	g_StdFontPointSize = m_EDA_Config->Read(wxT("SdtFontSize"), FONT_DEFAULT_SIZE);
-	g_SmallFontPointSize = m_EDA_Config->Read(wxT("SmallFontSize"), (FONT_DEFAULT_SIZE * 70) / 100);
+	g_MsgFontPointSize = m_EDA_Config->Read(wxT("MsgFontSize"), FONT_DEFAULT_SIZE);
 	g_DialogFontPointSize = m_EDA_Config->Read(wxT("DialogFontSize"), FONT_DEFAULT_SIZE);
-	g_FixedFontPointSize = m_EDA_Config->Read(wxT("DialogFontSize"), FONT_DEFAULT_SIZE);
+	g_FixedFontPointSize = m_EDA_Config->Read(wxT("FixedFontSize"), FONT_DEFAULT_SIZE);
 
 	Line = m_EDA_Config->Read(wxT("SdtFontType"), wxEmptyString);
 	if ( ! Line.IsEmpty() ) g_StdFont->SetFaceName(Line);
-	ii = m_EDA_Config->Read(wxT("SdtFontStyle"), wxNORMAL);
+	ii = m_EDA_Config->Read(wxT("SdtFontStyle"), wxFONTFAMILY_ROMAN);
 	g_StdFont->SetStyle(ii);
 	ii = m_EDA_Config->Read(wxT("SdtFontWeight"), wxNORMAL);
 	g_StdFont->SetWeight(ii);
 	g_StdFont->SetPointSize(g_StdFontPointSize);
+	
 
-	g_SmallFont->SetPointSize(g_SmallFontPointSize);
+	Line = m_EDA_Config->Read(wxT("MsgFontType"), wxEmptyString);
+	if ( ! Line.IsEmpty() ) g_MsgFont->SetFaceName(Line);
+	ii = m_EDA_Config->Read(wxT("MsgFontStyle"), wxFONTFAMILY_ROMAN);
+	g_MsgFont->SetStyle(ii);
+	ii = m_EDA_Config->Read(wxT("MsgFontWeight"), wxNORMAL);
+	g_MsgFont->SetWeight(ii);
+	g_MsgFont->SetPointSize(g_MsgFontPointSize);
 
+	Line = m_EDA_Config->Read(wxT("DialogFontType"), wxEmptyString);
+	if ( ! Line.IsEmpty() ) g_DialogFont->SetFaceName(Line);
+	ii = m_EDA_Config->Read(wxT("DialogFontStyle"), wxFONTFAMILY_ROMAN);
+	g_DialogFont->SetStyle(ii);
 	ii = m_EDA_Config->Read(wxT("DialogFontWeight"), wxNORMAL);
-	g_StdFont->SetWeight(ii);
+	g_DialogFont->SetWeight(ii);
 	g_DialogFont->SetPointSize(g_DialogFontPointSize);
 
 	g_FixedFont->SetPointSize(g_FixedFontPointSize);
 
 
 	if( m_EDA_Config->Read(wxT("WorkingDir"), &Line) )
-		{
+	{
 		if ( wxDirExists(Line) ) wxSetWorkingDirectory(Line);
-		}
+	}
 	m_EDA_Config->Read( wxT("BgColor"), &DrawBgColor);
 }
 
@@ -317,9 +316,14 @@ unsigned int ii;
 	m_EDA_Config->Write(wxT("SdtFontStyle"), g_StdFont->GetStyle());
 	m_EDA_Config->Write(wxT("SdtFontWeight"), g_StdFont->GetWeight());
 
-	m_EDA_Config->Write(wxT("SmallFontSize"), g_SmallFontPointSize);
+	m_EDA_Config->Write(wxT("MsgFontSize"), g_MsgFontPointSize);
+	m_EDA_Config->Write(wxT("MsgFontType"), g_MsgFont->GetFaceName());
+	m_EDA_Config->Write(wxT("MsgFontStyle"), g_MsgFont->GetStyle());
+	m_EDA_Config->Write(wxT("MsgFontWeight"), g_MsgFont->GetWeight());
 
 	m_EDA_Config->Write(wxT("DialogFontSize"), g_DialogFontPointSize);
+	m_EDA_Config->Write(wxT("DialogFontType"), g_DialogFont->GetFaceName());
+	m_EDA_Config->Write(wxT("DialogFontStyle"), g_DialogFont->GetStyle());
 	m_EDA_Config->Write(wxT("DialogFontWeight"), g_DialogFont->GetWeight());
 
 	m_EDA_Config->Write(wxT("FixedFontSize"), g_FixedFontPointSize);
@@ -411,6 +415,10 @@ void WinEDA_App::SetLanguageIdentifier(int menu_id)
 			m_LanguageId = wxLANGUAGE_FRENCH;
 			break;
 
+		case ID_LANGUAGE_SLOVENIAN:
+			m_LanguageId = wxLANGUAGE_SLOVENIAN;
+			break;
+
 		default:
 			m_LanguageId = wxLANGUAGE_DEFAULT;
 			break;
@@ -467,14 +475,20 @@ wxMenuItem * item;
 //		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
 		m_Language_Menu->Append(item);
 
+		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_SLOVENIAN,
+			_("Slovenian"), wxEmptyString, wxITEM_CHECK);
+//		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
+		m_Language_Menu->Append(item);
+
 #if 0
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_RUSSIAN,
-			_("Russian"), "", wxITEM_CHECK);
+			_("Russian"), wxEmptyString, wxITEM_CHECK);
 		SETBITMAPS(lang_pt_xpm);
 		m_Language_Menu->Append(item);
 #endif
 	}
 
+	m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ITALIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_PORTUGUESE, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SPANISH, FALSE);
@@ -507,6 +521,9 @@ wxMenuItem * item;
 			m_Language_Menu->Check(ID_LANGUAGE_ITALIAN, TRUE);
 			break;
 
+		case wxLANGUAGE_SLOVENIAN:
+			m_Language_Menu->Check(wxLANGUAGE_SLOVENIAN, TRUE);
+			break;
 		default:
 			m_Language_Menu->Check(ID_LANGUAGE_DEFAULT, TRUE);
 			break;

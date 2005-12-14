@@ -166,6 +166,9 @@ wxMenuBar * menuBar = GetMenuBar();
 	    item->SetBitmap(display_options_xpm);
 		configmenu->Append(item);
 
+		// Font selection and setup
+		AddFontSelectionMenu(configmenu);
+
 		m_Parent->SetLanguageList(configmenu);
 
 		configmenu->AppendSeparator();
@@ -233,26 +236,26 @@ wxMenuBar * menuBar = GetMenuBar();
 		//////////////////////////
 		// Menu d'outils divers //
 		//////////////////////////
-		wxMenu *miscellanous_menu = new wxMenu;
-		item = new wxMenuItem(miscellanous_menu, ID_PCB_GLOBAL_DELETE, _("Global &Deletions"),
+		wxMenu *miscellaneous_menu = new wxMenu;
+		item = new wxMenuItem(miscellaneous_menu, ID_PCB_GLOBAL_DELETE, _("Global &Deletions"),
 				_("Delete Tracks, Modules, Texts... on Board"));
 	    item->SetBitmap(general_deletions_xpm);
-		miscellanous_menu->Append(item);
+		miscellaneous_menu->Append(item);
 
-		item = new wxMenuItem(miscellanous_menu, ID_MENU_LIST_NETS, _("&List nets"),
+		item = new wxMenuItem(miscellaneous_menu, ID_MENU_LIST_NETS, _("&List nets"),
 				_("List nets (names and id)"));
 	    item->SetBitmap(tools_xpm);
-		miscellanous_menu->Append(item);
+		miscellaneous_menu->Append(item);
 
-		item = new wxMenuItem(miscellanous_menu, ID_MENU_PCB_CLEAN, _("&Clean tracks"),
+		item = new wxMenuItem(miscellaneous_menu, ID_MENU_PCB_CLEAN, _("&Clean tracks"),
 				_("Clean stubs, vias, delete break points"));
 	    item->SetBitmap(delete_body_xpm);
-		miscellanous_menu->Append(item);
+		miscellaneous_menu->Append(item);
 
-		item = new wxMenuItem(miscellanous_menu, ID_MENU_PCB_SWAP_LAYERS, _("&Swap layers"),
+		item = new wxMenuItem(miscellaneous_menu, ID_MENU_PCB_SWAP_LAYERS, _("&Swap layers"),
 				_("Swap tracks on copper layers or drawings on others layers"));
 	    item->SetBitmap(swap_layer_xpm);
-		miscellanous_menu->Append(item);
+		miscellaneous_menu->Append(item);
 
 		////////////////
 		// Menu Help: //
@@ -277,7 +280,7 @@ wxMenuBar * menuBar = GetMenuBar();
 		menuBar->Append(m_FilesMenu, _("&Files"));
 		menuBar->Append(configmenu, _("&Preferences"));
 		menuBar->Append(sizes_menu, _("&Dimensions"));
-		menuBar->Append(miscellanous_menu, _("&Miscellanous"));
+		menuBar->Append(miscellaneous_menu, _("&Miscellaneous"));
 		menuBar->Append(postprocess_menu, _("P&ostprocess"));
 		menuBar->Append(Display3DMenu, _("&3D Display"));
 		menuBar->Append(helpMenu, _("&Help"));
