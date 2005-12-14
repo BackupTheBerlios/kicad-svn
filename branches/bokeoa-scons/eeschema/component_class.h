@@ -31,25 +31,6 @@ typedef enum
 	FIELD8
 } NumFieldType;
 
-eda_global wxString g_FieldNameList[]
-#ifdef MAIN
- = {
-	wxT("Ref"),			/* Reference of part, i.e. "IC21" */
-	wxT("Name"),			/* Value of part, i.e. "3.3K" */
-	wxT("Pcb"),			/* Footprint, i.e. "16DIP300" */
-	wxT("Sheet"),		/* for components which are a schematic file, schematic file name, i.e. "cnt16.sch" */
-	wxT("Fld1"),			/* User fields */
-	wxT("Fld2"),
-	wxT("Fld3"),
-	wxT("Fld4"),
-	wxT("Fld5"),
-	wxT("Fld6"),
-	wxT("Fld7"),
-	wxT("Fld8")
-}
-#endif
-;
-
 
 /* Class to manage component fields.
 	component fields are texts attached to the component (not the graphic texts)
@@ -85,6 +66,7 @@ public:
 public:
 	DrawPartStruct( DrawStructureType struct_type, const wxPoint & pos);
 	~DrawPartStruct(void);
+	static wxString ReturnFieldName(int FieldNumber);
 };
 
 

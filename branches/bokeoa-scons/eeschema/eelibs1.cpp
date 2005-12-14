@@ -773,7 +773,7 @@ LibDrawField * Field = NULL;
 
 	nbparam = sscanf(line, " %d %d %d %c %c %c %c",
 		&posx, &posy, &size, Char1, Char2, Char3, Char4);
-	orient = 0; if(Char1[0] == 'V') orient = 1;
+	orient = TEXT_ORIENT_HORIZ; if(Char1[0] == 'V') orient = TEXT_ORIENT_VERT;
 	draw = TRUE; if(Char2[0] == 'I') draw = FALSE;
 	hjustify = GR_TEXT_HJUSTIFY_CENTER;
 	vjustify = GR_TEXT_VJUSTIFY_CENTER;

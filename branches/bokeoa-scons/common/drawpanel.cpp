@@ -430,20 +430,8 @@ double f_scale = 1.0/(double)zoom;
 
 
 	if(erasebg) PrepareGraphicContext(DC);
-
-	/* Adjust font size for messages */
-	if ( g_IsPrinting ) g_FontMinPointSize = 3;
-	else g_FontMinPointSize = 7;
-	SetBestFontPointSize(DC, g_StdFont, 10);
-	g_StdFontPointSize = g_StdFont->GetPointSize();
-
-	g_DialogFontPointSize = g_StdFontPointSize;
-	g_FixedFontPointSize = g_StdFontPointSize;
-	SetBestFontPointSize(DC, g_DialogFont, 12);
-	g_DialogFontPointSize = g_DialogFont->GetPointSize();
-	g_FixedFont->SetPointSize(g_FixedFontPointSize);
-	g_SmallFont->SetPointSize( (int)( g_StdFontPointSize * 0.7));
-
+	DC->SetFont(* g_StdFont);
+		
 	DC->BeginDrawing();
 	SetBackgroundColour(wxColour(ColorRefs[DrawBgColor].m_Red,
 						ColorRefs[DrawBgColor].m_Green,

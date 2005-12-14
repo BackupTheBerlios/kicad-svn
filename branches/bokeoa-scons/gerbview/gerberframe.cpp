@@ -38,6 +38,9 @@ BEGIN_EVENT_TABLE(WinEDA_GerberFrame, wxFrame)
 	EVT_TOOL(ID_NEW_BOARD, WinEDA_GerberFrame::Files_io)
 	EVT_TOOL(ID_SAVE_BOARD, WinEDA_GerberFrame::Files_io)
 
+	EVT_MENU_RANGE(ID_PREFERENCES_FONT_INFOSCREEN, ID_PREFERENCES_FONT_END,
+		WinEDA_DrawFrame::ProcessFontPreferences)
+
 	// Menu Files:
 	EVT_MENU(ID_MENU_LOAD_FILE, WinEDA_GerberFrame::Files_io)
 	EVT_MENU(ID_MENU_APPEND_FILE, WinEDA_GerberFrame::Files_io)
@@ -64,7 +67,7 @@ BEGIN_EVENT_TABLE(WinEDA_GerberFrame, wxFrame)
 	// menu Postprocess
 	EVT_MENU(ID_GERBVIEW_SHOW_LIST_DCODES, WinEDA_GerberFrame::Process_Special_Functions)
 
-	// menu Miscellanous
+	// menu Miscellaneous
 	EVT_MENU(ID_PCB_GLOBAL_DELETE, WinEDA_GerberFrame::Process_Special_Functions)
 	EVT_MENU(ID_GERBVIEW_SHOW_SOURCE,
 			WinEDA_GerberFrame::Process_Special_Functions )
@@ -264,6 +267,9 @@ wxMenuBar * menuBar = GetMenuBar();
 		configmenu->Append(ID_PCB_LOOK_SETUP, _("Display"),
 			_(" Select how items are displayed"));
 
+		// Font selection and setup
+		AddFontSelectionMenu(configmenu);
+
 		m_Parent->SetLanguageList(configmenu);
 
 		configmenu->AppendSeparator();
@@ -276,13 +282,13 @@ wxMenuBar * menuBar = GetMenuBar();
 					"Gen Drill (EXCELLON] file and/or Drill sheet");
 */
 	// Menu d'outils divers
-		wxMenu *miscellanous_menu = new wxMenu;
-		miscellanous_menu->Append(ID_GERBVIEW_SHOW_LIST_DCODES, _("&List DCodes"),
+		wxMenu *miscellaneous_menu = new wxMenu;
+		miscellaneous_menu->Append(ID_GERBVIEW_SHOW_LIST_DCODES, _("&List DCodes"),
 				_("List and Edit DCodes") );
-		miscellanous_menu->Append(ID_GERBVIEW_SHOW_SOURCE,_("&Show source"),
+		miscellaneous_menu->Append(ID_GERBVIEW_SHOW_SOURCE,_("&Show source"),
 				_("Show source file for the current layer") );
-		miscellanous_menu->AppendSeparator();
-		miscellanous_menu->Append(ID_PCB_GLOBAL_DELETE, _("&Delete Layer"),
+		miscellaneous_menu->AppendSeparator();
+		miscellaneous_menu->Append(ID_PCB_GLOBAL_DELETE, _("&Delete Layer"),
 				_("Delete current layer") );
 
 		// Menu Help:
@@ -292,7 +298,7 @@ wxMenuBar * menuBar = GetMenuBar();
 
 		menuBar->Append(m_FilesMenu, _("&Files"));
 		menuBar->Append(configmenu, _("&Preferences"));
-		menuBar->Append(miscellanous_menu, _("&Miscellanous"));
+		menuBar->Append(miscellaneous_menu, _("&Miscellaneous"));
 //		menuBar->Append(drill_menu, _("&Drill"));
 		menuBar->Append(helpMenu, _("&Help"));
 

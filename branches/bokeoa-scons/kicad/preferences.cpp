@@ -27,7 +27,30 @@ int id = event.GetId();
 
 	switch (id)
 	{
-		case ID_PREFERENCES_FONTS1:
+		case ID_SELECT_PREFERED_EDITOR:
+		{
+			wxString FullFileName;
+			wxString mask(wxT("*"));
+#ifdef __WINDOWS__
+			mask += wxT(".exe");
+#endif
+			FullFileName = EDA_FileSelector( _("Prefered Editor:"),
+					wxPathOnly(g_EditorName),	/* Default path */
+					g_EditorName,			/* default filename */
+					wxEmptyString,			/* default filename extension */
+					mask,					/* filter for filename list */
+					this,					/* parent frame */
+					wxOPEN,					/* wxSAVE, wxOPEN ..*/
+					TRUE					/* true = keep the current path */
+					);
+			if ( ( !FullFileName.IsEmpty() ) && EDA_Appl->m_EDA_CommonConfig)
+			{
+				g_EditorName = FullFileName;
+				EDA_Appl->m_EDA_CommonConfig->Write(wxT("Editor"), g_EditorName);
+			}
+		}
+
+		case ID_PREFERENCES_FONT_INFOSCREEN:
 		{
 			wxFont font = wxGetFontFromUser(this, *g_StdFont);
 			if ( font.Ok() )
@@ -35,10 +58,11 @@ int id = event.GetId();
 				int pointsize = font.GetPointSize();
 				*g_StdFont = font;
 				g_StdFontPointSize = pointsize;
-				g_SmallFontPointSize = (pointsize * 70) / 100;
 				g_DialogFontPointSize = pointsize;
 				g_FixedFontPointSize = pointsize;
 				m_LeftWin->ReCreateTreePrj();
+				m_DialogWin->SetFont(* g_StdFont);
+				m_DialogWin->Refresh();
 			}
 			break;
 		}

@@ -212,7 +212,8 @@ int ii;
 		c->right.SameAs(m_NoteBook, wxRight);
 		c->bottom.SameAs(m_NoteBook, wxBottom);
 		m_PanelField[ii]->SetConstraints(c);
-		m_NoteBook->AddPage(m_PanelField[ii], g_FieldNameList[ii], FALSE);
+		m_NoteBook->AddPage(m_PanelField[ii],
+			DrawPartStruct::ReturnFieldName(ii), FALSE);
 
 		pos.x = 10; pos.y = 20;
 		ShowFieldText[ii] = new wxCheckBox(m_PanelField[ii],-1,
@@ -229,7 +230,7 @@ int ii;
 
 		wxPoint field_pos;
 		FieldTextCtrl[ii] = new WinEDA_GraphicTextCtrl( m_PanelField[ii],
-							g_FieldNameList[ii],
+							DrawPartStruct::ReturnFieldName(ii),
 							m_Cmp->m_Field[ii].m_Text,
 							m_Cmp->m_Field[ii].m_Size.x,
 							UnitMetric ,
@@ -532,7 +533,7 @@ EDA_LibComponentStruct *Entry;
 
 
 	wxString newtext = Field->m_Text;
-	Get_Message(g_FieldNameList[FieldNumber], newtext, this);
+	Get_Message(DrawPartStruct::ReturnFieldName(FieldNumber), newtext, this);
 
 	DrawTextField(DrawPanel, DC, Field, flag, XOR_MODE);
 

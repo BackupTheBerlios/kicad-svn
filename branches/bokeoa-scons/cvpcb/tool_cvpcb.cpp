@@ -121,6 +121,9 @@ wxMenuBar * menuBar = GetMenuBar();
 	    item->SetBitmap(config_xpm);
 		configmenu->Append(item);
 
+		// Font selection and setup
+		AddFontSelectionMenu(configmenu);
+		
 		m_Parent->SetLanguageList(configmenu);
 
 		configmenu->AppendSeparator();

@@ -68,8 +68,8 @@ wxString msg;
 
 	if ( ii != 0 )
 	{
-		msg.Printf( _("Unknown format <%s>"),Line) ;
-		DisplayError(this, msg);
+		wxString Lineconv = CONV_FROM_UTF8(Line);
+		msg.Printf( _("Unknown file format <%s>"), Lineconv.GetData());
 		fclose(source); return(-3) ;
 	}
 

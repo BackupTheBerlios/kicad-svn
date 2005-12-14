@@ -67,7 +67,7 @@ wxPoint pos;
 				wxString msg = _("File ") + FullFileName +_("not found");;
 				DisplayError(this, msg); break;
 				}
-			Read_Config(  );
+			Read_Config(FullFileName, TRUE );
 			}
 			break;
 
@@ -77,9 +77,9 @@ wxPoint pos;
 }
 
 
-/*******************************************************************/
-bool Read_Config( void )
-/*******************************************************************/
+/***********************************************************************/
+bool Read_Config( const wxString & CfgFileName, bool ForceRereadConfig )
+/***********************************************************************/
 /* lit la configuration, si elle n'a pas deja ete lue
 	1 - lit <nom fichier root>.pro
 	2 - si non trouve lit <chemin des binaires>../template/kicad.pro
@@ -89,15 +89,18 @@ bool Read_Config( void )
 */
 {
 wxString FullFileName;
-bool success = TRUE;
+bool IsRead = TRUE;
+wxArrayString liblist_tmp = g_LibName_List;
 	
-	FullFileName = ScreenSch->m_FileName;
+	if ( CfgFileName.IsEmpty() ) FullFileName = ScreenSch->m_FileName;
+	else FullFileName = CfgFileName;
 	g_LibName_List.Clear();
 	
 	if ( ! EDA_Appl->ReadProjectConfig(FullFileName,
-		GROUP, ParamCfgList, TRUE) )	// Config non lue
+		GROUP, ParamCfgList, ForceRereadConfig ? FALSE : TRUE) )	// Config non lue
 	{
-		success = FALSE;
+		g_LibName_List = liblist_tmp;
+		IsRead = FALSE;
 	}
 
 	/* Traitement des variables particulieres: */
@@ -118,7 +121,7 @@ bool success = TRUE;
 
 	LoadLibraries(EDA_Appl->SchematicFrame);
 
-	return success;
+	return IsRead;
 }
 
 

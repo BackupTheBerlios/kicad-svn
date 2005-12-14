@@ -200,7 +200,7 @@ wxString ps;
     pos.y += h + 10;
 
 wxString choice_drill_offset_msg[] =
-	{_("absolute"), _("auxiliary axe")};
+	{_("absolute"), _("auxiliary axis")};
 	m_Choice_Drill_Offset = new wxRadioBox(this, ID_SEL_DRILL_SHEET,
 						_("Drill Origine:"),
 						pos,wxSize(-1,-1),

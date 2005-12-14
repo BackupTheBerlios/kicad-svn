@@ -27,7 +27,6 @@
 #include "Editor.xpm"
 #include "New_Project.xpm"
 #include "Open_Project.xpm"
-#include "Fonts.xpm"
 
 #include "id.h"
 
@@ -56,11 +55,12 @@ BEGIN_EVENT_TABLE(WinEDA_MainFrame, WinEDA_BasicFrame)
 
 	EVT_MENU(ID_TO_EDITOR, WinEDA_MainFrame::Process_Fct)
 	EVT_MENU(ID_BROWSE_AN_SELECT_FILE, WinEDA_MainFrame::Process_Fct)
-	EVT_MENU(ID_SELECT_PREFERED_EDITOR, WinEDA_MainFrame::Process_Fct)
+	EVT_MENU(ID_SELECT_PREFERED_EDITOR, WinEDA_MainFrame::Process_Preferences)
 	EVT_MENU(ID_SAVE_AND_ZIP_FILES, WinEDA_MainFrame::Process_Files)
 	EVT_MENU(ID_READ_ZIP_ARCHIVE, WinEDA_MainFrame::Process_Files)
 
-	EVT_MENU(ID_PREFERENCES_FONTS1, WinEDA_MainFrame::Process_Preferences)
+	EVT_MENU(ID_PREFERENCES_FONT_INFOSCREEN, WinEDA_MainFrame::Process_Preferences)
+
 	EVT_MENU_RANGE(ID_LANGUAGE_CHOICE, ID_LANGUAGE_CHOICE_END,
 		WinEDA_MainFrame::SetLanguage)
 
@@ -149,7 +149,7 @@ wxMenuBar * menuBar = GetMenuBar() ;
 
 		// Preferences menu:
 		wxMenu *PreferencesMenu = new wxMenu;
-		item = new wxMenuItem(PreferencesMenu , ID_PREFERENCES_FONTS1,
+		item = new wxMenuItem(PreferencesMenu , ID_PREFERENCES_FONT_INFOSCREEN,
 				_("Select Fonts"), _("Select Fonts and  Font sizes"));
 	    item->SetBitmap(fonts_xpm);
 		PreferencesMenu->Append(item);

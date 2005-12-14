@@ -137,7 +137,7 @@ bool LibCacheExist = FALSE;
 		screen->m_Commentaire2.Empty();
 		screen->m_Commentaire3.Empty();
 		screen->m_Commentaire4.Empty();
-		Read_Config();
+		Read_Config(wxEmptyString, TRUE);
 		Zoom_Automatique(TRUE);
 		ReDrawPanel();
 		return (1);
@@ -146,7 +146,7 @@ bool LibCacheExist = FALSE;
 	msg = _("Ready\nWorking dir: \n") + wxGetCwd();
 	PrintMsg(msg);
 
-	Read_Config();
+	Read_Config(wxEmptyString, FALSE);
 
 	// Delete old caches.
 LibraryStruct *nextlib, *lib = g_LibraryList;
@@ -167,7 +167,7 @@ LibraryStruct *nextlib, *lib = g_LibraryList;
 	wxString FullLibName;
 	wxString shortfilename;
 	wxSplitPath(ScreenSch->m_FileName, NULL, &shortfilename, NULL);
-	FullLibName << wxT(".") << DIR_SEP << shortfilename << wxT(".cache") << g_LibExtBuffer;
+	FullLibName << wxT(".") << STRING_DIR_SEP << shortfilename << wxT(".cache") << g_LibExtBuffer;
 	if ( wxFileExists(FullLibName) )
 	{
 		wxString libname;

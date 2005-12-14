@@ -7,8 +7,9 @@
 #endif
 
 #include "fctsys.h"
+#include <wx/fontdlg.h>
 #include "common.h"
-
+#include "id.h"
 
 
 	/*******************************************************/
@@ -198,16 +199,16 @@ void WinEDA_BasicFrame::GetKicadHelp(wxCommandEvent& event)
 /**************************************************************/
 {
 	if ( m_Parent->m_HtmlCtrl == NULL )
-		{
+	{
 		m_Parent->InitOnLineHelp();
-		}
+	}
 
 
 	if ( m_Parent->m_HtmlCtrl )
-		{
+	{
 		m_Parent->m_HtmlCtrl->DisplayContents();
 		m_Parent->m_HtmlCtrl->Display(m_Parent->m_HelpFileName);
-		}
+	}
 	else DisplayError(this, _("Help files not found"));
 }
 
@@ -218,4 +219,49 @@ void WinEDA_BasicFrame::GetKicadAbout(wxCommandEvent& event)
 	Affiche_InfosLicence(this);
 }
 
+/********************************************************************/
+void WinEDA_BasicFrame::ProcessFontPreferences(int id)
+/********************************************************************/
+{
+wxFont font;
+	
+	switch (id)
+	{
+		
+		case ID_PREFERENCES_FONT:
+			break;
 
+		case ID_PREFERENCES_FONT_STATUS:
+		{
+			font = wxGetFontFromUser(this, *g_StdFont);
+			if ( font.Ok() )
+			{
+				int pointsize = font.GetPointSize();
+				*g_StdFont = font;
+				SetFont(*g_StdFont);
+				if ( GetStatusBar() )
+					GetStatusBar()->SetFont(*g_StdFont);
+				g_StdFontPointSize = pointsize;
+			}
+			break;
+		}
+
+		case ID_PREFERENCES_FONT_DIALOG:
+		{
+			font = wxGetFontFromUser(this, *g_DialogFont);
+			if ( font.Ok() )
+			{
+				int pointsize = font.GetPointSize();
+				*g_DialogFont = font;
+				SetFont(*g_DialogFont);
+				g_DialogFontPointSize = pointsize;
+				g_FixedFontPointSize = pointsize;
+				g_FixedFont->SetPointSize(g_FixedFontPointSize);
+			}
+			break;
+		}
+
+		default: DisplayError(this, wxT("WinEDA_BasicFrame::ProcessFontPreferences Internal Error") );
+			break;
+	}
+}

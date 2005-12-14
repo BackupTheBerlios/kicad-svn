@@ -18,11 +18,12 @@
 WinEDA_EnterText::WinEDA_EnterText(wxWindow *parent, const wxString &Title,
 			const wxString & TextToEdit, const wxPoint & Pos, const wxSize & Size )
 {
+int TitleHeight = parent->GetCharHeight();
 	m_Modify = FALSE;
 	if ( TextToEdit ) m_NewText = TextToEdit;
 
 	m_Title = new wxStaticText(parent, -1, Title,
-							wxPoint(Pos.x, Pos.y - 14),
+							wxPoint(Pos.x, Pos.y - TitleHeight),
 							wxSize(-1,-1), 0 );
 	m_Title->SetForegroundColour(wxColour(200,0,0) );
 
@@ -93,8 +94,9 @@ wxPoint aff_pos = pos;
 
 	if ( Title )
 		{
+		int TitleHeight = parent->GetCharHeight();
 		m_Title = new wxStaticText(parent, -1, Title,
-							wxPoint(aff_pos.x, aff_pos.y - 14),
+							wxPoint(aff_pos.x, aff_pos.y - TitleHeight),
 							wxSize(-1,-1), 0 );
 		}
 
@@ -117,12 +119,13 @@ wxString value;
 
 	m_FrameSize = new wxTextCtrl(parent, -1, value, aff_pos ,wxSize(70,-1));
 	if ( ! Title.IsEmpty())
-		{
+	{
+		int TitleHeight = parent->GetCharHeight();
 		new wxStaticText(parent, -1,
                             m_Units ? _("Size (mm):") :  _("Size (\"):"),
-							wxPoint(aff_pos.x, aff_pos.y - 14),
+							wxPoint(aff_pos.x, aff_pos.y - TitleHeight),
 							wxSize(-1,-1), 0 );
-		}
+	}
 
 	if ( vertical_align ) m_WinSize.x = m_FrameText->GetSize().x;
 	else m_WinSize.x = aff_pos.x - pos.x + m_FrameSize->GetSize().x;
