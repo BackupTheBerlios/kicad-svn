@@ -136,10 +136,36 @@ void WinEDA_CvpcbFrame::OnQuit(wxCommandEvent& event)
 void WinEDA_CvpcbFrame::OnCloseWindow(wxCloseEvent & Event)
 /**********************************************************/
 {
+int diag;
+	
 	if( modified )
 	{
-		if( !IsOK(this, _("New changes are nor saved, Exit anyway") ) )
+	unsigned ii;
+		wxMessageDialog dialog(this, _("Netlist and Cmp list modified, Save before exit ?"),
+			_("Confirmation"), wxYES_NO | wxCANCEL | wxICON_EXCLAMATION | wxYES_DEFAULT);
+		ii = dialog.ShowModal();
+		switch ( ii )
+		{
+			case wxID_CANCEL:
+			Event.Veto();
 			return;
+
+			case wxID_NO:
+				break;
+
+			case wxID_OK:
+			case wxID_YES:
+				diag = SaveNetList(wxEmptyString);
+				if( diag > 0 ) modified = 0;
+				else if ( diag == 0 )
+				{
+					if( ! IsOK(this, _("Problem when saving files, Exit anyway") ) )
+					{
+						Event.Veto(); return;
+					}
+				}
+				break;
+		}
 	}
 
 	// Close the help frame
@@ -236,29 +262,7 @@ int ii, selection;
 void WinEDA_CvpcbFrame::SaveQuitCvpcb(wxCommandEvent& event)
 /**********************************************************/
 {
-wxString Mask, FullFileName;
-
-	Mask = wxT("*") + NetExtBuffer;
-	if ( ! NetNameBuffer.IsEmpty() )
-	{
-		FullFileName = NetNameBuffer;
-		ChangeFileNameExt(FullFileName, NetExtBuffer);
-	}
-
-	FullFileName = EDA_FileSelector( _("Save Net List & Cmp"),
-					NetDirBuffer,		/* Chemin par defaut */
-					FullFileName,			/* nom fichier par defaut */
-					NetExtBuffer,		/* extension par defaut */
-					Mask,				/* Masque d'affichage */
-					this,
-					wxSAVE,
-					TRUE
-					);
-	if ( FullFileName.IsEmpty() ) return;
-
-	FFileName = FullFileName;
-	NetNameBuffer = FullFileName;
-	if( SaveNetList() )
+	if( SaveNetList(wxEmptyString)  > 0)
 		{
 		modified = 0;
 		Close(TRUE);

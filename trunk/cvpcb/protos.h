@@ -10,7 +10,6 @@ class DESCR_EDGE;
 int reaffect( char *ib, char *net) ;
 int genorcad(void) ;
 int loadcmp(void) ;
-int savecmp(void);
 int listlib(void) ;
 
 	/***********/

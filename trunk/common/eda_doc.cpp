@@ -99,11 +99,6 @@ bool success = FALSE;
 		return FALSE;
 		}
 
-	/* Try to launch the default browser (works fine under Windows, but
-		not under linux)*/
-	success = wxLaunchDefaultBrowser(fullfilename);
-	if ( success ) return success;
-		
 	/* Try to launch some browser (usefull under linux) */
 wxFileType * filetype;
 wxFileName CurrentFileName(fullfilename);

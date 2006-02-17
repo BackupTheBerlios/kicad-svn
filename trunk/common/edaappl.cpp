@@ -27,11 +27,15 @@
 
 #ifdef __WINDOWS__
 /* Icons for language choice (only for Windows)*/
-#include "Lang_Def.xpm"
+#include "Lang_Default.xpm"
 #include "Lang_En.xpm"
 #include "Lang_Es.xpm"
 #include "Lang_Fr.xpm"
 #include "Lang_Pt.xpm"
+#include "Lang_It.xpm"
+#include "Lang_De.xpm"
+#include "Lang_Sl.xpm"
+#include "Lang_Hu.xpm"
 #endif
 
 
@@ -421,6 +425,10 @@ void WinEDA_App::SetLanguageIdentifier(int menu_id)
 			m_LanguageId = wxLANGUAGE_SLOVENIAN;
 			break;
 
+		case ID_LANGUAGE_HUNGARIAN:
+			m_LanguageId = wxLANGUAGE_HUNGARIAN ;
+			break;
+
 		default:
 			m_LanguageId = wxLANGUAGE_DEFAULT;
 			break;
@@ -469,30 +477,37 @@ wxMenuItem * item;
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_ITALIAN,
 			_("Italian"), wxEmptyString, wxITEM_CHECK);
-//		SETBITMAPS(apply_xpm, lang_it_xpm);	TODO
+		SETBITMAPS(lang_it_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_DUTCH,
 			_("Dutch"), wxEmptyString, wxITEM_CHECK);
-//		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
+		SETBITMAPS(lang_de_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_SLOVENIAN,
 			_("Slovenian"), wxEmptyString, wxITEM_CHECK);
-//		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
+		SETBITMAPS(lang_sl_xpm);
+		m_Language_Menu->Append(item);
+
+		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_HUNGARIAN,
+			_("Hungarian"), wxEmptyString, wxITEM_CHECK);
+		SETBITMAPS(lang_hu_xpm);
 		m_Language_Menu->Append(item);
 
 #if 0
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_RUSSIAN,
 			_("Russian"), wxEmptyString, wxITEM_CHECK);
-		SETBITMAPS(lang_pt_xpm);
+		SETBITMAPS(lang_ru_xpm);
 		m_Language_Menu->Append(item);
 #endif
 	}
 
+	m_Language_Menu->Check(ID_LANGUAGE_HUNGARIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ITALIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_PORTUGUESE, FALSE);
+	m_Language_Menu->Check(ID_LANGUAGE_DUTCH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SPANISH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_FRENCH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ENGLISH, FALSE);
@@ -524,7 +539,11 @@ wxMenuItem * item;
 			break;
 
 		case wxLANGUAGE_SLOVENIAN:
-			m_Language_Menu->Check(wxLANGUAGE_SLOVENIAN, TRUE);
+			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
+		
+		case wxLANGUAGE_HUNGARIAN:
+			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
+		
 			break;
 		default:
 			m_Language_Menu->Check(ID_LANGUAGE_DEFAULT, TRUE);

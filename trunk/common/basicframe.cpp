@@ -125,7 +125,7 @@ void WinEDA_BasicFrame::PrintMsg(const wxString & text)
 	SetStatusText(text);
 }
 
-/************************************************************************/
+/*************************************************************************/
 void WinEDA_BasicFrame::DisplayActivity(int PerCent, const wxString & Text)
 /*************************************************************************/
 /* Display a bargraph (0 to 50 point length) for a PerCent value from 0 to 100

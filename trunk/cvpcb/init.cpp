@@ -141,25 +141,50 @@ int error_level = -1;
 }
 
 
-/****************************************/
-int WinEDA_CvpcbFrame::SaveNetList(void)
-/****************************************/
+/*****************************************************************/
+int WinEDA_CvpcbFrame::SaveNetList(const wxString & FullFilename)
+/*****************************************************************/
 /* Sauvegarde des fichiers netliste et cmp
 	Le nom complet du fichier Netliste doit etre dans FFileName.
 	Le nom du fichier cmp en est deduit
 */
 {
-	if( savecmp() == 0 )
+wxString NetlistFullFileName = FullFilename;
+	
+	if ( NetlistFullFileName.IsEmpty() )
+	{
+	wxString Mask = wxT("*") + NetExtBuffer;
+		if ( ! NetNameBuffer.IsEmpty() )
+		{
+			NetlistFullFileName = NetNameBuffer;
+			ChangeFileNameExt(NetlistFullFileName, NetExtBuffer);
+		}
+	
+		NetlistFullFileName = EDA_FileSelector( _("Save Net List & Cmp"),
+						NetDirBuffer,		/* Chemin par defaut */
+						NetlistFullFileName,			/* nom fichier par defaut */
+						NetExtBuffer,		/* extension par defaut */
+						Mask,				/* Masque d'affichage */
+						this,
+						wxSAVE,
+						TRUE
+						);
+	}
+	if ( NetlistFullFileName.IsEmpty() ) return -1;
+
+	FFileName = NetlistFullFileName;
+	NetNameBuffer = NetlistFullFileName;
+	if( SaveComponentList(NetlistFullFileName) == 0 )
 		{
 		DisplayError(this, _("Unable to create component file (.cmp)") );
-		return(0);
+		return 0;
 		}
 
-	dest = wxFopen(FFileName, wxT("wt") );
+	dest = wxFopen(NetlistFullFileName, wxT("wt") );
 	if( dest == 0 )
 		{
 		DisplayError(this, _("Unable to create netlist file") );
-		return(0);
+		return 0;
 		}
 
 	switch ( output_type )
@@ -170,7 +195,7 @@ int WinEDA_CvpcbFrame::SaveNetList(void)
 			break;
 		}
 
-	return(1);
+	return 1;
 }
 
 
