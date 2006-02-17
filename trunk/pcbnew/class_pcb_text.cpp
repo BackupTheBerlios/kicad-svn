@@ -113,7 +113,7 @@ int TEXTE_PCB::WriteTextePcbDescr(FILE * File)
 
 	if(m_Text.IsEmpty() ) return(0);
 	fprintf( File,"$TEXTPCB\n");
-	fprintf( File,"Te \"%s\"\n",m_Text.GetData());
+	fprintf( File,"Te \"%s\"\n",CONV_TO_UTF8(m_Text));
 	fprintf( File,"Po %d %d %d %d %d %d\n",
 			m_Pos.x, m_Pos.y, m_Size.x, m_Size.y, m_Width, m_Orient );
 	fprintf( File,"De %d %d %lX %d\n", m_Layer, m_Miroir, m_TimeStamp, 0);
