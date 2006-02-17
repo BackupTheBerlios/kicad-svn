@@ -109,6 +109,12 @@ void WinEDA_ModuleEditFrame::ReCreateHToolbar(void)
 					_("auto zoom"));
 
 	m_HToolBar->AddSeparator();
+	m_HToolBar->AddTool(ID_MODEDIT_UNDO, wxEmptyString, BITMAP(undo_xpm),
+				_("Undo last edition"));
+	m_HToolBar->AddTool(ID_MODEDIT_REDO, wxEmptyString, BITMAP(redo_xpm),
+				_("Redo the last undo command"));
+
+		m_HToolBar->AddSeparator();
 	m_HToolBar->AddTool(ID_MODEDIT_PAD_SETTINGS, wxEmptyString,
 				BITMAP(options_pad_xpm),
 				_("Pad Settings"));

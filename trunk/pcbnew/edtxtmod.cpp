@@ -26,7 +26,8 @@ enum id_TextMod_properties
 	ID_CLOSE_TEXTE_MODULE_PROPERTIES,
 };
 
-wxPoint OldPos;
+static wxPoint MoveVector;	// Move vector for move edge
+static wxPoint CursorInitialPosition;	// Mouse cursor inital position for move command
 
 	/************************************/
 	/* class WinEDA_TextModPropertiesFrame */
@@ -74,9 +75,11 @@ void WinEDA_BasePcbFrame::InstallTextModOptionsFrame(TEXTE_MODULE * TextMod,
 					wxDC * DC, const wxPoint & pos)
 /***************************************************************************/
 {
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_TextModPropertiesFrame * frame = new WinEDA_TextModPropertiesFrame(this,
 					 TextMod, DC, pos);
 	frame->ShowModal(); frame->Destroy();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
 /***************************************************************************************/
@@ -185,9 +188,11 @@ void  WinEDA_TextModPropertiesFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 void WinEDA_TextModPropertiesFrame::TextModPropertiesAccept(wxCommandEvent& event)
 /*********************************************************************************/
 {
+	m_Parent->SaveCopyInUndoList();
 	if ( m_DC )		// Effacement ancien texte
 	{
-		CurrentTextMod->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR );
+		CurrentTextMod->Draw(m_Parent->DrawPanel, m_DC,
+			(CurrentTextMod->m_Flags & IS_MOVED) ? MoveVector : wxPoint(0,0), GR_XOR );
 	}
 	CurrentTextMod->m_Text = m_Name->GetData();
 	CurrentTextMod->m_Pos0 = m_TxtPosCtrl->GetCoord();
@@ -198,7 +203,8 @@ void WinEDA_TextModPropertiesFrame::TextModPropertiesAccept(wxCommandEvent& even
 	CurrentTextMod->SetDrawCoord();
 	if ( m_DC )		// Affichage nouveau texte
 		{
-		CurrentTextMod->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR );
+		CurrentTextMod->Draw(m_Parent->DrawPanel, m_DC,
+			(CurrentTextMod->m_Flags & IS_MOVED) ? MoveVector : wxPoint(0,0), GR_XOR );
 		}
 	m_Parent->GetScreen()->SetModify();
 	((MODULE*)CurrentTextMod->m_Parent)->m_LastEdit_Time = time(NULL);
@@ -209,13 +215,13 @@ void WinEDA_TextModPropertiesFrame::TextModPropertiesAccept(wxCommandEvent& even
 /******************************************************************************/
 TEXTE_MODULE * WinEDA_BasePcbFrame::CreateTextModule(MODULE * Module, wxDC * DC)
 /******************************************************************************/
-/* Cree un nouveau texte sur le module actif
-	Le texte sera mis en fonction Move
+/* Add a new graphical text to the active module (footprint)
+	Note there always are 2 texts: reference and value.
+	New texts have the member TEXTE_MODULE.m_Type set to TEXT_is_DIVERS
 */
 {
 TEXTE_MODULE * Text;
 
-	/* Creation de la place en memoire : */
 	Text = new TEXTE_MODULE(Module);
 
 	/* Chainage de la nouvelle structure en tete de liste drawings */
@@ -225,6 +231,7 @@ TEXTE_MODULE * Text;
 	if( Module->m_Drawings )
 		Module->m_Drawings->Pback = Text;
 	Module->m_Drawings = Text;
+	Text->m_Flags = IS_NEW;
 
 	Text->m_Text = wxT("text");
 
@@ -235,7 +242,8 @@ TEXTE_MODULE * Text;
 
 	InstallTextModOptionsFrame(Text, NULL, wxPoint(-1,-1) );
 
-	Text->Draw(DrawPanel, DC, wxPoint(0,0), GR_XOR );
+	Text->m_Flags = 0;
+	Text->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR );
 
 	Affiche_Infos_E_Texte(this, Module, Text);
 
@@ -311,10 +319,8 @@ MODULE * Module;
 	if ( Text == NULL ) return;
 
 	Module = ( MODULE *) Text->m_Parent;
-	Text->Draw(frame->DrawPanel, DC, wxPoint(0,0), GR_XOR );
+	Text->Draw(frame->DrawPanel, DC, MoveVector, GR_XOR );
 
-	/* Regeneration des anciennes caract */
-	Text->m_Pos = OldPos;
 	/* Redessin du Texte */
 	Text->Draw(frame->DrawPanel, DC, wxPoint(0,0), GR_OR );
 
@@ -339,13 +345,16 @@ MODULE * Module;
 	Text->m_Flags |= IS_MOVED;
 	Module->m_Flags |= IN_EDIT;
 
-	OldPos = Text->m_Pos;
+	MoveVector.x = MoveVector.y = 0;
+	CursorInitialPosition = Text->m_Pos;
 
 	Affiche_Infos_E_Texte(this, Module, Text);
 
 	GetScreen()->m_CurrentItem = Text;
 	GetScreen()->ManageCurseur = Show_MoveTexte_Module;
 	GetScreen()->ForceCloseManageCurseur = ExitTextModule;
+	
+	GetScreen()->ManageCurseur(DrawPanel, DC, TRUE);
 }
 
 
@@ -359,6 +368,7 @@ void WinEDA_BasePcbFrame::PlaceTexteModule(TEXTE_MODULE * Text, wxDC * DC)
 
 	if (Text != NULL )
 		{
+		Text->m_Pos = GetScreen()->m_Curseur;
 		/* mise a jour des coordonnées relatives a l'ancre */
 		MODULE * Module = ( MODULE *) Text->m_Parent;
 		if (Module )
@@ -397,11 +407,12 @@ MODULE * Module;
 	/* effacement du texte : */
 
 	if ( erase )
-		Text->Draw(panel, DC, wxPoint(0,0), GR_XOR );
+		Text->Draw(panel, DC, MoveVector, GR_XOR );
 
-	Text->m_Pos = screen->m_Curseur;
+	MoveVector.x = -(screen->m_Curseur.x - CursorInitialPosition.x);
+	MoveVector.y = -(screen->m_Curseur.y - CursorInitialPosition.y);
 
 	/* Redessin du Texte */
-	Text->Draw(panel, DC, wxPoint(0,0), GR_XOR );
+	Text->Draw(panel, DC, MoveVector, GR_XOR );
 }
 

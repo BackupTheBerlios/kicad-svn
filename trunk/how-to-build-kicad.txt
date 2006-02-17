@@ -77,7 +77,7 @@ Under msys:
 Patch wxWidgets (wxGTK version)
 *************************************************************************************
 patch for Arcs drawings  (correct draw arcs)
-wxGTK-2.6.0/src/gtk/dcclient.cpp
+wxGTK-2.6.2/src/gtk/dcclient.cpp
 line 604
         if (m_pen.GetStyle() != wxTRANSPARENT)
         {
@@ -100,8 +100,8 @@ must be
 
 
 Patch for printing (correct line ends )
-wxGTK-2.6.0/src/generic/dcpsg.cpp
-line 1619
+wxGTK-2.6.2/src/generic/dcpsg.cpp
+line 1622
 	PsPrint( "%%EndProlog\n" );
 
 must be

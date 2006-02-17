@@ -316,11 +316,16 @@ wxString FullFileName = m_PrjFileName;
 
 		case ID_BROWSE_AN_SELECT_FILE:
 			{
+			wxString mask(wxT("*")), extension;
+#ifdef __WINDOWS__
+			mask += wxT(".*");
+			extension = wxT(".*");
+#endif
 			FullFileName = EDA_FileSelector( _("Load file:"),
-					wxT("."),		  	/* Chemin par defaut */
-					wxEmptyString,		/* nom fichier par defaut */
-					wxT(".*"),			/* extension par defaut */
-					wxT("*.*"),			/* Masque d'affichage */
+					wxGetCwd(),		  	/* Defualt path */
+					wxEmptyString,		/* default filename */
+					extension,			/* default ext. */
+					mask,				/* mask for filename filter */
 					this,
 					wxOPEN,
 					TRUE

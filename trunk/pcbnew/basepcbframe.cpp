@@ -101,3 +101,17 @@ void WinEDA_BasePcbFrame::Show3D_Frame(wxCommandEvent& event)
 #endif
 }
 
+
+/* Virtual functions: Do nothing for WinEDA_BasePcbFrame window */
+void WinEDA_BasePcbFrame::SaveCopyInUndoList(void)
+{
+}
+
+void WinEDA_BasePcbFrame::GetComponentFromUndoList(void)
+{
+}
+
+void WinEDA_BasePcbFrame::GetComponentFromRedoList(void)
+{
+}
+

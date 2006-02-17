@@ -101,8 +101,8 @@ wxString msg;
 	for ( ii = refy + gypas, jj = 0; ipas > 0 ; ii += gypas , jj++, ipas--)
 		{
 		Line.Empty();
-		if( jj < 26 ) Line <<  jj + 'A';
-		else Line << 'a' + jj - 26;
+		if( jj < 26 ) Line.Printf(wxT("%c"), jj + 'A');
+		else Line.Printf(wxT("%c"), 'a' + jj - 26);
 		if( ii < yg - PAS_REF/2 )
 			{
 			GRLine(&DrawPanel->m_ClipBox, DC, refx * scale, ii * scale,

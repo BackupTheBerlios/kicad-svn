@@ -49,6 +49,7 @@ int id = event.GetId();
 				EDA_Appl->m_EDA_CommonConfig->Write(wxT("Editor"), g_EditorName);
 			}
 		}
+			break;
 
 		case ID_PREFERENCES_FONT_INFOSCREEN:
 		{

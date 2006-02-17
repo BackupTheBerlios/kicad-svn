@@ -183,10 +183,8 @@ D_PAD * Pad, *ptliste;
 int rX, rY;
 
 	m_Pcb->m_Status_Pcb = 0 ;
-	Module->Draw(DrawPanel, DC, wxPoint(0,0),GR_XOR);
 	Module->m_LastEdit_Time = time(NULL);
 
-	/* Creation de la place en memoire : */
 	Pad = new D_PAD( Module );
 
 	/* Chainage de la structure en fin de liste des pads : */
@@ -255,7 +253,7 @@ wxString line;
 
 	m_Pcb->m_Status_Pcb = 0 ;
 
-	if ( DC ) Module->Draw(DrawPanel, DC, wxPoint(0,0),GR_XOR);
+	if ( DC ) Pad->Draw(DrawPanel, DC, wxPoint(0,0),GR_XOR);
 
 	DeleteStructure( Pad);
 
@@ -311,6 +309,9 @@ MODULE * Module;
 
 	/* Placement du pad */
 	Pad->Draw(DrawPanel, DC, wxPoint(0,0),GR_XOR);
+
+	/* Save old module */
+	Pad->m_Pos = Pad_OldPos; SaveCopyInUndoList();
 	Pad->m_Pos = GetScreen()->m_Curseur;
 
 	/* Compute local coordinates (i.e refer to Module position and for Module orient = 0)*/

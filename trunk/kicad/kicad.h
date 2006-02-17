@@ -10,7 +10,7 @@
 /* Message de presentation */
 eda_global wxString Main_Title
 #ifdef MAIN
- = wxT("KiCad (10-dec-2005)")
+ = wxT("KiCad (22-dec-2005)")
 #endif
 ;
 

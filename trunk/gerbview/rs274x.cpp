@@ -170,17 +170,20 @@ bool GERBER_Descr::ExecuteRS274XCommand(int command, char * buff, char * &text)
 */
 {
 int code;
+int xy_seq_len, xy_seq_char;
 char ctmp;
 bool ok = TRUE;
 D_CODE * dcode;
 char Line[1024];
 wxString msg;
+double fcoord;
 double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 
 
 	switch( command )
 	{
 		case FORMAT_STATEMENT_COMMAND:
+			xy_seq_len = 2;
 			while ( *text != '*' )
 			{
 				switch ( *text )
@@ -199,8 +202,15 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 					case 'I':	// Absolute coord
 						m_Relative = TRUE; text++;
 						break;
+					case 'N':	// Sequence code (followed by the number of digits for the X,Y command
+						text++;
+						xy_seq_char = * text; text++;
+						if ( (xy_seq_char >= '0') && (xy_seq_char <= '9') )
+							xy_seq_len =  - '0';
+						break;
+					
 					case 'X':
-					case 'Y':	// Valeurs transmises (2chiffres successifs)
+					case 'Y':	// Valeurs transmises :2 (really xy_seq_len : FIX ME) digits
 						code = *(text ++); ctmp = *(text++) - '0';
 						if ( code == 'X' )
 							{
@@ -234,11 +244,31 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 			code = ReadXCommand ( text );
 			if ( code == INCH ) m_GerbMetric = FALSE;
 			else if ( code == MILLIMETER ) m_GerbMetric = TRUE;
+			conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 			break;
 
-		case OFFSET:
-		case SCALE_FACTOR:
+		case OFFSET:	// command: OFAnnBnn (nn = float number)
+			m_Offset.x = m_Offset.y = 0;
+			while ( *text != '*' )
+			{
+				switch ( *text )
+				{
+					case'A':	// A axis offset in current unit (inch ou mm)
+						text ++;
+						fcoord = ReadDouble(text);
+						m_Offset.x = (int) round(fcoord * conv_scale);
+						break;
 
+					case'B':	// B axis offset in current unit (inch ou mm)
+						text ++;
+						fcoord = ReadDouble(text);
+						m_Offset.y = (int) round(fcoord * conv_scale);
+						break;
+				}
+			}
+			break;
+			
+		case SCALE_FACTOR:
 		case IMAGE_JUSTIFY:
 		case IMAGE_ROTATION :
 		case IMAGE_OFFSET:
@@ -247,10 +277,17 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 		case KNOCKOUT:
 		case STEP_AND_REPEAT:
 		case ROTATE:
-		case IMAGE_NAME:
 			msg.Printf(_("Command <%c%c> ignored by Gerbview"),
 				(command>>8) & 0xFF, command & 0xFF);
 			wxMessageBox(msg);
+			break;
+
+		case IMAGE_NAME:
+			m_Name.Empty();
+			while ( *text != '*' )
+			{
+				m_Name.Append(*text); text++;
+			}
 			break;
 
 		case IMAGE_POLARITY:
@@ -421,3 +458,4 @@ wxMessageBox(macro_name, wxT("macro name"));
 		}
 	return FALSE;
 }
+

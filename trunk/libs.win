@@ -14,7 +14,7 @@ KICAD_BIN = /f/kicad/winexe
 
 #Define the wxWidget path:
 ifndef WXWIN
-WXWIN=/f/wxWidgets-2.6.2-utf8
+WXWIN=/f/wxWidgets-2.6.2
 endif
 WXLIBVERSION = -2.6
 #define/undef the unicode prefix

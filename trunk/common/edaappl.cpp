@@ -95,6 +95,7 @@ WinEDA_App::~WinEDA_App(void)
 	delete m_Locale;
 }
 
+
 /**************************************************/
 void WinEDA_App::InitEDA_Appl(const wxString & name)
 /***************************************************/

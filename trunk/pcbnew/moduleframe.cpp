@@ -46,6 +46,8 @@ BEGIN_EVENT_TABLE(WinEDA_ModuleEditFrame, wxFrame)
 	EVT_TOOL(ID_MODEDIT_LOAD_MODULE_FROM_BOARD, WinEDA_ModuleEditFrame::Process_Special_Functions)
 	EVT_TOOL(ID_MODEDIT_SAVE_MODULE_IN_BOARD, WinEDA_ModuleEditFrame::Process_Special_Functions)
 	EVT_TOOL(ID_MODEDIT_EDIT_MODULE_PROPERTIES, WinEDA_ModuleEditFrame::Process_Special_Functions)
+	EVT_TOOL(ID_MODEDIT_UNDO, WinEDA_ModuleEditFrame::Process_Special_Functions)
+	EVT_TOOL(ID_MODEDIT_REDO, WinEDA_ModuleEditFrame::Process_Special_Functions)
 
 	// Vertical toolbar (left click):
 	EVT_TOOL(ID_NO_SELECT_BUTT, WinEDA_ModuleEditFrame::Process_Special_Functions)
@@ -121,6 +123,7 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 		ActiveScreen = ScreenModule;
 		}
 	ScreenModule->SetParentFrame(this);
+	ScreenModule->m_UndoRedoCountMax = 10;
 		
 	if( g_ModuleEditor_Pcb == NULL ) g_ModuleEditor_Pcb = new BOARD(NULL, this);
 	m_Pcb = g_ModuleEditor_Pcb;
@@ -197,6 +200,11 @@ bool active, islib = TRUE;
 	m_HToolBar->EnableTool(ID_LIBEDIT_CREATE_NEW_LIB_AND_SAVE_CURRENT_PART,active);
 	m_HToolBar->EnableTool(ID_MODEDIT_SAVE_LIBMODULE,active && islib);
 	m_HToolBar->EnableTool(ID_MODEDIT_SAVE_MODULE_IN_BOARD,active);
+	if ( GetScreen() )
+	{
+		m_HToolBar->EnableTool(ID_MODEDIT_UNDO,GetScreen()->m_UndoList && active);
+		m_HToolBar->EnableTool(ID_MODEDIT_REDO,GetScreen()->m_RedoList && active);
+	}
 
 	if ( m_Parent->m_PcbFrame->m_Pcb->m_Modules )
 		{

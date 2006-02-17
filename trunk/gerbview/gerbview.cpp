@@ -18,7 +18,7 @@
 #include "protos.h"
 
 
-wxString Main_Title = wxT("GERBVIEW 08-dec-05");
+wxString Main_Title = wxT("GERBVIEW 22-dec-05");
 
 IMPLEMENT_APP(WinEDA_App)
 

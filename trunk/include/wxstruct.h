@@ -343,6 +343,14 @@ public:
 
 	virtual void GeneralControle(wxDC *DC, wxPoint Mouse);
 
+	// Undo and redo functions
+public:
+	virtual void SaveCopyInUndoList(void);
+private:
+	virtual void GetComponentFromUndoList(void);
+	virtual void GetComponentFromRedoList(void);
+
+public:
 	// Read/write fonctions:
 	EDA_BaseStruct * ReadDrawSegmentDescr(FILE * File, int * LineNum);
 	int ReadListeSegmentDescr(wxDC * DC, FILE * File,
@@ -815,7 +823,13 @@ public:
 
 	EDA_BaseStruct * ModeditLocateAndDisplay(void);
 
+public:
+	void SaveCopyInUndoList(void);
+private:
+	void GetComponentFromUndoList(void);
+	void GetComponentFromRedoList(void);
 
+public:
 	// Gestion des modules
 	void Place_Ancre(MODULE* module, wxDC * DC);
 	void RemoveStruct(EDA_BaseStruct * Item, wxDC * DC);
