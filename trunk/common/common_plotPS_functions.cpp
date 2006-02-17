@@ -20,10 +20,10 @@ extern int PenWidth;
 extern int PlotOrientOptions, etat_plume;
 
 // Locales
-static W_PLOT * SheetPS;
+static Ki_PageDescr * SheetPS;
 
 /*************************************************************************************/
-void InitPlotParametresPS(wxPoint offset, W_PLOT * sheet,
+void InitPlotParametresPS(wxPoint offset, Ki_PageDescr * sheet,
 		double xscale, double yscale, int orient)
 /*************************************************************************************/
 /* Set the plot offset for the current plotting

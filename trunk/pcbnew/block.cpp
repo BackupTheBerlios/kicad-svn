@@ -377,7 +377,7 @@ static void DrawMovingBlockOutlines(WinEDA_DrawPanel * panel, wxDC * DC, bool er
 int Color;
 BASE_SCREEN * screen = panel->GetScreen();
 
-	Color = YELLOW; GRSetDrawMode(DC, XOR_MODE);
+	Color = YELLOW; GRSetDrawMode(DC, g_XorMode);
 
 	/* Effacement ancien cadre */
 	if( erase )

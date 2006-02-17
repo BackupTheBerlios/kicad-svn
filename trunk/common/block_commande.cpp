@@ -253,7 +253,7 @@ DrawBlockStruct * PtBlock;
 
 	PtBlock->m_MoveVector = wxPoint(0,0);
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 
 	/* Effacement ancien cadre */
 	if( erase ) PtBlock->Draw(panel, DC);

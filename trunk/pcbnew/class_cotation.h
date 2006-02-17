@@ -14,7 +14,7 @@ class COTATION: public EDA_BaseStruct
 	wxPoint m_Pos;
 	int m_Shape;
 	int m_Unit;		/* 0 = inches, 1 = mm */
-	int m_Val;		/* valeur en unites PCB de la cote */
+	int m_Value;	/* valeur en unites PCB de la cote */
 
 	TEXTE_PCB * m_Text;	/* pour affichage du texte */
 	int Barre_ox, Barre_oy, Barre_fx, Barre_fy;

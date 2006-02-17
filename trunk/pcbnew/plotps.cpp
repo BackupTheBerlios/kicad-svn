@@ -15,7 +15,7 @@
 
 /* Routines Locales */
 static void PrintDrillMark(BOARD * Pcb);
-static W_PLOT * SheetPS;
+static Ki_PageDescr * SheetPS;
 
 /* variables locales: */
 
@@ -34,9 +34,10 @@ wxSize PaperSize;
 wxSize BoardSize;
 wxPoint BoardCenter;
 bool Center = FALSE;
-W_PLOT * currentsheet = m_CurrentScreen->m_CurrentSheet;
+Ki_PageDescr * currentsheet = m_CurrentScreen->m_CurrentSheet;
 double scale_format;		// Facteur correctif pour conversion forlat Ax->A4
 double scale_x, scale_y;
+int PlotMarge_in_mils = 0;
 
 	MsgPanel->EraseMsgBox();
 
@@ -72,14 +73,14 @@ double scale_x, scale_y;
 
 	// calcul de l'offset de trace:
 	// calcul du cadrage horizontal du mode paysage( val algebr. plus grande = decalage a gauche )
-	g_PlotOffset.x = g_PlotMarge * 10;
+	g_PlotOffset.x = PlotMarge_in_mils * 10;
 	// cadrage vertical du mode paysage( val algebr. plus grande = decalage vers le haut )
-	g_PlotOffset.y = PaperSize.y - (g_PlotMarge*10);
+	g_PlotOffset.y = PaperSize.y - (PlotMarge_in_mils*10);
 
 	int BBox[4];
-	BBox[0] = BBox[1] = g_PlotMarge;
-	BBox[2] = SheetPS->m_Size.x - g_PlotMarge;
-	BBox[3] = SheetPS->m_Size.y - g_PlotMarge;
+	BBox[0] = BBox[1] = PlotMarge_in_mils;
+	BBox[2] = SheetPS->m_Size.x - PlotMarge_in_mils;
+	BBox[3] = SheetPS->m_Size.y - PlotMarge_in_mils;
 	scale_x = scale_y = 1.0;
 	InitPlotParametresPS( g_PlotOffset, SheetPS, 1.0/m_InternalUnits, 1.0/m_InternalUnits);
 	SetDefaultLineWidthPS(g_PlotLine_Width);
@@ -89,7 +90,7 @@ double scale_x, scale_y;
 	{
 		int tmp = g_PlotOrient; g_PlotOrient = 0;
 		SetPlotScale( 1.0, 1.0);
-		PlotWorkSheet( PLOT_FORMAT_POST, m_CurrentScreen,  g_PlotMarge);
+		PlotWorkSheet( PLOT_FORMAT_POST, m_CurrentScreen);
 		g_PlotOrient = tmp;
 	}
 
@@ -102,7 +103,7 @@ double scale_x, scale_y;
 	if( g_PlotScaleOpt == 0 )		// Optimum scale
 		{
 		float Xscale, Yscale;
-		int noprint_size = 2 * g_PlotMarge * U_PCB;
+		int noprint_size = 2 * PlotMarge_in_mils * U_PCB;
 		if ( Plot_Sheet_Ref ) noprint_size += 500 * U_PCB;
 		Xscale = (float) (PaperSize.x - noprint_size ) / BoardSize.x;
 		Yscale = (float) (PaperSize.y - noprint_size ) / BoardSize.y;
@@ -115,7 +116,7 @@ double scale_x, scale_y;
 	/* Calcul du cadrage (echelle != 1 donc recadrage du trace) */
 	if ( Center )
 	{
-		g_PlotOffset.x -= PaperSize.x/2 - BoardCenter.x + (g_PlotMarge*10);
+		g_PlotOffset.x -= PaperSize.x/2 - BoardCenter.x + (PlotMarge_in_mils*10);
 		g_PlotOffset.y = PaperSize.y/2 + BoardCenter.y;	// cadrage horizontal du mode paysage
 	}
 
@@ -124,7 +125,7 @@ double scale_x, scale_y;
 		if ( Center ) g_PlotOffset.y = - PaperSize.y/2 + BoardCenter.y;
 		else g_PlotOffset.y = - PaperSize.y +
 			(m_Pcb->m_BoundaryBox.GetBottom() + m_Pcb->m_BoundaryBox.GetY())
-				+ (g_PlotMarge*10) ;
+				+ (PlotMarge_in_mils*10) ;
 	}
 
 	InitPlotParametresPS( g_PlotOffset, SheetPS, scale_x, scale_y, g_PlotOrient);

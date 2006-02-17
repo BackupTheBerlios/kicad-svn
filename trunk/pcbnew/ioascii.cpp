@@ -72,7 +72,7 @@ $EndPAD							section pads s'il y en a
 $EndMODULE
 */
 
-extern W_PLOT * SheetList[];
+extern Ki_PageDescr * SheetList[];
 
 /* Variables locales, utilisees pour la lecture des fichiers PCB */
 int NbDraw,NbTrack,NbZone, NbMod, NbNets;
@@ -556,7 +556,7 @@ bool WriteSheetDescr(BASE_SCREEN * screen, FILE * File)
 /******************************************************/
 {
 	/* Sauvegarde des dimensions de la feuille de dessin, des textes du cartouche.. */
-	W_PLOT * sheet = screen->m_CurrentSheet;
+	Ki_PageDescr * sheet = screen->m_CurrentSheet;
 
 	fprintf(File,"$SHEETDESCR\n");
 	fprintf(File,"Sheet %s %d %d\n",
@@ -590,7 +590,7 @@ char Line[1024], buf[1024], * text;
 			{
 			text = strtok(Line, " \t\n\r");
 			text = strtok(NULL, " \t\n\r");
-			W_PLOT * sheet = SheetList[0];
+			Ki_PageDescr * sheet = SheetList[0];
 			int ii;
 			for( ii = 0; sheet != NULL; ii++, sheet = SheetList[ii])
 				{

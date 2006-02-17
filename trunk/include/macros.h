@@ -42,10 +42,6 @@
 	{ Angle = - Angle; while (Angle < 0) Angle += 3600; while (Angle >= 3600) Angle -= 3600; }
 
 
-/* Macro de selection du mode XOR convenable pour les traces en mode XOR,
-	selon la couleur du fond */
-#define XOR_MODE XorMode
-
 /* exchange 2 donnees */
 #define EXCHG(a,b) { typeof(a) __temp__ = (a); (a) = (b); (b) = __temp__; }
 

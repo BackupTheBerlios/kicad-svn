@@ -73,7 +73,7 @@ LibDrawField *Field = (LibDrawField *)CurrentDrawItem;
 
 	if( (CurrentLibEntry == NULL) || (Field == NULL) ) return;
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 
 	switch (Field->m_FieldId)
 		{
@@ -189,7 +189,7 @@ wxString title = wxT("Text:");
 	Get_Message(title,Text, this);
 	Text.Replace( wxT(" ") , wxT("_") );
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 	DrawGraphicText(DrawPanel, DC, wxPoint(Field->m_Pos.x, - Field->m_Pos.y),
 					color, Field->m_Text,
 					Field->m_Orient ? TEXT_ORIENT_VERT : TEXT_ORIENT_HORIZ,
@@ -246,7 +246,7 @@ int color;
 
 	if( Field->m_Attributs & TEXT_NO_VISIBLE  ) color = DARKGRAY;
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 	DrawGraphicText(DrawPanel, DC, wxPoint(Field->m_Pos.x, - Field->m_Pos.y),
 					color, Field->m_Text,
 					Field->m_Orient ? TEXT_ORIENT_VERT : TEXT_ORIENT_HORIZ,

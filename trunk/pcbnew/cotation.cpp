@@ -464,7 +464,8 @@ wxString msg;
 	if( (Cotation->m_Text->m_Orient > 900) && (Cotation->m_Text->m_Orient <2700) )
 		Cotation->m_Text->m_Orient -= 1800;
 
-	valeur_param(mesure,msg);
+	Cotation->m_Value = mesure;
+	valeur_param(Cotation->m_Value,msg);
 	Cotation->SetText( msg);
 	Cotation->m_Text->CreateDrawData();
 }

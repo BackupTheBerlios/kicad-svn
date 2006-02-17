@@ -185,7 +185,7 @@ public:
 	DrawBlockStruct BlockLocate;	/* Bock description for block commands */
 
 	/* Page description */
-	W_PLOT * m_CurrentSheet;
+	Ki_PageDescr * m_CurrentSheet;
 	int m_SheetNumber, m_NumberOfSheet; /* gestion hierarchie: numero de sousfeuille
 								et nombre de feuilles. Root: SheetNumber = 1 */
 	wxString m_FileName;

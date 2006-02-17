@@ -464,7 +464,7 @@ LibEDA_BaseStruct *PreviousDrawItem;
 
 	/* Effacement du graphique  */
 	if( Affiche && DC)
-		DrawLibraryDrawStruct(panel, DC, LibEntry, 0 , 0, DrawItem, CurrentUnit, XOR_MODE);
+		DrawLibraryDrawStruct(panel, DC, LibEntry, 0 , 0, DrawItem, CurrentUnit, g_XorMode);
 
 	/* Effacement de la structure en memoire */
 	if( LibEntry ) /* Recherche du predecesseur */

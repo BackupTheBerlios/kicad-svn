@@ -59,7 +59,7 @@ private:
 	void SetSizeOption(wxCommandEvent& event);
 	void Genere_PS(int AllPages, int pagesize);
 	void PlotOneSheetPS(const wxString & FileName,
-		BASE_SCREEN * Window, W_PLOT * sheet, int BBox[4], wxPoint plot_offset);
+		BASE_SCREEN * Window, Ki_PageDescr * sheet, int BBox[4], wxPoint plot_offset);
 	void OnQuit(wxCommandEvent& event);
 
 	DECLARE_EVENT_TABLE()
@@ -213,7 +213,7 @@ void WinEDA_PlotPSFrame::Genere_PS(int AllPages, int pagesize)
 {
 wxString PlotFileName, ShortFileName;
 BASE_SCREEN *screen;
-W_PLOT * PlotSheet, * RealSheet;
+Ki_PageDescr * PlotSheet, * RealSheet;
 int BBox[4];
 wxPoint plot_offset;
 
@@ -264,7 +264,7 @@ wxPoint plot_offset;
 
 /**********************************************************/
 void WinEDA_PlotPSFrame::PlotOneSheetPS(const wxString & FileName,
-			BASE_SCREEN * screen, W_PLOT * sheet, int BBox[4], wxPoint plot_offset)
+			BASE_SCREEN * screen, Ki_PageDescr * sheet, int BBox[4], wxPoint plot_offset)
 /**********************************************************/
 /* Trace en format PS. d'une feuille de dessin
 */
@@ -298,7 +298,7 @@ int x1=0, y1=0, x2=0, y2=0, layer;
 	{
 		if ( (g_PlotFormat == PLOT_FORMAT_POST) && g_PlotPSColorOpt )
 			SetColorMapPS ( BLACK );
-		PlotWorkSheet(PLOT_FORMAT_POST, screen, 0 );
+		PlotWorkSheet(PLOT_FORMAT_POST, screen);
 	}
 
 	DrawList = screen->EEDrawList;

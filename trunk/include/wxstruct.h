@@ -93,7 +93,7 @@ class COTATION;
 class EDGE_MODULE;
 class WinEDA3D_DrawFrame;
 class PARAM_CFG_BASE;
-class W_PLOT;
+class Ki_PageDescr;
 
 
 enum id_librarytype
@@ -268,7 +268,7 @@ public:
 
 	void OnActivate(wxActivateEvent& event);
 	void ReDrawPanel(void);
-	void TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen, int marge);
+	void TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen);
 	void DisplayToolMsg(const wxString msg);
 	void Process_Zoom(wxCommandEvent& event);
 	void Process_Grid(wxCommandEvent& event);

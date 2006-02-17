@@ -21,38 +21,48 @@
 
 #include "protos.h"
 
-/*********************************************************************************/
-void WinEDA_DrawFrame::TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen, int marge)
-/*********************************************************************************/
+/*********************************************************************/
+void WinEDA_DrawFrame::TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen)
+/*********************************************************************/
 /* Trace l'encadrement de la feuille de travail et le cartouche
 */
 {
 	if ( ! m_Draw_Sheet_Ref ) return;
 
+Ki_PageDescr * Sheet = screen->m_CurrentSheet;
 int ii, jj, xg , yg, ipas, gxpas, gypas;
 wxPoint pos;
 int refx, refy,Color;
 wxString Line;
-WorkSheet * WsItem;
+Ki_WorkSheetData * WsItem;
 int scale = m_InternalUnits/1000;
 wxSize size(SIZETEXT*scale,SIZETEXT*scale);
 wxSize size_ref(SIZETEXT_REF*scale,SIZETEXT_REF*scale);
 wxString msg;
 
 	Color = RED;
-	GRSetDrawMode(DC, GR_COPY);
-	if(screen->m_CurrentSheet == NULL)
+	if(Sheet == NULL)
 		{
 		DisplayError(this,
-			wxT("WinEDA_DrawFrame::TraceWorkSheet error: m_CurrentSheet NULL"));
+			wxT("WinEDA_DrawFrame::TraceWorkSheet() error: m_CurrentSheet NULL"));
 		return;
 		}
 
-	/* trace de la bordure */
+	// if not printing, draw the page limits:
+	if ( ! g_IsPrinting & g_ShowPageLimits )
+	{
+		GRSetDrawMode(DC, GR_COPY);
+		GRRect(&DrawPanel->m_ClipBox, DC, 0, 0,
+			Sheet->m_Size.x * scale, Sheet->m_Size.y * scale,
+			g_DrawBgColor == WHITE ? LIGHTGRAY : DARKDARKGRAY );
+	}
 
-	refx = refy = marge; /* Start Point */
-	xg = screen->m_CurrentSheet->m_Size.x - marge;
-	yg = screen->m_CurrentSheet->m_Size.y - marge;
+	GRSetDrawMode(DC, GR_COPY);
+	/* trace de la bordure */
+	refx = Sheet->m_LeftMargin;
+	refy = Sheet->m_TopMargin;		/* Upper left corner */
+	xg = Sheet->m_Size.x - Sheet->m_RightMargin;
+	yg = Sheet->m_Size.y - Sheet->m_BottomMargin;	/* lower right corner */
 
 	for ( ii = 0; ii < 2 ; ii++ )
 		{
@@ -63,9 +73,10 @@ wxString msg;
 		xg -= GRID_REF_W; yg -= GRID_REF_W;
 		}
 	/* trace des reperes */
-	refx = refy = marge; /* Start Point */
-	xg = screen->m_CurrentSheet->m_Size.x - marge;
-	yg = screen->m_CurrentSheet->m_Size.y - marge;
+	refx = Sheet->m_LeftMargin;
+	refy = Sheet->m_TopMargin; /* Upper left corner */
+	xg = Sheet->m_Size.x - Sheet->m_RightMargin;
+	yg = Sheet->m_Size.y - Sheet->m_BottomMargin;	/* lower right corner */
 
 	/* Trace des reperes selon l'axe X */
 	ipas = (xg - refx) / PAS_REF;
@@ -128,18 +139,18 @@ wxString msg;
 
 
 	/* Trace du cartouche */
-	refx = screen->m_CurrentSheet->m_Size.x - GRID_REF_W - marge;
-	refy = screen->m_CurrentSheet->m_Size.y - GRID_REF_W - marge;
+	refx = Sheet->m_Size.x - Sheet->m_RightMargin - GRID_REF_W;
+	refy = Sheet->m_Size.y - Sheet->m_BottomMargin - GRID_REF_W; /* lower right corner */
 
 	for( WsItem = &WS_Date; WsItem != NULL; WsItem = WsItem->Pnext )
 		{
-		pos.x = (refx - WsItem->posx)* scale;
-		pos.y = (refy - WsItem->posy)* scale;
+		pos.x = (refx - WsItem->m_Posx)* scale;
+		pos.y = (refy - WsItem->m_Posy)* scale;
 		msg.Empty();
-		switch( WsItem->type )
+		switch( WsItem->m_Type )
 			{
 			case WS_DATE:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Date;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -147,7 +158,7 @@ wxString msg;
 				break;
 
 			case WS_REV:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Revision;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -155,7 +166,7 @@ wxString msg;
 				break;
 
 			case WS_LICENCE:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += g_ProductName + Main_Title;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -163,8 +174,8 @@ wxString msg;
 				break;
 
 			case WS_SIZESHEET:
-				if(WsItem->Legende) msg = WsItem->Legende;
-				msg += screen->m_CurrentSheet->m_Name;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
+				msg += Sheet->m_Name;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);
@@ -172,7 +183,7 @@ wxString msg;
 
 
 			case WS_IDENTSHEET:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				   msg << screen->m_SheetNumber << wxT("/") <<
 									screen->m_NumberOfSheet;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
@@ -181,7 +192,7 @@ wxString msg;
 				break;
 
 			case WS_NAMECOMP:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Company;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -189,7 +200,7 @@ wxString msg;
 				break;
 
 			case WS_TITLE:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Title;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -197,7 +208,7 @@ wxString msg;
 				break;
 
 			case WS_COMMENT1:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Commentaire1;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -205,7 +216,7 @@ wxString msg;
 				break;
 
 			case WS_COMMENT2:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Commentaire2;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -213,7 +224,7 @@ wxString msg;
 				break;
 
 			case WS_COMMENT3:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Commentaire3;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -221,7 +232,7 @@ wxString msg;
 				break;
 
 			case WS_COMMENT4:
-				if(WsItem->Legende) msg = WsItem->Legende;
+				if(WsItem->m_Legende) msg = WsItem->m_Legende;
 				msg += screen->m_Commentaire4;
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
@@ -229,10 +240,10 @@ wxString msg;
 				break;
 
 			case WS_SEGMENT:
-				xg = screen->m_CurrentSheet->m_Size.x -
-						GRID_REF_W - marge - WsItem->endx;
-				yg = screen->m_CurrentSheet->m_Size.y -
-						GRID_REF_W - marge - WsItem->endy;
+				xg = Sheet->m_Size.x -
+						GRID_REF_W - Sheet->m_RightMargin - WsItem->m_Endx;
+				yg = Sheet->m_Size.y -
+						GRID_REF_W - Sheet->m_BottomMargin - WsItem->m_Endy;
 				GRLine(&DrawPanel->m_ClipBox, DC, pos.x, pos.y,
 						xg * scale, yg * scale, Color);
 				break;

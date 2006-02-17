@@ -503,7 +503,7 @@ wxClientDC dc(m_Parent->DrawPanel);
 		/* Marqueur trouve */
 		Marker = (DrawMarkerStruct * ) DrawStruct;
 		if( Marker->m_Type == MARQ_ERC )
-			RedrawOneStruct(m_Parent->DrawPanel, &dc, Marker, XOR_MODE);
+			RedrawOneStruct(m_Parent->DrawPanel, &dc, Marker, g_XorMode);
 		}
 	/* Suppression en memoire des marqueurs ERC */
 	DeleteAllMarkers(MARQ_ERC);

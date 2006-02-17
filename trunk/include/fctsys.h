@@ -61,8 +61,6 @@
 #define WIN_STRING_DIR_SEP wxT("\\")
 
 
-eda_global char g_FloatSeparator;	// = '.' ou = ',' selon locale pour l'ecriture des nombres flotttant
-
 #endif /* FCTSYS_H */
 
 

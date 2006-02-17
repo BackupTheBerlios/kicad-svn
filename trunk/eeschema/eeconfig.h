@@ -73,7 +73,7 @@ static PARAM_CFG_SETCOLOR DrawBgColorCfg
 (
 	INSETUP,
 	wxT("BgColor"),			/* identification */
-	&DrawBgColor,	 	/* Adresse du parametre */
+	&g_DrawBgColor,	 	/* Adresse du parametre */
 	WHITE				/* Valeur par defaut */
 );
 

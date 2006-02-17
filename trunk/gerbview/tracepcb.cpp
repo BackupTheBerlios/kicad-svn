@@ -44,7 +44,7 @@ DISPLAY_OPTIONS save_opt;
 	((WinEDA_GerberFrame*)m_Parent)->Trace_Gerber(DC, GR_COPY);
 
 	if ( Print_Sheet_Ref )
-		m_Parent->TraceWorkSheet(DC, GetScreen(), PlotMarge);
+		m_Parent->TraceWorkSheet(DC, GetScreen());
 
 	DisplayOpt = save_opt;
 }
@@ -67,7 +67,7 @@ PCB_SCREEN * screen = GetScreen();
 	DrawPanel->DrawBackGround(DC);
 
 	Trace_Gerber(DC, GR_OR);
-	TraceWorkSheet(DC, screen, PlotMarge);
+	TraceWorkSheet(DC, screen);
 	Affiche_Status_Box();
 
 	if( screen->ManageCurseur )
@@ -81,7 +81,6 @@ void WinEDA_GerberFrame::Trace_Gerber(wxDC * DC, int mode)
 /********************************************************/
 /* Trace l'ensemble des elements du PCB sur l'ecran actif*/
 {
-EDA_BaseStruct * PtStruct;
 
 	if ( ! m_Pcb ) return;
 		

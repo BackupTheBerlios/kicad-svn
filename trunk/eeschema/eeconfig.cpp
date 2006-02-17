@@ -115,7 +115,7 @@ wxArrayString liblist_tmp = g_LibName_List;
 
 	if ( EDA_Appl->SchematicFrame )
 	{
-		EDA_Appl->SchematicFrame->SetDrawBgColor(DrawBgColor);
+		EDA_Appl->SchematicFrame->SetDrawBgColor(g_DrawBgColor);
 		EDA_Appl->SchematicFrame->m_Draw_Grid = g_ShowGrid;
 	}
 

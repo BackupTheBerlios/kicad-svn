@@ -221,7 +221,7 @@ void WinEDA_SchematicFrame::EditSchematicText(DrawTextStruct * TextStruct,
 {
 	if(TextStruct == NULL)  return;
 
-	RedrawOneStruct(DrawPanel, DC, TextStruct, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, TextStruct, g_XorMode);
 
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 WinEDA_TextPropertiesFrame * frame = new WinEDA_TextPropertiesFrame(this,
@@ -243,7 +243,7 @@ void WinEDA_SchematicFrame::ChangeTextOrient(DrawTextStruct * TextStruct, wxDC *
 	if( TextStruct == NULL ) return;
 
 	/* Effacement du texte en cours */
-	RedrawOneStruct(DrawPanel, DC, TextStruct, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, TextStruct, g_XorMode);
 
 	/* Rotation du texte */
 	switch( TextStruct->m_StructType )
@@ -261,7 +261,7 @@ void WinEDA_SchematicFrame::ChangeTextOrient(DrawTextStruct * TextStruct, wxDC *
 	SetFlagModify(GetScreen());
 
 	/* Reaffichage */
-	RedrawOneStruct(DrawPanel, DC, TextStruct, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, TextStruct, g_XorMode);
 }
 
 /*************************************************************************/
@@ -329,7 +329,7 @@ EDA_BaseStruct * TextStruct = panel->GetScreen()->m_CurrentItem;
 
 	/* effacement ancienne position */
 	if( erase )
-		RedrawOneStruct(panel, DC, TextStruct, XOR_MODE);
+		RedrawOneStruct(panel, DC, TextStruct, g_XorMode);
 
 	/* Redessin du texte */
 	switch( TextStruct->m_StructType )
@@ -343,7 +343,7 @@ EDA_BaseStruct * TextStruct = panel->GetScreen()->m_CurrentItem;
 		default: break;
 		}
 
-	RedrawOneStruct(panel, DC, TextStruct, XOR_MODE);
+	RedrawOneStruct(panel, DC, TextStruct, g_XorMode);
 }
 
 
@@ -366,7 +366,7 @@ EDA_BaseStruct * Struct = frame->m_CurrentScreen->m_CurrentItem;
 	/* ici : trace en cours */
 
 	/* Effacement du trace en cours et suppression eventuelle de la structure */
-	RedrawOneStruct(frame->DrawPanel, DC, Struct, XOR_MODE);
+	RedrawOneStruct(frame->DrawPanel, DC, Struct, g_XorMode);
 
 	if( Struct->m_Flags & IS_NEW )	/* Suppression du nouveau texte en cours de placement */
 		{
@@ -409,7 +409,7 @@ void WinEDA_SchematicFrame::ChangeTypeText(DrawTextStruct * Text,
 	if ( Text == NULL ) return;
 
 	m_CurrentScreen->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
-	RedrawOneStruct(DrawPanel, DC, Text, XOR_MODE);	// erase drawing
+	RedrawOneStruct(DrawPanel, DC, Text, g_XorMode);	// erase drawing
 	switch( newtype )
 		{
 		case DRAW_LABEL_STRUCT_TYPE:

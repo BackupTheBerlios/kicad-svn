@@ -135,7 +135,7 @@ class MARQUEUR;
 class TRACK;
 class D_PAD;
 struct CHEVELU;
-class W_PLOT;
+class Ki_PageDescr;
 class DrawBlockStruct;
 
 // Class for handle current printed board design settings

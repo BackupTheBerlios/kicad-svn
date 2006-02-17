@@ -251,7 +251,7 @@ void WinEDA_SchematicFrame::CmpRotationMiroir(
 		m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
 		if ( DrawComponent->m_Flags )
 			DrawStructsInGhost(DrawPanel, DC, DrawComponent, 0, 0 );
-		else DrawLibPart(DrawPanel, DC, DrawComponent, XOR_MODE);
+		else DrawLibPart(DrawPanel, DC, DrawComponent, g_XorMode);
 		}
 
 	DrawComponent->SetRotationMiroir(type_rotate);
@@ -332,7 +332,7 @@ EDA_LibComponentStruct * LibEntry;
 	/* Efface le trace precedent */
 	if ( DrawComponent->m_Flags )
 		DrawStructsInGhost(DrawPanel, DC, DrawComponent, 0, 0 );
-	else DrawLibPart(DrawPanel, DC, DrawComponent, XOR_MODE);
+	else DrawLibPart(DrawPanel, DC, DrawComponent, g_XorMode);
 
 	/* Mise a jour du numero d'unite */
 	DrawComponent->m_Multi = unit;
@@ -367,7 +367,7 @@ EDA_LibComponentStruct *LibEntry;
 	/* Efface le trace precedent */
 	if ( DrawComponent->m_Flags )
 		DrawStructsInGhost(DrawPanel, DC, DrawComponent, 0, 0 );
-	else DrawLibPart(DrawPanel, DC, DrawComponent, XOR_MODE);
+	else DrawLibPart(DrawPanel, DC, DrawComponent, g_XorMode);
 
 	DrawComponent->m_Convert++;
 	if( DrawComponent->m_Convert > ii ) DrawComponent->m_Convert = 1;
@@ -423,7 +423,7 @@ void WinEDA_SchematicFrame::StartMovePart(EDA_SchComponentStruct * DrawLibItem,
 	OldPos = DrawLibItem->m_Pos;
 	memcpy(OldTransMat, DrawLibItem->m_Transform, sizeof(OldTransMat) );
 
-	RedrawOneStruct(DrawPanel, DC, DrawLibItem, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, DrawLibItem, g_XorMode);
 	DrawLibItem->m_Flags |= IS_MOVED;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC,FALSE);
 	DrawPanel->m_AutoPAN_Request = TRUE;

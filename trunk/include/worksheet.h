@@ -33,19 +33,19 @@ seront soustraires de cette origine
 #define BLOCK_COMMENT3_Y (SIZETEXT*13)
 #define BLOCK_COMMENT4_Y (SIZETEXT*15)
 
-struct WorkSheet
+struct Ki_WorkSheetData
 {
 public:
-	int type;			/* nombre permettant de reconnaitre la description */
-	WorkSheet * Pnext;
-	int posx, posy;		/* position de l'element ou point de depart du segment */
-	int endx, endy;		/* extremite d'un element type segment ou cadre */
-	wxChar * Legende;	/* Pour Textes: texte a afficher avant le texte lui meme */
-	wxChar * Text;		/* Pour Textes:pointeur sur le texte a afficher */
+	int m_Type;				/* nombre permettant de reconnaitre la description */
+	Ki_WorkSheetData * Pnext;
+	int m_Posx, m_Posy;		/* position de l'element ou point de depart du segment */
+	int m_Endx, m_Endy;		/* extremite d'un element type segment ou cadre */
+	wxChar * m_Legende;		/* Pour m_Textes: texte a afficher avant le texte lui meme */
+	wxChar * m_Text;		/* Pour m_Textes:pointeur sur le texte a afficher */
 };
 
-/* Type des descriptions WorkSheet */
-enum TypeWorkSheet
+/* Type des descriptions Ki_WorkSheetData */
+enum TypeKi_WorkSheetData
 	{
 	WS_DATE,
 	WS_REV,
@@ -62,28 +62,28 @@ enum TypeWorkSheet
 	WS_CADRE
 	};
 
-extern WorkSheet WS_Date;
-extern WorkSheet WS_Revision;
-extern WorkSheet WS_Licence;
-extern WorkSheet WS_SizeSheet;
-extern WorkSheet WS_IdentSheet;
-extern WorkSheet WS_Title;
-extern WorkSheet WS_Company;
-extern WorkSheet WS_Comment1;
-extern WorkSheet WS_Comment2;
-extern WorkSheet WS_Comment3;
-extern WorkSheet WS_Comment4;
-extern WorkSheet WS_Segm1;
-extern WorkSheet WS_Segm2;
-extern WorkSheet WS_Segm3;
-extern WorkSheet WS_Segm4;
-extern WorkSheet WS_Segm5;
-extern WorkSheet WS_Segm6;
-extern WorkSheet WS_Segm7;
+extern Ki_WorkSheetData WS_Date;
+extern Ki_WorkSheetData WS_Revision;
+extern Ki_WorkSheetData WS_Licence;
+extern Ki_WorkSheetData WS_SizeSheet;
+extern Ki_WorkSheetData WS_IdentSheet;
+extern Ki_WorkSheetData WS_Title;
+extern Ki_WorkSheetData WS_Company;
+extern Ki_WorkSheetData WS_Comment1;
+extern Ki_WorkSheetData WS_Comment2;
+extern Ki_WorkSheetData WS_Comment3;
+extern Ki_WorkSheetData WS_Comment4;
+extern Ki_WorkSheetData WS_Segm1;
+extern Ki_WorkSheetData WS_Segm2;
+extern Ki_WorkSheetData WS_Segm3;
+extern Ki_WorkSheetData WS_Segm4;
+extern Ki_WorkSheetData WS_Segm5;
+extern Ki_WorkSheetData WS_Segm6;
+extern Ki_WorkSheetData WS_Segm7;
 
 #ifdef EDA_BASE
 
-WorkSheet WS_Date =
+Ki_WorkSheetData WS_Date =
 	{
 	WS_DATE,
 	&WS_Licence,
@@ -92,7 +92,7 @@ WorkSheet WS_Date =
 	wxT("Date: "), NULL
 	};
 
-WorkSheet WS_Licence =
+Ki_WorkSheetData WS_Licence =
 	{
 	WS_LICENCE,
 	&WS_Revision,
@@ -101,7 +101,7 @@ WorkSheet WS_Licence =
 	NULL, NULL
 	};
 
-WorkSheet WS_Revision =
+Ki_WorkSheetData WS_Revision =
 	{
 	WS_REV,
 	&WS_SizeSheet,
@@ -110,7 +110,7 @@ WorkSheet WS_Revision =
 	wxT("Rev: "), NULL
 	};
 
-WorkSheet WS_SizeSheet =
+Ki_WorkSheetData WS_SizeSheet =
 	{
 	WS_SIZESHEET,
 	&WS_IdentSheet,
@@ -119,7 +119,7 @@ WorkSheet WS_SizeSheet =
 	wxT("Size: "),NULL
 	};
 
-WorkSheet WS_IdentSheet =
+Ki_WorkSheetData WS_IdentSheet =
 	{
 	WS_IDENTSHEET,
 	&WS_Title,
@@ -128,7 +128,7 @@ WorkSheet WS_IdentSheet =
 	wxT("Sheet: "),NULL
 	};
 
-WorkSheet WS_Title =
+Ki_WorkSheetData WS_Title =
 	{
 	WS_TITLE,
 	&WS_Company,
@@ -137,7 +137,7 @@ WorkSheet WS_Title =
 	wxT("Title: "),NULL
 	};
 
-WorkSheet WS_Company =
+Ki_WorkSheetData WS_Company =
 	{
 	WS_NAMECOMP,
 	&WS_Comment1,
@@ -146,7 +146,7 @@ WorkSheet WS_Company =
 	NULL,NULL,
 	};
 
-WorkSheet WS_Comment1 =
+Ki_WorkSheetData WS_Comment1 =
 	{
 	WS_COMMENT1,
 	&WS_Comment2,
@@ -155,7 +155,7 @@ WorkSheet WS_Comment1 =
 	NULL,NULL
 	};
 
-WorkSheet WS_Comment2 =
+Ki_WorkSheetData WS_Comment2 =
 	{
 	WS_COMMENT2,
 	&WS_Comment3,
@@ -164,7 +164,7 @@ WorkSheet WS_Comment2 =
 	NULL,NULL
 	};
 
-WorkSheet WS_Comment3 =
+Ki_WorkSheetData WS_Comment3 =
 	{
 	WS_COMMENT3,
 	&WS_Comment4,
@@ -173,7 +173,7 @@ WorkSheet WS_Comment3 =
 	NULL,NULL
 	};
 
-WorkSheet WS_Comment4 =
+Ki_WorkSheetData WS_Comment4 =
 	{
 	WS_COMMENT4,
 	&WS_Segm1,
@@ -182,7 +182,7 @@ WorkSheet WS_Comment4 =
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm1 =   /* segment vertical gauche */
+Ki_WorkSheetData WS_Segm1 =   /* segment vertical gauche */
 	{
 	WS_SEGMENT,
 	&WS_Segm2,
@@ -191,7 +191,7 @@ WorkSheet WS_Segm1 =   /* segment vertical gauche */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm2 =	/* segment horizontal superieur */
+Ki_WorkSheetData WS_Segm2 =	/* segment horizontal superieur */
 	{
 	WS_SEGMENT,
 	&WS_Segm3,
@@ -200,7 +200,7 @@ WorkSheet WS_Segm2 =	/* segment horizontal superieur */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm3 =		/* segment horizontal au dessus de NAME COMPANY */
+Ki_WorkSheetData WS_Segm3 =		/* segment horizontal au dessus de NAME COMPANY */
 	{
 	WS_SEGMENT,
 	&WS_Segm4,
@@ -209,7 +209,7 @@ WorkSheet WS_Segm3 =		/* segment horizontal au dessus de NAME COMPANY */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm4 =		/* segment vertical a gauche de SHEET et REV */
+Ki_WorkSheetData WS_Segm4 =		/* segment vertical a gauche de SHEET et REV */
 	{
 	WS_SEGMENT,
 	&WS_Segm5,
@@ -218,7 +218,7 @@ WorkSheet WS_Segm4 =		/* segment vertical a gauche de SHEET et REV */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm5 =		/* 1er segment horizontal */
+Ki_WorkSheetData WS_Segm5 =		/* 1er segment horizontal */
 	{
 	WS_SEGMENT,
 	&WS_Segm6,
@@ -227,7 +227,7 @@ WorkSheet WS_Segm5 =		/* 1er segment horizontal */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm6 =		/* 2eme segment horizontal */
+Ki_WorkSheetData WS_Segm6 =		/* 2eme segment horizontal */
 	{
 	WS_SEGMENT,
 	&WS_Segm7,
@@ -236,7 +236,7 @@ WorkSheet WS_Segm6 =		/* 2eme segment horizontal */
 	NULL,NULL
 	};
 
-WorkSheet WS_Segm7 =		/* segment vertical apres SIZE */
+Ki_WorkSheetData WS_Segm7 =		/* segment vertical apres SIZE */
 	{
 	WS_SEGMENT,
 	NULL,

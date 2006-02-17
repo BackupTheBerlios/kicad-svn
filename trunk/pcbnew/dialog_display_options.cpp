@@ -45,6 +45,8 @@ private:
 	wxRadioBox * m_OptDisplayDrawings;
 	wxRadioBox * m_OptDisplayViaHole;
 
+	wxRadioBox * m_Show_Page_Limits;
+
 
 public:
 	// Constructor and destructor
@@ -128,6 +130,15 @@ wxString list_opt3[3] = {_("Line"), _("Filled"), _("Sketch") };
 	m_OptDisplayModEdges->GetSize(&w, &h);
 	size.y = pos.y + h;
 
+	m_OptDisplayModEdges->GetSize(&jj, &ii); pos.y += ii + 5;
+wxString show_page_limits_choice[2] = { _("Yes"), _("No") };
+	m_Show_Page_Limits = new wxRadioBox(this, -1,
+			_("Show page limits"), pos,
+			wxDefaultSize, 2, show_page_limits_choice, 1, wxRA_SPECIFY_COLS);
+	m_Show_Page_Limits->SetSelection( g_ShowPageLimits ? 0 : 1);
+	m_Show_Page_Limits->GetSize(&w, &h);
+	size.y = pos.y + h;
+
 	pos.x += 110; pos.y = 5;
 	m_OptDisplayPads = new wxRadioBox(this, -1, _("Pads:"),
 				pos, wxDefaultSize,
@@ -158,12 +169,13 @@ wxString list_opt3[3] = {_("Line"), _("Filled"), _("Sketch") };
 	m_OptDisplayDrawings->GetSize(&h, &w);
 	size.x = pos.x + h ;
 
-	pos.x = 200; pos.y = size.y + 10;
+	pos.x = m_OptDisplayPadNoConn->GetRect().GetX() + 10;
+	pos.y = m_OptDisplayPadNoConn->GetRect().GetBottom() + 20;
 	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Ok"), pos);
 	Button->SetForegroundColour(*wxRED);
 	Button->SetDefault();
 
-	pos.x += Button->GetSize().x  + 15;
+	pos.y += Button->GetSize().y  + 5;
 	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
 	Button->SetForegroundColour(*wxBLUE);
 	size.y = pos.y + Button->GetSize().y;
@@ -189,6 +201,9 @@ void WinEDA_DisplayOptionsDialog::AcceptPcbOptions(wxCommandEvent& event)
 /* Met a jour les options
 */
 {
+	if ( m_Show_Page_Limits->GetSelection() == 0 ) g_ShowPageLimits = TRUE;
+	else g_ShowPageLimits = FALSE;
+
 	if ( m_OptDisplayTracks->GetSelection() == 1)
 		DisplayOpt.DisplayPcbTrackFill = TRUE;
 	else DisplayOpt.DisplayPcbTrackFill = FALSE;

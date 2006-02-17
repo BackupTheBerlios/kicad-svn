@@ -1005,8 +1005,8 @@ static int ReadSchemaDescr(wxWindow * frame, char *Line, FILE *f, BASE_SCREEN * 
 {
 char Text[256], buf[1024];
 int ii;
-W_PLOT * wsheet = &g_Sheet_A4;
-static W_PLOT * SheetFormatList[] = {
+Ki_PageDescr * wsheet = &g_Sheet_A4;
+static Ki_PageDescr * SheetFormatList[] = {
 	&g_Sheet_A4, &g_Sheet_A3, &g_Sheet_A2, &g_Sheet_A1, &g_Sheet_A0,
 	&g_Sheet_A, &g_Sheet_B, &g_Sheet_C, &g_Sheet_D, &g_Sheet_E,
 	&g_Sheet_user, NULL};

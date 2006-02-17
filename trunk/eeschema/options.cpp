@@ -38,6 +38,7 @@ enum options_id {
 
 	ID_SEL_SHOW_PINS,
 	ID_SEL_HV_WIRE,
+	ID_SEL_SHOW_PAGE_LIMITS,
 	ID_SEL_METRIC
 };
 
@@ -55,6 +56,7 @@ private:
 	wxRadioBox * m_SelShowPins;
 	wxRadioBox * m_Selunits;
 	wxRadioBox * m_SelDirWires;
+	wxRadioBox * m_Show_Page_Limits;
 	WinEDA_SizeCtrl * m_DeltaStepCtrl;
 	wxSpinCtrl * m_DeltaLabelCtrl;
 
@@ -188,13 +190,20 @@ wxString unit_choice[2] = { _("millimeters"), _("inches") };
 
 	/* Choix de l'orientation des bus et wires */
 	m_Selunits->GetSize(&w, &h);
-	pos.y += h + 20;
+	pos.y += h + 15;
 wxString dir_choice[2] = { _("Horiz/Vertical"), _("Any") };
 	m_SelDirWires = new wxRadioBox(this, ID_SEL_HV_WIRE,
 			_("Wires - Bus orient"), pos,
 			wxDefaultSize, 2, dir_choice, 1, wxRA_SPECIFY_COLS);
 	m_SelDirWires->SetSelection( g_HVLines ? 0 : 1);
 
+	m_SelDirWires->GetSize(&w, &h);
+	pos.y += h + 15;
+wxString show_page_limits_choice[2] = { _("Yes"), _("No") };
+	m_Show_Page_Limits = new wxRadioBox(this, ID_SEL_SHOW_PAGE_LIMITS,
+			_("Show page limits"), pos,
+			wxDefaultSize, 2, show_page_limits_choice, 1, wxRA_SPECIFY_COLS);
+	m_Show_Page_Limits->SetSelection( g_ShowPageLimits ? 0 : 1);
 
 	/* Choix des parametres pour la fonction de repetition */
 	size.x = 100; size.y = -1;
@@ -230,6 +239,9 @@ bool setgrid = TRUE;
 	g_RepeatStep = m_DeltaStepCtrl->GetCoord();
 
 	g_RepeatDeltaLabel = m_DeltaLabelCtrl->GetValue();
+
+	if ( m_Show_Page_Limits->GetSelection() == 0 ) g_ShowPageLimits = TRUE;
+	else g_ShowPageLimits = FALSE;
 
 	if ( m_SelDirWires->GetSelection() == 0 ) g_HVLines = 1;
 	else g_HVLines = 0;

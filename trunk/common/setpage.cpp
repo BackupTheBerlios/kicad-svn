@@ -1,4 +1,5 @@
-		/****************************************************************************/		/* setpage.cpp : routines de selection de la taille de la feuille de dessin */
+		/****************************************************************************/
+		/* setpage.cpp : routines de selection de la taille de la feuille de dessin */
 		/****************************************************************************/
 
 #include "fctsys.h"
@@ -19,7 +20,7 @@
 
 #ifdef GERBVIEW
 #define NB_ITEMS 12
-W_PLOT * SheetList[NB_ITEMS+1] =
+Ki_PageDescr * SheetList[NB_ITEMS+1] =
 {
 	&g_Sheet_A4, &g_Sheet_A3, &g_Sheet_A2, &g_Sheet_A1, &g_Sheet_A0,
 	&g_Sheet_A, &g_Sheet_B, &g_Sheet_C, &g_Sheet_D, &g_Sheet_E, &g_Sheet_GERBER,
@@ -27,7 +28,7 @@ W_PLOT * SheetList[NB_ITEMS+1] =
 };
 #else
 #define NB_ITEMS 11
-W_PLOT * SheetList[NB_ITEMS+1] =
+Ki_PageDescr * SheetList[NB_ITEMS+1] =
 {
 	&g_Sheet_A4, &g_Sheet_A3, &g_Sheet_A2, &g_Sheet_A1, &g_Sheet_A0,
 	&g_Sheet_A, &g_Sheet_B, &g_Sheet_C, &g_Sheet_D, &g_Sheet_E,
@@ -61,7 +62,7 @@ public:
 	int Modified;
 	wxString Buf_Size_X;
 	wxString Buf_Size_Y;
-	W_PLOT * SelectedSheet;
+	Ki_PageDescr * SelectedSheet;
 	WinEDA_EnterText * TextRevision;
 	WinEDA_EnterText * TextCompany;
 	WinEDA_EnterText * TextTitle;
@@ -175,11 +176,12 @@ BASE_SCREEN * BASE_SCREEN;
 	pos.x = POSX; pos.y = 5;
 	wxButton * Button = new wxButton(this, ID_SAVE_PAGE_SETTINGS,
 						_("OK"), pos );
-	pos.x += Button->GetDefaultSize().x + 10;
+	pos.x += Button->GetSize().x + 10;
 	Button = new wxButton(this, ID_CANCEL_PAGE_SETTINGS,
 						_("Cancel"), pos );
 
-	pos.y = Button->GetDefaultSize().y + 15;
+	pos.x = POSX;
+	pos.y = Button->GetSize().y + 15;
 	Line.Printf( _("Number of sheets: %d"), BASE_SCREEN->m_NumberOfSheet);
 	new wxStaticText(this, -1, Line, pos);
 	pos.x += 150;
@@ -189,37 +191,37 @@ BASE_SCREEN * BASE_SCREEN;
 	size.x = LEN_EXT; size.y = -1;
 	pos.x = POSX; pos.y += 35;
 	TextRevision = new WinEDA_EnterText(this,
-				_("Revision:"), BASE_SCREEN->m_Revision.GetData(),
+				_("Revision:"), BASE_SCREEN->m_Revision,
 				pos, size);
 
 	pos.y += dimy; size.x = LEN_DIR;
 	TextCompany = new WinEDA_EnterText(this,
-				_("Company:"), BASE_SCREEN->m_Company.GetData(),
+				_("Company:"), BASE_SCREEN->m_Company,
 				pos, size);
 
 	pos.y += dimy;
 	TextTitle = new WinEDA_EnterText(this,
-				_("Title:"), BASE_SCREEN->m_Title.GetData(),
+				_("Title:"), BASE_SCREEN->m_Title,
 				pos, size);
 
 	pos.y += dimy;
 	TextComment1 = new WinEDA_EnterText(this,
-				wxT("Comment1:"),  BASE_SCREEN->m_Commentaire1.GetData(),
+				wxT("Comment1:"),  BASE_SCREEN->m_Commentaire1,
 				pos, size);
 
 	pos.y += dimy;
 	TextComment2 = new WinEDA_EnterText(this,
-				wxT("Comment2:"), BASE_SCREEN->m_Commentaire2.GetData(),
+				wxT("Comment2:"), BASE_SCREEN->m_Commentaire2,
 				pos, size);
 
 	pos.y += dimy;
 	TextComment3 = new WinEDA_EnterText(this,
-				wxT("Comment3:"), BASE_SCREEN->m_Commentaire3.GetData(),
+				wxT("Comment3:"), BASE_SCREEN->m_Commentaire3,
 				pos, size);
 
 	pos.y += dimy;
 	TextComment4 = new WinEDA_EnterText(this,
-				wxT("Comment4:"), BASE_SCREEN->m_Commentaire4.GetData(),
+				wxT("Comment4:"), BASE_SCREEN->m_Commentaire4,
 				pos, size);
 }
 
@@ -312,7 +314,7 @@ void WinEDA_SetPageFrame::CreateListSizes(wxPoint boxpos)
 */
 {
 
-W_PLOT * sheet;
+Ki_PageDescr * sheet;
 int ii, select = NB_ITEMS-1;
 wxString SizeList[NB_ITEMS];
 

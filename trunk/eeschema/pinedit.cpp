@@ -305,7 +305,7 @@ void WinEDA_PinPropertiesFrame::PinPropertiesAccept(wxCommandEvent& event)
 		wxClientDC dc(m_Parent->DrawPanel);
 		m_Parent->DrawPanel->PrepareGraphicContext(&dc);
 		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
-				0,0, CurrentPin,CurrentUnit, XOR_MODE);
+				0,0, CurrentPin,CurrentUnit, g_XorMode);
 
 		SetPinName(m_PinNameCtrl->GetText(), LastPinNameSize);
 		SetPinNum(m_PinNumCtrl->GetText(), LastPinNumSize);
@@ -315,7 +315,7 @@ void WinEDA_PinPropertiesFrame::PinPropertiesAccept(wxCommandEvent& event)
 		SetPinOrient(LastPinOrient);
 		SetAttributsPin(TRUE, TRUE, TRUE);
 		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
-			0,0, CurrentPin,CurrentUnit, XOR_MODE);
+			0,0, CurrentPin,CurrentUnit, g_XorMode);
 	}
 
 	if ( CurrentDrawItem )
@@ -513,13 +513,13 @@ wxPoint pinpos = CurrentPin->m_Pos;
 	{
 		CurrentPin->m_Pos = PinPreviousPos;
 		DrawLibraryDrawStruct(panel, DC, CurrentLibEntry,0,0,
-							CurrentPin,CurrentUnit, XOR_MODE);
+							CurrentPin,CurrentUnit, g_XorMode);
 	}
 
 	/* Redraw pin in new position */
 	CurrentPin->m_Pos.x = panel->m_Parent->GetScreen()->m_Curseur.x;
 	CurrentPin->m_Pos.y = - panel->m_Parent->GetScreen()->m_Curseur.y;
-	DrawLibraryDrawStruct(panel, DC, CurrentLibEntry,0,0, CurrentPin,CurrentUnit, XOR_MODE);
+	DrawLibraryDrawStruct(panel, DC, CurrentLibEntry,0,0, CurrentPin,CurrentUnit, g_XorMode);
 	
 	PinPreviousPos = CurrentPin->m_Pos;
 	/* Keep the original position for existing pin (for Undo command)
@@ -746,7 +746,7 @@ LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 
 	CurrentPin->Display_Infos_DrawEntry(this);
 	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,
-			0,0, CurrentPin,CurrentUnit, XOR_MODE);
+			0,0, CurrentPin,CurrentUnit, g_XorMode);
 	GetScreen()->SetModify();
 }
 
@@ -957,7 +957,7 @@ bool selected = (MasterPin->m_Selected & IS_SELECTED) != 0;
 		// Is it the "selected mode" ?
 		if (selected && (Pin->m_Selected & IS_SELECTED) == 0 ) continue;
 
-		DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,0,0, Pin, CurrentUnit, XOR_MODE);
+		DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,0,0, Pin, CurrentUnit, g_XorMode);
 
 		switch ( id )
 			{

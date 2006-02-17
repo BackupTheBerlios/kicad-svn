@@ -640,22 +640,22 @@ void WinEDA_DrawFrame::SetDrawBgColor(int color_num)
 */
 {
 	if ( (color_num != WHITE) && (color_num != BLACK) ) color_num = BLACK;
-	DrawBgColor = color_num;
+	g_DrawBgColor = color_num;
 	if(color_num == WHITE)
 		{
-		XorMode = GR_NXOR;
+		g_XorMode = GR_NXOR;
 		g_GhostColor = BLACK;
 		}
 	else
 		{
-		XorMode = GR_XOR;
+		g_XorMode = GR_XOR;
 		g_GhostColor = WHITE;
 		}
 
 	if ( DrawPanel )
-		DrawPanel-> SetBackgroundColour(wxColour(ColorRefs[DrawBgColor].m_Red,
-						ColorRefs[DrawBgColor].m_Green,
-						ColorRefs[DrawBgColor].m_Blue ));
+		DrawPanel-> SetBackgroundColour(wxColour(ColorRefs[g_DrawBgColor].m_Red,
+						ColorRefs[g_DrawBgColor].m_Green,
+						ColorRefs[g_DrawBgColor].m_Blue ));
 
 }
 

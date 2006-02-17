@@ -38,7 +38,7 @@ char * layer, *width;
 int ii, shape;
 bool Failed = FALSE;
 EDA_BaseStruct *Phead;
-W_PLOT * PlotSheet;
+Ki_PageDescr * PlotSheet;
 FILE *f;
 wxString dirbuf;
 

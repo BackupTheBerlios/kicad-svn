@@ -149,12 +149,8 @@ WinEDA_ViewlibFrame::WinEDA_ViewlibFrame(wxWindow * father, WinEDA_App *parent,
 
 WinEDA_ViewlibFrame::~WinEDA_ViewlibFrame(void)
 {
-#ifndef __WXMAC__
-    if ( m_modalData ) m_modalData->ExitLoop();
-	MakeModal(FALSE);
-#endif
-	m_Parent->ViewlibFrame = NULL;
 	delete m_CurrentScreen;
+	m_Parent->ViewlibFrame = NULL;
 }
 
 /*****************************************************************/
@@ -377,5 +373,9 @@ void WinEDA_ViewlibFrame::ExportToSchematicLibraryPart(wxCommandEvent& event)
 int ii = m_CmpList->GetSelection();
 	if ( ii >= 0 ) g_CurrentViewComponentName = m_CmpList->GetString(ii);
 	else g_CurrentViewComponentName.Empty();
+#ifndef __WXMAC__
+    if ( m_modalData ) m_modalData->ExitLoop();
+	MakeModal(FALSE);
+#endif
 	Close(TRUE);
 }

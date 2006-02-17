@@ -421,7 +421,7 @@ LibEDA_BaseStruct * item;
 wxPoint move_offset;
 	
 	PtBlock = &panel->GetScreen()->BlockLocate;
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 
 	/* Effacement ancien cadre */
 	if( erase )
@@ -443,7 +443,7 @@ wxPoint move_offset;
 							continue;
 				DrawLibraryDrawStruct(panel, DC, CurrentLibEntry,
 						PtBlock->m_MoveVector.x , PtBlock->m_MoveVector.y,
-						item, CurrentUnit, XOR_MODE);
+						item, CurrentUnit, g_XorMode);
 			}
 		}
 	}
@@ -452,7 +452,7 @@ wxPoint move_offset;
 	PtBlock->m_MoveVector.x = screen->m_Curseur.x - PtBlock->m_BlockLastCursorPosition.x;
 	PtBlock->m_MoveVector.y = screen->m_Curseur.y - PtBlock->m_BlockLastCursorPosition.y;
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 	PtBlock->Offset(PtBlock->m_MoveVector);
 	PtBlock->Draw(panel, DC);
 	PtBlock->Offset( -PtBlock->m_MoveVector.x, -PtBlock->m_MoveVector.y);
@@ -471,7 +471,7 @@ wxPoint move_offset;
 						continue;
 			DrawLibraryDrawStruct(panel, DC, CurrentLibEntry,
 					PtBlock->m_MoveVector.x , PtBlock->m_MoveVector.y,
-					item, CurrentUnit, XOR_MODE);
+					item, CurrentUnit, g_XorMode);
 		}
 	}
 }

@@ -370,7 +370,7 @@ wxString bg_choice[2] = { _("White Background"), _("Black Background")};
 	m_SelBgColor = new wxRadioBox(this, ID_SEL_BG_COLOR,
 			_("Background Colour"), pos,
 			wxDefaultSize, 2, bg_choice, 1, wxRA_SPECIFY_COLS);
-	m_SelBgColor->SetSelection( (DrawBgColor == BLACK) ? 1 : 0);
+	m_SelBgColor->SetSelection( (g_DrawBgColor == BLACK) ? 1 : 0);
 }
 
 
@@ -426,10 +426,10 @@ int color;
 	if ( m_SelBgColor->GetSelection() == 0 ) color = WHITE;
 	else  color = BLACK;
 
-	if ( color != DrawBgColor )
+	if ( color != g_DrawBgColor )
 		{
-		DrawBgColor = color;
-		m_Parent->SetDrawBgColor(DrawBgColor);
+		g_DrawBgColor = color;
+		m_Parent->SetDrawBgColor(g_DrawBgColor);
 		m_Parent->ReDrawPanel();
 		}
 

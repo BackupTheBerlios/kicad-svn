@@ -181,7 +181,7 @@ void WinEDA_bodygraphics_PropertiesFrame::
 		m_Parent->DrawPanel->PrepareGraphicContext(&dc);
 
 		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry, 0 , 0,
-						CurrentDrawItem, CurrentUnit, XOR_MODE);
+						CurrentDrawItem, CurrentUnit, g_XorMode);
 
 		if( g_FlDrawSpecificUnit ) CurrentDrawItem->m_Unit = CurrentUnit;
 		else CurrentDrawItem->m_Unit = 0;
@@ -215,7 +215,7 @@ void WinEDA_bodygraphics_PropertiesFrame::
 		m_Parent->m_CurrentScreen->SetModify();
 
 		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry, 0 , 0,
-						CurrentDrawItem, CurrentUnit, XOR_MODE);
+						CurrentDrawItem, CurrentUnit, g_XorMode);
 	}
 
 	Close();
@@ -257,7 +257,7 @@ static void AbortSymbolTraceOn(WinEDA_DrawFrame * frame, wxDC * DC)
 			frame->RedrawActiveWindow( DC,TRUE);
 		}
 		else DrawLibraryDrawStruct(frame->DrawPanel, DC, CurrentLibEntry, 0 , 0,
-						CurrentDrawItem, CurrentUnit, XOR_MODE);
+						CurrentDrawItem, CurrentUnit, g_XorMode);
 		delete CurrentDrawItem;
 	}
 
@@ -402,7 +402,7 @@ int * ptpoly;
 			{
 				StartMoveDrawSymbol(DC);
 				DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry, 0 , 0,
-					Text, CurrentUnit, XOR_MODE);
+					Text, CurrentUnit, g_XorMode);
 			}
 		}
 			break;
@@ -479,14 +479,14 @@ int mx, my;
 		my = ItemPreviousPos.y - StartCursor.y ;
 		
 		DrawLibraryDrawStruct(panel, DC, CurrentLibEntry, mx, my,
-				CurrentDrawItem, CurrentUnit, XOR_MODE);
+				CurrentDrawItem, CurrentUnit, g_XorMode);
 	}
 
 	/* Redraw moved item */
 	mx = Screen->m_Curseur.x - StartCursor.x ,
 	my = Screen->m_Curseur.y - StartCursor.y ;
 	DrawLibraryDrawStruct(panel, DC, CurrentLibEntry, mx , my,
-				CurrentDrawItem, CurrentUnit, XOR_MODE);
+				CurrentDrawItem, CurrentUnit, g_XorMode);
 	ItemPreviousPos = Screen->m_Curseur;
 }
 
@@ -606,7 +606,7 @@ void WinEDA_LibeditFrame::StartMoveDrawSymbol(wxDC * DC)
 /****************************************************************/
 static void SymbolDisplayDraw(WinEDA_DrawPanel * panel, wxDC * DC, bool erase)
 {
-int DrawMode = XOR_MODE;
+int DrawMode = g_XorMode;
 int * ptpoly;
 int dx, dy;
 BASE_SCREEN * Screen = panel->m_Parent->m_CurrentScreen;
@@ -889,7 +889,7 @@ int * ptpoly;
 LibDrawPolyline * Poly = (LibDrawPolyline*)CurrentDrawItem;
 
 	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry, 0 , 0,
-						CurrentDrawItem, CurrentUnit, XOR_MODE);
+						CurrentDrawItem, CurrentUnit, g_XorMode);
 
 	while( Poly->n > 2 )	// First segment is kept, only its end point is changed
 	{
@@ -908,6 +908,6 @@ LibDrawPolyline * Poly = (LibDrawPolyline*)CurrentDrawItem;
 	Poly->PolyList = (int*)realloc(Poly->PolyList, allocsize );
 
 	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry, 0 , 0,
-					CurrentDrawItem, CurrentUnit, XOR_MODE);
+					CurrentDrawItem, CurrentUnit, g_XorMode);
 }
 

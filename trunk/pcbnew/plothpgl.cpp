@@ -29,7 +29,7 @@ wxSize SheetSize;
 wxSize BoardSize;
 wxPoint BoardCenter;
 double scale_x, scale_y;
-int marge = g_PlotMarge * U_PCB;
+int marge = 0 * U_PCB;		// Extra margin (set to 0)
 bool Center = FALSE;
 
 	modetrace = Plot_Mode;
@@ -75,7 +75,7 @@ bool Center = FALSE;
 		{
 		int tmp = g_PlotOrient; g_PlotOrient = 0;
 		InitPlotParametresHPGL(g_PlotOffset, scale_x, scale_y, g_PlotOrient);
-		PlotWorkSheet( PLOT_FORMAT_HPGL, m_CurrentScreen, g_PlotMarge );
+		PlotWorkSheet( PLOT_FORMAT_HPGL, m_CurrentScreen);
 		g_PlotOrient = tmp;
 		}
 

@@ -329,7 +329,7 @@ void SuppressDuplicateDrawItem(EDA_LibComponentStruct * LibEntry);
 /**************/
 /* NETLIST.CPP */
 /**************/
-int IsBusLabel(const wxChar * LabelDrawList);
+int IsBusLabel(const wxString & LabelDrawList);
 void * BuildNetList(WinEDA_DrawFrame * frame, SCH_SCREEN * Window);
 void InstallNetlistFrame(WinEDA_DrawFrame *parent, wxPoint &pos);
 

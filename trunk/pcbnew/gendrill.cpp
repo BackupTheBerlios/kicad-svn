@@ -747,11 +747,12 @@ wxString FullFileName, Mask(wxT("*")), Ext;
 char line[1024];
 int dX, dY;
 wxPoint BoardCentre;
-int marge = g_PlotMarge * U_PCB;
+int PlotMarge_in_mils = 400;	// Margin in 1/1000 inch
+int marge = PlotMarge_in_mils * U_PCB;
 wxSize SheetSize;
 float fTextScale = 1.0;
 double scale_x = 1.0, scale_y = 1.0;
-W_PLOT * SheetPS = NULL;
+Ki_PageDescr * SheetPS = NULL;
 wxString msg;
 	
 	/* Init extension */
@@ -822,9 +823,9 @@ wxString msg;
 			scale_x = scale_y = min(Xscale, Yscale);
 
 			g_PlotOffset.x = - (SheetSize.x/2) +
-					(int)(BoardCentre.x * scale_x) + g_PlotMarge*U_PCB;
+					(int)(BoardCentre.x * scale_x) + marge;
 			g_PlotOffset.y = SheetSize.y/2 +
-					(int)(BoardCentre.y * scale_y) + g_PlotMarge*U_PCB;
+					(int)(BoardCentre.y * scale_y) - marge;
 			g_PlotOffset.y += SheetSize.y / 8 ;	/* decalage pour legende */
 			break;
 		}
@@ -857,9 +858,9 @@ wxString msg;
 		case PLOT_FORMAT_POST:
 			{
 			int BBox[4];
-			BBox[0] = BBox[1] = g_PlotMarge;
-			BBox[2] = SheetPS->m_Size.x - g_PlotMarge;
-			BBox[3] = SheetPS->m_Size.y - g_PlotMarge;
+			BBox[0] = BBox[1] = PlotMarge_in_mils;
+			BBox[2] = SheetPS->m_Size.x - PlotMarge_in_mils;
+			BBox[3] = SheetPS->m_Size.y - PlotMarge_in_mils;
 			InitPlotParametresPS(g_PlotOffset, SheetPS,
 				(double) 1.0 / PCB_INTERNAL_UNIT, (double) 1.0 / PCB_INTERNAL_UNIT);
 			SetDefaultLineWidthPS(10);	// Set line with to 10/1000 inch
@@ -1000,7 +1001,8 @@ wxString msg;
 
 		int rayon = plot_diam/2;
 		x = plotX + rayon + (int)(CharSize * CharScale); y = plotY;
-		x = -g_PlotOffset.x + (int)(x * fTextScale); y = g_PlotOffset.y - (int)(y * fTextScale);
+		x = -g_PlotOffset.x + (int)(x * fTextScale);
+		y = g_PlotOffset.y - (int)(y * fTextScale);
 
 		/* Trace de la legende associee */
 		switch( format )

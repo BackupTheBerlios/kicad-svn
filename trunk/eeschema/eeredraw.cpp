@@ -108,7 +108,7 @@ wxString title;
 
 	RedrawStructList(DrawPanel, DC, GetScreen()->EEDrawList, GR_DEFAULT_DRAWMODE);
 
-	TraceWorkSheet(DC, GetScreen(), 0);
+	TraceWorkSheet(DC, GetScreen());
 
 	GetScreen()->Trace_Curseur(DrawPanel, DC); // reaffichage curseur
 	if(GetScreen()->ManageCurseur)
@@ -144,7 +144,7 @@ BASE_SCREEN * screen, * oldscreen = m_Parent->GetScreen();
 	RedrawStructList(this,DC, screen->EEDrawList, GR_COPY);
 
 	if ( Print_Sheet_Ref )
-		m_Parent->TraceWorkSheet(DC, screen, 0);
+		m_Parent->TraceWorkSheet(DC, screen);
 
 	m_Parent->m_CurrentScreen = oldscreen;
 	wxEndBusyCursor();
@@ -650,14 +650,14 @@ wxSize Size = Struct->m_Size;
 void DrawStructsInGhost(WinEDA_DrawPanel * panel,wxDC * DC,
 		EDA_BaseStruct * DrawStruct, int dx, int dy )
 /**********************************************************/
-/* Routine de redessin en mode fantome (Dessin simplifie en XOR_MODE et
+/* Routine de redessin en mode fantome (Dessin simplifie en g_XorMode et
  g_GhostColor
 de structures.
 	Utilisee dans les deplacements de blocs
 */
 {
 int Width, ii;
-int DrawMode = XOR_MODE;
+int DrawMode = g_XorMode;
 
 	GRSetDrawMode(DC, DrawMode);
 

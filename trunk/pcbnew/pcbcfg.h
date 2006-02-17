@@ -634,14 +634,6 @@ static  PARAM_CFG_SETCOLOR ColorCheveluCfg
 	WHITE					/* Valeur par defaut */
 );
 
-static  PARAM_CFG_INT PlotMargeCfg
-(
-	wxT("Pltmarg"),			/* identification */
-	&g_PlotMarge,			/* Adresse du parametre */
-	300,					/* Valeur par defaut */
-	0,10000				/* Valeurs extremes */
-);
-
 static  PARAM_CFG_INT HPGLpenNumCfg
 (
 	wxT("HPGLnum"),			/* identification */
@@ -906,7 +898,6 @@ PARAM_CFG_BASE * ParamCfgList[] =
 	& ColorpcbGrilleCfg,
 	& ColorCheveluCfg,
 	& HPGLpenNumCfg,
-	& PlotMargeCfg,
 	& HPGLdiamCfg,
 	& HPGLspeedCfg,
 	& HPGLrecouvrementCfg,

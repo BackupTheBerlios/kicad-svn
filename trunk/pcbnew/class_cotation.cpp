@@ -13,7 +13,12 @@
 COTATION::COTATION(EDA_BaseStruct * StructFather):
 		EDA_BaseStruct( StructFather, TYPECOTATION)
 {
-	m_Shape = 0; m_Text = new TEXTE_PCB(this);
+	m_Layer = DRAW_LAYER;
+	m_Width = 50;
+	m_Value = 0;
+	m_Shape = 0;
+	m_Unit = INCHES;
+	m_Text = new TEXTE_PCB(this);
 }
 
 /* Effacement memoire de la structure */
@@ -58,12 +63,12 @@ void COTATION:: SetText(const wxString & NewText)
 void COTATION::Copy(COTATION * source)
 /*************************************/
 {
+	m_Value = source->m_Value;
 	m_Layer = source->m_Layer;
 	m_Width = source->m_Width;
 	m_Pos = source->m_Pos;
 	m_Shape = source->m_Shape;
 	m_Unit = source->m_Unit;
-	m_Val = source->m_Val;
 	m_TimeStamp = GetTimeStamp();
 	m_Text->Copy(source->m_Text);
 
@@ -93,6 +98,12 @@ char  Line[2048], Text[2048];
 	while(  GetLine(File, Line, LineNum ) != NULL )
 		{
 		if(strnicmp(Line,"$EndCOTATION",4) == 0) return TRUE;
+
+		if(Line[0] == 'V')
+		{
+			sscanf( Line+2," %d",&m_Value);
+			continue;
+		}
 
 		if(Line[0] == 'G')
 			{
@@ -207,9 +218,12 @@ bool COTATION::WriteCotationDescr(FILE * File)
 	fprintf( File,"Ge %d %d %lX\n",m_Shape,
 			m_Layer, m_TimeStamp);
 
-	if(m_Text->GetLength())
-	fprintf( File,"Te \"%s\"\n",m_Text->m_Text.GetData());
+	fprintf( File,"Va %d\n",m_Value);
+
+	if( ! m_Text->m_Text.IsEmpty() )
+		fprintf( File,"Te \"%s\"\n",CONV_TO_UTF8(m_Text->m_Text));
 	else fprintf( File,"Te \"?\"\n");
+
 	fprintf( File,"Po %d %d %d %d %d %d %d\n",
 			m_Text->m_Pos.x, m_Text->m_Pos.y,
 			m_Text->m_Size.x, m_Text->m_Size.y,

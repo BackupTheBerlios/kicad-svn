@@ -5,13 +5,14 @@
 	 ROLE: methodes relative a la classe winEDA_App, communes
 	 aux environements window et linux
 */
+#define EDA_BASE
+#define COMMON_GLOBL
 
 #include "fctsys.h"
 #include <wx/image.h>
 #include "wx/html/htmlwin.h"
 #include "wx/fs_zip.h"
 
-#define EDA_BASE
 
 #include "wxstruct.h"
 #include "macros.h"
@@ -291,21 +292,19 @@ unsigned ii;
 
 	g_FixedFont->SetPointSize(g_FixedFontPointSize);
 
+	m_EDA_Config->Read(wxT("ShowPageLimits"), & g_ShowPageLimits);
 
 	if( m_EDA_Config->Read(wxT("WorkingDir"), &Line) )
 	{
 		if ( wxDirExists(Line) ) wxSetWorkingDirectory(Line);
 	}
-	m_EDA_Config->Read( wxT("BgColor"), &DrawBgColor);
+	m_EDA_Config->Read( wxT("BgColor"), &g_DrawBgColor);
 }
 
 
 /**********************************/
 void WinEDA_App::SaveSettings(void)
 /**********************************/
-/* Enregistre dans le fichier xxx.ini la position et dimension
-de la fenetre du logiciel xxx (eeschema, cvpcb ou pcbnew)
-*/
 {
 unsigned int ii;
 
@@ -329,6 +328,8 @@ unsigned int ii;
 
 	m_EDA_Config->Write(wxT("FixedFontSize"), g_FixedFontPointSize);
 
+	m_EDA_Config->Write(wxT("ShowPageLimits"), g_ShowPageLimits);
+	
 	m_EDA_Config->Write(wxT("WorkingDir"), wxGetCwd());
 
 	for( ii = 0; ii < 10; ii++ )

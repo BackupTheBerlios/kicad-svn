@@ -55,7 +55,7 @@ wxString currCWD = wxGetCwd();
 
 	if ( ! NetInNameBuffer.IsEmpty() )
 		wxSetWorkingDirectory( wxPathOnly(NetInNameBuffer) );
-	DrawBgColor = BLACK;
+	g_DrawBgColor = BLACK;
 
 	Read_Config(NetInNameBuffer);
 

@@ -786,7 +786,7 @@ void DrawingLibInGhost(WinEDA_DrawPanel * panel, wxDC * DC,
 					EDA_SchComponentStruct *DrawLibItem, int PartX, int PartY,
 					int multi, int convert, int Color, bool DrawPinText)
 {
-int DrawMode = XOR_MODE;
+int DrawMode = g_XorMode;
 
 	DrawLibPartAux(panel, DC, DrawLibItem, LibEntry, wxPoint(PartX, PartY),
 					DrawLibItem->m_Transform,

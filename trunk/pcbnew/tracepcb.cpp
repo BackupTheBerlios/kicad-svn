@@ -42,7 +42,7 @@ PCB_SCREEN * screen = GetScreen();
 	if ( EraseBg ) DrawPanel->EraseScreen(DC);
 
 	DrawPanel->DrawBackGround(DC);
-	TraceWorkSheet(DC, screen, g_PlotMarge);
+	TraceWorkSheet(DC, screen);
 
 	Module = (MODULE*) m_Pcb->m_Modules;
 	for ( ; Module != NULL; Module = (MODULE *) Module->Pnext )
@@ -81,7 +81,7 @@ PCB_SCREEN * Screen = GetScreen();
 	DrawPanel->DrawBackGround(DC);
 
 	Trace_Pcb(DC, GR_OR);
-	TraceWorkSheet(DC, GetScreen(), g_PlotMarge);
+	TraceWorkSheet(DC, GetScreen());
 	Affiche_Status_Box();
 
 	/* Reaffichage des curseurs */

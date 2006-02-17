@@ -18,7 +18,7 @@
 #include "protos.h"
 
 
-wxString Main_Title = wxT("GERBVIEW 22-dec-05");
+wxString Main_Title = wxT("GERBVIEW 02-jan-06");
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -41,7 +41,7 @@ wxString FFileName;
     }
 
 
-	DrawBgColor = BLACK;
+	g_DrawBgColor = BLACK;
 
 	m_GerberFrame = new WinEDA_GerberFrame(NULL, this, wxT("GerbView"),
 				 wxPoint(0,0), wxSize(600,400) );

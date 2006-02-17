@@ -24,7 +24,7 @@
 
 #include "eda_dde.h"
 
-wxString Main_Title( wxT("PCBNEW 20-dec-05") );
+wxString Main_Title( wxT("PCBNEW 02-jan-06") );
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -57,7 +57,7 @@ wxString FFileName;
 		}
 
 	Read_Config(FFileName);
-	DrawBgColor = BLACK;
+	g_DrawBgColor = BLACK;
 
 	/* allocation de la memoire pour le fichier et autres buffers: */
 	/* On reserve BUFMEMSIZE octets de ram pour calcul */

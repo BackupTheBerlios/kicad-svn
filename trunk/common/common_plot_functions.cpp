@@ -22,7 +22,7 @@ int PlotOrientOptions, etat_plume;
 
 
 // Locales
-static W_PLOT * SheetPS;
+static Ki_PageDescr * SheetPS;
 
 /**********************************************/
 void SetPlotScale(double xscale, double yscale)
@@ -59,19 +59,20 @@ void InitPlotParametresGERBER(wxPoint offset, double xscale, double yscale)
 }
 
 
-/********************************************************************/
-void PlotWorkSheet(int format_plot, BASE_SCREEN * screen, int margin )
-/********************************************************************/
+/*******************************************************/
+void PlotWorkSheet(int format_plot, BASE_SCREEN * screen)
+/*******************************************************/
 /* Plot sheet references
 	margin is in mils (1/1000 inch)
 */
 {
 #define WSTEXTSIZE 50	// Text size in mils
+Ki_PageDescr * Sheet = screen->m_CurrentSheet;
 int ii, jj, xg , yg, ipas, gxpas, gypas;
 wxSize PageSize;
 wxPoint pos, ref;
 int color;
-WorkSheet * WsItem;
+Ki_WorkSheetData * WsItem;
 int conv_unit = screen->GetInternalUnits()/1000;
 wxString msg;
 wxSize text_size;
@@ -94,13 +95,14 @@ void (*FctPlume)(wxPoint pos, int state);
 
 	color = BLACK;
 	
-	PageSize.x = screen->m_CurrentSheet->m_Size.x;
-	PageSize.y = screen->m_CurrentSheet->m_Size.y;
+	PageSize.x = Sheet->m_Size.x;
+	PageSize.y = Sheet->m_Size.y;
 
 	/* trace de la bordure */
-	ref.x = ref.y = margin * conv_unit; /* Start Point */
-	xg = (PageSize.x - margin) * conv_unit;
-	yg = (PageSize.y - margin) * conv_unit;
+	ref.x = Sheet->m_LeftMargin * conv_unit;
+	ref.y = Sheet->m_TopMargin * conv_unit;		/* Upper left corner */
+	xg = (PageSize.x - Sheet->m_RightMargin) * conv_unit;
+	yg = (PageSize.y - Sheet->m_BottomMargin) * conv_unit;	/* lower right corner */
 
 	for ( ii = 0; ii < 2 ; ii++ )
 	{
@@ -120,8 +122,10 @@ void (*FctPlume)(wxPoint pos, int state);
 	text_size.x = WSTEXTSIZE  * conv_unit;
 	text_size.y = WSTEXTSIZE  * conv_unit;
 
-	ref.x = ref.y = margin; /* Start Point */
-	xg = PageSize.x - margin; yg = PageSize.y - margin;
+	ref.x = Sheet->m_LeftMargin * conv_unit;
+	ref.y = Sheet->m_TopMargin * conv_unit;		/* Upper left corner */
+	xg = (PageSize.x - Sheet->m_RightMargin) * conv_unit;
+	yg = (PageSize.y - Sheet->m_BottomMargin) * conv_unit;	/* lower right corner */
 
 	/* Trace des reperes selon l'axe X */
 	ipas = (xg - ref.x) / PAS_REF;
@@ -188,20 +192,19 @@ void (*FctPlume)(wxPoint pos, int state);
 					GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER);
 	}
 
-
 	/* Trace du cartouche */
 	text_size.x = SIZETEXT  * conv_unit;
 	text_size.y = SIZETEXT  * conv_unit;
-	ref.x = PageSize.x - GRID_REF_W - margin;
-	ref.y = PageSize.y - GRID_REF_W - margin;
+	ref.x = PageSize.x - GRID_REF_W - Sheet->m_RightMargin;
+	ref.y = PageSize.y - GRID_REF_W - Sheet->m_BottomMargin;
 
 	for( WsItem = &WS_Date; WsItem != NULL; WsItem = WsItem->Pnext )
 	{
-		pos.x = (ref.x - WsItem->posx) * conv_unit;
-		pos.y = (ref.y - WsItem->posy) * conv_unit;
-		if(WsItem->Legende) msg = WsItem->Legende;
+		pos.x = (ref.x - WsItem->m_Posx) * conv_unit;
+		pos.y = (ref.y - WsItem->m_Posy) * conv_unit;
+		if(WsItem->m_Legende) msg = WsItem->m_Legende;
 		else msg.Empty();
-		switch( WsItem->type )
+		switch( WsItem->m_Type )
 		{
 			case WS_DATE:
 				msg += screen->m_Date;
@@ -250,8 +253,8 @@ void (*FctPlume)(wxPoint pos, int state);
 			case WS_SEGMENT:
 			{
 				wxPoint auxpos;
-				auxpos.x = PageSize.x - GRID_REF_W - margin - WsItem->endx;
-				auxpos.y = PageSize.y - GRID_REF_W - margin - WsItem->endy;
+				auxpos.x = PageSize.x - GRID_REF_W - Sheet->m_RightMargin - WsItem->m_Endx;
+				auxpos.y = PageSize.y - GRID_REF_W - Sheet->m_BottomMargin - WsItem->m_Endy;
 				auxpos.x *= conv_unit; auxpos.y *= conv_unit;
 				FctPlume(pos, 'U');
 				FctPlume(auxpos, 'D');

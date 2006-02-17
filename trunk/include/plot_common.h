@@ -28,7 +28,7 @@ typedef enum {
 void SetPlotScale(double xscale, double yscale); /* Set the plot scale for the current plotting) */
 void SetPlotOffset(wxPoint offset); /* Set the plot offset for the current plotting) */
 void InitPlotParametresGERBER(wxPoint offset, double xscale, double yscale);
-void PlotWorkSheet(int format_plot, BASE_SCREEN * screen, int margin );
+void PlotWorkSheet(int format_plot, BASE_SCREEN * screen);
 void UserToDeviceCoordinate(wxPoint & pos );
 	/* modifie les coord pos.x et pos.y pour le trace selon l'orientation, l'echelle, les offsets de trace */
 void UserToDeviceSize(wxSize & size );
@@ -38,7 +38,7 @@ void UserToDeviceSize(wxSize & size );
 /*******************************/
 /* common_plotPS_functions.cpp */
 /*******************************/
-void InitPlotParametresPS( wxPoint offset, W_PLOT * sheet, double xscale, double yscale, int orient = 0);
+void InitPlotParametresPS( wxPoint offset, Ki_PageDescr * sheet, double xscale, double yscale, int orient = 0);
 void SetDefaultLineWidthPS( int width);
 void PlotCircle_PS(wxPoint pos, int diametre, int width = -1);
 void PlotArcPS(wxPoint centre, int StAngle, int EndAngle, int rayon);
