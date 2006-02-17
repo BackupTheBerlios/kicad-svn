@@ -1,0 +1,34 @@
+## Makefile for 3d-viewer.a ( wxMAC - mac os X)
+CC = gcc
+
+# Compiler flags.
+
+CPPFLAGS =  -Wall -O2 -DPCBNEW  -I../pcbnew -I ../include -I../common\
+	  `wx-config --cxxflags`
+
+
+include ../libs.macosx
+
+TARGET = 3d-viewer
+
+FINAL = 1
+
+all: $(TARGET).a
+
+include makefile.include
+
+
+$(TARGET).a: $(OBJECTS3D) makefile.gtk makefile.include
+	rm -f $@
+	ar -rv $@ $(OBJECTS3D)
+	ranlib $@
+
+
+clean:
+		-erase *.o
+		-erase *.exe
+		-erase *.res
+		-erase *.map
+
+
+
