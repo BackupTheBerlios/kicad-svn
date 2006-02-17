@@ -120,7 +120,6 @@ int ii;
 
 	if (ScreenPcb)
 	{
-		ScreenPcb->SetGrid(g_PcbDefaultGrid);
 		ScreenPcb->m_Diviseur_Grille = Pcbdiv_grille;
 		ScreenPcb->m_UserGrid = g_UserGrid;
 		ScreenPcb->m_UserGridUnit = g_UserGrid_Unit;
@@ -160,7 +159,6 @@ wxString mask;
 					);
 	if ( FullFileName.IsEmpty() ) return;
 
-	g_PcbDefaultGrid = GetScreen()->GetGrid();
 	Pcbdiv_grille = GetScreen()->m_Diviseur_Grille;
 
 	/* ecriture de la configuration */

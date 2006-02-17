@@ -137,8 +137,8 @@ wxArrayString choices;
 		msg = _("Layer "); msg << ii+1;
 		choices.Add(msg);
 	}
-	m_SelLayerBox = new wxComboBox(m_HToolBar, ID_TOOLBARH_PCB_SELECT_LAYER, wxEmptyString,
-					wxDefaultPosition, wxSize(150, -1), choices, wxCB_READONLY);
+	m_SelLayerBox = new WinEDAChoiceBox(m_HToolBar, ID_TOOLBARH_PCB_SELECT_LAYER,
+					wxDefaultPosition, wxSize(150, -1), choices);
 	m_SelLayerBox->SetSelection( GetScreen()->m_Active_Layer );
 	m_HToolBar->AddControl(m_SelLayerBox);
 
@@ -151,8 +151,8 @@ wxArrayString choices;
 		msg = _("Tool "); msg << ii + FIRST_DCODE;
 		choices.Add(msg);
 	}
-	m_SelLayerTool = new wxComboBox(m_HToolBar, ID_TOOLBARH_GERBER_SELECT_TOOL, wxEmptyString,
-					wxDefaultPosition, wxSize(150, -1), choices, wxCB_READONLY);
+	m_SelLayerTool = new WinEDAChoiceBox(m_HToolBar, ID_TOOLBARH_GERBER_SELECT_TOOL,
+					wxDefaultPosition, wxSize(150, -1), choices);
 	m_HToolBar->AddControl(m_SelLayerTool);
 
 

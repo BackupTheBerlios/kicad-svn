@@ -602,6 +602,18 @@ int SetHightColor;
 		x2 = BoundaryBox.GetRight();
 		y2 = BoundaryBox.GetBottom();
 		GRRect(&panel->m_ClipBox, DC, x1, y1, x2, y2, BROWN);
+		BoundaryBox = Component->m_Field[REFERENCE].GetBoundaryBox();
+		x1 = BoundaryBox.GetX();
+		y1 = BoundaryBox.GetY();
+		x2 = BoundaryBox.GetRight();
+		y2 = BoundaryBox.GetBottom();
+		GRRect(&panel->m_ClipBox, DC, x1, y1, x2, y2, BROWN);
+		BoundaryBox = Component->m_Field[VALUE].GetBoundaryBox();
+		x1 = BoundaryBox.GetX();
+		y1 = BoundaryBox.GetY();
+		x2 = BoundaryBox.GetRight();
+		y2 = BoundaryBox.GetBottom();
+		GRRect(&panel->m_ClipBox, DC, x1, y1, x2, y2, BROWN);
 	}
 }
 

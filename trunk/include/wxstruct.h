@@ -58,6 +58,7 @@ class WinEDA_Toolbar;
 class WinEDA_CvpcbFrame;
 class WinEDA_PcbFrame;
 class WinEDA_ModuleEditFrame;
+class WinEDAChoiceBox;
 #define WinEDA_MenuBar wxMenuBar
 #define WinEDA_Menu wxMenu
 #define WinEDA_MenuItem wxMenuItem
@@ -192,8 +193,9 @@ public:
 	WinEDA_Toolbar * m_OptionsToolBar;	// Options Toolbar (left side)
 	WinEDA_Toolbar * m_AuxiliaryToolBar;	// Toolbar auxiliaire (utilisé dans pcbnew)
 
-	wxChoice * m_SelGridBox;		// Dialog box to choose the grid size
-	wxChoice * m_SelZoomBox;		// Dialog box to choose the Zoom value
+	WinEDAChoiceBox * m_SelGridBox;		// Dialog box to choose the grid size
+	WinEDAChoiceBox * m_SelZoomBox;		// Dialog box to choose the Zoom value
+	int m_ZoomMaxValue;					// Max zoom value: Draw min scale is 1/m_ZoomMaxValue
 
 	BASE_SCREEN * m_CurrentScreen;		// SCREEN en cours
 
@@ -421,6 +423,7 @@ public:
 
 	// Gestion des chevelus (ratsnest)
 	void Compile_Ratsnest(wxDC * DC, bool affiche);	/* Recalcul complet du chevelu */
+	void ReCompile_Ratsnest_After_Changes(wxDC *  DC );
 	int Test_1_Net_Ratsnest(wxDC * DC, int net_code);
 	char * build_ratsnest_module(wxDC * DC, MODULE *Module);
 	void trace_ratsnest_module(wxDC * DC);
@@ -476,13 +479,12 @@ public:
 	/*****************************************************/
 	/* class WinEDA_PcbFrame: public WinEDA_BasePcbFrame */
 	/*****************************************************/
-
 class WinEDA_PcbFrame: public WinEDA_BasePcbFrame
 {
 public:
-	wxComboBox * m_SelLayerBox;
-	wxComboBox * m_SelTrackWidthBox;
-	wxComboBox * m_SelViaSizeBox;
+	WinEDAChoiceBox * m_SelLayerBox;
+	WinEDAChoiceBox * m_SelTrackWidthBox;
+	WinEDAChoiceBox * m_SelViaSizeBox;
 
 private:
 	bool m_SelTrackWidthBox_Changed;
@@ -514,7 +516,7 @@ public:
 	void ReCreateAuxVToolbar(void);
 	void ReCreateOptToolbar(void);
 	void ReCreateMenuBar(void);
-    wxComboBox * ReCreateLayerBox( WinEDA_Toolbar * parent);
+    WinEDAChoiceBox * ReCreateLayerBox( WinEDA_Toolbar * parent);
 	void OnLeftClick(wxDC * DC, const wxPoint& MousePos);
 	void OnLeftDClick(wxDC * DC, const wxPoint& MousePos);
 	void OnRightClick(const wxPoint& MousePos, wxMenu * PopMenu);
@@ -692,8 +694,8 @@ public:
 class WinEDA_GerberFrame: public WinEDA_BasePcbFrame
 {
 public:
-	wxComboBox * m_SelLayerBox;
-	wxComboBox * m_SelLayerTool;
+	WinEDAChoiceBox * m_SelLayerBox;
+	WinEDAChoiceBox * m_SelLayerTool;
 private:
 	wxMenu * m_FilesMenu;
 
@@ -880,7 +882,7 @@ enum fl_rot_cmp
 class WinEDA_SchematicFrame: public WinEDA_DrawFrame
 {
 public:
-	wxComboBox * m_SelPartBox;
+	WinEDAChoiceBox * m_SelPartBox;
 private:
 	wxMenu * m_FilesMenu;
 
@@ -1032,8 +1034,8 @@ public:
 class WinEDA_LibeditFrame: public WinEDA_DrawFrame
 {
 public:
-	wxComboBox * m_SelpartBox;
-	wxComboBox * m_SelAliasBox;
+	WinEDAChoiceBox * m_SelpartBox;
+	WinEDAChoiceBox * m_SelAliasBox;
 
 public:
 	WinEDA_LibeditFrame( wxWindow * father, WinEDA_App *parent,
@@ -1131,7 +1133,7 @@ class LibraryStruct;
 class WinEDA_ViewlibFrame: public WinEDA_DrawFrame
 {
 public:
-	wxComboBox *SelpartBox;
+	WinEDAChoiceBox *SelpartBox;
 
 	wxListBox * m_LibList;
 	wxSize m_LibListSize;
@@ -1451,6 +1453,43 @@ private:
 	DECLARE_EVENT_TABLE()
 };
 
+
+/*************************/
+/* class WinEDAChoiceBox */
+/*************************/
+/* class to display a choice list.
+wThis is a wrapper to wxComboBox (or wxChoice)
+but because they have some problems WinEDAChoiceBox uses workarounds
+in wxGTG 2.6.2 wxGetSelection() does not work properly,
+and wxChoice crashes if compiled in non unicode modes and uses utf8 codes
+*/ 
+
+#define EVT_KICAD_CHOICEBOX EVT_COMBOBOX
+class WinEDAChoiceBox : public wxComboBox
+{
+public:
+	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
+				const wxPoint& pos = wxDefaultPosition,
+				const wxSize& size = wxDefaultSize,
+				int n = 0, const wxString choices[] = NULL) :
+		wxComboBox(parent, id, wxEmptyString, pos, size,
+				n, choices, wxCB_READONLY)
+	{
+	}
+
+	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
+				const wxPoint& pos = wxDefaultPosition,
+				const wxSize& size = wxDefaultSize,
+				const wxArrayString & choices) :
+		wxComboBox(parent, id, wxEmptyString, pos, size,
+				choices, wxCB_READONLY)
+	{
+	}
+
+	int GetChoice(void){
+		return GetCurrentSelection();
+	}
+};
 
 #endif  /* WXSTRUCT_H */
 

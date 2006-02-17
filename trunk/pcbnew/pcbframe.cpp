@@ -24,8 +24,8 @@ BEGIN_EVENT_TABLE(WinEDA_PcbFrame, wxFrame)
 	EVT_SOCKET(ID_EDA_SOCKET_EVENT_SERV, WinEDA_PcbFrame::OnSockRequestServer)
 	EVT_SOCKET(ID_EDA_SOCKET_EVENT, WinEDA_PcbFrame::OnSockRequest)
 
-	EVT_CHOICE(ID_ON_ZOOM_SELECT,WinEDA_PcbFrame::OnSelectZoom)
-	EVT_CHOICE(ID_ON_GRID_SELECT,WinEDA_PcbFrame::OnSelectGrid)
+	EVT_KICAD_CHOICEBOX(ID_ON_ZOOM_SELECT,WinEDA_PcbFrame::OnSelectZoom)
+	EVT_KICAD_CHOICEBOX(ID_ON_GRID_SELECT,WinEDA_PcbFrame::OnSelectGrid)
 
 	EVT_CLOSE(WinEDA_PcbFrame::OnCloseWindow)
 	EVT_SIZE(WinEDA_PcbFrame::OnSize)
@@ -109,11 +109,11 @@ BEGIN_EVENT_TABLE(WinEDA_PcbFrame, wxFrame)
 	EVT_TOOL(ID_FIND_ITEMS, WinEDA_PcbFrame::Process_Special_Functions)
 	EVT_TOOL(ID_GET_NETLIST, WinEDA_PcbFrame::Process_Special_Functions)
 	EVT_TOOL(ID_DRC_CONTROL, WinEDA_PcbFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_TOOLBARH_PCB_SELECT_LAYER,
+	EVT_KICAD_CHOICEBOX(ID_TOOLBARH_PCB_SELECT_LAYER,
 					WinEDA_PcbFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,
+	EVT_KICAD_CHOICEBOX(ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,
 					WinEDA_PcbFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_AUX_TOOLBAR_PCB_VIA_SIZE,
+	EVT_KICAD_CHOICEBOX(ID_AUX_TOOLBAR_PCB_VIA_SIZE,
 					WinEDA_PcbFrame::Process_Special_Functions)
 	EVT_TOOL(ID_TOOLBARH_PCB_AUTOPLACE, WinEDA_PcbFrame::AutoPlace)
 	EVT_TOOL(ID_TOOLBARH_PCB_AUTOROUTE, WinEDA_PcbFrame::AutoPlace)
@@ -183,6 +183,7 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 	m_SelTrackWidthBox = NULL;
 	m_SelViaSizeBox = NULL;
     m_SelLayerBox = NULL;
+	m_ZoomMaxValue = 2048;
 	m_SelTrackWidthBox_Changed = FALSE;
 	m_SelViaSizeBox_Changed = FALSE;
 
@@ -202,6 +203,17 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 	GetSettings();
 	SetSize(m_FramePos.x, m_FramePos.y, m_FrameSize.x, m_FrameSize.y);
 
+	wxSize GridSize(500,500);
+	if ( m_Parent && m_Parent->m_EDA_Config )
+	{
+		long SizeX, SizeY;
+		if ( m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_X"), &SizeX) &&
+			 m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_Y"), &SizeY) )
+		GridSize.x = SizeX;
+		GridSize.y = SizeY;
+	}
+	GetScreen()->SetGrid(GridSize);
+	
 	if ( DrawPanel ) DrawPanel->m_Block_Enable = TRUE;
 	ReCreateMenuBar();
 	ReCreateHToolbar();
@@ -265,6 +277,12 @@ PCB_SCREEN * screen;
 	m_CurrentScreen = ActiveScreen = ScreenPcb;
 
 	SaveSettings();
+	if ( m_Parent && m_Parent->m_EDA_Config )
+	{
+		wxSize GridSize = GetScreen()->GetGrid();
+		m_Parent->m_EDA_Config->Write( wxT("PcbEditGrid_X"), (long)GridSize.x);
+		m_Parent->m_EDA_Config->Write( wxT("PcbEditGrid_Y"), (long)GridSize.y);
+	}
 	Destroy();
 }
 
@@ -429,22 +447,22 @@ int ii, jj;
 
 		if ( m_SelZoomBox )
 			{
-			int kk = m_SelZoomBox->GetSelection();
-			for ( jj = 0, ii = 1; ii <= 2048; ii <<= 1, jj++ )
-				{
-				if ( m_CurrentScreen && (m_CurrentScreen->GetZoom() == ii) )
+			int old_choice = m_SelZoomBox->GetChoice();
+			int new_choice = 1;
+			int zoom;
+			for ( jj = 1, zoom = 1; zoom <= m_ZoomMaxValue; zoom <<= 1, jj++ )
 					{
-					if ( kk != jj )m_SelZoomBox->SetSelection(jj);
-					kk = jj;
+				if ( m_CurrentScreen && (m_CurrentScreen->GetZoom() == zoom) )
 					break;
+					new_choice++;
 					}
-				}
-			if ( kk != jj )m_SelZoomBox->SetSelection(-1);
+			if ( old_choice != new_choice )
+				m_SelZoomBox->SetSelection(new_choice);
 			}
 
 		if ( m_SelGridBox && m_CurrentScreen)
 			{
-			int kk = m_SelGridBox->GetSelection();
+			int kk = m_SelGridBox->GetChoice();
 			for ( ii = 0; g_GridList[ii].x > 0; ii++ )
 				{
 				if ( !m_CurrentScreen->m_UserGridIsON &&

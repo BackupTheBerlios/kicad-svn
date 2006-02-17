@@ -57,7 +57,7 @@ private:
 	WinEDA_SizeCtrl * m_TxtSizeCtrl;
 	WinEDA_ValueCtrl * m_TxtWidthCtrl;
 	wxRadioBox * m_Mirror;
-	wxComboBox * m_SelLayerBox;
+	WinEDAChoiceBox * m_SelLayerBox;
 
 public:
 	// Constructor and destructor
@@ -135,8 +135,8 @@ wxString display_msg[2] = { _("Normal"), _("Mirror") };
 	pos.y += 10 + m_TxtWidthCtrl->GetDimension().y;
 	new wxStaticText(this, -1, _("Layer:"), pos);
 	pos.y += 12;
-	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER,wxEmptyString,
-					pos, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_SelLayerBox = new WinEDAChoiceBox(this, ID_TEXTPCB_SELECT_LAYER,
+					pos, wxDefaultSize);
 	int ii;
 	for ( ii = CMP_N + 1; ii < 29 ; ii ++ )
 		{
@@ -173,7 +173,7 @@ void WinEDA_CotationPropertiesFrame::CotationPropertiesAccept(wxCommandEvent& ev
 		m_TxtWidthCtrl->GetValue();
 	CurrentCotation->m_Text->m_Miroir = (m_Mirror->GetSelection() == 0) ? 1 : 0;
 	CurrentCotation->m_Layer = CurrentCotation->m_Text->m_Layer =
-			m_SelLayerBox->GetSelection() + CMP_N + 1;
+			m_SelLayerBox->GetChoice() + CMP_N + 1;
 
 	CurrentCotation->m_Text->CreateDrawData();
 

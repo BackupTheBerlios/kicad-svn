@@ -814,6 +814,7 @@ int itmp;
 
 		case ID_POPUP_PCB_DELETE_PAD:
 			DeletePad((D_PAD *)CURRENT_ITEM, &dc);
+			GetScreen()->m_CurrentItem = NULL;
 			DrawPanel->MouseToCursorSchema();
 			break;
 
@@ -865,7 +866,7 @@ int itmp;
 			break;
 
 		case ID_TOOLBARH_PCB_SELECT_LAYER:
-			itmp = m_SelLayerBox->GetSelection();
+			itmp = m_SelLayerBox->GetChoice();
 			GetScreen()->m_Active_Layer = (int)((size_t) m_SelLayerBox->GetClientData(itmp));
 			if ( DisplayOpt.ContrastModeDisplay ) DrawPanel->Refresh(TRUE);
 			break;
@@ -976,7 +977,7 @@ int itmp;
 
 		case ID_AUX_TOOLBAR_PCB_TRACK_WIDTH:
 			{
-			int ii = m_SelTrackWidthBox->GetSelection();
+			int ii = m_SelTrackWidthBox->GetChoice();
 			g_DesignSettings.m_CurrentTrackWidth = g_DesignSettings.m_TrackWidhtHistory[ii];
 			DisplayTrackSettings();
 			m_SelTrackWidthBox_Changed = FALSE;
@@ -1004,7 +1005,7 @@ int itmp;
 
 		case ID_AUX_TOOLBAR_PCB_VIA_SIZE:
 			{
-			int ii = m_SelViaSizeBox->GetSelection();
+			int ii = m_SelViaSizeBox->GetChoice();
 			g_DesignSettings.m_CurrentViaSize = g_DesignSettings.m_ViaSizeHistory[ii];
 			DisplayTrackSettings();
 			m_SelTrackWidthBox_Changed = FALSE;

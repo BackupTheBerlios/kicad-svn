@@ -17,9 +17,9 @@
 #define BITMAP wxBitmap
 
 #ifdef __UNIX__
-#define LISTBOX_WIDTH 120
+#define LISTBOX_WIDTH 140
 #else
-#define LISTBOX_WIDTH 100
+#define LISTBOX_WIDTH 120
 #endif
 
 #include  "wx/ownerdrw.h"
@@ -346,35 +346,38 @@ wxString msg;
 
 		// Set up toolbar
 		m_AuxiliaryToolBar->AddSeparator();
-		m_SelTrackWidthBox = new wxComboBox(m_AuxiliaryToolBar,
-					ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,wxEmptyString,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+20, -1), 0, NULL, wxCB_READONLY);
+		m_SelTrackWidthBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
+					ID_AUX_TOOLBAR_PCB_TRACK_WIDTH,
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+20, -1));
 		m_AuxiliaryToolBar->AddControl(m_SelTrackWidthBox);
 		m_SelTrackWidthBox_Changed = TRUE;
 
 		m_AuxiliaryToolBar->AddSeparator();
-		m_SelViaSizeBox = new wxComboBox(m_AuxiliaryToolBar,
-					ID_AUX_TOOLBAR_PCB_VIA_SIZE,wxEmptyString,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+10, -1), 0, NULL, wxCB_READONLY);
+		m_SelViaSizeBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
+					ID_AUX_TOOLBAR_PCB_VIA_SIZE,
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH+10, -1));
 		m_AuxiliaryToolBar->AddControl(m_SelViaSizeBox);
 
 		m_AuxiliaryToolBar->AddSeparator();
 		// Boite de selection du pas de grille
-		m_SelGridBox = new wxChoice(m_AuxiliaryToolBar,
+		m_SelGridBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
 					ID_ON_GRID_SELECT,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1), 0);
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1));
 		m_AuxiliaryToolBar->AddControl( m_SelGridBox);
 
 		// Boite de selection du Zoom
 		m_AuxiliaryToolBar->AddSeparator();
-		m_SelZoomBox = new wxChoice(m_AuxiliaryToolBar,
+		m_SelZoomBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
 					ID_ON_ZOOM_SELECT,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1), 0);
-		for ( int jj = 0, ii = 1; ii <= 2048; ii <<= 1, jj++ )
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1));
+		msg = _("Auto");
+		m_SelZoomBox->Append(msg);
+		for ( int jj = 0, ii = 1; ii <= m_ZoomMaxValue; ii <<= 1, jj++ )
 		{
 			msg = _("Zoom "); msg << ii;
 			m_SelZoomBox->Append(msg);
 		}
+		m_SelZoomBox->Append(wxT(""));
 
 		m_AuxiliaryToolBar->AddControl( m_SelZoomBox);
 
@@ -407,7 +410,7 @@ wxString msg;
 
 
 /**********************************************************************/
-wxComboBox * WinEDA_PcbFrame::ReCreateLayerBox(WinEDA_Toolbar * parent)
+WinEDAChoiceBox * WinEDA_PcbFrame::ReCreateLayerBox(WinEDA_Toolbar * parent)
 /**********************************************************************/
 {
 int ii, jj, ll;
@@ -417,8 +420,8 @@ long current_mask_layer;
     if ( m_SelLayerBox == NULL )
 	{
 		if ( parent == NULL ) return NULL;
-    	m_SelLayerBox = new wxComboBox(parent, ID_TOOLBARH_PCB_SELECT_LAYER,wxEmptyString,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1), 0, NULL, wxCB_READONLY);
+    	m_SelLayerBox = new WinEDAChoiceBox(parent, ID_TOOLBARH_PCB_SELECT_LAYER,
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH, -1));
 		parent->AddControl(m_SelLayerBox);
 	}
 
@@ -441,11 +444,8 @@ long current_mask_layer;
 		    {
 		    if ( (g_TabOneLayerMask[ii] & Masque_Layer) )
        		    {
-//				int color = g_DesignSettings.m_LayerColor[ii];
            	    m_SelLayerBox->Append(ReturnPcbLayerName(ii));
            	    m_SelLayerBox->SetClientData(jj, (void*)ii);
-//				m_SelLayerBox->GetItem(jj)->SetBackgroundColour(wxColor(
-//						ColorRefs[color].m_Red, ColorRefs[color].m_Green, ColorRefs[color].m_Blue));
       		    jj++;
                 }
             }
@@ -455,7 +455,7 @@ long current_mask_layer;
 	// Pour eviter la reentrance (Bug wxGTK version Linux?), la selection n'est faite que si
 	// elle est mauvaise (Pb corrige sur wxGTK 2.6.0)
     jj = m_SelLayerBox->GetCount();
-    ll = m_SelLayerBox->GetSelection();
+    ll = m_SelLayerBox->GetChoice();
    	for ( ii = 0; ii < jj ; ii ++ )
         {
   		if ( (int)((size_t)m_SelLayerBox->GetClientData(ii)) == GetScreen()->m_Active_Layer )

@@ -350,9 +350,50 @@ char Line[1024], *data;
 			continue;
 		}
 
+		if(stricmp(Line, "GridSize") == 0)
+		{
+			wxSize Grid;
+			Grid.x = atoi(data);
+			data = strtok(NULL," =\n\r");
+			if ( data ) Grid.y = atoi(data);
+			else Grid.y = Grid.x;
+			GetScreen()->SetGrid(Grid);
+			continue;
+		}
+
 		if(stricmp(Line, "ZoneGridSize") == 0)
 		{
 			pas_route = atoi(data);
+			continue;
+		}
+
+		if(stricmp(Line, "UserGridSize") == 0)
+		{
+			wxString msg;
+			if ( data )
+			{
+				from_point(data);
+				msg = CONV_FROM_UTF8(data);
+				msg.ToDouble(&g_UserGrid.x);
+			}
+			else continue;
+			data = strtok(NULL," =\n\r");
+			if ( data )
+			{
+				from_point(data);
+				msg = CONV_FROM_UTF8(data);
+				msg.ToDouble(&g_UserGrid.y);
+			}
+			else g_UserGrid.y = g_UserGrid.x;
+			GetScreen()->m_UserGrid = g_UserGrid;
+			data = strtok(NULL," =\n\r");
+			if ( data )
+			{			
+				if ( stricmp(data, "mm") == 0 )
+					g_UserGrid_Unit = MILLIMETRE;
+				else g_UserGrid_Unit = INCHES;
+				GetScreen()->m_UserGridUnit = g_UserGrid_Unit;
+			}
 			continue;
 		}
 
@@ -457,20 +498,35 @@ char Line[1024], *data;
 
 
 #ifdef PCBNEW
-/**********************************************************/
-static int WriteSetup(FILE * File, WinEDA_DrawFrame * frame)
-/**********************************************************/
+/***************************************************************/
+static int WriteSetup(FILE * File, WinEDA_BasePcbFrame * frame)
+/***************************************************************/
 {
 char text[1024];
-int ii;
+int ii, jj;
 
 	fprintf(File,"$SETUP\n");
 	sprintf(text, "InternalUnit %f INCH\n", 1.0/PCB_INTERNAL_UNIT);
 	to_point(text);
 	fprintf(File, text);
-	fprintf(File, "GridSize %d %d\n",
-		frame->GetScreen()->GetGrid().x, frame->GetScreen()->GetGrid().y);
+	
+	if ( frame->GetScreen()->m_UserGridIsON ) ii = jj = -1;
+	else 
+	{
+		ii = frame->GetScreen()->GetGrid().x;
+		jj = frame->GetScreen()->GetGrid().y;
+	}
+	sprintf(text, "GridSize %d %d\n", ii, jj);
+	fprintf(File, text);
+	
+	sprintf(text, "UserGridSize %lf %lf %s\n",
+			frame->GetScreen()->m_UserGrid.x, frame->GetScreen()->m_UserGrid.y,
+		 ( g_UserGrid_Unit == 0 )? "INCH" : "mm");
+	to_point(text);
+	fprintf(File, text);
+	
 	fprintf(File, "ZoneGridSize %d\n", pas_route);
+	
 	fprintf(File, "Layers %d\n", g_DesignSettings.m_CopperLayerCount);
 	fprintf(File, "TrackWidth %d\n", g_DesignSettings.m_CurrentTrackWidth);
 	for ( ii = 0; ii < HIST0RY_NUMBER; ii++)
@@ -973,7 +1029,7 @@ MODULE * Module;
 
 	Pas = 100.0; if(NbModules) Pas /= NbModules;
 	Module = m_Pcb->m_Modules;
-	for( ii = 1 ; Module != NULL; Module = (MODULE*)Module->Pnext, ii++)
+	for( ii = 1 ; Module != NULL; Module = Module->Next(), ii++)
 		{
 		Module->WriteDescr(File);
 		DisplayActivity((int)(ii * Pas) , wxT("Modules:"));

@@ -24,8 +24,8 @@ BEGIN_EVENT_TABLE(WinEDA_ModuleEditFrame, wxFrame)
 	EVT_CLOSE(WinEDA_ModuleEditFrame::OnCloseWindow)
 	EVT_SIZE(WinEDA_ModuleEditFrame::OnSize)
 
-	EVT_CHOICE(ID_ON_ZOOM_SELECT,WinEDA_PcbFrame::OnSelectZoom)
-	EVT_CHOICE(ID_ON_GRID_SELECT,WinEDA_PcbFrame::OnSelectGrid)
+	EVT_KICAD_CHOICEBOX(ID_ON_ZOOM_SELECT,WinEDA_PcbFrame::OnSelectZoom)
+	EVT_KICAD_CHOICEBOX(ID_ON_GRID_SELECT,WinEDA_PcbFrame::OnSelectGrid)
 
 	EVT_TOOL_RANGE(ID_ZOOM_PLUS_BUTT, ID_ZOOM_PAGE_BUTT,
 			WinEDA_ModuleEditFrame::Process_Zoom)
@@ -112,6 +112,7 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 	m_Draw_Axes = TRUE;			// TRUE pour avoir les axes dessines
 	m_Draw_Grid = TRUE;			// TRUE pour avoir la axes dessinee
 	m_Draw_Sheet_Ref = FALSE;	// TRUE pour avoir le cartouche dessiné
+	m_ZoomMaxValue = 1024;
 	// Give an icon
 	SetIcon(wxICON(icon_modedit));
 
@@ -132,12 +133,17 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 	m_CurrentScreen = ScreenModule;
 	GetScreen()->m_CurrentItem = NULL;
 	GetSettings();
+
+	wxSize GridSize(500,500);
 	if ( m_Parent && m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_X"), &g_ModEditGrid.x, 500);
-		m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_Y"), &g_ModEditGrid.y, 500);
+		long SizeX, SizeY;
+		if ( m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_X"), &SizeX) &&
+			 m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_Y"), &SizeY) )
+		GridSize.x = SizeX;
+		GridSize.y = SizeY;
 	}
-	GetScreen()->SetGrid(g_ModEditGrid);
+	GetScreen()->SetGrid(GridSize);
 
 	SetSize(m_FramePos.x, m_FramePos.y, m_FrameSize.x, m_FrameSize.y);
 	ReCreateMenuBar();
@@ -169,12 +175,12 @@ void WinEDA_ModuleEditFrame::OnCloseWindow(wxCloseEvent & Event)
 		}
 	}
 
-	g_ModEditGrid = GetScreen()->GetGrid();
 	SaveSettings();
 	if ( m_Parent && m_Parent->m_EDA_Config )
 	{
-		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_X"), (long)g_ModEditGrid.x);
-		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_Y"), (long)g_ModEditGrid.y);
+		wxSize GridSize = GetScreen()->GetGrid();
+		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_X"), (long)GridSize.x);
+		m_Parent->m_EDA_Config->Write( wxT("ModEditGrid_Y"), (long)GridSize.y);
 	}
 	Destroy();
 }
@@ -252,22 +258,22 @@ bool active, islib = TRUE;
 		int ii, jj;
 		if ( m_SelZoomBox )
 			{
-			int kk = m_SelZoomBox->GetSelection();
-			for ( jj = 0, ii = 1; ii <= 1048; ii <<= 1, jj++ )
-				{
-				if ( GetScreen() && (GetScreen()->GetZoom() == ii) )
+			int old_choice = m_SelZoomBox->GetChoice();
+			int new_choice = 1;
+			int zoom;
+			for ( jj = 1, zoom = 1; zoom <= m_ZoomMaxValue; zoom <<= 1, jj++ )
 					{
-					if ( kk != jj )m_SelZoomBox->SetSelection(jj);
-					kk = jj;
+				if ( m_CurrentScreen && (m_CurrentScreen->GetZoom() == zoom) )
 					break;
+					new_choice++;
 					}
-				}
-			if ( kk != jj )m_SelZoomBox->SetSelection(-1);
+			if ( old_choice != new_choice )
+				m_SelZoomBox->SetSelection(new_choice);
 			}
 
 		if ( m_SelGridBox && GetScreen() )
 			{
-			int kk = m_SelGridBox->GetSelection();
+			int kk = m_SelGridBox->GetChoice();
 			for ( ii = 0; g_GridList[ii].x > 0; ii++ )
 				{
 				if ( !GetScreen()->m_UserGridIsON &&

@@ -327,7 +327,7 @@ double xx, scale;
 	
 	if ( m_GridList == NULL ) return wxSize(1,1);
 
-	if ( m_UserGridIsON )
+	if ( m_UserGridIsON || m_Grid.x < 0 || m_Grid.y < 0 )
 	{
 		if ( m_UserGridUnit == INCHES ) scale = 10000;
 		else scale = 10000/25.4;

@@ -308,7 +308,7 @@ void WinEDA_DrawPanel::AddMenuZoom( wxMenu * MasterMenu )
 {
 int zoom;
 wxSize grid;
-int zoom_list[] = {1, 2, 4, 8 , 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+int zoom_value;
 wxString zoom_msg = _("Zoom: ");
 wxString grid_msg = _("Grid:"), msg;
 int ii;
@@ -356,16 +356,20 @@ wxMenu * zoom_choice = new wxMenu;
 
 	/* Creation de la liste minimale des zooms: */
 	zoom = m_Parent->m_CurrentScreen->GetZoom();
-	for ( ii = 0; zoom_list[ii] <= 128; ii ++ )	// Create zoom choice 1 .. 128
+	zoom_value = 1;
+	for ( ii = 0; zoom_value <= m_Parent->m_ZoomMaxValue; zoom_value <<= 1, ii ++ )	// Create zoom choice 1 .. zoom max
 	{
-		line.Printf( wxT("%u"), zoom_list[ii]);
+		line.Printf( wxT("%u"), zoom_value);
 		zoom_choice->Append(ID_POPUP_ZOOM_LEVEL_1 + ii,
 				zoom_msg + line, wxEmptyString,TRUE);
-		if( zoom == zoom_list[ii] )
+		if( zoom == zoom_value )
 			zoom_choice->Check(ID_POPUP_ZOOM_LEVEL_1 + ii, TRUE);
 	}
 
 wxMenu * grid_choice = new wxMenu;
+	ADD_MENUITEM_WITH_SUBMENU(MasterMenu, grid_choice,
+					ID_POPUP_GRID_SELECT, _("Grid Select"), grid_select_xpm);
+
 	grid = m_Parent->m_CurrentScreen->GetGrid();
 	switch(m_Parent->m_Ident )
 		{
@@ -373,18 +377,6 @@ wxMenu * grid_choice = new wxMenu;
 		case GERBER_FRAME:
 		case PCB_FRAME:
 		case CVPCB_DISPLAY_FRAME:
-			for ( ; zoom_list[ii] <= 1024; ii ++ )	// Create zoom choice 256 .. 1024
-				{
-				line.Printf( wxT("%u"), zoom_list[ii]);
-				zoom_choice->Append(ID_POPUP_ZOOM_LEVEL_1 + ii,
-					zoom_msg + line, wxEmptyString,TRUE);
-				if( zoom == zoom_list[ii] )
-				zoom_choice->Check(ID_POPUP_ZOOM_LEVEL_1 + ii, TRUE);
-				}
-
-			ADD_MENUITEM_WITH_SUBMENU(MasterMenu, grid_choice,
-					ID_POPUP_GRID_SELECT, _("Grid Select"), grid_select_xpm);
-
 			for ( ii = 0; ; ii ++ )	// Create grid list
 			{
 				msg = grid_msg + grid_list_pcb[ii].m_msg;
@@ -402,8 +394,6 @@ wxMenu * grid_choice = new wxMenu;
 
 		case SCHEMATIC_FRAME:
 		case LIBEDITOR_FRAME:
-			ADD_MENUITEM_WITH_SUBMENU(MasterMenu, grid_choice,
-					ID_POPUP_GRID_SELECT, _("Grid Select"), grid_select_xpm);
 			for ( ii = 0; ; ii ++ )	// Create zoom choice 256 .. 1024
 			{
 				if ( grid_list_schematic[ii].m_value <= 0)

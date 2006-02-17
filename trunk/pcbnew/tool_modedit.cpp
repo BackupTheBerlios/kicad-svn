@@ -255,21 +255,24 @@ wxString msg;
 		m_AuxiliaryToolBar->AddSeparator();
 
 		// Boite de selection du pas de grille
-		m_SelGridBox = new wxChoice(m_AuxiliaryToolBar,
+		m_SelGridBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
 					ID_ON_GRID_SELECT,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH , -1), 0);
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH , -1));
 		m_AuxiliaryToolBar->AddControl( m_SelGridBox);
 
 		// Boite de selection du Zoom
 		m_AuxiliaryToolBar->AddSeparator();
-		m_SelZoomBox = new wxChoice(m_AuxiliaryToolBar,
+		m_SelZoomBox = new WinEDAChoiceBox(m_AuxiliaryToolBar,
 					ID_ON_ZOOM_SELECT,
-					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH , -1), 0);
-		for ( int jj = 0, ii = 1; ii <= 1024; ii <<= 1, jj++ )
+					wxPoint(-1,-1), wxSize(LISTBOX_WIDTH , -1));
+		msg = _("Auto");
+		m_SelZoomBox->Append(msg);
+		for ( int jj = 0, ii = 1; ii <= m_ZoomMaxValue; ii <<= 1, jj++ )
 			{
-			msg.Printf(wxT("Zoom %d"), ii);
+			msg.Printf(_("Zoom %d"), ii);
 			m_SelZoomBox->Append(msg);
 			}
+		m_SelZoomBox->Append(wxT(""));
 
 		m_AuxiliaryToolBar->AddControl( m_SelZoomBox);
 		// after adding the buttons to the toolbar, must call Realize() to reflect
@@ -283,9 +286,9 @@ wxString msg;
 		{
 		double value = To_User_Unit(UnitMetric, g_GridList[ii].x, PCB_INTERNAL_UNIT);
 				if ( UnitMetric == INCHES )
-					msg.Printf(wxT("Grid %.1f"), value * 1000);
+					msg.Printf(_("Grid %.1f"), value * 1000);
 				else
-					msg.Printf(wxT("Grid %.3f"), value);
+					msg.Printf(_("Grid %.3f"), value);
 		m_SelGridBox->Append(msg);
 		}
 	m_SelGridBox->Append( _("User Grid") );

@@ -51,18 +51,18 @@ static const wxFileTypeInfo EDAfallbacks[] =
 bool GetAssociatedDocument(wxFrame * frame, const wxString & LibPath,
 							const wxString & DocName)
 /*********************************************************************/
-/* appelle le viewer associé au fichier de doc du composant (mime type)
-	LibPath est le prefixe du chemin des docs (/usr/local/kicad/library par exe.)
-	DocName est le nom du fichier. Les wildcarts sont autorisees
-	la recherche se fait sur LibPath/doc/DocName
-	On peut spécifier plusieus noms séparés ar des ; dans DocName
+/* Launch the viewer for the doc file  DocName (mime type)
+	LibPath is the doc file search path:
+	(kicad/library)
+	DocName is the short filename with ext. Wildcarts are allowed
+	Seach file is made in LibPath/doc/DocName
 */
 {
 wxString docpath, fullfilename;
 wxString Line;
 bool success = FALSE;
 
-	/* Calcul du nom complet du fichier de documentation */
+	/* Compute the full file name */
 	if ( wxIsAbsolutePath(DocName) ) fullfilename = DocName;
 	else
 		{
@@ -99,6 +99,12 @@ bool success = FALSE;
 		return FALSE;
 		}
 
+	/* Try to launch the default browser (works fine under Windows, but
+		not under linux)*/
+	success = wxLaunchDefaultBrowser(fullfilename);
+	if ( success ) return success;
+		
+	/* Try to launch some browser (usefull under linux) */
 wxFileType * filetype;
 wxFileName CurrentFileName(fullfilename);
 wxString ext, command, type;

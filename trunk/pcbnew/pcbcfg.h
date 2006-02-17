@@ -6,6 +6,9 @@
 #define GROUPLIB wxT("/pcbnew/libraries")
 #define GROUPCOMMON wxT("/common")
 
+// Flag for member .m_Setup
+// .m_Setup = TRUE: write info in user config (i.e. for all project)
+// .m_Setup = FALSE: write info in project config (i.e. only for this project)
 #define INSETUP TRUE
 
 
@@ -248,22 +251,6 @@ static  PARAM_CFG_INT TextePcbDimHCfg
 	&g_DesignSettings.m_PcbTextSize.x,			/* Adresse du parametre */
 	600,					/* Valeur par defaut */
 	10, 2000				/* Valeurs extremes */
-);
-
-static  PARAM_CFG_INT ScreenPcbGrilleXCfg
-(
-	wxT("GridPcbX"),				/* identification */
-	&g_PcbDefaultGrid.x,				/* Adresse du parametre */
-	500,					/* Valeur par defaut */
-	1,10000					/* Valeurs extremes */
-);
-
-static  PARAM_CFG_INT ScreenPcbGrilleYCfg
-(
-	wxT("GridPcbY"),				/* identification */
-	&g_PcbDefaultGrid.y,				/* Adresse du parametre */
-	500,					/* Valeur par defaut */
-	1,10000					/* Valeurs extremes */
 );
 
 static  PARAM_CFG_SETCOLOR ColorLayer0Cfg	// CU Layer Color
@@ -742,7 +729,7 @@ static  PARAM_CFG_DOUBLE UserGrilleXCfg
 	wxT("UserGrX"),				/* identification */
 	&g_UserGrid.x,			/* Adresse du parametre */
 	0.01,						/* Valeur par defaut */
-	0.0, 100.0					/* Valeurs extremes */
+	0.0001, 100.0			/* Valeurs extremes (inches)*/
 );
 
 static  PARAM_CFG_DOUBLE UserGrilleYCfg
@@ -750,7 +737,7 @@ static  PARAM_CFG_DOUBLE UserGrilleYCfg
 	wxT("UserGrY"),				/* identification */
 	&g_UserGrid.y,			/* Adresse du parametre */
 	0.01,						/* Valeur par defaut */
-	0.0, 100.0					/* Valeurs extremes */
+	0.0001, 100.0			/* Valeurs extremes  (inches)*/
 );
 
 static  PARAM_CFG_INT UserGrilleUnitCfg
@@ -849,8 +836,6 @@ PARAM_CFG_BASE * ParamCfgList[] =
 	& SegmPcb45Cfg,
 	& TextePcbDimVCfg,
 	& TextePcbDimHCfg,
-	& ScreenPcbGrilleXCfg,
-	& ScreenPcbGrilleYCfg,
 	& ColorLayer0Cfg,
 	& ColorLayer1Cfg,
 	& ColorLayer2Cfg,

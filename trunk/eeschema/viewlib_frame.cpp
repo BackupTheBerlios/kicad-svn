@@ -73,7 +73,7 @@ BEGIN_EVENT_TABLE(WinEDA_ViewlibFrame, wxFrame)
 	EVT_TOOL(ID_LIBVIEW_CMP_EXPORT_TO_SCHEMATIC,
 				WinEDA_ViewlibFrame::ExportToSchematicLibraryPart)
 
-	EVT_COMBOBOX(ID_LIBVIEW_SELECT_PART_NUMBER,
+	EVT_KICAD_CHOICEBOX(ID_LIBVIEW_SELECT_PART_NUMBER,
 				WinEDA_ViewlibFrame::Process_Special_Functions)
 
 	EVT_LISTBOX(ID_LIBVIEW_LIB_LIST, WinEDA_ViewlibFrame::ClickOnLibList)

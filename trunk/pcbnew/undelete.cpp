@@ -52,6 +52,8 @@ int net_code;
 			break;
 
 		case TYPEMODULE:
+			/* Erase general rastnest if needed */
+			if(g_Show_Ratsnest) DrawGeneralRatsnest(DC);
 			/* Reinsertion du module dans la liste chainee des modules,
 			en debut de chaine */
 			PtStruct->Pback = m_Pcb;
@@ -63,7 +65,11 @@ int net_code;
 
 			((MODULE *) PtStruct)->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR);
 
+			PtStruct->SetState(DELETED,OFF);	/* Creal DELETED flag */
+			PtStruct->m_Flags = 0;
+			m_Pcb->m_Status_Pcb = 0 ;
 			build_liste_pads();
+			ReCompile_Ratsnest_After_Changes( DC );
 			break;
 
 		default:

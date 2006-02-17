@@ -447,20 +447,20 @@ int dx, dy, x1, y1, x2, y2;
 
 EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 
-	textlen = GetLength();
 	orient = m_Orient;
 	wxPoint pos = DrawLibItem->m_Pos;
 	x1 = m_Pos.x - pos.x;
 	y1 = m_Pos.y - pos.y;
 
-	dx = m_Size.x * textlen;
+	textlen = GetLength();
 	if ( m_FieldId == REFERENCE )	// Real Text can be U1 or U1A
 	{
 		EDA_LibComponentStruct *Entry =
 			FindLibPart(DrawLibItem->m_ChipName.GetData(),wxEmptyString,FIND_ROOT);
 		if ( Entry && (Entry->m_UnitCount > 1) )
-			dx = m_Size.x * (textlen + 1 );	// because U1 is U1A or U1B ...
+			textlen ++;	// because U1 is show as U1A or U1B ...
 	}
+	dx = m_Size.x * textlen;
 
 	// Real X Size is 10/9 char size because space between 2 chars is 1/10 X Size
 	dx = (dx * 10) / 9;
@@ -477,8 +477,7 @@ EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 	/* If the component orientation is +/- 90 deg, the text orienation must be changed */
 	if(DrawLibItem->m_Transform[0][1])
 	{
-		if ( orient == TEXT_ORIENT_HORIZ)
-			orient = TEXT_ORIENT_VERT;
+		if ( orient == TEXT_ORIENT_HORIZ) orient = TEXT_ORIENT_VERT;
 		else orient = TEXT_ORIENT_HORIZ;
 		/* is it mirrored (for text justify)*/
 		EXCHG(hjustify, vjustify);
@@ -495,17 +494,35 @@ EDA_SchComponentStruct * DrawLibItem = (EDA_SchComponentStruct *) m_Parent;
 	
 	if ( orient == TEXT_ORIENT_VERT ) EXCHG(dx, dy);
 
-	if ( hjustify == GR_TEXT_HJUSTIFY_CENTER ) x1 = x2 - (dx/2);
-	else if ( hjustify == GR_TEXT_HJUSTIFY_RIGHT ) x1 = x2 - dx;
-	else x1 = x2;
-	if ( vjustify == GR_TEXT_VJUSTIFY_CENTER ) y1 = y2 - (dy/2);
-	else if ( vjustify == GR_TEXT_VJUSTIFY_BOTTOM ) y1 = y2 - dy;
-	else y1 = y2;
+	switch ( hjustify )
+	{
+		case GR_TEXT_HJUSTIFY_CENTER:
+			x1 = x2 - (dx/2);
+			break;
+		case GR_TEXT_HJUSTIFY_RIGHT:
+			x1 = x2 - dx;
+			break;
+		default:
+			x1 = x2;
+			break;
+	}
+	switch ( vjustify )
+	{
+		case GR_TEXT_VJUSTIFY_CENTER:
+			y1 = y2 - (dy/2);
+			break;
+		case GR_TEXT_VJUSTIFY_BOTTOM:
+			y1 = y2 - dy;
+			break;
+		default:
+			y1 = y2;
+			break;
+	}
 
 	BoundaryBox.SetX(x1);
 	BoundaryBox.SetY(y1);
-	BoundaryBox.SetWidth(x2-x1);
-	BoundaryBox.SetHeight(y2-y1);
+	BoundaryBox.SetWidth(dx);
+	BoundaryBox.SetHeight(dy);
 
 	return BoundaryBox;
 }
