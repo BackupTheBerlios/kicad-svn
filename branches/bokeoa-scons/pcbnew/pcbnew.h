@@ -52,9 +52,6 @@ est le curseur sur grille ou le curseur a deplacement fin hors grille */
 
 eda_global wxArrayString g_LibName_List;	// library list to load
 
-eda_global wxSize g_ModEditGrid;	// Default grid size for Footprint Editor
-eda_global wxSize g_PcbDefaultGrid;	// Default grid size for Board Editor
-
 eda_global wxSize g_GridList[]
 #ifdef MAIN
  = {

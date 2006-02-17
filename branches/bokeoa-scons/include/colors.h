@@ -5,8 +5,8 @@
 #ifndef _COLORS_H
 #define _COLORS_H
 
-#ifndef eda_global
-#define eda_global extern
+#ifndef COMMON_GLOBL
+#define COMMON_GLOBL extern
 #endif
 
 /* Definitions des Numeros des Couleurs ( palette de 32) */
@@ -87,7 +87,7 @@ StructColors ColorRefs[NBCOLOR]	=
 #endif /* ifdef MAIN */
 
 
-eda_global wxPen * DrawPen;
-eda_global wxBrush * DrawBrush;
+COMMON_GLOBL wxPen * DrawPen;
+COMMON_GLOBL wxBrush * DrawBrush;
 
 #endif /* ifndef _COLORS_H */

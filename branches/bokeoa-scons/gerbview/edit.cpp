@@ -217,7 +217,7 @@ wxClientDC dc(DrawPanel);
 
 		case ID_TOOLBARH_PCB_SELECT_LAYER:
 			{
-			GetScreen()->m_Active_Layer = m_SelLayerBox->GetSelection();
+			GetScreen()->m_Active_Layer = m_SelLayerBox->GetChoice();
 			DrawPanel->Refresh(TRUE);
 			break;
 			}
@@ -225,7 +225,7 @@ wxClientDC dc(DrawPanel);
 		case ID_TOOLBARH_GERBER_SELECT_TOOL:
 			if ( gerber_layer )
 			{
-				int tool = m_SelLayerTool->GetSelection();
+				int tool = m_SelLayerTool->GetChoice();
 				if ( tool > 0 ) tool = tool - 1 + FIRST_DCODE;
 				else tool = 0;
 				gerber_layer->m_Selected_Tool = tool;

@@ -377,7 +377,7 @@ static void DrawMovingBlockOutlines(WinEDA_DrawPanel * panel, wxDC * DC, bool er
 int Color;
 BASE_SCREEN * screen = panel->GetScreen();
 
-	Color = YELLOW; GRSetDrawMode(DC, XOR_MODE);
+	Color = YELLOW; GRSetDrawMode(DC, g_XorMode);
 
 	/* Effacement ancien cadre */
 	if( erase )
@@ -1141,6 +1141,7 @@ wxPoint oldpos;
 			new_module->Copy(module);
 			new_module->m_TimeStamp = GetTimeStamp();
 			new_module->Pnext = m_Pcb->m_Modules;
+			new_module->Pback = m_Pcb;
 			m_Pcb->m_Modules->Pback = new_module;
 			m_Pcb->m_Modules = new_module;
 			/* calcul du deplacement pour la routine Place_Module */
@@ -1222,6 +1223,7 @@ wxPoint oldpos;
 				DRAWSEGMENT * new_drawsegment = new DRAWSEGMENT (m_Pcb);
 				new_drawsegment->Copy(STRUCT);
 				new_drawsegment->Pnext = m_Pcb->m_Drawings;
+				new_drawsegment->Pback = m_Pcb;
 				m_Pcb->m_Drawings->Pback = new_drawsegment;
 				m_Pcb->m_Drawings = new_drawsegment;
 				new_drawsegment->m_Start.x += deltaX; new_drawsegment->m_Start.y += deltaY;
@@ -1240,6 +1242,7 @@ wxPoint oldpos;
 				TEXTE_PCB * new_pcbtext = new TEXTE_PCB(m_Pcb);
 				new_pcbtext->Copy(STRUCT);
 				new_pcbtext->Pnext = m_Pcb->m_Drawings;
+				new_pcbtext->Pback = m_Pcb;
 				m_Pcb->m_Drawings->Pback = new_pcbtext;
 				m_Pcb->m_Drawings = new_pcbtext;
 				/* Redessin du Texte */
@@ -1258,6 +1261,7 @@ wxPoint oldpos;
 				MIREPCB * new_mire = new MIREPCB(m_Pcb);
 				new_mire->Copy(STRUCT);
 				new_mire->Pnext = m_Pcb->m_Drawings;
+				new_mire->Pback = m_Pcb;
 				m_Pcb->m_Drawings->Pback = new_mire;
 				m_Pcb->m_Drawings = new_mire;
 				new_mire->m_Pos.x += deltaX; new_mire->m_Pos.y += deltaY;
@@ -1275,6 +1279,7 @@ wxPoint oldpos;
 				COTATION * new_cotation = new COTATION(m_Pcb);
 				new_cotation->Copy(STRUCT);
 				new_cotation->Pnext = m_Pcb->m_Drawings;
+				new_cotation->Pback = m_Pcb;
 				m_Pcb->m_Drawings->Pback = new_cotation;
 				m_Pcb->m_Drawings = new_cotation;
 				new_cotation->m_Pos.x += deltaX;

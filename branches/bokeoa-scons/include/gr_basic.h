@@ -5,8 +5,8 @@
 #ifndef GR_BASIC
 #define GR_BASIC
 
-#ifndef eda_global
-#define eda_global extern
+#ifndef COMMON_GLOBL
+#define COMMON_GLOBL extern
 #endif
 
 #include "colors.h"
@@ -28,13 +28,13 @@
 
 
 /* variables generales */
-eda_global int XorMode 			// = GR_XOR ou GR_NXOR selon couleur de fond
-#ifdef MAIN							// pour les tracés en mode XOR
+COMMON_GLOBL int g_XorMode 			// = GR_XOR ou GR_NXOR selon couleur de fond
+#ifdef EDA_BASE							// pour les tracés en mode XOR
 = GR_NXOR
 #endif
 ;
-eda_global int DrawBgColor		// couleur de fond de la frame de dessin
-#ifdef MAIN
+COMMON_GLOBL int g_DrawBgColor		// couleur de fond de la frame de dessin
+#ifdef EDA_BASE
  = WHITE
 #endif
 ;

@@ -52,7 +52,7 @@ private:
 	wxNotebook* m_NoteBook;
 	wxPanel * m_PanelProperties;
 	Panel3D_Ctrl * m_Panel3D;
-	wxComboBox * m_TextListBox;
+	WinEDAChoiceBox * m_TextListBox;
 	wxRadioBox * m_LayerCtrl;
 	wxRadioBox * m_OrientCtrl;
 	WinEDA_ValueCtrl * m_OrientValue;
@@ -93,7 +93,7 @@ BEGIN_EVENT_TABLE(WinEDA_ModulePropertiesFrame, wxDialog)
 	EVT_BUTTON(ID_MODULE_EDIT_EDIT_TEXT, WinEDA_ModulePropertiesFrame::EditOrDelTextModule)
 	EVT_BUTTON(ID_MODULE_EDIT_DELETE_TEXT, WinEDA_ModulePropertiesFrame::EditOrDelTextModule)
 	EVT_BUTTON(ID_MODULE_PROPERTIES_EXCHANGE, WinEDA_ModulePropertiesFrame::ExchangeModule)
-	EVT_COMBOBOX(ID_MODULE_LISTBOX_SELECT, WinEDA_ModulePropertiesFrame::SelectTextListBox)
+	EVT_KICAD_CHOICEBOX(ID_MODULE_LISTBOX_SELECT, WinEDA_ModulePropertiesFrame::SelectTextListBox)
 	EVT_RADIOBOX(ID_LISTBOX_ORIENT_SELECT, WinEDA_ModulePropertiesFrame::ModuleOrientEvent)
 	EVT_BUTTON(ID_GOTO_MODULE_EDITOR, WinEDA_ModulePropertiesFrame::GotoModuleEditor)
 
@@ -311,8 +311,8 @@ wxButton * Button;
 
 	wxStaticBox * box = new wxStaticBox(m_PanelProperties, -1, _("Fields:"), pos, wxSize(160, 140) );
 	pos.x += 10; pos.y += 17;
-	m_TextListBox = new wxComboBox(m_PanelProperties, ID_MODULE_LISTBOX_SELECT, wxEmptyString,
-			pos, wxSize(-1,-1), 0, NULL, wxCB_READONLY);
+	m_TextListBox = new WinEDAChoiceBox(m_PanelProperties, ID_MODULE_LISTBOX_SELECT,
+			pos, wxSize(-1,-1));
 
 	ReCreateFieldListBox();
 
@@ -570,7 +570,7 @@ bool change_layer = FALSE;
 
 	if ( m_LayerCtrl )
 		{
-		if ( m_LayerCtrl->GetSelection() == 0 )		// layer req = COMPONANT
+		if ( m_LayerCtrl->GetSelection() == 0 )		// layer req = COMPONENT
 			{
 			if( m_CurrentModule->m_Layer == CUIVRE_N) change_layer = TRUE;
 			}
@@ -713,7 +713,7 @@ void WinEDA_ModulePropertiesFrame::SelectTextListBox(wxCommandEvent& event)
 /*************************************************************************/
 {
 	if ( m_DeleteFieddButton == NULL ) return;
-	if ( m_TextListBox->GetSelection() > 1 )	// Texte autre que ref ou valeur selectionne
+	if ( m_TextListBox->GetChoice() > 1 )	// Texte autre que ref ou valeur selectionne
 		{
 		m_DeleteFieddButton->Enable(TRUE);
 		}
@@ -757,9 +757,11 @@ TEXTE_MODULE * Text;
 }
 
 
+/****************************************************************************/
 void WinEDA_ModulePropertiesFrame::EditOrDelTextModule(wxCommandEvent& event)
+/****************************************************************************/
 {
-int ii = m_TextListBox->GetSelection();
+int ii = m_TextListBox->GetChoice();
 TEXTE_MODULE * Text = NULL;
 
 	if ( ii < 0 ) return;

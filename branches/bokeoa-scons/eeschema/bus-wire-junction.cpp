@@ -214,14 +214,14 @@ int color;
 	{
 		if ( (segment->m_Start.x != segment->m_End.x) ||
 			 (segment->m_Start.y != segment->m_End.y) )
-		RedrawOneStruct(panel,DC, segment, XOR_MODE, color);
+		RedrawOneStruct(panel,DC, segment, g_XorMode, color);
 	}
 	segment->m_End = endpos;
 	// Redraw if segment lengtht != 0
 
 	if ( (segment->m_Start.x != segment->m_End.x) ||
 			(segment->m_Start.y != segment->m_End.y) )
-	RedrawOneStruct(panel,DC, segment, XOR_MODE,color);
+	RedrawOneStruct(panel,DC, segment, g_XorMode,color);
 }
 
 /*****************************************************************************/
@@ -238,7 +238,7 @@ wxPoint endpos;
 	endpos = panel->m_Parent->GetScreen()->m_Curseur;
 	color = ReturnLayerColor(NewPoly->m_Layer);
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 
 	if( g_HVLines )
 		{
@@ -252,11 +252,11 @@ wxPoint endpos;
 
 	NewPoly->m_NumOfPoints++;
 	if( erase )
-		RedrawOneStruct(panel,DC, NewPoly, XOR_MODE, color);
+		RedrawOneStruct(panel,DC, NewPoly, g_XorMode, color);
 
 	NewPoly->m_Points[NewPoly->m_NumOfPoints * 2 - 2] = endpos.x;
 	NewPoly->m_Points[NewPoly->m_NumOfPoints * 2 - 1] = endpos.y;
-	RedrawOneStruct(panel,DC, NewPoly, XOR_MODE, color);
+	RedrawOneStruct(panel,DC, NewPoly, g_XorMode, color);
 	NewPoly->m_NumOfPoints--;
 }
 
@@ -507,7 +507,7 @@ wxPoint itempos;
 			item = PickStruct(pos, screen->EEDrawList, BUSITEM);
 			if ( item ) return TRUE;
 			pinsheet = LocateAnyPinSheet(pos, screen->EEDrawList );
-			if ( pinsheet && IsBusLabel(pinsheet->m_Text.GetData()) )
+			if ( pinsheet && IsBusLabel(pinsheet->m_Text) )
 			{
 				itempos = pinsheet->m_Pos;
 				if ( (itempos.x == pos.x) && (itempos.y == pos.y) )	return TRUE;
@@ -545,7 +545,7 @@ wxPoint itempos;
 					return TRUE;
 
 			pinsheet = LocateAnyPinSheet( pos, screen->EEDrawList );
-			if ( pinsheet && ! IsBusLabel(pinsheet->m_Text.GetData()) )
+			if ( pinsheet && ! IsBusLabel(pinsheet->m_Text) )
 			{
 				itempos = pinsheet->m_Pos;
 				if ( (itempos.x == pos.x) && (itempos.y == pos.y) )	return TRUE;

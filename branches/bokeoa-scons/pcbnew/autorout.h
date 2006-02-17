@@ -56,14 +56,17 @@ public:
 #define END_EQU_VIA 0x20
 
 
-	/* bits d'etat du PCB */
-
-#define LISTE_PAD_OK 1  /* Bit indicant que la liste des pads est calculee */
-#define LISTE_CHEVELU_OK 2 /* Bit indicant que la liste des CHEVELUS est calculee */
-#define CHEVELU_LOCAL_OK 4 /* Bit indicant que le CHEVELU local d'un MODULE est calculee */
-#define CONNEXION_OK 8  /* Bit indicant que la liste des connexions existe */
-#define NET_CODES_OK 16	/* Bit indicant que les netcodes sont OK ( pas de modif
+/* Status bit (OR'ed bits) for class BOARD member .m_Status_Pcb */
+enum StatusPcbFlags
+{
+	LISTE_PAD_OK = 1,		/* Pad list is Ok */
+	LISTE_CHEVELU_OK = 2,	/* General Rastnest is Ok */
+	CHEVELU_LOCAL_OK = 4,	/* current MODULE rastnest is Ok */
+	CONNEXION_OK = 8,		/* Bit indicant que la liste des connexions existe */
+	NET_CODES_OK = 0x10,	/* Bit indicant que les netcodes sont OK ( pas de modif
 						de noms de net */
+	DO_NOT_SHOW_GENERAL_RASTNEST = 0x20	/* Do not display the general rastnest (used in module moves) */
+};
 
 #define OK_DRC 0
 #define BAD_DRC 1

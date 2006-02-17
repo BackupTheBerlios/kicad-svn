@@ -92,8 +92,8 @@ bool asdeMorgan = FALSE, state;
 
 		m_HToolBar->AddSeparator();
 
-		SelpartBox = new wxComboBox(m_HToolBar, ID_LIBVIEW_SELECT_PART_NUMBER,wxEmptyString,
-					wxDefaultPosition, wxSize(150,-1), 0, NULL, wxCB_READONLY);
+		SelpartBox = new WinEDAChoiceBox(m_HToolBar, ID_LIBVIEW_SELECT_PART_NUMBER,
+					wxDefaultPosition, wxSize(150,-1));
 		m_HToolBar->AddControl(SelpartBox);
 
 		m_HToolBar->AddSeparator();

@@ -424,7 +424,7 @@ DrawPickedStruct *PickedList;
 BASE_SCREEN * screen = panel->m_Parent->GetScreen();
 
 	PtBlock = &panel->GetScreen()->BlockLocate;
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 
 	/* Effacement ancien cadre */
 	if( erase && PtBlock->m_BlockDrawStruct)
@@ -451,7 +451,7 @@ BASE_SCREEN * screen = panel->m_Parent->GetScreen();
 	PtBlock->m_MoveVector.x = screen->m_Curseur.x - PtBlock->m_BlockLastCursorPosition.x;
 	PtBlock->m_MoveVector.y = screen->m_Curseur.y - PtBlock->m_BlockLastCursorPosition.y;
 
-	GRSetDrawMode(DC, XOR_MODE);
+	GRSetDrawMode(DC, g_XorMode);
 	PtBlock->Offset(PtBlock->m_MoveVector);
 	PtBlock->Draw(panel, DC);
 	PtBlock->Offset( -PtBlock->m_MoveVector.x, -PtBlock->m_MoveVector.y);
@@ -486,7 +486,7 @@ DrawPickedStruct *PickedList = NULL;
 	if(DrawStruct->m_StructType == DRAW_PICK_ITEM_STRUCT_TYPE)
 	{
 		if ( DC )
-			RedrawStructList(panel, DC, DrawStruct, XOR_MODE);
+			RedrawStructList(panel, DC, DrawStruct, g_XorMode);
 		PlaceStruct(panel->GetScreen(), DrawStruct);	/* Place it in its new position. */
 		if ( DC )
 			RedrawStructList(panel, DC, DrawStruct, GR_DEFAULT_DRAWMODE);
@@ -499,7 +499,7 @@ DrawPickedStruct *PickedList = NULL;
 	else
 	{
 		if ( DC )
-			RedrawOneStruct(panel, DC, DrawStruct, XOR_MODE);
+			RedrawOneStruct(panel, DC, DrawStruct, g_XorMode);
 		PlaceStruct(panel->GetScreen(), DrawStruct);		/* Place it in its new position. */
 		if ( DC )
 			RedrawOneStruct(panel, DC, DrawStruct, GR_DEFAULT_DRAWMODE);
@@ -641,7 +641,7 @@ DrawPickedStruct *PickedList = NULL;
 			}
 			PickedList = (DrawPickedStruct *)PickedList->Pnext;
 		}
-		RedrawStructList(panel, DC, DrawStruct, XOR_MODE);
+		RedrawStructList(panel, DC, DrawStruct, g_XorMode);
 	}
 
 	else	/* structure classique */
@@ -661,7 +661,7 @@ DrawPickedStruct *PickedList = NULL;
 				DrawList = DrawList->Pnext;
 			}
 		}
-		RedrawOneStruct(panel, DC, DrawStruct, XOR_MODE);
+		RedrawOneStruct(panel, DC, DrawStruct, g_XorMode);
 		/* Unlink the structure */
 		DrawStruct->Pnext = DrawStruct->Pback = NULL;	// Only one struct -> no link
 	}

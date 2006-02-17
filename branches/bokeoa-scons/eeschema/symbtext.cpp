@@ -188,7 +188,7 @@ void WinEDA_LibeditFrame::EditSymbolText(wxDC * DC,
 				LibEDA_BaseStruct * DrawItem)
 /*******************************************************/
 {
-int DrawMode = XOR_MODE;
+int DrawMode = g_XorMode;
 
 	if ( DrawItem == NULL ) return;
 	if ( DrawItem->m_StructType != COMPONENT_GRAPHIC_TEXT_DRAW_TYPE ) return;
@@ -234,7 +234,7 @@ LibDrawText * DrawItem = (LibDrawText *) CurrentDrawItem;
 	/* Erase drawing (can be within a move command) */
 	if ( m_CurrentScreen->ManageCurseur == NULL)
 		DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry, 0 , 0,
-				DrawItem, CurrentUnit, XOR_MODE);
+				DrawItem, CurrentUnit, g_XorMode);
 	else m_CurrentScreen->ManageCurseur(DrawPanel, DC, FALSE);
 
 	if( DrawItem->m_Horiz == TEXT_ORIENT_HORIZ)

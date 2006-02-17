@@ -8,10 +8,8 @@
 #include "wx/confbase.h"
 #include "wx/fileconf.h"
 
-#ifndef EDA_BASE
+#ifndef COMMON_GLOBL
 #define COMMON_GLOBL extern
-#else
-#define COMMON_GLOBL
 #endif
 
 /* Numero de ports TCP/IP utilisés par KICAD */
@@ -195,48 +193,50 @@ private:
 
 /* Gestion des feuilles de tracé:
 */
-class W_PLOT
+class Ki_PageDescr
 {
+// All sizes are in 1/1000 inch
 public:
 	wxSize m_Size ;		/* page size in 1/1000 inch */
 	wxPoint m_Offset;	/* plot offset in 1/1000 inch */
 	wxString m_Name;
+	int m_LeftMargin;
+	int m_RightMargin;
+	int m_TopMargin;
+	int m_BottomMargin;
 
 public:
-	W_PLOT(const wxSize & size, const wxPoint & offset, const wxString & name)
-	{
-		m_Size = size; m_Offset = offset, m_Name = name;
-	}
+	Ki_PageDescr(const wxSize & size, const wxPoint & offset, const wxString & name);
 };
 
 
 /* Standard page sizes in 1/1000 inch */
 #if defined EDA_BASE
-W_PLOT g_Sheet_A4(wxSize(11700,8267), wxPoint(0,0), wxT("A4") );
-W_PLOT g_Sheet_A3(wxSize(16535,11700),wxPoint(0,0),wxT("A3") );
-W_PLOT g_Sheet_A2(wxSize(23400,16535),wxPoint(0,0),wxT("A2") );
-W_PLOT g_Sheet_A1(wxSize(33070,23400),wxPoint(0,0),wxT("A1") );
-W_PLOT g_Sheet_A0(wxSize(46800,33070),wxPoint(0,0),wxT("A0") );
-W_PLOT g_Sheet_A(wxSize(11000,8000),wxPoint(0,0),wxT("A") );
-W_PLOT g_Sheet_B(wxSize(16000,11000),wxPoint(0,0),wxT("B") );
-W_PLOT g_Sheet_C(wxSize(22000,16000),wxPoint(0,0),wxT("C") );
-W_PLOT g_Sheet_D(wxSize(32000,22000),wxPoint(0,0),wxT("D") );
-W_PLOT g_Sheet_E(wxSize(44000,32000),wxPoint(0,0),wxT("E") );
-W_PLOT g_Sheet_GERBER(wxSize(32000,32000),wxPoint(0,0),wxT("GERBER") );
-W_PLOT g_Sheet_user(wxSize(16000,11000),wxPoint(0,0),wxT("User") );
+Ki_PageDescr g_Sheet_A4(wxSize(11700,8267), wxPoint(0,0), wxT("A4") );
+Ki_PageDescr g_Sheet_A3(wxSize(16535,11700),wxPoint(0,0),wxT("A3") );
+Ki_PageDescr g_Sheet_A2(wxSize(23400,16535),wxPoint(0,0),wxT("A2") );
+Ki_PageDescr g_Sheet_A1(wxSize(33070,23400),wxPoint(0,0),wxT("A1") );
+Ki_PageDescr g_Sheet_A0(wxSize(46800,33070),wxPoint(0,0),wxT("A0") );
+Ki_PageDescr g_Sheet_A(wxSize(11000,8000),wxPoint(0,0),wxT("A") );
+Ki_PageDescr g_Sheet_B(wxSize(16000,11000),wxPoint(0,0),wxT("B") );
+Ki_PageDescr g_Sheet_C(wxSize(22000,16000),wxPoint(0,0),wxT("C") );
+Ki_PageDescr g_Sheet_D(wxSize(32000,22000),wxPoint(0,0),wxT("D") );
+Ki_PageDescr g_Sheet_E(wxSize(44000,32000),wxPoint(0,0),wxT("E") );
+Ki_PageDescr g_Sheet_GERBER(wxSize(32000,32000),wxPoint(0,0),wxT("GERBER") );
+Ki_PageDescr g_Sheet_user(wxSize(16000,11000),wxPoint(0,0),wxT("User") );
 #else
-extern W_PLOT g_Sheet_A4 ;
-extern W_PLOT g_Sheet_A3 ;
-extern W_PLOT g_Sheet_A2 ;
-extern W_PLOT g_Sheet_A1 ;
-extern W_PLOT g_Sheet_A0 ;
-extern W_PLOT g_Sheet_A ;
-extern W_PLOT g_Sheet_B ;
-extern W_PLOT g_Sheet_C ;
-extern W_PLOT g_Sheet_D ;
-extern W_PLOT g_Sheet_E ;
-extern W_PLOT g_Sheet_GERBER ;
-extern W_PLOT g_Sheet_user ;
+extern Ki_PageDescr g_Sheet_A4 ;
+extern Ki_PageDescr g_Sheet_A3 ;
+extern Ki_PageDescr g_Sheet_A2 ;
+extern Ki_PageDescr g_Sheet_A1 ;
+extern Ki_PageDescr g_Sheet_A0 ;
+extern Ki_PageDescr g_Sheet_A ;
+extern Ki_PageDescr g_Sheet_B ;
+extern Ki_PageDescr g_Sheet_C ;
+extern Ki_PageDescr g_Sheet_D ;
+extern Ki_PageDescr g_Sheet_E ;
+extern Ki_PageDescr g_Sheet_GERBER ;
+extern Ki_PageDescr g_Sheet_user ;
 #endif
 
 
@@ -255,6 +255,8 @@ COMMON_GLOBL wxString g_UserLibDirBuffer;	// Chemin des librairies de module don
 									// le file de config
 
 /* variables globales generales */
+
+COMMON_GLOBL int g_FloatSeparator;	// = '.' ou = ',' selon locale pour l'ecriture des nombres flotttant
 COMMON_GLOBL int g_DebugLevel;		// 0= Pas de debug */
 COMMON_GLOBL int g_MouseOldButtons;
 COMMON_GLOBL int g_KeyPressed;
@@ -273,6 +275,11 @@ COMMON_GLOBL int g_MsgFontPointSize;	/* taille de la fonte */
 COMMON_GLOBL int g_FontMinPointSize;	/* taille minimum des fontes */
 
 COMMON_GLOBL bool g_IsPrinting;		// TRUE si impression au lieu de trace a l'ecran
+COMMON_GLOBL bool g_ShowPageLimits	// TRUE to display the page limits
+#ifdef EDA_BASE
+= TRUE
+#endif
+;
 
 /* Gloabl variables for project handling */
 COMMON_GLOBL wxString g_Prj_Config_Filename_ext

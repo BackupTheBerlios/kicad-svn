@@ -36,6 +36,7 @@ void WinEDA_MainFrame::Process_Files(wxCommandEvent& event)
 int id = event.GetId();
 wxString path = wxGetCwd();
 wxString fullfilename;
+bool IsNew = FALSE;
 
 	switch (id)
 		{
@@ -60,26 +61,23 @@ wxString fullfilename;
 			break;
 
 		case ID_NEW_PROJECT:
+			IsNew = TRUE;
 		case ID_LOAD_PROJECT:
 			SetLastProject(m_PrjFileName);
-			fullfilename = EDA_FileSelector( _("Load Project files:"),
+			fullfilename = EDA_FileSelector( IsNew ? _("Create Project files:") : _("Load Project files:"),
 					path,		  		/* Chemin par defaut */
 					wxEmptyString,					/* nom fichier par defaut */
 					g_Prj_Config_Filename_ext,	/* extension par defaut */
 					wxT("*") + g_Prj_Config_Filename_ext, /* Masque d'affichage */
 					this,
-					wxOPEN,
+					IsNew ? wxSAVE : wxOPEN,
 					FALSE
 					);
 			if ( fullfilename.IsEmpty() ) break;
 				
 			ChangeFileNameExt(fullfilename, g_Prj_Config_Filename_ext);
 			m_PrjFileName = fullfilename;
-			if ( id == ID_NEW_PROJECT)
-			{
-				Create_NewPrj_Config( m_PrjFileName);
-			}
-			
+			if ( IsNew ) Create_NewPrj_Config( m_PrjFileName);
 			SetLastProject(m_PrjFileName);
 			Load_Prj_Config();
 			break;

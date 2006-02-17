@@ -55,25 +55,32 @@ END_EVENT_TABLE()
 /***********************************************************************************/
 int WinEDA_BasePcbFrame::SelectLayer(int default_layer, int min_layer, int max_layer)
 /***********************************************************************************/
-/* Cree la liste des layers pour selection
+/* Install the dialog box for layer selection
 	default_layer = Preselection
 	min_layer = val min de layer selectionnable (-1 si pas de val mini)
 	max_layer = val max de layer selectionnable (-1 si pas de val maxi)
 */
 {
 int layer;
+bool IgnoreEvent = DrawPanel->m_IgnoreMouseEvents;
 
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_SelLayerFrame * frame =
 			new WinEDA_SelLayerFrame(this, default_layer,min_layer, max_layer);
 	layer = frame->ShowModal(); frame->Destroy();
+	DrawPanel->m_IgnoreMouseEvents = IgnoreEvent;
+	DrawPanel->MouseToCursorSchema();
 	return layer;
 }
 
+
+/***********************************************************************/
 WinEDA_SelLayerFrame::WinEDA_SelLayerFrame(WinEDA_BasePcbFrame *parent,
 					int default_layer, int min_layer, int max_layer):
 			wxDialog(parent, -1, _("Select Layer:"),wxPoint(-1,-1),
 			wxSize(470, 250),
 			DIALOG_STYLE )
+/***********************************************************************/
 {
 wxButton * Button;
 int ii, yy, xx;
@@ -181,9 +188,14 @@ void WinEDA_BasePcbFrame::SelectLayerPair(void)
 	pour autorutage, vias...
 */
 {
+bool IgnoreEvent = DrawPanel->m_IgnoreMouseEvents;
+	
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_SelLayerPairFrame * frame =
 			new WinEDA_SelLayerPairFrame(this);
 	frame->ShowModal(); frame->Destroy();
+	DrawPanel->m_IgnoreMouseEvents = IgnoreEvent;
+	DrawPanel->MouseToCursorSchema();
 }
 
 

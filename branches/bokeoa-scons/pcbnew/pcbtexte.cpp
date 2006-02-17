@@ -44,7 +44,7 @@ private:
 	WinEDA_ValueCtrl * m_TxtWidthCtlr;
 	wxRadioBox * m_Orient;
 	wxRadioBox * m_Mirror;
-	wxComboBox * m_SelLayerBox;
+	WinEDAChoiceBox * m_SelLayerBox;
 
 public:
 	// Constructor and destructor
@@ -134,8 +134,8 @@ wxButton * Button;
 			UnitMetric, pos, m_Parent->m_InternalUnits);
 
 	pos.x += 15 + m_TxtPosCtrl->GetDimension().x;
-	m_SelLayerBox = new wxComboBox(this, ID_TEXTPCB_SELECT_LAYER, wxEmptyString,
-					pos, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	m_SelLayerBox = new WinEDAChoiceBox(this, ID_TEXTPCB_SELECT_LAYER,
+					pos, wxDefaultSize);
 	int ii;
 	for ( ii = 0; ii < 29 ; ii ++ )
 		{
@@ -206,7 +206,7 @@ void WinEDA_TextPCBPropertiesFrame::TextPCBPropertiesAccept(wxCommandEvent& even
 	CurrentTextPCB->m_Width = m_TxtWidthCtlr->GetValue();
 	CurrentTextPCB->m_Miroir = (m_Mirror->GetSelection() == 0) ? 1 : 0;
 	CurrentTextPCB->m_Orient = m_Orient->GetSelection() * 900;
-	CurrentTextPCB->m_Layer = m_SelLayerBox->GetSelection();
+	CurrentTextPCB->m_Layer = m_SelLayerBox->GetChoice();
 	CurrentTextPCB->CreateDrawData();
 	if ( m_DC )		// Affichage nouveau texte
 	{

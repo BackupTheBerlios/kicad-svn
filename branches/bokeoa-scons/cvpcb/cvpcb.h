@@ -142,7 +142,7 @@ eda_global wxString ExtRetroBuffer
 
 // Variables generales */
 
-eda_global W_PLOT * SheetList[]
+eda_global Ki_PageDescr * SheetList[]
 #ifdef MAIN
 = {NULL}
 #endif

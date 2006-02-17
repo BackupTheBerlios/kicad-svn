@@ -161,7 +161,7 @@ bool edit = TRUE;
 	ScreenSheet = (BASE_SCREEN*)Sheet->m_Son;
 
 	/* Demande du nouveau texte */
-	RedrawOneStruct(DrawPanel, DC, Sheet, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, Sheet, g_XorMode);
 
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	frame = new WinEDA_SheetPropertiesFrame(this, Sheet,wxPoint(-1,-1) );
@@ -275,7 +275,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 
 	/* Effacement du composant: tj apres depl curseur */
 	if( erase )
-		RedrawOneStruct(panel, DC, Sheet, XOR_MODE);
+		RedrawOneStruct(panel, DC, Sheet, g_XorMode);
 
 	if( Sheet->m_Flags & IS_RESIZED)
 		{
@@ -298,7 +298,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 		MoveOneStruct(Sheet, dx, dy);
 		}
 
-	RedrawOneStruct(panel, DC, Sheet, XOR_MODE);
+	RedrawOneStruct(panel, DC, Sheet, g_XorMode);
 }
 
 /****************************************************************/
@@ -314,7 +314,7 @@ void DrawSheetStruct::Place( WinEDA_DrawFrame * frame, wxDC * DC)
 			frame->m_CurrentScreen->m_CurrentItem = NULL;
 			frame->m_CurrentScreen->ManageCurseur = NULL;
 			frame->m_CurrentScreen->ForceCloseManageCurseur = NULL;
-			RedrawOneStruct(frame->DrawPanel, DC, this, XOR_MODE);
+			RedrawOneStruct(frame->DrawPanel, DC, this, g_XorMode);
 			delete this;
 			return;
 		}
@@ -355,12 +355,12 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 	/* Deplacement composant en cours */
 	if ( Sheet->m_Flags & IS_NEW ) /* Nouveau Placement en cours, on l'efface */
 		{
-		RedrawOneStruct(frame->DrawPanel, DC, Sheet, XOR_MODE);
+		RedrawOneStruct(frame->DrawPanel, DC, Sheet, g_XorMode);
 		delete Sheet;
 		}
 	else if ( Sheet->m_Flags & IS_RESIZED )/* resize en cours: on l'annule */
 		{
-		RedrawOneStruct(frame->DrawPanel, DC, Sheet, XOR_MODE);
+		RedrawOneStruct(frame->DrawPanel, DC, Sheet, g_XorMode);
 		Sheet->m_End = OldPos;
 		RedrawOneStruct(frame->DrawPanel, DC, Sheet, GR_DEFAULT_DRAWMODE);
 		Sheet->m_Flags = 0;

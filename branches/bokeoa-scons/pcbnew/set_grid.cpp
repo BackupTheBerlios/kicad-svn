@@ -88,7 +88,7 @@ wxString UnitList[2] =
 	{ _("Inches"), _("mm")
 	};
 	
-	m_UnitGrid = new wxRadioBox(this, -1, _("Units"), pos, wxDefaultSize,
+	m_UnitGrid = new wxRadioBox(this, -1, _("Grid Size Units"), pos, wxDefaultSize,
 		2, UnitList, 1, wxRA_SPECIFY_COLS);
 	if ( screen->m_UserGridUnit != INCHES )
 		m_UnitGrid->SetSelection(1);

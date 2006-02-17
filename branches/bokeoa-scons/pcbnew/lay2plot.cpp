@@ -144,7 +144,7 @@ BOARD * Pcb = frame->m_Pcb;
 		}
 
 	if ( Print_Sheet_Ref )
-		m_Parent->TraceWorkSheet( DC, ActiveScreen, g_PlotMarge);
+		m_Parent->TraceWorkSheet( DC, ActiveScreen);
 
 	DisplayOpt = save_opt;
 	frame->m_DisplayPcbTrackFill = DisplayOpt.DisplayPcbTrackFill;

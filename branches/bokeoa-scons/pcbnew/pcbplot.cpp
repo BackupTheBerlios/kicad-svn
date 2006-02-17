@@ -84,6 +84,7 @@ public:
 private:
 	void Plot(wxCommandEvent & event);
 	void OnQuit(wxCommandEvent & event);
+	void OnClose(wxCloseEvent & event);
 	void SetCommands(wxCommandEvent & event);
 	void SaveOptPlot(wxCommandEvent & event);
 	void CreateDrillFile(wxCommandEvent & event);
@@ -91,6 +92,7 @@ private:
 };
 
 BEGIN_EVENT_TABLE(WinEDA_PlotFrame, wxDialog)
+	EVT_CLOSE(WinEDA_PlotFrame::OnClose)
 	EVT_BUTTON(ID_CLOSE_PLOT, WinEDA_PlotFrame::OnQuit)
 	EVT_BUTTON(ID_EXEC_PLOT, WinEDA_PlotFrame::Plot)
 	EVT_BUTTON(ID_SAVE_OPT_PLOT, WinEDA_PlotFrame::SaveOptPlot)
@@ -173,7 +175,7 @@ wxString fmtmsg[4] = { wxT("HPGL"), wxT("GERBER"), wxT("Postscript"), wxT("Posts
 
 	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this,	ID_CLOSE_PLOT,
-						_("Cancel"), pos);
+						_("Close"), pos);
 	Button->SetForegroundColour(*wxBLUE);
 
 	pos.y += Button->GetSize().y + 5;
@@ -330,10 +332,20 @@ wxCommandEvent event;
 /***************************************************************/
 void  WinEDA_PlotFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
 /***************************************************************/
+/* Called by the close button
+*/
 {
     Close(true);    // true is to force the frame to close
 }
 
+/****************************************************/
+void  WinEDA_PlotFrame::OnClose(wxCloseEvent & event)
+/****************************************************/
+/* called when WinEDA_PlotFrame is closed
+*/
+{
+	EndModal(0);
+}
 
 
 /*********************************************************/

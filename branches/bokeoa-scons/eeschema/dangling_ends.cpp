@@ -193,7 +193,7 @@ bool Sdangstate = TRUE, Edangstate = TRUE;
 		 (Edangstate != DrawRef->m_EndIsDangling) )
 	{
 		if ( DC )
-			RedrawOneStruct(frame->DrawPanel,DC, DrawRef, XOR_MODE);
+			RedrawOneStruct(frame->DrawPanel,DC, DrawRef, g_XorMode);
 		DrawRef->m_StartIsDangling = Sdangstate;
 		DrawRef->m_EndIsDangling = Edangstate;
 		if ( DC )
@@ -247,7 +247,7 @@ bool dangstate = TRUE;
 	if ( dangstate != label->m_IsDangling )
 	{
 		if ( DC )
-			RedrawOneStruct(frame->DrawPanel,DC, label, XOR_MODE);
+			RedrawOneStruct(frame->DrawPanel,DC, label, g_XorMode);
 		label->m_IsDangling = dangstate;
 		if ( DC )
 			RedrawOneStruct(frame->DrawPanel,DC, label, GR_DEFAULT_DRAWMODE);

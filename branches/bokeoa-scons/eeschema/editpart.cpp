@@ -357,7 +357,7 @@ wxString newname;
 
 	m_Parent->DrawPanel->PrepareGraphicContext(&dc);
 
-	RedrawOneStruct(m_Parent->DrawPanel, &dc, m_Cmp, XOR_MODE);
+	RedrawOneStruct(m_Parent->DrawPanel, &dc, m_Cmp, g_XorMode);
 
 	newname = m_RefInLib->GetData();
 	newname.MakeUpper();
@@ -535,7 +535,7 @@ EDA_LibComponentStruct *Entry;
 	wxString newtext = Field->m_Text;
 	Get_Message(DrawPartStruct::ReturnFieldName(FieldNumber), newtext, this);
 
-	DrawTextField(DrawPanel, DC, Field, flag, XOR_MODE);
+	DrawTextField(DrawPanel, DC, Field, flag, g_XorMode);
 
 	if ( ! newtext.IsEmpty() )
 	{
@@ -563,7 +563,7 @@ EDA_LibComponentStruct *Entry;
 		}
 	}
 
-	DrawTextField(DrawPanel, DC, Field, flag, XOR_MODE);
+	DrawTextField(DrawPanel, DC, Field, flag, g_XorMode);
 	((EDA_SchComponentStruct*)Field->m_Parent)->Display_Infos(this);
 	m_CurrentScreen->SetModify();
 }
@@ -587,7 +587,7 @@ int FieldNumber;
 
 	/* Effacement: */
 	if( erase )
-		DrawTextField(panel, DC, CurrentField, Multiflag, XOR_MODE);
+		DrawTextField(panel, DC, CurrentField, Multiflag, g_XorMode);
 
 	pos = ((EDA_SchComponentStruct*)CurrentField->m_Parent)->m_Pos;
 
@@ -598,7 +598,7 @@ int FieldNumber;
 	CurrentField->m_Pos.x = pos.x + TRF[0][0] * x1 + TRF[1][0] * y1;
 	CurrentField->m_Pos.y = pos.y + TRF[0][1] * x1 + TRF[1][1] * y1;
 
-	DrawTextField(panel, DC, CurrentField, Multiflag, XOR_MODE);
+	DrawTextField(panel, DC, CurrentField, Multiflag, g_XorMode);
 }
 
 
@@ -610,7 +610,7 @@ static void AbortMoveCmpField(WinEDA_DrawFrame * frame, wxDC * DC)
 	frame->GetScreen()->ManageCurseur = NULL;
 	if ( CurrentField )
 		{
-		DrawTextField(frame->DrawPanel, DC, CurrentField,Multiflag, XOR_MODE);
+		DrawTextField(frame->DrawPanel, DC, CurrentField,Multiflag, g_XorMode);
 		CurrentField->m_Flags = 0;
 		CurrentField->m_Pos = OldPos;
 		DrawTextField(frame->DrawPanel, DC, CurrentField,Multiflag, GR_DEFAULT_DRAWMODE);
@@ -640,11 +640,11 @@ EDA_LibComponentStruct *Entry;
 			}
 		}
 
-	DrawTextField(DrawPanel, DC, Field, flag, XOR_MODE);
+	DrawTextField(DrawPanel, DC, Field, flag, g_XorMode);
 
 	if( Field->m_Orient == TEXT_ORIENT_HORIZ ) Field->m_Orient = TEXT_ORIENT_VERT;
 	else Field->m_Orient = TEXT_ORIENT_HORIZ;
-	DrawTextField(DrawPanel, DC, Field,flag, XOR_MODE);
+	DrawTextField(DrawPanel, DC, Field,flag, g_XorMode);
 
 	GetScreen()->SetModify();
 }
@@ -704,10 +704,10 @@ int flag = 0;
 
 	if ( ! msg.IsEmpty() ) // New text entered
 	{
-		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[REFERENCE], flag, XOR_MODE);
+		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[REFERENCE], flag, g_XorMode);
 		TextField->m_Text = msg;
 		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[REFERENCE], flag,
-				DrawLibItem->m_Flags ? XOR_MODE : GR_DEFAULT_DRAWMODE);
+				DrawLibItem->m_Flags ? g_XorMode : GR_DEFAULT_DRAWMODE);
 		GetScreen()->SetModify();
 	}
 	DrawLibItem->Display_Infos(this);
@@ -735,10 +735,10 @@ int flag = 0;
 
 	if ( ! msg.IsEmpty() )
 	{
-		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[VALUE], flag, XOR_MODE);
+		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[VALUE], flag, g_XorMode);
 		TextField->m_Text = msg;
 		DrawTextField(DrawPanel, DC, &DrawLibItem->m_Field[VALUE], flag,
-					DrawLibItem->m_Flags ? XOR_MODE : GR_DEFAULT_DRAWMODE);
+					DrawLibItem->m_Flags ? g_XorMode : GR_DEFAULT_DRAWMODE);
 		m_CurrentScreen->SetModify();
 	}
 
@@ -763,7 +763,7 @@ EDA_LibComponentStruct *Entry;
 wxClientDC dc(m_Parent->DrawPanel);
 	m_Parent->DrawPanel->PrepareGraphicContext(&dc);
 
-	RedrawOneStruct(m_Parent->DrawPanel, &dc, m_Cmp, XOR_MODE);
+	RedrawOneStruct(m_Parent->DrawPanel, &dc, m_Cmp, g_XorMode);
 
 	/* Mise aux valeurs par defaut des champs et orientation */
 	m_Cmp->m_Field[REFERENCE].m_Pos.x =

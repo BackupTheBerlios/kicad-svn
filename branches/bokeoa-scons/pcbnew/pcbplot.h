@@ -91,7 +91,6 @@ eda_global int g_PlotOrient;  /* numero de code de l'orientation du trace ( voir
 							0 = normal
 							PLOT_MIROIR = MIROIR
 							*/
-eda_global int g_PlotMarge;		/* Marge pour traces du cartouche */
 eda_global int g_PlotScaleOpt		// 0 = automatique, >=1 echelle specifiee
 #ifdef MAIN
 = 1

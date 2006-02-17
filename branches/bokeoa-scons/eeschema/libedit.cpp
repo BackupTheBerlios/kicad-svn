@@ -18,7 +18,7 @@
 #include "protos.h"
 
 #include "id.h"
-
+#include "dialog_create_component.h"
 
 /* Routines locales */
 
@@ -367,14 +367,17 @@ void WinEDA_LibeditFrame::CreateNewLibraryPart(void)
 {
 wxString msg;
 EDA_LibComponentStruct * NewStruct;
-
+int diag;
 
 	if( CurrentLibEntry )
 		if( ! IsOK(this, _("Delete old component ?")) ) return;
 
 	CurrentDrawItem = NULL;
 
-	Get_Message( _("Name: "), msg, this);
+	WinEDA_CreateCmpDialog Dialogbox(this);
+	diag = Dialogbox.ShowModal();
+	if ( diag != wxID_OK ) return;
+	msg = Dialogbox.ReturnCmpName();
 	if ( msg.IsEmpty() ) return;
 	msg.MakeUpper(); msg.Replace(wxT(" "), wxT("_") );
 
@@ -392,23 +395,10 @@ EDA_LibComponentStruct * NewStruct;
 	}
 
 	NewStruct =  new EDA_LibComponentStruct( msg);
-
-	msg.Empty();
-	Get_Message( _("Prefix: "), msg, this);
-	if ( msg.IsEmpty()) msg = wxT("U");
-	msg.MakeUpper();
-	NewStruct->m_Prefix.m_Text = msg;
-
-	msg = wxT("1");
-	Get_Message( _("Number of Parts for this component: "), msg, this);
-	if ( msg.IsEmpty() ) msg = wxT("1");
-	if( IsOK(this, _("Has a convert drawing ?")) ) g_AsDeMorgan = 1;
-	else g_AsDeMorgan = 0;
-
-	long ii;
-	if ( ! msg.ToLong(&ii) ) ii = 1;
-	if (ii < 1 ) ii = 1; if (ii > 16 ) ii = 16;
-	NewStruct->m_UnitCount = ii;
+	Dialogbox.SetComponentData(*NewStruct);
+	if ( NewStruct->m_Prefix.m_Text.IsEmpty())
+		NewStruct->m_Prefix.m_Text = wxT("U");
+	NewStruct->m_Prefix.m_Text.MakeUpper();
 
 	// Effacement ancien composant affiché
 	if( CurrentLibEntry) delete CurrentLibEntry;

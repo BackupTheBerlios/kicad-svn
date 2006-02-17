@@ -125,12 +125,14 @@ wxString FullFileName;
 		case TREE_SCHEMA:
 			{
 			ChangeFileNameExt(FullFileName, g_SchExtBuffer);
+			AddDelimiterString( FullFileName );
 			ExecuteFile(this, EESCHEMA_EXE, FullFileName);
 			break;
 			}
 
 		case TREE_PCB:
 			ChangeFileNameExt(FullFileName, g_BoardExtBuffer);
+			AddDelimiterString( FullFileName );
 			ExecuteFile(this, PCBNEW_EXE, FullFileName);
 			break;
 		}

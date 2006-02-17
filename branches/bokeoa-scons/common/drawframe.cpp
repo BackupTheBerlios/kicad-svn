@@ -51,6 +51,7 @@ wxSize minsize;
 	m_AuxiliaryToolBar = NULL;
 	m_SelGridBox = NULL;
 	m_SelZoomBox = NULL;
+	m_ZoomMaxValue = 128;
 
 	DrawPanel = NULL;
 	MsgPanel = NULL;
@@ -236,11 +237,14 @@ void WinEDA_DrawFrame::OnSelectGrid(wxCommandEvent& event)	// fonction virtuelle
 {
 	if ( m_SelGridBox == NULL ) return; //Ne devrait pas se produire!
 
-int id = m_SelGridBox->GetSelection();
+int id = m_SelGridBox->GetChoice();
 	if ( id < 0 ) return;
 
 	m_CurrentScreen->m_Curseur = DrawPanel->GetScreenCenterRealPosition();
+wxSize grid = m_CurrentScreen->GetGrid();
 	m_CurrentScreen->SetGrid(g_GridList[id]);
+wxSize newgrid = m_CurrentScreen->GetGrid();
+	if ( newgrid.x != grid.x || newgrid.y != grid.y )
 	Recadre_Trace(FALSE);
 }
 
@@ -265,16 +269,35 @@ void WinEDA_DrawFrame::GeneralControle(wxDC *DC, wxPoint Mouse)
 /********************************************************/
 void WinEDA_DrawFrame::OnSelectZoom(wxCommandEvent& event)	// fonction virtuelle
 /********************************************************/
+/* Set the zoom when selected by the Zoom List Box
+	Note:
+		position 0 = Fit in Page
+		position >= 1 = zoom (1 to zoom max)
+		last position : special zoom
+*/
 {
 	if ( m_SelZoomBox == NULL ) return; //Ne devrait pas se produire!
 
-int id = m_SelZoomBox->GetSelection();
+int id = m_SelZoomBox->GetChoice();
 
-	if ( id < 0 ) return;
+	if ( id < 0 ) return;	// No selection
 
+	if ( id == 0 )			// Auto zoom (Fit in Page)
+	{
+		Zoom_Automatique(TRUE);
+	}
+	else if ( id == m_SelZoomBox->GetCount()-1 )	// Dummy position: unlisted zoom
+		return ;
+	else	// zooml 1 to zoom max
+	{
+		id --;
+		int zoom = 1 << id;
+		if ( zoom > m_ZoomMaxValue ) zoom = m_ZoomMaxValue;
+		if ( m_CurrentScreen->GetZoom() == zoom) return;
 	m_CurrentScreen->m_Curseur = DrawPanel->GetScreenCenterRealPosition();
-	m_CurrentScreen->SetZoom(1 << id);
+		m_CurrentScreen->SetZoom(zoom);
 	Recadre_Trace(FALSE);
+}
 }
 
 /********************************************************/
@@ -640,22 +663,22 @@ void WinEDA_DrawFrame::SetDrawBgColor(int color_num)
 */
 {
 	if ( (color_num != WHITE) && (color_num != BLACK) ) color_num = BLACK;
-	DrawBgColor = color_num;
+	g_DrawBgColor = color_num;
 	if(color_num == WHITE)
 		{
-		XorMode = GR_NXOR;
+		g_XorMode = GR_NXOR;
 		g_GhostColor = BLACK;
 		}
 	else
 		{
-		XorMode = GR_XOR;
+		g_XorMode = GR_XOR;
 		g_GhostColor = WHITE;
 		}
 
 	if ( DrawPanel )
-		DrawPanel-> SetBackgroundColour(wxColour(ColorRefs[DrawBgColor].m_Red,
-						ColorRefs[DrawBgColor].m_Green,
-						ColorRefs[DrawBgColor].m_Blue ));
+		DrawPanel-> SetBackgroundColour(wxColour(ColorRefs[g_DrawBgColor].m_Red,
+						ColorRefs[g_DrawBgColor].m_Green,
+						ColorRefs[g_DrawBgColor].m_Blue ));
 
 }
 

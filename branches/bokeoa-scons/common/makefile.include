@@ -42,7 +42,7 @@ drawtxt.o: drawtxt.cpp ../include/grfonte.h $(COMMON)
 
 svg_print.o: svg_print.cpp $(COMMON)
 
-gr_basic.o: gr_basic.cpp $(COMMON) ../include/plot_common.h
+gr_basic.o: gr_basic.cpp ../include/gr_basic.h $(COMMON) ../include/plot_common.h
 
 dcsvg.o: wx/dcsvg.cpp $(COMMON) ../include/wx/dcsvg.h
 	$(CC) -c $(EDACPPFLAGS) -o $@ wx/$*.cpp
@@ -69,7 +69,7 @@ trigo.o: trigo.cpp ../include/trigo.h
 
 bitmaps.o: bitmaps.cpp ../include/bitmaps.h
 
-edaappl.o: edaappl.cpp $(COMMON) ../include/worksheet.h ../include/common.h
+edaappl.o: edaappl.cpp $(COMMON) ../include/worksheet.h ../include/common.h ../include/gr_basic.h
 
 eda_dde.o: eda_dde.cpp $(COMMON) ../include/eda_dde.h
 

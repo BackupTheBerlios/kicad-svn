@@ -14,9 +14,9 @@
 /* Chaines de caractere d'identification */
 char EnteteCmpMod[] = {"Cmp-Mod V01"};
 
-/*********************/
-int savecmp(void)
-/*********************/
+/****************************************************************************/
+int WinEDA_CvpcbFrame::SaveComponentList(const wxString & NetlistFullFileName)
+/*****************************************************************************/
 /* Routine de sauvegarde du fichier des modules
 	Retourne 1 si OK
 			0 si ecriture non faite
@@ -27,7 +27,7 @@ wxString FullFileName;
 char Line[1024];
 
 	/* calcul du nom du fichier */
-	FullFileName = FFileName;
+	FullFileName = NetlistFullFileName;
 	ChangeFileNameExt(FullFileName, g_ExtCmpBuffer);
 
 	dest = wxFopen(FullFileName, wxT("wt") );

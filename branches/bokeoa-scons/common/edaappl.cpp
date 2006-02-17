@@ -5,13 +5,14 @@
 	 ROLE: methodes relative a la classe winEDA_App, communes
 	 aux environements window et linux
 */
+#define EDA_BASE
+#define COMMON_GLOBL
 
 #include "fctsys.h"
 #include <wx/image.h>
 #include "wx/html/htmlwin.h"
 #include "wx/fs_zip.h"
 
-#define EDA_BASE
 
 #include "wxstruct.h"
 #include "macros.h"
@@ -26,11 +27,15 @@
 
 #ifdef __WINDOWS__
 /* Icons for language choice (only for Windows)*/
-#include "Lang_Def.xpm"
+#include "Lang_Default.xpm"
 #include "Lang_En.xpm"
 #include "Lang_Es.xpm"
 #include "Lang_Fr.xpm"
 #include "Lang_Pt.xpm"
+#include "Lang_It.xpm"
+#include "Lang_De.xpm"
+#include "Lang_Sl.xpm"
+#include "Lang_Hu.xpm"
 #endif
 
 
@@ -94,6 +99,7 @@ WinEDA_App::~WinEDA_App(void)
 	if ( m_Checker ) delete m_Checker;
 	delete m_Locale;
 }
+
 
 /**************************************************/
 void WinEDA_App::InitEDA_Appl(const wxString & name)
@@ -290,21 +296,19 @@ unsigned ii;
 
 	g_FixedFont->SetPointSize(g_FixedFontPointSize);
 
+	m_EDA_Config->Read(wxT("ShowPageLimits"), & g_ShowPageLimits);
 
 	if( m_EDA_Config->Read(wxT("WorkingDir"), &Line) )
 	{
 		if ( wxDirExists(Line) ) wxSetWorkingDirectory(Line);
 	}
-	m_EDA_Config->Read( wxT("BgColor"), &DrawBgColor);
+	m_EDA_Config->Read( wxT("BgColor"), &g_DrawBgColor);
 }
 
 
 /**********************************/
 void WinEDA_App::SaveSettings(void)
 /**********************************/
-/* Enregistre dans le fichier xxx.ini la position et dimension
-de la fenetre du logiciel xxx (eeschema, cvpcb ou pcbnew)
-*/
 {
 unsigned int ii;
 
@@ -328,6 +332,8 @@ unsigned int ii;
 
 	m_EDA_Config->Write(wxT("FixedFontSize"), g_FixedFontPointSize);
 
+	m_EDA_Config->Write(wxT("ShowPageLimits"), g_ShowPageLimits);
+	
 	m_EDA_Config->Write(wxT("WorkingDir"), wxGetCwd());
 
 	for( ii = 0; ii < 10; ii++ )
@@ -419,6 +425,10 @@ void WinEDA_App::SetLanguageIdentifier(int menu_id)
 			m_LanguageId = wxLANGUAGE_SLOVENIAN;
 			break;
 
+		case ID_LANGUAGE_HUNGARIAN:
+			m_LanguageId = wxLANGUAGE_HUNGARIAN ;
+			break;
+
 		default:
 			m_LanguageId = wxLANGUAGE_DEFAULT;
 			break;
@@ -467,30 +477,37 @@ wxMenuItem * item;
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_ITALIAN,
 			_("Italian"), wxEmptyString, wxITEM_CHECK);
-//		SETBITMAPS(apply_xpm, lang_it_xpm);	TODO
+		SETBITMAPS(lang_it_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_DUTCH,
 			_("Dutch"), wxEmptyString, wxITEM_CHECK);
-//		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
+		SETBITMAPS(lang_de_xpm);
 		m_Language_Menu->Append(item);
 
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_SLOVENIAN,
 			_("Slovenian"), wxEmptyString, wxITEM_CHECK);
-//		item->SETBITMAPS(apply_xpm, lang_de_xpm);	TODO
+		SETBITMAPS(lang_sl_xpm);
+		m_Language_Menu->Append(item);
+
+		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_HUNGARIAN,
+			_("Hungarian"), wxEmptyString, wxITEM_CHECK);
+		SETBITMAPS(lang_hu_xpm);
 		m_Language_Menu->Append(item);
 
 #if 0
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_RUSSIAN,
 			_("Russian"), wxEmptyString, wxITEM_CHECK);
-		SETBITMAPS(lang_pt_xpm);
+		SETBITMAPS(lang_ru_xpm);
 		m_Language_Menu->Append(item);
 #endif
 	}
 
+	m_Language_Menu->Check(ID_LANGUAGE_HUNGARIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ITALIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_PORTUGUESE, FALSE);
+	m_Language_Menu->Check(ID_LANGUAGE_DUTCH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SPANISH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_FRENCH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ENGLISH, FALSE);
@@ -522,7 +539,11 @@ wxMenuItem * item;
 			break;
 
 		case wxLANGUAGE_SLOVENIAN:
-			m_Language_Menu->Check(wxLANGUAGE_SLOVENIAN, TRUE);
+			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
+		
+		case wxLANGUAGE_HUNGARIAN:
+			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
+		
 			break;
 		default:
 			m_Language_Menu->Check(ID_LANGUAGE_DEFAULT, TRUE);

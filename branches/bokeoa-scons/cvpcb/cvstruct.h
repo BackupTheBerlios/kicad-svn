@@ -69,7 +69,8 @@ public:
 	void BuildModListBox(void);
 	void CreateScreenCmp(void);
 	void CreateConfigWindow(void);
-	int SaveNetList(void);
+	int SaveNetList(const wxString & FullFileName);
+	int SaveComponentList(const wxString & FullFileName);
 	bool ReadInputNetList(const wxString & FullFileName);
 	void ReadNetListe(void);
 	int rdpcad(void);

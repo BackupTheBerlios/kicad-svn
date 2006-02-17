@@ -146,7 +146,7 @@ DrawSheetLabelStruct * SheetLabel = (DrawSheetLabelStruct *)
 
 	if ( SheetLabel->m_Flags & IS_NEW )
 		{ /* Nouveau Placement en cours, on l'efface */
-		RedrawOneStruct(frame->DrawPanel, DC, SheetLabel, XOR_MODE);
+		RedrawOneStruct(frame->DrawPanel, DC, SheetLabel, g_XorMode);
 		delete SheetLabel;
 		}
 	else
@@ -237,7 +237,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *) SheetLabel->m_Parent;
 
 	if ( Sheet == NULL ) return;
 	if( erase )
-		RedrawOneStruct(panel, DC, SheetLabel, XOR_MODE);
+		RedrawOneStruct(panel, DC, SheetLabel, g_XorMode);
 
 	SheetLabel->m_Edge = 0;
 	SheetLabel->m_Pos.x = Sheet->m_Pos.x;
@@ -253,7 +253,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *) SheetLabel->m_Parent;
 	if( SheetLabel->m_Pos.y > (Sheet->m_Pos.y+Sheet->m_End.y) )
 			SheetLabel->m_Pos.y = Sheet->m_Pos.y + Sheet->m_End.y;
 
-	RedrawOneStruct(panel, DC, SheetLabel, XOR_MODE);
+	RedrawOneStruct(panel, DC, SheetLabel, g_XorMode);
 }
 
 
@@ -265,7 +265,7 @@ void WinEDA_SchematicFrame::Edit_PinSheet(DrawSheetLabelStruct * SheetLabel,
 {
 	if( SheetLabel == NULL) return;
 
-	RedrawOneStruct(DrawPanel, DC, SheetLabel, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, SheetLabel, g_XorMode);
 
 WinEDA_PinSheetPropertiesFrame * frame =
 		new WinEDA_PinSheetPropertiesFrame(this, SheetLabel);
@@ -406,7 +406,7 @@ si DC != NULL, effacement a l'ecran du dessin
 EDA_BaseStruct * DrawStruct;
 DrawSheetLabelStruct* SheetLabel, *NextLabel;
 
-	if ( DC ) RedrawOneStruct(DrawPanel, DC, SheetLabelToDel, XOR_MODE);
+	if ( DC ) RedrawOneStruct(DrawPanel, DC, SheetLabelToDel, g_XorMode);
 
 	/* Recherche de la DrawSheetStruct d'origine */
 	DrawStruct = SheetLabelToDel->m_Parent;

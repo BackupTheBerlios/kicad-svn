@@ -30,7 +30,7 @@ DrawBusEntryStruct *BusEntry =
 
 	if( BusEntry)  /* trace en cours */
 		{
-		RedrawOneStruct(frame->DrawPanel, DC, BusEntry, XOR_MODE);
+		RedrawOneStruct(frame->DrawPanel, DC, BusEntry, g_XorMode);
 		if( BusEntry->m_Flags & IS_NEW )
 			{
 			delete BusEntry;
@@ -62,11 +62,11 @@ DrawBusEntryStruct *BusEntry = (DrawBusEntryStruct *) screen->m_CurrentItem;
 
 	/* effacement apres deplacement curseur */
 	if( erase )
-		RedrawOneStruct(panel, DC, BusEntry, XOR_MODE);
+		RedrawOneStruct(panel, DC, BusEntry, g_XorMode);
 
 	/* Reaffichage au bon endroit */
 	BusEntry->m_Pos = screen->m_Curseur;
-	RedrawOneStruct(panel, DC, BusEntry, XOR_MODE);
+	RedrawOneStruct(panel, DC, BusEntry, g_XorMode);
 }
 
 /**********************************************************************************/
@@ -80,7 +80,7 @@ DrawBusEntryStruct * BusEntry = new DrawBusEntryStruct(GetScreen()->m_Curseur,
 	BusEntry->m_Flags = IS_NEW;
 
 	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
-	RedrawOneStruct(DrawPanel, DC, BusEntry, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, BusEntry, g_XorMode);
 	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
 
 	SetFlagModify(GetScreen());
@@ -120,7 +120,7 @@ void WinEDA_SchematicFrame::SetBusEntryShape(wxDC * DC,
 		return;
 		}
 
-	RedrawOneStruct(DrawPanel, DC, BusEntry, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, BusEntry, g_XorMode);
 
 	switch( entry_shape )
 		{
@@ -136,7 +136,7 @@ void WinEDA_SchematicFrame::SetBusEntryShape(wxDC * DC,
 		}
 
 	TestDanglingEnds(GetScreen()->EEDrawList, NULL);
-	RedrawOneStruct(DrawPanel, DC, BusEntry, XOR_MODE);
+	RedrawOneStruct(DrawPanel, DC, BusEntry, g_XorMode);
 	SetFlagModify(GetScreen());
 }
 

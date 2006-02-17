@@ -154,7 +154,7 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 			case  PLACE_ALL:
 				Module->m_ModuleStatus &= ~MODULE_is_PLACED;
 				if( Module->m_ModuleStatus & MODULE_is_LOCKED ) break;
-				Module->SetState(MODULE_to_PLACE, TRUE);
+					 Module->m_ModuleStatus |= MODULE_to_PLACE;
 				break;
 
 			case  PLACE_INCREMENTAL:
@@ -589,7 +589,7 @@ bool TstOtherSide;
 		}
 
 
-	Dessine_Silouhette_Module(DrawPanel, DC, Module);
+	DrawModuleOutlines(DrawPanel, DC, Module);
 
 	mincout = -1.0;
 	Affiche_Message(wxT("Score ??, pos ??") );
@@ -608,27 +608,27 @@ bool TstOtherSide;
 		Module->m_RealBoundaryBox.m_Pos.x = ox + CurrPosition.x;
 		Module->m_RealBoundaryBox.m_Pos.y = oy + CurrPosition.y;
 
-		Dessine_Silouhette_Module(DrawPanel, DC, Module);
+		DrawModuleOutlines(DrawPanel, DC, Module);
 
 		g_Offset_Module.x = cx - CurrPosition.x;
 		CurrPosition.y = m_Pcb->m_BoundaryBox.m_Pos.y - oy;
 		/* remise sur la grille de placement: */
 		CurrPosition.y -= CurrPosition.y % pas_route;
 
-		Dessine_Silouhette_Module(DrawPanel, DC, Module);
+		DrawModuleOutlines(DrawPanel, DC, Module);
 
 		for ( ; CurrPosition.y < m_Pcb->m_BoundaryBox.GetBottom() - fy;
 				 CurrPosition.y += pas_route )
 		{
 			/* effacement des traces */
-			Dessine_Silouhette_Module(DrawPanel, DC, Module);
+			DrawModuleOutlines(DrawPanel, DC, Module);
 			if (DisplayChevelu)	Compute_Ratsnest_PlaceModule(DC);
 			DisplayChevelu = 0;
 			Module->m_RealBoundaryBox.m_Pos.x = ox + CurrPosition.x;
 			Module->m_RealBoundaryBox.m_Pos.y = oy + CurrPosition.y;
 
 			g_Offset_Module.y = cy - CurrPosition.y;
-			Dessine_Silouhette_Module(DrawPanel, DC, Module);
+			DrawModuleOutlines(DrawPanel, DC, Module);
 			Penalite = TstModuleOnBoard(m_Pcb, Module, TstOtherSide );
 			if( Penalite >= 0 )	/* c a d si le module peut etre place */
 			{
@@ -654,7 +654,7 @@ bool TstOtherSide;
 		}
 	}
 
-	Dessine_Silouhette_Module(DrawPanel, DC, Module);	/* effacement du dernier trace */
+	DrawModuleOutlines(DrawPanel, DC, Module);	/* effacement du dernier trace */
 	if (DisplayChevelu) Compute_Ratsnest_PlaceModule(DC);
 
 	/* Regeneration des variables modifiees */

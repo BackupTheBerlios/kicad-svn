@@ -13,23 +13,23 @@ extern wxString Main_Title;
 
 wxString MsgInfos(
 #ifdef GERBVIEW
-wxT("** GERBVIEW  (jul 2001 .. 2005) **")
+wxT("** GERBVIEW  (jul 2001 .. 2006) **")
 #else
 #ifdef PCBNEW
-wxT("** PCBNEW  (sept 1992 .. 2005) **")
+wxT("** PCBNEW  (sept 1992 .. 2006) **")
 #endif
 #endif
 
 #ifdef CVPCB
-wxT("** CVPCB  (sept 1992 .. 2005) **")
+wxT("** CVPCB  (sept 1992 .. 2006) **")
 #endif
 
 #ifdef KICAD
-wxT("** KICAD (jul 2000 .. 2005) **")
+wxT("** KICAD (jul 2000 .. 2006) **")
 #endif
 
 #ifdef EESCHEMA
-wxT("** EESCHEMA  (sept 1994 .. 2005) **")
+wxT("** EESCHEMA  (sept 1994 .. 2006) **")
 #endif
 );
 
@@ -42,7 +42,11 @@ void Affiche_InfosLicence(wxWindow * frame)
 wxString Msg = MsgInfos;
 	Msg << wxT("\n\n") << _("Build Version:") << wxT("\n") ;
 
-	Msg << Main_Title << wxT("\n\n") << _("Author:");
+	Msg << Main_Title
+#if wxUSE_UNICODE
+	<< wxT(" - Unicode version")
+#endif
+	<< wxT("\n\n") << _("Author:");
 	Msg << wxT("JP CHARRAS\n\n") << _("Based on wxWidgets");
 	Msg << _("\n\nGPL License");
 	Msg << _("\n\nWeb sites:\n");

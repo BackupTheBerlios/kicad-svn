@@ -84,10 +84,10 @@ BEGIN_EVENT_TABLE(WinEDA_GerberFrame, wxFrame)
 	EVT_TOOL(ID_GEN_PRINT, WinEDA_GerberFrame::ToPrinter)
 	EVT_TOOL(ID_FIND_ITEMS, WinEDA_GerberFrame::Process_Special_Functions)
 	EVT_TOOL(ID_DRC_CONTROL, WinEDA_GerberFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_TOOLBARH_PCB_SELECT_LAYER,
+	EVT_KICAD_CHOICEBOX(ID_TOOLBARH_PCB_SELECT_LAYER,
 					WinEDA_GerberFrame::Process_Special_Functions)
 
-	EVT_COMBOBOX(ID_TOOLBARH_GERBER_SELECT_TOOL,
+	EVT_KICAD_CHOICEBOX(ID_TOOLBARH_GERBER_SELECT_TOOL,
 					WinEDA_GerberFrame::Process_Special_Functions)
 
 
@@ -124,6 +124,7 @@ WinEDA_GerberFrame::WinEDA_GerberFrame(wxWindow * father, WinEDA_App *parent,
 	m_Draw_Grid = TRUE;			// TRUE pour avoir la axes dessinee
 	m_Draw_Sheet_Ref = FALSE;	// TRUE pour avoir le cartouche dessiné
 	m_Ident = GERBER_FRAME;
+	m_ZoomMaxValue = 1024;
 	if ( DrawPanel ) DrawPanel->m_Block_Enable = TRUE;
 	// Give an icon
 	SetIcon( wxICON(icon_gerbview));

@@ -17,7 +17,7 @@
 
 #include "id.h"
 
-wxString Main_Title = wxT("Cvpcb 06-dec-05");
+wxString Main_Title = wxT("Cvpcb 17-jan-06");
 
 // Create a new application object
 IMPLEMENT_APP(WinEDA_App)
@@ -55,7 +55,7 @@ wxString currCWD = wxGetCwd();
 
 	if ( ! NetInNameBuffer.IsEmpty() )
 		wxSetWorkingDirectory( wxPathOnly(NetInNameBuffer) );
-	DrawBgColor = BLACK;
+	g_DrawBgColor = BLACK;
 
 	Read_Config(NetInNameBuffer);
 

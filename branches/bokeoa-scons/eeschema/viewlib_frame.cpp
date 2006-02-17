@@ -73,7 +73,7 @@ BEGIN_EVENT_TABLE(WinEDA_ViewlibFrame, wxFrame)
 	EVT_TOOL(ID_LIBVIEW_CMP_EXPORT_TO_SCHEMATIC,
 				WinEDA_ViewlibFrame::ExportToSchematicLibraryPart)
 
-	EVT_COMBOBOX(ID_LIBVIEW_SELECT_PART_NUMBER,
+	EVT_KICAD_CHOICEBOX(ID_LIBVIEW_SELECT_PART_NUMBER,
 				WinEDA_ViewlibFrame::Process_Special_Functions)
 
 	EVT_LISTBOX(ID_LIBVIEW_LIB_LIST, WinEDA_ViewlibFrame::ClickOnLibList)
@@ -149,12 +149,8 @@ WinEDA_ViewlibFrame::WinEDA_ViewlibFrame(wxWindow * father, WinEDA_App *parent,
 
 WinEDA_ViewlibFrame::~WinEDA_ViewlibFrame(void)
 {
-#ifndef __WXMAC__
-    if ( m_modalData ) m_modalData->ExitLoop();
-	MakeModal(FALSE);
-#endif
-	m_Parent->ViewlibFrame = NULL;
 	delete m_CurrentScreen;
+	m_Parent->ViewlibFrame = NULL;
 }
 
 /*****************************************************************/
@@ -162,6 +158,10 @@ void WinEDA_ViewlibFrame::OnCloseWindow(wxCloseEvent & Event)
 /*****************************************************************/
 {
 	SaveSettings();
+#ifndef __WXMAC__
+    if ( m_modalData ) m_modalData->ExitLoop();
+	MakeModal(FALSE);
+#endif
 	Destroy();
 }
 

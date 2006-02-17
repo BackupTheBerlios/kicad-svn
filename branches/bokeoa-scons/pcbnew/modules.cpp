@@ -76,10 +76,7 @@ void WinEDA_PcbFrame::StartMove_Module(MODULE * module, wxDC * DC)
 	ModuleInitLayer = module->m_Layer;
 
 	/* Effacement chevelu general si necessaire */
-	if(g_Show_Ratsnest)
-	{
-		DrawGeneralRatsnest(DC);
-	}
+	if(g_Show_Ratsnest) DrawGeneralRatsnest(DC);
 
 	if( g_DragSegmentList ) /* Anormal ! */
 	{
@@ -91,6 +88,7 @@ void WinEDA_PcbFrame::StartMove_Module(MODULE * module, wxDC * DC)
 		Build_Drag_Liste(DrawPanel, DC, module);
 	}
 
+	m_Pcb->m_Status_Pcb |= DO_NOT_SHOW_GENERAL_RASTNEST;
 	m_CurrentScreen->ManageCurseur = Montre_Position_Empreinte;
 	m_CurrentScreen->ForceCloseManageCurseur = Exit_Module;
 	DrawPanel->m_AutoPAN_Request = TRUE;
@@ -109,14 +107,15 @@ void Exit_Module(WinEDA_DrawFrame * frame, wxDC *DC)
 DRAG_SEGM * pt_drag;
 TRACK * pt_segm;
 MODULE * module;
+WinEDA_BasePcbFrame * pcbframe = (WinEDA_BasePcbFrame*)frame; 
 
 	module = (MODULE *) frame->m_CurrentScreen->m_CurrentItem;
-	((WinEDA_BasePcbFrame*)frame)->m_Pcb->m_Status_Pcb  &= ~CHEVELU_LOCAL_OK;
+	pcbframe->m_Pcb->m_Status_Pcb  &= ~CHEVELU_LOCAL_OK;
 
 	if (module)
 		{
 		// effacement module a l'ecran:
-		Dessine_Silouhette_Module(frame->DrawPanel, DC, module);
+		DrawModuleOutlines(frame->DrawPanel, DC, module);
 		/* restitution de l'empreinte si move ou effacement copie*/
 		if (module->m_Flags & IS_MOVED )
 			{
@@ -148,8 +147,8 @@ MODULE * module;
 			{
 			DeleteStructure(module);
 			module = NULL;
-			((WinEDA_BasePcbFrame*)frame)->m_Pcb->m_Status_Pcb = 0 ;
-			((WinEDA_BasePcbFrame*)frame)->build_liste_pads() ;
+			pcbframe->m_Pcb->m_Status_Pcb = 0 ;
+			pcbframe->build_liste_pads() ;
 			}
 		}
 
@@ -157,9 +156,9 @@ MODULE * module;
 	if ( module )
 	{
 		if ( ModuleInitOrient != module->m_Orient )
-			((WinEDA_BasePcbFrame*)frame)->Rotate_Module(NULL,module, ModuleInitOrient, FALSE);
+			pcbframe->Rotate_Module(NULL,module, ModuleInitOrient, FALSE);
 		if( ModuleInitLayer != module->m_Layer )
-			((WinEDA_BasePcbFrame*)frame)->Change_Side_Module(module, NULL);
+			pcbframe->Change_Side_Module(module, NULL);
 		module->Draw(frame->DrawPanel, DC, wxPoint(0,0), GR_OR);
 	}
 	g_Drag_Pistes_On = FALSE;
@@ -208,13 +207,13 @@ MODULE * module = (MODULE *) panel->m_Parent->m_CurrentScreen->m_CurrentItem;
 	/* efface ancienne position */
 	if( erase )
 	{
-		Dessine_Silouhette_Module(panel, DC, module);
+		DrawModuleOutlines(panel, DC, module);
 	}
 
 	/* Redessine le module a la nouvelle place */
 	g_Offset_Module.x = module->m_Pos.x - panel->m_Parent->m_CurrentScreen->m_Curseur.x;
 	g_Offset_Module.y = module->m_Pos.y - panel->m_Parent->m_CurrentScreen->m_Curseur.y;
-	Dessine_Silouhette_Module(panel, DC, module);
+	DrawModuleOutlines(panel, DC, module);
 
 	Dessine_Segments_Dragges(panel, DC);
 }
@@ -247,7 +246,7 @@ wxString msg;
 
 	m_CurrentScreen->SetModify();
 
-	/* Effacement chevelu general si necessaire */
+	/* Erase rastnest if needed */
 	if(g_Show_Ratsnest) DrawGeneralRatsnest(DC);
 
 	/* Effacement du module a l'ecran */
@@ -271,6 +270,7 @@ wxString msg;
 
 	m_Pcb->m_Status_Pcb = 0 ;
 	build_liste_pads() ;
+	ReCompile_Ratsnest_After_Changes( DC );
 	return TRUE;
 }
 
@@ -311,7 +311,7 @@ EDA_BaseStruct * PtStruct;
 		/* efface empreinte ( vue en contours) si elle a ete deja dessinee */
 		if ( DC )
 			{
-			Dessine_Silouhette_Module(DrawPanel, DC, Module);
+			DrawModuleOutlines(DrawPanel, DC, Module);
 			Dessine_Segments_Dragges(DrawPanel, DC);
 			}
 		}
@@ -431,7 +431,7 @@ EDA_BaseStruct * PtStruct;
 			{
 			Module->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR);
 			/* affichage chevelu general si necessaire */
-			if(g_Show_Ratsnest) DrawGeneralRatsnest(DC);
+			ReCompile_Ratsnest_After_Changes( DC );
 			}
 		}
 
@@ -439,11 +439,11 @@ EDA_BaseStruct * PtStruct;
 		{
 		if ( DC )
 			{
-			Dessine_Silouhette_Module(DrawPanel, DC, Module);
+			DrawModuleOutlines(DrawPanel, DC, Module);
 			Dessine_Segments_Dragges(DrawPanel, DC);
 			}
+		m_Pcb->m_Status_Pcb &= ~CHEVELU_LOCAL_OK;
 		}
-	m_Pcb->m_Status_Pcb &= LISTE_PAD_OK|CHEVELU_LOCAL_OK;
 }
 
 
@@ -562,7 +562,7 @@ wxPoint newpos;
 		}
 
 	/* affichage chevelu general si necessaire */
-	if(g_Show_Ratsnest && DC) DrawGeneralRatsnest(DC);
+	ReCompile_Ratsnest_After_Changes( DC );
 
 	module->Display_Infos(this);
 
@@ -587,6 +587,8 @@ void WinEDA_BasePcbFrame::Rotate_Module(wxDC * DC, MODULE * module,
 {
 	if ( module == NULL ) return;
 
+	m_CurrentScreen->SetModify();
+
 	 /* efface ancienne position */
 	if( !(module->m_Flags & IS_MOVED) ) /* Rotation simple */
 	{
@@ -602,7 +604,7 @@ void WinEDA_BasePcbFrame::Rotate_Module(wxDC * DC, MODULE * module,
 		/* reaffiche module en mouvement */
 		if ( DC )
 		{
-			Dessine_Silouhette_Module(DrawPanel, DC, module);
+			DrawModuleOutlines(DrawPanel, DC, module);
 			Dessine_Segments_Dragges(DrawPanel, DC);
 		}
 	}
@@ -622,12 +624,12 @@ void WinEDA_BasePcbFrame::Rotate_Module(wxDC * DC, MODULE * module,
 		{
 			module->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR);
 			 /* Reaffichage chevelu general si necessaire */
-			if(g_Show_Ratsnest) DrawGeneralRatsnest(DC);
+			ReCompile_Ratsnest_After_Changes( DC );
 		}
 		else
 		{
 			/* reaffiche module en mouvement */
-			Dessine_Silouhette_Module(DrawPanel, DC, module);
+			DrawModuleOutlines(DrawPanel, DC, module);
 			Dessine_Segments_Dragges(DrawPanel, DC);
 		}
 	}
@@ -638,7 +640,7 @@ void WinEDA_BasePcbFrame::Rotate_Module(wxDC * DC, MODULE * module,
 /* Redessine en mode XOR la silouhette du module */
 /*************************************************/
 
-void Dessine_Silouhette_Module(WinEDA_DrawPanel * panel, wxDC * DC, MODULE * module)
+void DrawModuleOutlines(WinEDA_DrawPanel * panel, wxDC * DC, MODULE * module)
 {
 int pad_fill_tmp;
 D_PAD* pt_pad;

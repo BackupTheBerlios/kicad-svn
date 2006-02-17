@@ -47,15 +47,17 @@ wxSize minsize;
 	m_FrameSize.y -= m_MsgFrameHeight;
 }
 
-/****************************************/
+/******************************************/
 WinEDA_BasicFrame::~WinEDA_BasicFrame(void)
-/****************************************/
+/******************************************/
 {
+	if ( m_Parent->m_HtmlCtrl ) delete m_Parent->m_HtmlCtrl;
+	m_Parent->m_HtmlCtrl = NULL;
 }
 
-/****************************************/
+/********************************************/
 void WinEDA_BasicFrame::ReCreateMenuBar(void)
-/****************************************/
+/********************************************/
 // Virtual function
 {
 }
@@ -123,7 +125,7 @@ void WinEDA_BasicFrame::PrintMsg(const wxString & text)
 	SetStatusText(text);
 }
 
-/************************************************************************/
+/*************************************************************************/
 void WinEDA_BasicFrame::DisplayActivity(int PerCent, const wxString & Text)
 /*************************************************************************/
 /* Display a bargraph (0 to 50 point length) for a PerCent value from 0 to 100

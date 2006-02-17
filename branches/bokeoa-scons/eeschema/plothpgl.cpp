@@ -45,7 +45,7 @@ enum PageFormatReq {
 	PAGE_SIZE_E
 };
 
-static W_PLOT * Plot_sheet_list[] =
+static Ki_PageDescr * Plot_sheet_list[] =
 {
 	NULL,
 	&g_Sheet_A4,
@@ -338,7 +338,7 @@ void WinEDA_PlotHPGLFrame::ReturnSheetDims( BASE_SCREEN * screen,
 	retourne:
 */
 {
-W_PLOT * PlotSheet;
+Ki_PageDescr * PlotSheet;
 
 	if( screen == NULL ) screen = ActiveScreen;
 
@@ -354,7 +354,7 @@ void WinEDA_PlotHPGLFrame::Plot_Schematic_HPGL(int Select_PlotAll, int HPGL_Shee
 {
 wxString PlotFileName, ShortFileName;
 BASE_SCREEN *screen;
-W_PLOT * PlotSheet;
+Ki_PageDescr * PlotSheet;
 wxSize SheetSize;
 wxPoint SheetOffset, PlotOffset;
 int margin;
@@ -429,7 +429,7 @@ wxString msg;
 	/* Init : */
 	PrintHeaderHPGL(PlotOutput, g_HPGL_Pen_Descr.m_Pen_Speed, g_HPGL_Pen_Descr.m_Pen_Num);
 
-	PlotWorkSheet(PLOT_FORMAT_HPGL, screen, 0 );
+	PlotWorkSheet(PLOT_FORMAT_HPGL, screen);
 
 	DrawList = screen->EEDrawList;
 	while ( DrawList )	/* tracage */

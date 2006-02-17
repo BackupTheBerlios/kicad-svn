@@ -13,6 +13,18 @@
 #include "macros.h"
 
 
+/*********************************************************************************************/
+Ki_PageDescr::Ki_PageDescr(const wxSize & size, const wxPoint & offset, const wxString & name)
+/*********************************************************************************************/
+{
+	// All sizes are in 1/1000 inch
+	m_Size = size; m_Offset = offset, m_Name = name;
+	// Adjust the default value for margins to 400 mils (0,4 inch or 10 mm)
+	m_LeftMargin = m_RightMargin = m_TopMargin = m_BottomMargin = 400;
+}
+
+
+
 /******************************************************************/
 double To_User_Unit(bool is_metric, int val,int internal_unit_value)
 /******************************************************************/

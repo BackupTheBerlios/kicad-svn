@@ -30,8 +30,8 @@ static void Move_Segment(WinEDA_DrawPanel * panel, wxDC * DC, bool erase);
 
 /* Variables locales : */
 int ArcValue = 900;
-static wxPoint cursor_pos;	// position originelle du curseur souris (fct deplacement)
-static wxPoint cursor_pos0;	// position courante du curseur souris
+static wxPoint MoveVector;	// Move vector for move edge
+static wxPoint CursorInitialPosition;	// Mouse cursor inital position for move command
 
 /****************************************************************************/
 void WinEDA_ModuleEditFrame::Start_Move_EdgeMod(EDGE_MODULE * Edge, wxDC * DC)
@@ -42,7 +42,8 @@ void WinEDA_ModuleEditFrame::Start_Move_EdgeMod(EDGE_MODULE * Edge, wxDC * DC)
 	if( Edge == NULL ) return;
 	Edge->Draw(DrawPanel, DC, wxPoint(0, 0), GR_XOR);
 	Edge->m_Flags |= IS_MOVED;
-	cursor_pos = cursor_pos0 = GetScreen()->m_Curseur;
+	MoveVector.x = MoveVector.y = 0;
+	CursorInitialPosition = GetScreen()->m_Curseur;
 	GetScreen()->ManageCurseur = Move_Segment;
 	GetScreen()->ForceCloseManageCurseur = Exit_EditEdge_Module;
 	GetScreen()->m_CurrentItem = Edge;
@@ -57,12 +58,22 @@ void WinEDA_ModuleEditFrame::Place_EdgeMod(EDGE_MODULE * Edge, wxDC * DC)
 */
 {
 	if( Edge == NULL ) return;
+	Edge->m_Start.x -= MoveVector.x;
+	Edge->m_Start.y -= MoveVector.y;
+	Edge->m_End.x -= MoveVector.x;
+	Edge->m_End.y -= MoveVector.y;
+
+	Edge->m_Start0.x -= MoveVector.x;
+	Edge->m_Start0.y -= MoveVector.y;
+	Edge->m_End0.x -= MoveVector.x;
+	Edge->m_End0.y -= MoveVector.y;
+
 	Edge->Draw(DrawPanel, DC, wxPoint(0, 0), GR_OR);
+	Edge->m_Flags = 0;
 	GetScreen()->ManageCurseur = NULL;
 	GetScreen()->ForceCloseManageCurseur = NULL;
 	GetScreen()->m_CurrentItem = NULL;
 	GetScreen()->SetModify();
-	Edge->m_Flags = 0;
 MODULE * Module = (MODULE*) Edge->m_Parent;
 	Module->Set_Rectangle_Encadrement();
 }
@@ -84,25 +95,13 @@ MODULE * Module = (MODULE*) Edge->m_Parent;
 
 	if( erase )
 		{
-		Edge->Draw(panel, DC, wxPoint(0, 0), GR_XOR);
+		Edge->Draw(panel, DC, MoveVector, GR_XOR);
 		}
 
-wxPoint delta;
-	/* Mise a jour des coord */
-	delta.x = screen->m_Curseur.x - cursor_pos.x;
-	delta.y = screen->m_Curseur.y - cursor_pos.y;
-	Edge->m_Start.x += delta.x;
-	Edge->m_Start.y += delta.y;
-	Edge->m_End.x += delta.x;
-	Edge->m_End.y += delta.y;
-	cursor_pos = screen->m_Curseur;
+	MoveVector.x = -(screen->m_Curseur.x - CursorInitialPosition.x);
+	MoveVector.y = -(screen->m_Curseur.y - CursorInitialPosition.y);
 
-	Edge->m_Start0.x += delta.x;
-	Edge->m_Start0.y += delta.y;
-	Edge->m_End0.x+= delta.x;
-	Edge->m_End0.y+= delta.y;
-
- 	Edge->Draw(panel, DC, wxPoint(0, 0), GR_XOR);
+ 	Edge->Draw(panel, DC, MoveVector, GR_XOR);
 
 	screen->Trace_Curseur(panel, DC);
 
@@ -154,6 +153,8 @@ void WinEDA_ModuleEditFrame::Edit_Edge_Width(EDGE_MODULE * Edge, wxDC * DC)
 {
 MODULE* Module = m_Pcb->m_Modules;
 
+	SaveCopyInUndoList();
+
 	if ( Edge == NULL )
 		{
 		Edge = (EDGE_MODULE *) Module->m_Drawings;
@@ -184,6 +185,8 @@ int new_layer = SILKSCREEN_N_CMP;
 	new_layer = SelectLayer(SILKSCREEN_N_CMP, LAYER_CUIVRE_N, LAST_NO_COPPER_LAYER);
 	if ( new_layer < 0 ) return;
 		
+	SaveCopyInUndoList();
+
 	if ( Edge == NULL )
 		{
 		Edge = (EDGE_MODULE *) Module->m_Drawings;
@@ -268,17 +271,14 @@ EDGE_MODULE * Edge = (EDGE_MODULE * ) frame->GetScreen()->m_CurrentItem;
 		if (Edge->m_Flags & IS_NEW)	/* effacement du nouveau contour */
 		{
 			MODULE * Module = (MODULE *) Edge->m_Parent;
-			Edge->Draw(frame->DrawPanel, DC, wxPoint(0, 0), GR_XOR);
+			Edge->Draw(frame->DrawPanel, DC, MoveVector, GR_XOR);
 			DeleteStructure(Edge);
 			Module->Set_Rectangle_Encadrement();
 		}
 
 		else
 		{
-			wxPoint pos = frame->GetScreen()->m_Curseur;
-			frame->GetScreen()->m_Curseur = cursor_pos0;
-			frame->GetScreen()->ManageCurseur(frame->DrawPanel, DC, TRUE);
-			frame->GetScreen()->m_Curseur = pos;
+			Edge->Draw(frame->DrawPanel, DC, MoveVector, GR_XOR);
 			Edge->m_Flags = 0;
 			Edge->Draw(frame->DrawPanel, DC, wxPoint(0, 0), GR_OR);
 		}
@@ -307,7 +307,9 @@ int angle = 0;
 
 	if(Edge == NULL )		/* debut reel du trace */
 		{
+		SaveCopyInUndoList();
 		Edge = new EDGE_MODULE( Module );
+		MoveVector.x = MoveVector.y = 0;
 
 		/* Chainage du nouvel element, en tete de liste Drawings */
 		Edge->Pback = Module;

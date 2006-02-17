@@ -73,6 +73,10 @@ bool on_state;
 			break;
 		}
 
+	/* Erase rastnest if needed */
+	if(g_Show_Ratsnest) DrawGeneralRatsnest(&dc);
+	m_Pcb->m_Status_Pcb |= DO_NOT_SHOW_GENERAL_RASTNEST;
+
 	switch ( id )	// Traitement des commandes
 		{
 		case ID_TOOLBARH_PCB_AUTOPLACE:
@@ -167,6 +171,8 @@ bool on_state;
 			DisplayError(this, wxT("AutoPlace command error") );
 			break;
 		}
+	m_Pcb->m_Status_Pcb &= ~DO_NOT_SHOW_GENERAL_RASTNEST;
+	ReCompile_Ratsnest_After_Changes( &dc );
 	SetToolbars();
 }
 

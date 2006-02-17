@@ -74,7 +74,7 @@ wxPoint pos;
 			break;
 
 		case ID_LIBVIEW_SELECT_PART_NUMBER:
-			ii = SelpartBox->GetSelection();
+			ii = SelpartBox->GetChoice();
 			if ( ii < 0 ) return;
 			g_ViewUnit = ii + 1;
 			ReDrawPanel();

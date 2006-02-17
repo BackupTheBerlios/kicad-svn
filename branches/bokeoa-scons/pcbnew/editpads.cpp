@@ -496,6 +496,7 @@ long PadLayerMask;
 
 	if ( CurrentPad )   // Set Pad Name & Num
 	{
+		m_Parent->SaveCopyInUndoList();
 		MODULE * Module;
 		Module = (MODULE*) CurrentPad->m_Parent;
 		Module->m_LastEdit_Time = time(NULL);

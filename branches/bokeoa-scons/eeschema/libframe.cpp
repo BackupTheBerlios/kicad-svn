@@ -37,9 +37,9 @@ BEGIN_EVENT_TABLE(WinEDA_LibeditFrame, wxFrame)
 	/* Main horizontal toolbar */
 	EVT_TOOL_RANGE( ID_LIBEDIT_START_H_TOOL, ID_LIBEDIT_END_H_TOOL,
 					WinEDA_LibeditFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_LIBEDIT_SELECT_PART_NUMBER,
+	EVT_KICAD_CHOICEBOX(ID_LIBEDIT_SELECT_PART_NUMBER,
 				WinEDA_LibeditFrame::Process_Special_Functions)
-	EVT_COMBOBOX(ID_LIBEDIT_SELECT_ALIAS,
+	EVT_KICAD_CHOICEBOX(ID_LIBEDIT_SELECT_ALIAS,
 				WinEDA_LibeditFrame::Process_Special_Functions)
 
 	/* Right Vertical toolbar */
@@ -429,7 +429,7 @@ wxClientDC dc(DrawPanel);
 
 		case ID_LIBEDIT_SELECT_PART_NUMBER:
 			{
-			int ii = m_SelpartBox->GetSelection();
+			int ii = m_SelpartBox->GetChoice();
 			if ( ii < 0 ) return;
 			LibItemToRepeat = NULL;
 			CurrentUnit = ii + 1;
@@ -439,7 +439,7 @@ wxClientDC dc(DrawPanel);
 
 		case ID_LIBEDIT_SELECT_ALIAS:
 			{
-			int ii = m_SelAliasBox->GetSelection();
+			int ii = m_SelAliasBox->GetChoice();
 			if ( ii < 0 ) return;
 			LibItemToRepeat = NULL;
 			if ( ii > 0 ) CurrentAliasName = m_SelAliasBox->GetValue();

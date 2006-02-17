@@ -7,8 +7,9 @@ EXTRACPPFLAGS= -DPCBNEW -I./ -Ibitmaps -I../include -I../common -I../pcbnew -I..
 LIBVIEWER3D = ../3d-viewer/3d-viewer.a
 
 OBJECTS=	$(TARGET).o classpcb.o\
-		$(REPO)lay2plot.o\
-		$(REPO)onrightclick.o\
+		lay2plot.o\
+		modedit_undo_redo.o\
+		onrightclick.o\
 		modedit_onclick.o\
 		via_edit.o\
 		wxprint.o \

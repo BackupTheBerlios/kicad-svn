@@ -341,6 +341,7 @@ wxPoint pos = GetPosition();
 
 		case ID_BUS_BUTT:
 		case ID_WIRE_BUTT:
+		case ID_LINE_COMMENT_BUTT:
 			if ( DrawStruct && (DrawStruct->m_Flags & IS_NEW) )
 				EndSegment(DC);
 			break;

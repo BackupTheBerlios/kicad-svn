@@ -48,9 +48,9 @@ WinEDA_DrawPanel::WinEDA_DrawPanel(WinEDA_DrawFrame *parent, int id,
 	m_Ident = m_Parent->m_Ident;
 	m_Scroll_unit = 1;
 	m_ScrollButt_unit = 40;
-	SetBackgroundColour(wxColour(ColorRefs[DrawBgColor].m_Red,
-						ColorRefs[DrawBgColor].m_Green,
-						ColorRefs[DrawBgColor].m_Blue ) );
+	SetBackgroundColour(wxColour(ColorRefs[g_DrawBgColor].m_Red,
+						ColorRefs[g_DrawBgColor].m_Green,
+						ColorRefs[g_DrawBgColor].m_Blue ) );
 	EnableScrolling(TRUE,TRUE);
 	m_ClipBox.SetSize(size);
 	m_ClipBox.SetX(0);
@@ -353,7 +353,7 @@ void WinEDA_DrawPanel::EraseScreen(wxDC * DC)
 	GRSetDrawMode(DC, GR_COPY);
 	GRSFilledRect(&m_ClipBox, DC, m_ClipBox.GetX(), m_ClipBox.GetY(),
 				m_ClipBox.GetRight(), m_ClipBox.GetBottom(),
-				DrawBgColor, DrawBgColor);
+				g_DrawBgColor, g_DrawBgColor);
 }
 
 /***************************************************/
@@ -410,15 +410,15 @@ BASE_SCREEN * Screen = GetScreen();
 
 	if ( Screen == NULL ) return;
 
-	if ( (DrawBgColor != WHITE) && (DrawBgColor != BLACK) ) DrawBgColor = BLACK;
-	if(DrawBgColor == WHITE)
+	if ( (g_DrawBgColor != WHITE) && (g_DrawBgColor != BLACK) ) g_DrawBgColor = BLACK;
+	if(g_DrawBgColor == WHITE)
 	{
-		XorMode = GR_NXOR;
+		g_XorMode = GR_NXOR;
 		g_GhostColor = BLACK;
 	}
 	else
 	{
-		XorMode = GR_XOR;
+		g_XorMode = GR_XOR;
 		g_GhostColor = WHITE;
 	}
 
@@ -433,9 +433,9 @@ double f_scale = 1.0/(double)zoom;
 	DC->SetFont(* g_StdFont);
 		
 	DC->BeginDrawing();
-	SetBackgroundColour(wxColour(ColorRefs[DrawBgColor].m_Red,
-						ColorRefs[DrawBgColor].m_Green,
-						ColorRefs[DrawBgColor].m_Blue ));
+	SetBackgroundColour(wxColour(ColorRefs[g_DrawBgColor].m_Red,
+						ColorRefs[g_DrawBgColor].m_Green,
+						ColorRefs[g_DrawBgColor].m_Blue ));
 
 	GRResetPenAndBrush(DC);
 

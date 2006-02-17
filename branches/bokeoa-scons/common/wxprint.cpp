@@ -64,7 +64,6 @@ static long s_SelectedLayers = CUIVRE_LAYER | CMP_LAYER |
 
 // static print data and page setup data, to remember settings during the session
 static wxPrintData * g_PrintData;
-static wxPageSetupData * g_PageSetupData;
 
 /* exportees dans eeconfig.h */
 int PenMinWidth = 20;	/* dim mini (en 1/100 mmm) pour les traits imprimes */
@@ -74,8 +73,9 @@ static int s_PrintMaskLayer;
 static int s_OptionPrintPage = 0;
 static int s_Print_Black_and_White = TRUE;
 #ifdef PCBNEW
+#define SCALE_LIST_LEN 9
 static int s_Scale_Select = 3;	// default selected scale = ScaleList[3] = 1
-static double s_ScaleList[8] = { 0, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 4.0 };
+static double s_ScaleList[SCALE_LIST_LEN] = { 0, 0.5, 0.7, 0.999, 1.0, 1.4, 2.0, 3.0, 4.0 };
 #endif
 
 static bool s_Print_Sheet_Ref = TRUE;
@@ -83,10 +83,9 @@ static bool s_Print_Sheet_Ref = TRUE;
 enum print_id {
 	ID_PRINT_SETUP = 1100,
 	ID_PRINT_PREVIEW,
-	ID_PRINT_PAGE_SETUP,
 	ID_PRINT_EXECUTE,
 	ID_PRINT_SELECT_LAYERS,
-	ID_PRINT_CLOSE,
+	ID_PRINT_QUIT,
 	ID_PEN_WIDTH,
 	ID_SET_PRINT_SCALE,
 	ID_SET_BW,
@@ -119,13 +118,13 @@ public:
 
 	void OnPrintSetup(wxCommandEvent& event);
 	void OnPrintPreview(wxCommandEvent& event);
-	void OnPageSetup(wxCommandEvent& event);
 	void EDA_PrintPage(wxCommandEvent& event);
 	void SetPenWidth(wxSpinEvent& event);
 	void SetColorOrBlack(wxCommandEvent& event);
 	void SetScale(wxCommandEvent& event);
 	int SetLayerMaskFromListSelection(void);
-	void OnClose(wxCommandEvent& event);
+	void OnClose(wxCloseEvent & event);
+	void OnQuit(wxCommandEvent& event);
 	wxString BuildPrintTitle(void);
 
 	DECLARE_EVENT_TABLE()
@@ -134,11 +133,11 @@ public:
 
 /* Construction de la table des evenements */
 BEGIN_EVENT_TABLE(WinEDA_PrintFrame, wxDialog)
+	EVT_CLOSE(WinEDA_PrintFrame::OnClose)
 	EVT_BUTTON(ID_PRINT_SETUP, WinEDA_PrintFrame::OnPrintSetup)
 	EVT_BUTTON(ID_PRINT_PREVIEW, WinEDA_PrintFrame::OnPrintPreview)
-	EVT_BUTTON(ID_PRINT_PAGE_SETUP, WinEDA_PrintFrame::OnPageSetup)
 	EVT_BUTTON(ID_PRINT_EXECUTE, WinEDA_PrintFrame::EDA_PrintPage)
-	EVT_BUTTON(ID_PRINT_CLOSE, WinEDA_PrintFrame::OnClose)
+	EVT_BUTTON(ID_PRINT_QUIT, WinEDA_PrintFrame::OnQuit)
 	EVT_SPINCTRL(ID_PEN_WIDTH, WinEDA_PrintFrame::SetPenWidth)
 	EVT_RADIOBOX(ID_SET_BW, WinEDA_PrintFrame::SetColorOrBlack)
 	EVT_RADIOBOX(ID_SET_PRINT_SCALE, WinEDA_PrintFrame::SetScale)
@@ -207,17 +206,6 @@ bool PrinterError = FALSE;
 		g_PrintData->SetOrientation(DEFAULT_ORIENTATION_PAPER);
         }
 
-	if ( g_PageSetupData == NULL )	// Premier appel a l'impression
-		{
-		g_PageSetupData = new wxPageSetupDialogData;
-		#ifdef EESCHEMA
-		#define MARGE_MINI 10 // marge mini en mm (Eeschema has no buidin margin)
-		#else
-		#define MARGE_MINI 0 // marge mini en mm (Pcbnew has a buidin margin (g_PlotMarge)
-		#endif
-		g_PageSetupData->SetMarginTopLeft(wxPoint(MARGE_MINI,MARGE_MINI));
-		g_PageSetupData->SetMarginBottomRight(wxPoint(MARGE_MINI,MARGE_MINI));
-		}
 
 	pos.x += 10; pos.y += 10;
 	WinEDA_PrintFrame * frame = new WinEDA_PrintFrame(this, pos);
@@ -277,9 +265,17 @@ wxSize size, win_size;
 	}
 	win_size.x += 10; pos.y = 5;
 	pos.x = win_size.x;
+	// Read the scale adjust option
+	if ( m_Parent->m_Parent->m_EDA_Config )
+	{
+		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintXFineScaleAdj"), &m_XScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintYFineScaleAdj"), &m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintScale"), &s_Scale_Select);
+	}
 
-wxString msg_scale_list[8] = {
-	_("fit in page"), _("Scale 0.5"), _("Scale 0.7"), _("Scale 1"),
+wxString msg_scale_list[SCALE_LIST_LEN] = {
+	_("fit in page"), _("Scale 0.5"), _("Scale 0.7"), _("Approx. Scale 1"),
+	_("Accurate Scale 1"),
 	_("Scale 1.4"), _("Scale 2"), _("Scale 3"), _("Scale 4")
 	};
 
@@ -287,15 +283,10 @@ wxString msg_scale_list[8] = {
 	m_ScaleOption = new wxRadioBox(this, ID_SET_PRINT_SCALE,
 						_("Approx. Scale:"),
 						pos,wxSize(-1,-1),
-						8,msg_scale_list,1,wxRA_SPECIFY_COLS);
+						SCALE_LIST_LEN,msg_scale_list,1,wxRA_SPECIFY_COLS);
 	m_ScaleOption->SetSelection(s_Scale_Select);
 
 	// Create scale adjust option
-	if ( m_Parent->m_Parent->m_EDA_Config )
-	{
-		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintXFineScaleAdj"), &m_XScaleAdjust);
-		m_Parent->m_Parent->m_EDA_Config->Read( wxT("PrintYFineScaleAdj"), &m_YScaleAdjust);
-	}
 	m_ScaleOption->GetSize(&size.x, &size.y);
 	pos.y += size.y + 15;
 	m_FineAdjustXscaleOpt = new WinEDA_DFloatValueCtrl(this, _("X Scale Adjust"), m_XScaleAdjust, pos);
@@ -364,13 +355,6 @@ wxString page_all[OPT_COUNT] =
 	if ( win_size.x < (pos.x + Button->GetSize().x) )
 		win_size.x = pos.x + Button->GetSize().x;
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this,	ID_PRINT_PAGE_SETUP,
-						_("P&age setup"), pos);
-	Button->SetForegroundColour(wxColour(100,0,0) );
-	if ( win_size.x < (pos.x + Button->GetSize().x) )
-		win_size.x = pos.x + Button->GetSize().x;
-
 	pos.y += Button->GetSize().y + 15;
 	Button = new wxButton(this,	ID_PRINT_PREVIEW,
 						_("Pre&view"), pos);
@@ -388,7 +372,7 @@ wxString page_all[OPT_COUNT] =
 		win_size.x = pos.x + Button->GetSize().x;
 
 	pos.y += Button->GetSize().y + 15;
-	Button = new wxButton(this,	ID_PRINT_CLOSE,
+	Button = new wxButton(this,	ID_PRINT_QUIT,
 						_("&Close"), pos);
 	Button->SetForegroundColour(wxColour(0,0,150) );
 
@@ -430,17 +414,31 @@ void WinEDA_PrintFrame::SetColorOrBlack(wxCommandEvent& event)
 	s_Print_Black_and_White = m_ColorOption->GetSelection();
 }
 
-/*****************************************************/
-void WinEDA_PrintFrame::OnClose(wxCommandEvent& event)
-/*****************************************************/
+/****************************************************/
+void  WinEDA_PrintFrame::OnClose(wxCloseEvent & event)
+/****************************************************/
+/* called when WinEDA_PrintFrame is closed
+*/
 {
 	if ( m_FineAdjustXscaleOpt ) m_XScaleAdjust = m_FineAdjustXscaleOpt->GetValue();
 	if ( m_FineAdjustYscaleOpt ) m_YScaleAdjust = m_FineAdjustYscaleOpt->GetValue();
+#ifdef PCBNEW
 	if ( m_Parent->m_Parent->m_EDA_Config )
 	{
 		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PrintXFineScaleAdj"), m_XScaleAdjust);
 		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PrintYFineScaleAdj"), m_YScaleAdjust);
+		m_Parent->m_Parent->m_EDA_Config->Write(wxT("PrintScale"), s_Scale_Select);
 	}
+#endif
+	EndModal(0);
+	}
+
+/*****************************************************/
+void WinEDA_PrintFrame::OnQuit(wxCommandEvent& event)
+/*****************************************************/
+/* Called when the quit/close button is pressed
+*/
+{
 	Close(TRUE);
 }
 
@@ -503,30 +501,11 @@ void WinEDA_PrintFrame::OnPrintSetup(wxCommandEvent& event)
     if ( printDialogData.Ok() )
     	{
 		wxPrintDialog printerDialog(this, & printDialogData);
-// Obsolete and useless after wxWidgets 2.5.3:
-//		printerDialog.GetPrintDialogData().SetSetupDialog(TRUE);
 		printerDialog.ShowModal();
 
 		* g_PrintData = printerDialog.GetPrintDialogData().GetPrintData();
         }
 	else DisplayError(this, _("Printer Problem!") );
-}
-
-/*********************************************************/
-void WinEDA_PrintFrame::OnPageSetup(wxCommandEvent& event)
-/*********************************************************/
-/* Open a dialog box for page setup (margin, page size ...)
-*/
-{
-wxPageSetupData data;
-
-	* g_PageSetupData = * g_PrintData;
-
-	wxPageSetupDialog PageDialog(this, g_PageSetupData);
-	PageDialog.ShowModal();
-
-	* g_PrintData = PageDialog.GetPageSetupData().GetPrintData();
-	* g_PageSetupData = PageDialog.GetPageSetupData();
 }
 
 
@@ -573,12 +552,9 @@ wxString title = BuildPrintTitle();
 	WSize = m_Parent->GetSize();
 	WSize.x -= 3;
 	WSize.y += 6;
-	preview->SetZoom(50);
 
-	wxPreviewFrame *frame = new wxPreviewFrame(preview, (wxFrame*)this,
+	wxPreviewFrame *frame = new wxPreviewFrame(preview, this,
 					title, WPos, WSize);
-	if( frame == NULL ) return;
-
 	frame->Initialize();
 	frame->Show(TRUE);
 }
@@ -622,6 +598,7 @@ wxString title = BuildPrintTitle();
 
 	if (!printer.Print(this, &printout, TRUE))
 		{
+        if (wxPrinter::GetLastError() == wxPRINTER_ERROR)
 	    DisplayError(this, _("There was a problem printing") );
         return;
         }
@@ -766,7 +743,7 @@ bool EDA_Printout::OnBeginDocument(int startPage, int endPage)
 void EDA_Printout::DrawPage(void)
 /********************************/
 /*
-	Routine effective d'impression
+	This is the real print function: print the active screen
 */
 {
 int tmpzoom;
@@ -774,28 +751,25 @@ wxPoint tmp_startvisu;
 wxSize PageSize_in_mm;
 wxSize SheetSize;		// Sheet size in internal units
 wxSize PlotAreaSize;	// Taille de la surface utile de trace (pixels)
-float scaleX, scaleY, scale;
+double scaleX, scaleY, scale;
 wxPoint old_org;
 wxPoint DrawOffset;	// Offset de trace
-float userscale = 1.0;
+double userscale;
 wxDC * dc = GetDC();
+int DrawZoom = 1;
 
 	wxBusyCursor dummy;
 
 	GetPageSizeMM(&PageSize_in_mm.x, &PageSize_in_mm.y);
 
-	/* modification des cadrages et reglages locaux */
+	/* Save old draw scale and draw offset */
 	tmp_startvisu = ActiveScreen->m_StartVisu;
 	tmpzoom = ActiveScreen->GetZoom();
 	old_org = ActiveScreen->m_DrawOrg;
+	/* Change draw scale and offset to draw the whole page*/
+	ActiveScreen->SetZoom(DrawZoom);
 	ActiveScreen->m_DrawOrg.x = ActiveScreen->m_DrawOrg.y = 0;
 	ActiveScreen->m_StartVisu.x = ActiveScreen->m_StartVisu.y = 0;
-
-	// Get margins
-	float marginX0 = (float) g_PageSetupData->GetMarginTopLeft().x;	// in mm
-	float marginY0 = (float) g_PageSetupData->GetMarginTopLeft().y;
-	float marginX1 = (float) g_PageSetupData->GetMarginBottomRight().x;
-	float marginY1 = (float) g_PageSetupData->GetMarginBottomRight().y;
 
 	SheetSize = ActiveScreen->m_CurrentSheet->m_Size;	// size in 1/1000 inch
 	SheetSize.x *= m_Parent->m_InternalUnits / 1000;
@@ -803,53 +777,68 @@ wxDC * dc = GetDC();
 
 	// Get the size of the DC in pixels
 	dc->GetSize(&PlotAreaSize.x, &PlotAreaSize.y);
-	// Calcul des marges
-	marginX0 *= (float) PlotAreaSize.x / PageSize_in_mm.x;	/* margin est en pixels */
-	marginY0 *= (float) PlotAreaSize.y / PageSize_in_mm.y;
-	marginX1 *= (float) PlotAreaSize.x / PageSize_in_mm.x;
-	marginY1 *= (float) PlotAreaSize.y / PageSize_in_mm.y;
-
-	PlotAreaSize.x -=  (int)( marginX0 + marginX1);
-	PlotAreaSize.y -= (int)( marginY0 + marginY1);
 
 #ifdef PCBNEW
 	WinEDA_BasePcbFrame * pcbframe = (WinEDA_BasePcbFrame*) m_Parent;
 	pcbframe->m_Pcb->ComputeBoundaryBox();
 	/* calcul des dimensions du PCB */
-	if (s_ScaleList[s_Scale_Select] == 0)	//  fit in page
+	userscale = s_ScaleList[s_Scale_Select];
+	if (userscale == 0)	//  fit in page
 		{
-		SheetSize.x = pcbframe->m_Pcb->m_BoundaryBox.GetWidth();
-		SheetSize.y = pcbframe->m_Pcb->m_BoundaryBox.GetHeight();
+		int extra_margin = 8000;	// Margin = 8000/2 units pcb = 0,4 inch
+		SheetSize.x = pcbframe->m_Pcb->m_BoundaryBox.GetWidth() + extra_margin;
+		SheetSize.y = pcbframe->m_Pcb->m_BoundaryBox.GetHeight() + extra_margin;
+		userscale = 0.99;
 		}
-	else userscale = s_ScaleList[s_Scale_Select];
 
 	if ( (s_ScaleList[s_Scale_Select] > 1.0) ||	//  scale > 1 -> Recadrage
 			 (s_ScaleList[s_Scale_Select] == 0)	)	//  fit in page
 		{
-		DrawOffset.x += pcbframe->m_Pcb->m_BoundaryBox.GetX();
-		DrawOffset.y += pcbframe->m_Pcb->m_BoundaryBox.GetY();
+		DrawOffset.x += pcbframe->m_Pcb->m_BoundaryBox.Centre().x;
+		DrawOffset.y += pcbframe->m_Pcb->m_BoundaryBox.Centre().y;
 		}
+#else
+	userscale = 1;
 #endif
 
 	// Calculate a suitable scaling factor
-	scaleX = (float)SheetSize.x / PlotAreaSize.x;
-	scaleY = (float)SheetSize.y / PlotAreaSize.y;
+	scaleX = (double)SheetSize.x / PlotAreaSize.x;
+	scaleY = (double)SheetSize.y / PlotAreaSize.y;
 	scale = wxMax(scaleX,scaleY) / userscale; // Use x or y scaling factor, whichever fits on the DC
 
-	int zoom = 1;
-	ActiveScreen->SetZoom(zoom);
-
-	// ajustage de l'echelle de trace
+	// ajust the real draw scale
 #ifdef PCBNEW
-	dc->SetUserScale(zoom / scale * m_PrintFrame->m_XScaleAdjust, zoom / scale * m_PrintFrame->m_YScaleAdjust);
+double accurate_Xscale, accurate_Yscale;
+	dc->SetUserScale(DrawZoom / scale * m_PrintFrame->m_XScaleAdjust,
+					DrawZoom / scale * m_PrintFrame->m_YScaleAdjust);
+	// Compute Accurate scale 1
+	{
+		int w, h;
+		GetPPIPrinter(&w, &h);
+		accurate_Xscale = ((double)(DrawZoom * w))/ PCB_INTERNAL_UNIT;
+		accurate_Yscale = ((double)(DrawZoom * h))/ PCB_INTERNAL_UNIT;
+		if ( IsPreview() ) 	// Scale must take in account the DC size in Preview
+		{
+			// Get the size of the DC in pixels
+			dc->GetSize(&PlotAreaSize.x, &PlotAreaSize.y);
+			GetPageSizePixels(&w, &h);
+			accurate_Xscale *= PlotAreaSize.x; accurate_Xscale /= w;
+			accurate_Yscale *= PlotAreaSize.y; accurate_Yscale /= h;
+		}
+		accurate_Xscale *= m_PrintFrame->m_XScaleAdjust;
+		accurate_Yscale *= m_PrintFrame->m_YScaleAdjust;
+	}
 #else
-	dc->SetUserScale(zoom / scale, zoom / scale);
+	dc->SetUserScale(DrawZoom / scale, DrawZoom / scale);
 #endif
 
-	DrawOffset.x -= (int)(marginX0 * scale);	// margin est désiré en absolu!
-	DrawOffset.y -= (int)(marginY0 * scale);
-
 #ifdef PCBNEW
+	if ( (s_ScaleList[s_Scale_Select] > 1.0) ||	//  scale > 1 -> Recadrage
+			(s_ScaleList[s_Scale_Select] == 0)	)	//  fit in page
+	{
+		DrawOffset.x -= (int)( (PlotAreaSize.x/2) * scale);
+		DrawOffset.y -= (int)( (PlotAreaSize.y/2) * scale );
+	}
 	DrawOffset.x += (int)( (SheetSize.x/2) * (m_PrintFrame->m_XScaleAdjust -1.0));
 	DrawOffset.y += (int)( (SheetSize.y/2) * (m_PrintFrame->m_YScaleAdjust -1.0));
 #endif
@@ -877,17 +866,28 @@ EDA_Rect tmp = panel->m_ClipBox;
 	panel->m_ClipBox.SetOrigin(wxPoint(0,0));
 	panel->m_ClipBox.SetSize(wxSize(0x7FFFFF0, 0x7FFFFF0));
 
+	g_IsPrinting = TRUE;
 #ifdef EESCHEMA
 	if( s_Print_Black_and_White )
 		g_PrintFillMask = FILLED_WITH_BG_BODYCOLOR;
 #endif
-	g_IsPrinting = TRUE;
+#ifdef PCBNEW
+	if ( userscale == 1.0 )	// Draw the Sheet refs at optimum scale, and board at 1.0 scale
+	{
+		if ( m_Print_Sheet_Ref )
+			m_Parent->TraceWorkSheet( dc, ActiveScreen);
+		m_Print_Sheet_Ref = FALSE;
+		dc->SetUserScale( accurate_Yscale, accurate_Yscale);
+	}
+#endif
+	
 	panel->PrintPage(dc, m_Print_Sheet_Ref, s_PrintMaskLayer);
-	g_IsPrinting = FALSE;
+
 #ifdef EESCHEMA
 	g_PrintFillMask = 0;
 #endif
 
+	g_IsPrinting = FALSE;
 	panel->m_ClipBox = tmp;
 
 	SetPenMinWidth(1);

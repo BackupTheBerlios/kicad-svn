@@ -117,6 +117,7 @@ wxClientDC dc(DrawPanel);
 
 		case ID_MODEDIT_NEW_MODULE:
 			Clear_Pcb(&dc, TRUE);
+			GetScreen()->ClearUndoRedoList();
 			GetScreen()->m_CurrentItem = NULL;
 			GetScreen()->m_Curseur = wxPoint(0,0);
 			Create_1_Module(& dc, wxEmptyString);
@@ -134,6 +135,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_MODEDIT_LOAD_MODULE_FROM_BOARD:
+			GetScreen()->ClearUndoRedoList();
 			Load_Module_Module_From_BOARD(NULL);
 			GetScreen()->ClrModify();
 			if ( m_Draw3DFrame )
@@ -189,6 +191,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_LIBEDIT_IMPORT_PART:
+			GetScreen()->ClearUndoRedoList();
 			GetScreen()->m_CurrentItem = NULL;
 			Clear_Pcb(&dc, TRUE);
 			GetScreen()->m_Curseur = wxPoint(0,0);
@@ -214,6 +217,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_MODEDIT_LOAD_MODULE:
+			GetScreen()->ClearUndoRedoList();
 			GetScreen()->m_CurrentItem = NULL;
 			Clear_Pcb(&dc, TRUE);
 			GetScreen()->m_Curseur = wxPoint(0,0);
@@ -308,17 +312,20 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_POPUP_PCB_DELETE_PAD:
+			SaveCopyInUndoList();
 			DeletePad((D_PAD *)GetScreen()->m_CurrentItem, &dc);
 			GetScreen()->m_CurrentItem = NULL;
 			DrawPanel->MouseToCursorSchema();
 			break;
 
 		case ID_POPUP_PCB_IMPORT_PAD_SETTINGS:
+			SaveCopyInUndoList();
 			DrawPanel->MouseToCursorSchema();
 			Import_Pad_Settings((D_PAD *)GetScreen()->m_CurrentItem, &dc);
 			break;
 
 		case ID_POPUP_PCB_GLOBAL_IMPORT_PAD_SETTINGS:
+			SaveCopyInUndoList();
 			Global_Import_Pad_Settings((D_PAD *)GetScreen()->m_CurrentItem, &dc);
 			DrawPanel->MouseToCursorSchema();
 			break;
@@ -347,6 +354,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_POPUP_PCB_DELETE_TEXTMODULE:
+			SaveCopyInUndoList();
 			DeleteTextModule((TEXTE_MODULE *)GetScreen()->m_CurrentItem,
 					&dc);
 			GetScreen()->m_CurrentItem = NULL;
@@ -402,6 +410,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_POPUP_PCB_DELETE_EDGE:
+			SaveCopyInUndoList();
 			DrawPanel->MouseToCursorSchema();
 			RemoveStruct(GetScreen()->m_CurrentItem, &dc);
 			GetScreen()->m_CurrentItem = NULL;
@@ -412,6 +421,7 @@ wxClientDC dc(DrawPanel);
 		case ID_MODEDIT_MODULE_SCALE:
 		case ID_MODEDIT_MODULE_SCALEX:
 		case ID_MODEDIT_MODULE_SCALEY:
+			SaveCopyInUndoList();
 			Transform( (MODULE*) GetScreen()->m_CurrentItem, &dc, id);
 			break;
 
@@ -428,6 +438,16 @@ wxClientDC dc(DrawPanel);
 			InstallGridFrame(pos);
 			break;
 		
+		case ID_MODEDIT_UNDO:
+			GetComponentFromUndoList();
+			DrawPanel->Refresh(TRUE);
+			break;
+
+		case ID_MODEDIT_REDO:
+			GetComponentFromRedoList();
+			DrawPanel->Refresh(TRUE);
+			break;
+
 		default:
 			DisplayError(this,
 				wxT("WinEDA_ModuleEditFrame::Process_Special_Functions error"));

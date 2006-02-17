@@ -642,7 +642,7 @@ int NbSheet, ii, NumSheet = 1, error, NbOfCmp;
 SCH_SCREEN *Window;
 CmpListStruct * ListeCmp = NULL;
 wxString Buff;
-wxString msg;
+wxString msg, cmpref;
 	
 	/* Comptage du nombre de feuilles de hierarchy */
 	Window = ScreenSch;
@@ -704,7 +704,8 @@ wxString msg;
 		{
 			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
 			else Buff = wxT("?");
-			msg.Printf( _("item not annotated: %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
+			cmpref = CONV_FROM_UTF8(ListeCmp[ii].m_TextRef);
+			msg.Printf( _("item not annotated: %s%s"), cmpref.GetData(), Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
 			{
@@ -720,7 +721,8 @@ wxString msg;
 			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
 			else Buff = wxT("?");
 
-			msg.Printf( _("Error item %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
+			cmpref = CONV_FROM_UTF8(ListeCmp[ii].m_TextRef);
+			msg.Printf( _("Error item %s%s"), cmpref.GetData(), Buff.GetData());
 
 			Buff.Printf( _(" unit %d and no more than %d parts"),
 										ListeCmp[ii].m_Unit, ListeCmp[ii].m_NbParts);
@@ -748,8 +750,9 @@ wxString msg;
 			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
 			else Buff = wxT("?");
 
+			cmpref = CONV_FROM_UTF8(ListeCmp[ii].m_TextRef);
 			msg.Printf( _("Multiple item %s%s"),
-						ListeCmp[ii].m_TextRef,Buff.GetData());
+						cmpref.GetData(),Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
 			{
@@ -768,7 +771,8 @@ wxString msg;
 			if( ListeCmp[ii].m_NumRef >= 0 ) Buff << ListeCmp[ii].m_NumRef;
 			else Buff = wxT("?");
 
-			msg.Printf( _("Multiple item %s%s"), ListeCmp[ii].m_TextRef, Buff.GetData());
+			cmpref = CONV_FROM_UTF8(ListeCmp[ii].m_TextRef);
+			msg.Printf( _("Multiple item %s%s"), cmpref.GetData(), Buff.GetData());
 
 			if( (ListeCmp[ii].m_Unit > 0) && (ListeCmp[ii].m_Unit < 0x7FFFFFFF) )
 			{
@@ -783,11 +787,16 @@ wxString msg;
 		/* Il y a erreur si unites differentes ET valeurs différentes */
 		if( stricmp(ListeCmp[ii].m_TextValue,ListeCmp[ii+1].m_TextValue) != 0)
 		{
+			wxString nextcmpref, cmpvalue, nextcmpvalue;
+			cmpref = CONV_FROM_UTF8(ListeCmp[ii].m_TextRef);
+			nextcmpref = CONV_FROM_UTF8(ListeCmp[ii+1].m_TextRef);
+			cmpvalue = CONV_FROM_UTF8(ListeCmp[ii].m_TextValue);
+			nextcmpvalue = CONV_FROM_UTF8(ListeCmp[ii+1].m_TextValue);
 			msg.Printf( _("Diff values for %s%d%c (%s) and %s%d%c (%s)"),
-						ListeCmp[ii].m_TextRef, ListeCmp[ii].m_NumRef, ListeCmp[ii].m_Unit+'A'-1,
-						ListeCmp[ii].m_TextValue,
-						ListeCmp[ii+1].m_TextRef, ListeCmp[ii+1].m_NumRef, ListeCmp[ii+1].m_Unit+'A'-1,
-						ListeCmp[ii+1].m_TextValue);
+						cmpref.GetData(), ListeCmp[ii].m_NumRef, ListeCmp[ii].m_Unit+'A'-1,
+						cmpvalue.GetData(),
+						nextcmpref.GetData(), ListeCmp[ii+1].m_NumRef, ListeCmp[ii+1].m_Unit+'A'-1,
+						nextcmpvalue.GetData());
 
 			DisplayError(frame, msg);
 			error++;

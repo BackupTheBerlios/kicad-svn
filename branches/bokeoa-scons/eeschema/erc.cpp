@@ -113,7 +113,7 @@ static int DefaultDiagErc[PIN_NMAX][PIN_NMAX] =
 
 
 /* Minimal connection table */
-#define DRV 3		/* Net drived by a signal (a pin output for instance) */
+#define DRV 3		/* Net driven by a signal (a pin output for instance) */
 #define NET_NC 2	/* Net "connected" to a "NoConnect symbol" */
 #define NOD 1		/* Net not driven ( Such as 2 or more connected inputs )*/
 #define NOC 0		/* Pin isolee, non connectee */
@@ -503,7 +503,7 @@ wxClientDC dc(m_Parent->DrawPanel);
 		/* Marqueur trouve */
 		Marker = (DrawMarkerStruct * ) DrawStruct;
 		if( Marker->m_Type == MARQ_ERC )
-			RedrawOneStruct(m_Parent->DrawPanel, &dc, Marker, XOR_MODE);
+			RedrawOneStruct(m_Parent->DrawPanel, &dc, Marker, g_XorMode);
 		}
 	/* Suppression en memoire des marqueurs ERC */
 	DeleteAllMarkers(MARQ_ERC);
@@ -631,7 +631,7 @@ int ii, jj;
 		if( MinConn == NOD )	/* pas de pilotage du net */
 			{
 			Marker->m_Comment.Printf(
-				_("Warning Pin %s not drived (Net %d)"),
+				_("Warning Pin %s not driven (Net %d)"),
 				MsgPinElectricType[ii], NetItemRef->m_NetCode);
 			if( screen == panel->GetScreen() )
 				RedrawOneStruct(panel, DC, Marker, GR_COPY);

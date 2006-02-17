@@ -235,7 +235,7 @@ EDA_BaseStruct * Locate_Cotation(BOARD * Pcb, int typeloc);
 	/* MODULES.C */
 	/*************/
 int ChangeSideNumLayer(int oldlayer);
-void Dessine_Silouhette_Module(WinEDA_DrawPanel * panel, wxDC * DC, MODULE * module);
+void DrawModuleOutlines(WinEDA_DrawPanel * panel, wxDC * DC, MODULE * module);
 void Montre_Position_Empreinte(WinEDA_DrawPanel * panel, wxDC * DC, bool erase) ;
 
 

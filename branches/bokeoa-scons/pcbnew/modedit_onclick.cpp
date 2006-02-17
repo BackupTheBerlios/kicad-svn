@@ -43,10 +43,12 @@ EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 			switch (DrawStruct->m_StructType )
 				{
 				case TYPETEXTEMODULE:
+					SaveCopyInUndoList();
 					PlaceTexteModule( (TEXTE_MODULE *) DrawStruct, DC);
 					break;
 
 				case TYPEEDGEMODULE:
+					SaveCopyInUndoList();
 					Place_EdgeMod( (EDGE_MODULE *) DrawStruct, DC);
 					break;
 
@@ -122,6 +124,7 @@ wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d 
 				DrawStruct = ModeditLocateAndDisplay();
 				if ( DrawStruct && (DrawStruct->m_Flags == 0) )
 					{
+					SaveCopyInUndoList();
 					RemoveStruct(DrawStruct, DC);
 					m_CurrentScreen->m_CurrentItem = DrawStruct = NULL;
 					}
@@ -129,6 +132,7 @@ wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d 
 			break;
 
 		case ID_MODEDIT_PLACE_ANCHOR:
+			SaveCopyInUndoList();
 			Place_Ancre(m_Pcb->m_Modules, DC);
 			m_Pcb->m_Modules->m_Flags = 0;
 			m_CurrentScreen->m_Curseur = wxPoint(0,0);
@@ -140,12 +144,14 @@ wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d 
 			break;
 
 		case ID_TEXT_COMMENT_BUTT:
+			SaveCopyInUndoList();
 			CreateTextModule(m_Pcb->m_Modules, DC);
 			break;
 
 		case ID_MODEDIT_ADD_PAD:
 			if ( m_Pcb->m_Modules )
 				{
+				SaveCopyInUndoList();
 				AddPad(m_Pcb->m_Modules, DC);
 				}
 			break;

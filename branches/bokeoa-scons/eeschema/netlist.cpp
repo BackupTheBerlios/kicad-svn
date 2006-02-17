@@ -32,6 +32,7 @@ static int TriBySheet(ObjetNetListStruct *Objet1, ObjetNetListStruct *Objet2);
 /* Variable locales */
 static int FirstNumWireBus, LastNumWireBus, RootBusNameLength;
 static int LastNetCode, LastBusNetCode;
+static int s_PassNumber;
 
 
 
@@ -91,6 +92,7 @@ wxString msg;
 wxBusyCursor Busy;
 
 	NetNumber = 1;
+	s_PassNumber = 0;
 	frame->MsgPanel->EraseMsgBox();
 	Affiche_1_Parametre(frame, 1,_("List"), wxEmptyString, LIGHTRED);
 
@@ -115,6 +117,7 @@ wxBusyCursor Busy;
 
 	/* 2eme passe : Remplissage des champs des structures des objets de Net */
 
+	s_PassNumber ++;
 	Affiche_1_Parametre(frame, 1,_("List"), wxEmptyString,RED);
 	CurrWindow = Window;
 	for ( ; CurrWindow != NULL ; CurrWindow = (SCH_SCREEN*)CurrWindow->Pnext )
@@ -404,7 +407,7 @@ int NumInclude;
 			case DRAW_LABEL_STRUCT_TYPE :
 				#undef STRUCT
 				#define STRUCT ((DrawLabelStruct *) DrawList)
-				ii = IsBusLabel( STRUCT->m_Text.GetData());
+				ii = IsBusLabel( STRUCT->m_Text);
 				if( ObjNet)
 					{
 					ObjNet[NbrItem].m_Comp = STRUCT;
@@ -425,7 +428,7 @@ int NumInclude;
 			case DRAW_GLOBAL_LABEL_STRUCT_TYPE :
 				#undef STRUCT
 				#define STRUCT ((DrawGlobalLabelStruct *) DrawList)
-				ii = IsBusLabel( STRUCT->m_Text.GetData());
+				ii = IsBusLabel( STRUCT->m_Text);
 				if( ObjNet)
 					{
 					ObjNet[NbrItem].m_Comp = STRUCT;
@@ -519,7 +522,7 @@ int NumInclude;
 				for ( ; SheetLabel != NULL;
 						SheetLabel = (DrawSheetLabelStruct*) SheetLabel->Pnext)
 					{
-					ii = IsBusLabel(SheetLabel->m_Text.GetData());
+					ii = IsBusLabel(SheetLabel->m_Text);
 					if( ObjNet) 
 						{
 						ObjNet[NbrItem].m_Comp = SheetLabel;
@@ -606,7 +609,7 @@ ObjetNetListStruct *LabelInTst, *Lim;
 
 
 /**************************************************/
-int IsBusLabel( const wxChar * LabelDrawList )
+int IsBusLabel( const wxString & LabelDrawList )
 /**************************************************/
 
 /* Routine qui verifie si le Label a une notation de type Bus
@@ -616,29 +619,48 @@ int IsBusLabel( const wxChar * LabelDrawList )
 */
 
 {
-char * Num;
-char BufLine[1024];
-	
-	strcpy(BufLine, (const char*)LabelDrawList );
+int Num;
+wxString BufLine;
+long tmp;
+bool error = FALSE;
 
 	/* Search for  '[' because a bus label is like "busname[nn..mm]" */
-	if ( strchr(BufLine,'[') == NULL )
-		return(0);
+	Num = LabelDrawList.Find('[');
+	if ( Num < 0 ) return(0);
 
-
-	Num = strtok(BufLine,"[");
-	RootBusNameLength = strlen(Num);
-
-	Num = strtok(NULL,".");
-	FirstNumWireBus = atoi(Num);
-	Num = strtok(NULL,".]");
-	LastNumWireBus = atoi(Num);
+	FirstNumWireBus = LastNumWireBus = 9;
+	RootBusNameLength = Num;
+	Num++;
+	while ( LabelDrawList[Num] != '.' && Num < LabelDrawList.Len())
+	{
+		BufLine.Append(LabelDrawList[Num]);
+		Num++;
+	}
+	
+	if ( ! BufLine.ToLong(&tmp) ) error = TRUE;;
+	FirstNumWireBus = tmp;
+	while ( LabelDrawList[Num] == '.' && Num < LabelDrawList.Len() )
+		Num++;
+	BufLine.Empty();
+	while ( LabelDrawList[Num] != ']' && Num < LabelDrawList.Len())
+	{
+		BufLine.Append(LabelDrawList[Num]);
+		Num++;
+	}
+	if ( ! BufLine.ToLong(&tmp) ) error = TRUE;;
+	LastNumWireBus = tmp;
 
 	if( FirstNumWireBus < 0 ) FirstNumWireBus = 0;
 	if( LastNumWireBus < 0 ) LastNumWireBus = 0;
 	if( FirstNumWireBus > LastNumWireBus )
 	{
 		EXCHG( FirstNumWireBus, LastNumWireBus);
+	}
+	
+	if ( error && (s_PassNumber == 0) )
+	{
+		wxString msg = _("Bad Bus Label: ") + LabelDrawList;
+		DisplayError(NULL, msg);
 	}
 	return(LastNumWireBus - FirstNumWireBus + 1 );
 }
@@ -673,7 +695,6 @@ wxString BufLine;
 	BufLine << BusMember;
 	BusLabel->m_Label = new wxString(BufLine);
 	BusLabel->m_Member = BusMember;
-
 	NumItem = 1;
 
 	for ( BusMember++; BusMember <= LastNumWireBus; BusMember++)
@@ -681,7 +702,6 @@ wxString BufLine;
 		*(BusLabel+1) = *BusLabel; BusLabel ++; NumItem++;
 		/* Convertion du BusLabel en la racine du Label + le numero du fil */
 		BufLine = BusLabel->m_Label->Left(RootBusNameLength);
-		BusMember = FirstNumWireBus;
 		BufLine << BusMember;
 		BusLabel->m_Label = new wxString(BufLine);
 		BusLabel->m_Member = BusMember;
