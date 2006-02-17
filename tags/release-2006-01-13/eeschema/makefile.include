@@ -1,0 +1,168 @@
+# File:		makefile.include
+
+FINAL = 1
+
+EXTRACPPFLAGS= $(KICAD_FLAGS) -DEESCHEMA -I./ -Ibitmaps -I../include -I../eeschema
+EXTRALIBS = ../common/common.a
+
+# DEPEND = program.h general.h
+
+OBJECTS = eeschema.o\
+		schedit.o\
+		libedit_undo_redo.o\
+		libedit_onrightclick.o\
+		libedit_onleftclick.o\
+		dangling_ends.o\
+		setpage.o\
+		cmpclass.o\
+		component_class.o\
+		libclass.o\
+		options.o\
+		tool_lib.o\
+		tool_sch.o\
+		tool_viewlib.o\
+		drawframe.o\
+		schframe.o\
+		viewlib_frame.o\
+		selcolor.o\
+		drawpanel.o\
+		wxprint.o\
+		lib_export.o \
+		busentry.o \
+		bus-wire-junction.o \
+		eelibs1.o eelibs2.o \
+		eeload.o\
+		block.o\
+		block_libedit.o\
+		eeredraw.o eestatus.o \
+		eestring.o eelayer.o \
+		priorque.o eeconfig.o \
+		affiche.o \
+		zoom.o \
+		getpart.o\
+		netlist.o\
+		netlist_control.o\
+		editexte.o gr_basic.o \
+		editpart.o locate.o \
+		save_schemas.o sheet.o \
+		viewlibs.o \
+		libedit.o \
+		libframe.o \
+		symbedit.o \
+		pinedit.o \
+		libfield.o \
+		libedpart.o \
+		menubar.o \
+		savelib.o symbtext.o \
+		symbdraw.o \
+		hierarch.o files-io.o \
+		annotate.o plothpgl.o \
+		worksheet.o \
+		plot.o libalias.o \
+		plotps.o netform.o \
+		delsheet.o \
+		infospgm.o \
+		delete.o genliste.o \
+		erc.o selpart.o \
+		libarch.o \
+		cleanup.o\
+		sheetlab.o \
+		eeclass.o \
+		database.o\
+		divers.o \
+		onrightclick.o \
+		onleftclick.o \
+		find.o \
+		controle.o\
+		hotkeys.o
+
+eeschema.o: eeschema.cpp program.h general.h $(DEPEND)
+
+busentry.o: busentry.cpp $(DEPEND)
+
+component_class.o: component_class.cpp component_class.h
+
+menubar.o: menubar.cpp $(DEPEND)
+
+eeconfig.o: eeconfig.cpp eeconfig.h $(DEPEND)
+
+annotate.o: annotate.cpp $(DEPEND) netlist.h
+
+netlist.o: netlist.cpp $(DEPEND) netlist.h
+
+netlist_control.o: netlist_control.cpp $(DEPEND) netlist.h
+
+netform.o: netform.cpp $(DEPEND) netlist.h
+
+erc.o: erc.cpp $(DEPEND) netlist.h
+
+selcolor.o: ../common/selcolor.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+setpage.o: ../common/setpage.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+zoom.o: ../common/zoom.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+treeprj.o: ../common/treeprj.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+drawpanel.o: ../common/drawpanel.cpp  $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+mdiframe.o: ../common/mdiframe.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+buildmnu.o: ../common/buildmnu.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+worksheet.o: ../common/worksheet.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+pinedit.o: pinedit.cpp $(DEPEND)
+
+tool_lib.o: tool_lib.cpp $(DEPEND)
+
+controle.o: controle.cpp $(DEPEND) ../include/eda_dde.h
+
+wxprint.o: ../common/wxprint.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+bus-wire-junction.o: bus-wire-junction.cpp $(DEPEND)
+
+gr_basic.o: ../common/gr_basic.cpp ../include/gr_basic.h $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+drawframe.o: ../common/drawframe.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
+eelibs1.o: eelibs1.cpp $(DEPEND)
+
+eelibs2.o: eelibs2.cpp $(DEPEND)
+
+eeload.o: eeload.cpp $(DEPEND)
+
+block.o: block.cpp $(DEPEND)
+
+block_libedit.o: block_libedit.cpp $(DEPEND)
+
+onrightclick.o: onrightclick.cpp $(DEPEND)
+
+libedit_undo_redo.o: libedit_undo_redo.cpp $(DEPEND)
+
+libedit_onrightclick.o: libedit_onrightclick.cpp $(DEPEND)
+
+libedit_onleftclick.o: libedit_onleftclick.cpp $(DEPEND)
+
+onleftclick.o: onleftclick.cpp $(DEPEND)
+
+eeredraw.o: eeredraw.cpp $(DEPEND)
+
+eestatus.o: eestatus.cpp $(DEPEND)
+
+libedit.o: libedit.cpp $(DEPEND)
+
+infospgm.o: ../common/infospgm.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+
