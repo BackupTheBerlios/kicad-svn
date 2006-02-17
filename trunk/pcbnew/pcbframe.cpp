@@ -209,8 +209,10 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 		long SizeX, SizeY;
 		if ( m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_X"), &SizeX) &&
 			 m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_Y"), &SizeY) )
+		{
 		GridSize.x = SizeX;
 		GridSize.y = SizeY;
+	}
 	}
 	GetScreen()->SetGrid(GridSize);
 	

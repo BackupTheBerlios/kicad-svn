@@ -10,6 +10,7 @@ EXTRALIBS = ../common/common.a
 OBJECTS = eeschema.o\
 		schedit.o\
 		libedit_undo_redo.o\
+		dialog_create_component.o\
 		libedit_onrightclick.o\
 		libedit_onleftclick.o\
 		dangling_ends.o\
@@ -62,7 +63,7 @@ OBJECTS = eeschema.o\
 		plotps.o netform.o \
 		delsheet.o \
 		infospgm.o \
-		delete.o genliste.o \
+		delete.o dialog_build_BOM.o \
 		erc.o selpart.o \
 		libarch.o \
 		cleanup.o\

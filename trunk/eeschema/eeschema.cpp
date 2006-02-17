@@ -29,7 +29,7 @@
 static void CreateScreens(void);
 
 // Global variables
-wxString Main_Title( wxT("EESchema (12-jan-2006)") );
+wxString Main_Title( wxT("EESchema (15-jan-2006)") );
 
 	/************************************/
 	/* Called to initialize the program */
