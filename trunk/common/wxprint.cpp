@@ -782,14 +782,14 @@ int DrawZoom = 1;
 	WinEDA_BasePcbFrame * pcbframe = (WinEDA_BasePcbFrame*) m_Parent;
 	pcbframe->m_Pcb->ComputeBoundaryBox();
 	/* calcul des dimensions du PCB */
-	if (s_ScaleList[s_Scale_Select] == 0)	//  fit in page
+	userscale = s_ScaleList[s_Scale_Select];
+	if (userscale == 0)	//  fit in page
 		{
 		int extra_margin = 8000;	// Margin = 8000/2 units pcb = 0,4 inch
 		SheetSize.x = pcbframe->m_Pcb->m_BoundaryBox.GetWidth() + extra_margin;
 		SheetSize.y = pcbframe->m_Pcb->m_BoundaryBox.GetHeight() + extra_margin;
 		userscale = 0.99;
 		}
-	else userscale = s_ScaleList[s_Scale_Select];
 
 	if ( (s_ScaleList[s_Scale_Select] > 1.0) ||	//  scale > 1 -> Recadrage
 			 (s_ScaleList[s_Scale_Select] == 0)	)	//  fit in page
@@ -797,6 +797,8 @@ int DrawZoom = 1;
 		DrawOffset.x += pcbframe->m_Pcb->m_BoundaryBox.Centre().x;
 		DrawOffset.y += pcbframe->m_Pcb->m_BoundaryBox.Centre().y;
 		}
+#else
+	userscale = 1;
 #endif
 
 	// Calculate a suitable scaling factor

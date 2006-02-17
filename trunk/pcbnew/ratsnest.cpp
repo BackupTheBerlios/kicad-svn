@@ -1120,9 +1120,9 @@ int ii;
 
 
 
-	/***********************************************************************/
-	/* char * build_ratsnest_pad(D_PAD * pt_pad, int ox, int oy, int init) */
-	/***********************************************************************/
+/*********************************************************************************************/
+/* int * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, int ox, int oy, int init) */
+/*********************************************************************************************/
 
 /*
  construction de la liste en mode de calcul rapide pour affichage
@@ -1156,8 +1156,9 @@ int lengthref, lengthcmp;
 	return( lengthref - lengthcmp );
 }
 
-
-char * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, int ox, int oy, int init)
+/****************************************************************************************/
+int * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, int ox, int oy, int init)
+/****************************************************************************************/
 {
 int ii;
 int * pt_coord, * base_data;
@@ -1172,14 +1173,17 @@ LISTE_PAD * padlist;
 		return(NULL);
 		}
 
+
 	base_data = pt_coord = (int *) adr_lowmem;
 	local_liste_chevelu = (CHEVELU *) pt_coord;
 	if (init)
 		{
 		nb_local_chevelu = 0;
 		if(pad_ref == NULL) return(NULL);
-
 		current_net_code = pad_ref->m_NetCode;
+
+		if ( current_net_code <= 0 ) return NULL;
+
 		*pt_coord = ox; pt_coord++; *pt_coord = oy; pt_coord++;
 
 		if( m_Pcb->m_Ratsnest == NULL ) return(NULL);
@@ -1207,7 +1211,7 @@ LISTE_PAD * padlist;
 
 	qsort(base_data + 2,nb_local_chevelu,2*sizeof(int),
 					(int(*)(const void *, const void *))sort_by_localnetlength) ;
-	return( (char*) pt_coord) ;
+	return pt_coord;
 }
 
 /*******************************************************/
@@ -1223,6 +1227,7 @@ int refX, refY;
 
 	if((m_Pcb->m_Status_Pcb & LISTE_CHEVELU_OK) == 0) return;
 	if( nb_local_chevelu == 0 ) return;
+	if ( local_liste_chevelu == NULL ) return;
 
 	pt_coord = (int*) local_liste_chevelu;
 	refX = *pt_coord; pt_coord++;

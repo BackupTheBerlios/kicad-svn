@@ -158,6 +158,10 @@ void WinEDA_ViewlibFrame::OnCloseWindow(wxCloseEvent & Event)
 /*****************************************************************/
 {
 	SaveSettings();
+#ifndef __WXMAC__
+    if ( m_modalData ) m_modalData->ExitLoop();
+	MakeModal(FALSE);
+#endif
 	Destroy();
 }
 
@@ -373,9 +377,5 @@ void WinEDA_ViewlibFrame::ExportToSchematicLibraryPart(wxCommandEvent& event)
 int ii = m_CmpList->GetSelection();
 	if ( ii >= 0 ) g_CurrentViewComponentName = m_CmpList->GetString(ii);
 	else g_CurrentViewComponentName.Empty();
-#ifndef __WXMAC__
-    if ( m_modalData ) m_modalData->ExitLoop();
-	MakeModal(FALSE);
-#endif
 	Close(TRUE);
 }

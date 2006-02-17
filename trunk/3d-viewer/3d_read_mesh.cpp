@@ -387,6 +387,18 @@ int * index = NULL;
 			continue;
 		}
 
+		if ( stricmp (text, "colorPerVertex" ) == 0 )
+		{
+			text = strtok(NULL, " ,\t\n\r");
+			if( stricmp (text, "TRUE") == 0 )
+			{
+			}
+			else
+			{
+			}
+			continue;
+		}
+
 		if ( stricmp (text, "normal" ) == 0 )
 		{
 			int coord_number;
@@ -396,6 +408,29 @@ int * index = NULL;
 			continue;
 		}
 		if ( stricmp (text, "normalIndex" ) == 0 )
+		{
+			while ( GetLine(file, line, LineNum, 512) )
+			{
+				text = strtok(line, " ,\t\n\r");
+				while ( text )
+				{
+					if ( *text == ']') break;
+					text = strtok(NULL, " ,\t\n\r");
+				}
+				if ( text && (*text == ']') ) break;
+			}
+			continue;
+		}
+
+		if ( stricmp (text, "color" ) == 0 )
+		{
+			int coord_number;
+			double * buf_points = ReadCoordsList(file, line, &coord_number, LineNum);
+			continue;
+			free(buf_points);
+			continue;
+		}
+		if ( stricmp (text, "colorIndex" ) == 0 )
 		{
 			while ( GetLine(file, line, LineNum, 512) )
 			{

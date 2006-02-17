@@ -6,21 +6,21 @@
 	/* Description du cartouche */
 	/****************************/
 #define GRID_REF_W 70	/* hauteur de la bande de reference grille */
-#define SIZETEXT 90		/* Dimension des textes du cartouche */
+#define SIZETEXT 60		/* Dimension des textes du cartouche */
 #define SIZETEXT_REF 50	/* Dimension des lettres du marquage des reperes */
 #define PAS_REF 2000	/* pas des marquages de reference des reperes */
 
 /* Les coord ci dessous sont relatives au coin bas - droit de la feuille, et
 seront soustraires de cette origine
 */
-#define BLOCK_OX	6000
+#define BLOCK_OX	4200
 #define BLOCK_LICENCE_X BLOCK_OX - SIZETEXT
 #define BLOCK_LICENCE_Y SIZETEXT
-#define BLOCK_REV_X 1200
+#define BLOCK_REV_X 820
 #define BLOCK_REV_Y (SIZETEXT*3)
 #define BLOCK_DATE_X BLOCK_OX - (SIZETEXT*15)
 #define BLOCK_DATE_Y (SIZETEXT*3)
-#define BLOCK_ID_SHEET_X 1200
+#define BLOCK_ID_SHEET_X 820
 #define BLOCK_ID_SHEET_Y SIZETEXT
 #define BLOCK_SIZE_SHEET_X BLOCK_OX - SIZETEXT
 #define BLOCK_SIZE_SHEET_Y (SIZETEXT*3)

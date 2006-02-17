@@ -430,7 +430,7 @@ public:
 	void recalcule_pad_net_code(void);	/* Routine de
 						 calcul et de mise a jour des net_codes des PADS */
 	void build_liste_pads(void);
-	char * build_ratsnest_pad(D_PAD * pt_pad_ref, int ox, int oy, int init);
+	int * build_ratsnest_pad(D_PAD * pt_pad_ref, int ox, int oy, int init);
 
 	void Tst_Ratsnest(wxDC * DC, int ref_netcode );
 	void Recalcule_all_net_connexion(wxDC * DC);

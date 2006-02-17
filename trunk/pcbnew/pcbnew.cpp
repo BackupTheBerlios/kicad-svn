@@ -24,7 +24,7 @@
 
 #include "eda_dde.h"
 
-wxString Main_Title( wxT("PCBNEW 02-jan-06") );
+wxString Main_Title( wxT("PCBNEW 04-jan-06") );
 
 IMPLEMENT_APP(WinEDA_App)
 
