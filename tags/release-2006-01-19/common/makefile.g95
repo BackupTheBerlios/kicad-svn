@@ -1,0 +1,17 @@
+WXDIR = $(WXWIN)
+include ../libs.win
+include ../makeg95.env
+
+all: common.a
+
+include makefile.include
+
+common.a: $(OBJECTS) ../libs.win makefile.include
+	ar $(AROPTIONS) $@ $(OBJECTS)
+	$(RANLIB) $@
+
+clean:
+	-$(RM) $(OBJECTS) core *.rsc *.res
+
+cleanall: clean
+	-$(RM) $(LIBTARGET)
