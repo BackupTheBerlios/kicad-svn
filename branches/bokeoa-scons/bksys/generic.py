@@ -658,10 +658,10 @@ def generate(env):
 			colors[c] = ""
 		env['BKS_COLORS'] = colors
 
-	## Bksys requires scons >= 0.96
+	## Bksys requires SCons >= 0.96.91
 	try: env.EnsureSConsVersion(0, 96, 91)
 	except:
-		pprint(env, 'RED', 'Your scons version is too old, make sure to use 0.96.91')
+		pprint(env, 'RED', 'Your SCons version is too old, this build needs version 0.96.91 or newer')
 		env.Exit(1)
 
 	## attach the helper functions to "env"
