@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-env = Environment()
 
-env.ParseConfig('wx-config --cxxflags')
+Import('env')
 
-env.Append(CCFLAGS = ['-Wall', '-O2', '-DPCBNEW'])
-env.Append(CPPPATH = ['../include', '../common', '../pcbnew'])
+#env.docfolder('docs/en/', 'en', 'rosegarden/')
+#env.docfolder('docs/es/', 'es', 'rosegarden/')
+#env.docfolder('docs/de/', 'de', 'rosegarden/')
+#env.docfolder('docs/sv/', 'sv', 'rosegarden/')
+#env.docfolder('docs/ja/', 'ja', 'rosegarden/')
 
 sources = Split("""
 	3d_aux.cpp
@@ -17,6 +19,8 @@ sources = Split("""
 	3d_toolbar.cpp
 	trackball.cpp""")
 
-objects = env.Object(sources)
-
-env.StaticLibrary('3dviewer', objects)
+obj=env.genobj('staticlib',env)
+obj.target='3dviewer'
+obj.source=sources
+obj.includes='#include #pcbnew'
+obj.execute()

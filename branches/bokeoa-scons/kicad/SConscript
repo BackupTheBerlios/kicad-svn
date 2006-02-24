@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 
-env = Environment()
-
-env.ParseConfig('wx-config --cxxflags --libs')
-
-env.Append(CCFLAGS = ['-Wall', '-O2', '-DKICAD'])
-env.Append(CPPPATH = ['../include', './bitmaps'])
-env.Append(LIBPATH = ['../common'])
-env.Append(LIBS    = ['common'])
+Import('env')
 
 sources = Split("""
 	buildmnu.cpp
@@ -20,8 +13,12 @@ sources = Split("""
 
 ext_sources = ['../common/infospgm.cpp']
 
-objects = env.Object(sources)
-for cur_source in ext_sources:
-	objects.append(env.Object(cur_source[10:-4], cur_source))
-
-env.Program('kicad', objects)
+obj=env.genobj('program',env)
+obj.target='kicad'
+obj.ccflags='-DKICAD'
+obj.source=sources
+obj.extsource=ext_sources
+obj.includes='#include #kicad/bitmaps'
+obj.libs='common'
+obj.libpaths='../common'
+obj.execute()

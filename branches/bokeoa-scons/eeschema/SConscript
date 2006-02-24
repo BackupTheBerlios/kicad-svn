@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 
-env = Environment()
+Import('env')
 
-env.ParseConfig('wx-config --cxxflags --libs')
 
-env.Append(CCFLAGS = ['-Wall', '-O2', '-DEESCHEMA'])
-env.Append(CPPPATH = ['./', '../include', './bitmaps'])
-env.Append(LIBPATH = ['../common'])
-env.Append(LIBS    = ['common'])
+#env.Append(CCFLAGS = ['-Wall', '-O2', '-DEESCHEMA'])
+#env.Append(CPPPATH = ['./', '../include', './bitmaps'])
+#env.Append(LIBPATH = ['../common'])
+#env.Append(LIBS    = ['common'])
 
 sources = Split("""
 	affiche.cpp
@@ -24,6 +23,7 @@ sources = Split("""
 	database.cpp
 	delete.cpp
 	delsheet.cpp
+	dialog_create_component.cpp
 	divers.cpp
 	editexte.cpp
 	editpart.cpp
@@ -84,8 +84,7 @@ sources = Split("""
 	viewlib_frame.cpp
 	viewlibs.cpp""")
 
-ext_sources = Split("""
-	../common/drawframe.cpp
+ext_sources = Split("""../common/drawframe.cpp
 	../common/drawpanel.cpp
 	../common/gr_basic.cpp
 	../common/infospgm.cpp
@@ -95,9 +94,13 @@ ext_sources = Split("""
 	../common/wxprint.cpp
 	../common/zoom.cpp""")
 
-objects = env.Object(sources)
-for cur_source in ext_sources:
-	cur_object = env.Object(cur_source[10:-4], cur_source)
-	objects.append(cur_object)
+obj=env.genobj('program',env)
+obj.target='eeschema'
+obj.ccflags='-DEESCHEMA'
+obj.source=sources
+obj.extsource=ext_sources
+obj.includes='#eeschema #include #eeschema/bitmaps'
+obj.libs='common'
+obj.libpaths='../common'
+obj.execute()
 
-env.Program('eeschema', objects)

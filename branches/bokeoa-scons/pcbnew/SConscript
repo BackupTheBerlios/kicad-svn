@@ -1,13 +1,6 @@
 #!/usr/bin/env python
 
-env = Environment()
-
-env.ParseConfig('wx-config --cxxflags --libs std,gl')
-
-env.Append(CCFLAGS = ['-Wall', '-O2', '-DPCBNEW'])
-env.Append(CPPPATH = ['./', '../include', '../common', '../3d-viewer', './bitmaps'])
-env.Append(LIBPATH = ['../common', '../3d-viewer'])
-env.Append(LIBS    = ['common', '3dviewer'])
+Import('env')
 
 sources = Split("""
 	affiche.cpp
@@ -67,6 +60,7 @@ sources = Split("""
 	modedit.cpp
 	modedit_onclick.cpp
 	modeditoptions.cpp
+	modedit_undo_redo.cpp
 	moduleframe.cpp
 	modules.cpp
 	move_copy_track.cpp
@@ -109,8 +103,7 @@ sources = Split("""
 	xchgmod.cpp
 	zones.cpp""")
 
-ext_sources = Split("""
-	../common/drawframe.cpp
+ext_sources = Split("""../common/drawframe.cpp
 	../common/drawpanel.cpp
 	../common/gr_basic.cpp
 	../common/infospgm.cpp
@@ -120,8 +113,12 @@ ext_sources = Split("""
 	../common/wxprint.cpp
 	../common/zoom.cpp""")
 
-objects = env.Object(sources)
-for cur_source in ext_sources:
-	objects.append(env.Object(cur_source[10:-4], cur_source))
-
-env.Program('pcbnew', objects)
+obj=env.genobj('program',env)
+obj.target='pcbnew'
+obj.ccflags='-DPCBNEW'
+obj.source=sources
+obj.extsource=ext_sources
+obj.includes='#include #common #3d-viewer #pcbnew/bitmaps'
+obj.libs='common 3dviewer'
+obj.libpaths='../common ../3d-viewer'
+obj.execute()
