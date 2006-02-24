@@ -1469,25 +1469,25 @@ class WinEDAChoiceBox : public wxComboBox
 {
 public:
 	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
-				int n = 0, const wxString choices[] = NULL) :
-		wxComboBox(parent, id, wxEmptyString, pos, size,
-				n, choices, wxCB_READONLY)
-	{
-	}
-
-	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
+				const wxPoint& pos,
+				const wxSize& size,
 				const wxArrayString & choices) :
 		wxComboBox(parent, id, wxEmptyString, pos, size,
 				choices, wxCB_READONLY)
 	{
 	}
 
+	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
+				const wxPoint& pos = wxDefaultPosition,
+				const wxSize& size = wxDefaultSize,
+				const int n = 0, const wxString choices[] = NULL) :
+		wxComboBox(parent, id, wxEmptyString, pos, size,
+				n, choices, wxCB_READONLY)
+	{
+	}
+
 	int GetChoice(void){
-		return GetCurrentSelection();
+		return GetSelection();
 	}
 };
 

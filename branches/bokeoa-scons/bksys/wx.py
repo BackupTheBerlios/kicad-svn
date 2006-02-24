@@ -60,12 +60,12 @@ def generate(env):
 		if env.has_key('CACHED_WX'): env.__delitem__('CACHED_WX')
 
 		if 'with-wx-config' in env['ARGS']:
-			if not conf.Check_wx_config([2,6,2], env['ARGS']['with-wx-config']):
-				print 'wxWidgets >= 2.6.2 is required.'
+			if not conf.Check_wx_config([2,6,1], env['ARGS']['with-wx-config']):
+				print 'wxWidgets >= 2.6.1 is required.'
 				env.Exit(1)
 		else:
-			if not conf.Check_wx_config([2,6,2]):
-				print 'wxWidgets >= 2.6.2 is required.'
+			if not conf.Check_wx_config([2,6,1]):
+				print 'wxWidgets >= 2.6.1 is required.'
 				env.Exit(1)
 
 		env = conf.Finish()
