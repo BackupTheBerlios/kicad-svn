@@ -63,14 +63,9 @@ def configure(dict):
 	if not os.path.exists(build_dir): os.mkdir(build_dir)
 
 	# now build the environment
-	if bootstrap:
-		env = Environment.Environment( ENV=os.environ, BOOTSTRAP_KDE=1,
-			_BUILDDIR_=build_dir, CACHEDIR=cache_dir, _USECOLORS_=use_colors,
-			tools=mytools, toolpath=tool_path )
-	else:
-		env = Environment.Environment( ENV=os.environ, _BUILDDIR_=build_dir,
-			_USECOLORS_=use_colors, CACHEDIR=cache_dir,
-			tools=mytools, toolpath=tool_path )
+	env = Environment.Environment( ENV=os.environ, _BUILDDIR_=build_dir,
+		_USECOLORS_=use_colors, CACHEDIR=cache_dir,
+		tools=mytools, toolpath=tool_path )
 
 	# at this point the help was displayed if asked to, then quit
 	if env['HELP']: env.Exit(0)

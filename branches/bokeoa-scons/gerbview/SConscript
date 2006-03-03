@@ -56,3 +56,4 @@ obj.libs='common'
 obj.libpaths='../common'
 obj.execute()
 
+env.bksys_insttype('PREFIX','bin', 'gerbview')

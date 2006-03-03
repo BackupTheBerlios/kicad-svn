@@ -22,3 +22,5 @@ obj.includes='#include #kicad/bitmaps'
 obj.libs='common'
 obj.libpaths='../common'
 obj.execute()
+
+env.bksys_insttype('PREFIX','bin', 'kicad')

@@ -122,3 +122,5 @@ obj.includes='#include #common #3d-viewer #pcbnew/bitmaps'
 obj.libs='common 3dviewer'
 obj.libpaths='../common ../3d-viewer'
 obj.execute()
+
+env.bksys_insttype('PREFIX','bin', 'pcbnew')

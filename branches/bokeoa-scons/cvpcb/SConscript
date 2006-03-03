@@ -57,3 +57,5 @@ obj.includes='#cvpcb #include #pcbnew #3d-viewer #cvpcb/bitmaps'
 obj.libs='common 3dviewer'
 obj.libpaths='../common ../3d-viewer'
 obj.execute()
+
+env.bksys_insttype('PREFIX','bin','cvpcb')
