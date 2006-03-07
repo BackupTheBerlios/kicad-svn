@@ -64,10 +64,11 @@ WinEDA_SwapLayerFrame::WinEDA_SwapLayerFrame(WinEDA_BasePcbFrame *parent):
 {
 #define START_Y 15
 wxButton * Button;
-int ii, yy, xx;
+int ii;
 wxPoint pos;
-wxString g_Layer_Name_Pair[29];
-
+wxString g_Layer_Name_Pair[32];
+wxSize winsize;
+	
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
@@ -78,27 +79,35 @@ wxString g_Layer_Name_Pair[29];
 	pos.x = 5; pos.y = START_Y;
 	m_LayerList = new wxRadioBox(this, ID_SWAP_LAYER_SELECT, _("Layers"),
 			pos, wxSize(-1,-1), 29, g_Layer_Name_Pair, 16, wxRA_SPECIFY_ROWS);
+	
+	winsize.y = m_LayerList->GetRect().GetBottom();
 
-	m_LayerList->GetSize(&xx, &yy);
-	pos.x += xx + 12;
+	pos.x = m_LayerList->GetRect().GetRight() + 12;
 	Button = new wxButton(this,ID_SWAP_LAYER_CANCEL,
 						_("Cancel"), pos);
 	Button->SetForegroundColour(*wxRED);
+	winsize.x = MAX(winsize.x,Button->GetRect().GetRight());
 
 	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this,ID_SWAP_LAYER_EXECUTE,
 						_("OK"), pos);
 	Button->SetForegroundColour(*wxBLUE);
+	winsize.x = MAX(winsize.x,Button->GetRect().GetRight());
 
 	pos.y += Button->GetSize().y + 15;
 	Button = new wxButton(this,ID_SWAP_LAYER_DESELECT,
 						_("Deselect"), pos);
 	Button->SetForegroundColour(wxColour(0,100,0));
+	winsize.x = MAX(winsize.x,Button->GetRect().GetRight());
 
 	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this,ID_SWAP_LAYER_BUTTON_SELECT,
 						_("Select"), pos);
 	Button->SetForegroundColour(wxColour(0,100,100));
+	winsize.x = MAX(winsize.x,Button->GetRect().GetRight());
+	
+	winsize.x += 10; winsize.y += 10;
+	SetClientSize(winsize);
 
 }
 

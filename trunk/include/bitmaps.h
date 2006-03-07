@@ -66,6 +66,8 @@
 	#include "../bitmaps/Options_Rectangle.xpm"
 	#include "../bitmaps/Display_Options.xpm"
 
+	#include "../bitmaps/Mirror_V.xpm"
+	#include "../bitmaps/Mirror_H.xpm"
 	#include "../bitmaps/Orient.xpm"
 	#include "../bitmaps/Rotate+.xpm"
 	#include "../bitmaps/Rotate-.xpm"

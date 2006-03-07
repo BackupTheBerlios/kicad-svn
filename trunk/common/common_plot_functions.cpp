@@ -10,6 +10,7 @@
 #include "common.h"
 #include "plot_common.h"
 #include "worksheet.h"
+#include "macros.h"
 
 
 // Variables partagees avec Common plot Postscript et HPLG Routines
@@ -77,6 +78,7 @@ int conv_unit = screen->GetInternalUnits()/1000;
 wxString msg;
 wxSize text_size;
 void (*FctPlume)(wxPoint pos, int state);
+int UpperLimit = VARIABLE_BLOCK_START_POSITION;
 
 	switch ( format_plot)
 	{
@@ -226,8 +228,10 @@ void (*FctPlume)(wxPoint pos, int state);
 				msg << screen->m_SheetNumber << wxT("/") << screen->m_NumberOfSheet;
 				break;
 
-			case WS_NAMECOMP:
+			case WS_COMPANY_NAME:
 				msg += screen->m_Company;
+				if ( ! msg.IsEmpty() )
+					UpperLimit = MAX(UpperLimit, WsItem->m_Posy+SIZETEXT);
 				break;
 
 			case WS_TITLE:
@@ -236,26 +240,40 @@ void (*FctPlume)(wxPoint pos, int state);
 
 			case WS_COMMENT1:
 				msg += screen->m_Commentaire1;
+				if ( ! msg.IsEmpty() )
+					UpperLimit = MAX(UpperLimit, WsItem->m_Posy+SIZETEXT);
 				break;
 
 			case WS_COMMENT2:
 				msg += screen->m_Commentaire2;
+				if ( ! msg.IsEmpty() )
+					UpperLimit = MAX(UpperLimit, WsItem->m_Posy+SIZETEXT);
 				break;
 
 			case WS_COMMENT3:
 				msg += screen->m_Commentaire3;
+				if ( ! msg.IsEmpty() )
+					UpperLimit = MAX(UpperLimit, WsItem->m_Posy+SIZETEXT);
 				break;
 
 			case WS_COMMENT4:
 				msg += screen->m_Commentaire4;
+				if ( ! msg.IsEmpty() )
+					UpperLimit = MAX(UpperLimit, WsItem->m_Posy+SIZETEXT);
 				break;
 
+			case WS_UPPER_SEGMENT:
+				if (UpperLimit == 0 ) break;
+			case WS_LEFT_SEGMENT:
+				WS_MostUpperLine.m_Posy = 
+				WS_MostUpperLine.m_Endy = 
+				WS_MostLeftLine.m_Posy = UpperLimit;
+				pos.y = (ref.y - WsItem->m_Posy) * conv_unit;
 			case WS_SEGMENT:
 			{
 				wxPoint auxpos;
-				auxpos.x = PageSize.x - GRID_REF_W - Sheet->m_RightMargin - WsItem->m_Endx;
-				auxpos.y = PageSize.y - GRID_REF_W - Sheet->m_BottomMargin - WsItem->m_Endy;
-				auxpos.x *= conv_unit; auxpos.y *= conv_unit;
+				auxpos.x = (ref.x - WsItem->m_Endx) * conv_unit;;
+				auxpos.y = (ref.y - WsItem->m_Endy) * conv_unit;;
 				FctPlume(pos, 'U');
 				FctPlume(auxpos, 'D');
 			}

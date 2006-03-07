@@ -119,7 +119,9 @@ typedef enum {
 	BLOCK_ZOOM,
 	BLOCK_ABORT,
 	BLOCK_PRESELECT_MOVE,
-	BLOCK_SELECT_ITEMS_ONLY
+	BLOCK_SELECT_ITEMS_ONLY,
+	BLOCK_MIRROR_X,
+	BLOCK_MIRROR_Y
 } CmdBlockType;
 
 class DrawBlockStruct: public EDA_BaseStruct, public EDA_Rect
@@ -152,15 +154,16 @@ public:
 	int m_Type;						/* indicateur: type d'ecran */
 	WinEDA_DrawFrame * m_FrameSource;	// Used to get useful datas (internal units ...)
 	wxPoint m_DrawOrg;				/* offsets pour tracer le circuit sur l'ecran */
-	wxPoint m_Curseur;				/* Coordonnes du curseur sur grille SCH en unites reelles. */
-	wxPoint m_O_Curseur;			/* Memorisation Coordonnes du curseur en
-								unites reelles pour aff relatif*/
+	wxPoint m_Curseur;				/* Screen cursor coordinate (on grid) in user units. */
+	wxPoint m_MousePosition;		/* Mouse cursor coordinate (off grid) in user units. */
+	wxPoint m_O_Curseur;			/* Relative Screen cursor coordinate (on grid) in user units.
+									(coordinates from last reset position)*/
 	wxPoint m_ScrollbarPos;			// Position effective des Curseurs de scroll
 	wxSize m_ScrollbarNumber;		/* Valeur effective des Nombres de Scrool
 									 c.a.d taille en unites de scroll de la surface totale affichable */
 	wxPoint m_StartVisu;			// Coord absolues du 1er pixel visualisé a l'ecran (en nombre de pixels)
 	wxSize m_SizeVisu;				/* taille en pixels de l'ecran (fenetre de visu
-										Utile pour recadrer les affichages lots de la
+										Utile pour recadrer les affichages lors de la
 										navigation dans la hierarchie */
 	bool m_Center;					// TRUE: coord algebriques, FALSE: coord >= 0
 	int m_GridColor;

@@ -392,7 +392,7 @@ wxPoint shape_pos;
 
 	GRSetDrawMode(DC, draw_mode);
 	/* Trace du symbole "No connect" ( / ou \ ou croix en X) si necessaire : */
-	if( (m_NetCode == 0) && DisplayOpt.DisplayPadNoConn )
+	if( m_Netname.IsEmpty() && DisplayOpt.DisplayPadNoConn )
 		{
 		dx0 = min(dx0,dy0);
 		int nc_color = BLUE;

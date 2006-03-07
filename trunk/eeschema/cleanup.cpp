@@ -52,6 +52,8 @@ int flag;
 											(EDA_DrawLineStruct*)TstDrawList);
 						if (flag )	/* Suppression de TstSegm */
 						{
+							/* keep the bits set in .m_Flags, because the deleted segment can be flagged */
+							DrawList->m_Flags |= TstDrawList->m_Flags;
 							EraseStruct(TstDrawList, screen);
 							screen->SetRefreshReq();
 							TstDrawList = screen->EEDrawList;

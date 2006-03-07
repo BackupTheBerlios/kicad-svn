@@ -49,6 +49,7 @@
 #define ID_CHECKBOX2 10004
 #define ID_CHECKBOX3 10005
 #define ID_CHECKBOX4 10006
+#define ID_CHECKBOX5 10002
 ////@end control identifiers
 
 /*!
@@ -117,6 +118,7 @@ public:
     wxCheckBox* m_ListSubCmpItems;
     wxCheckBox* m_GenListLabelsbyVal;
     wxCheckBox* m_GenListLabelsbySheet;
+    wxCheckBox* m_GetListBrowser;
 ////@end WinEDA_Build_BOM_Frame member variables
 
 	WinEDA_DrawFrame * m_Parent;

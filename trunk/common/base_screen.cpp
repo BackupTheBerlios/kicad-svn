@@ -522,7 +522,7 @@ EDA_BaseStruct * item, *nextitem;
 	nextitem = item->Pnext;
 	item->Pnext = NULL;	// Set end of chain
 	
-	// Delete the extra  items
+	// Delete the extra items
 	for(item = nextitem ; item != NULL; item = nextitem )
 	{
 		nextitem = item->Pnext;

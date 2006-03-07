@@ -2,14 +2,9 @@
 	/* annotate.cpp: component annotation */
 	/**************************************/
 
-#include "fctsys.h"
+#include "annotate_dialog.cpp"
 
-#include "common.h"
-#include "program.h"
-#include "libcmp.h"
-#include "general.h"
 #include "netlist.h"
-
 #include "protos.h"
 
 /* fonctions exportees */
@@ -28,119 +23,13 @@ static int ExistUnit(CmpListStruct *Objet, int Unit,
 /* Variable locales */
 static bool AnnotProject = TRUE;
 
-enum id_annotate {
-	ID_ANNOTATE_CMP = 1300,
-	ID_DEANNOTATE_CMP,
-	ID_CLOSE_ANNOTATE,
-	ID_SEL_PROJECT,
-	ID_SEL_NEWCMP_ONLY
-};
 
-/* Dialog frame for annotation control */
-class WinEDA_AnnotateFrame: public wxDialog
-{
-private:
-	WinEDA_DrawFrame * m_Parent;
-	wxRadioBox * m_AnnotProjetCtrl;
-	wxRadioBox * m_AnnotNewCmpCtrl;
-	bool m_Abort;
-
-public:
-	// Constructor and destructor
-	WinEDA_AnnotateFrame(WinEDA_DrawFrame *parent, wxPoint& pos);
-	~WinEDA_AnnotateFrame(void) {};
-private:
-	void AnnotateComponents(wxCommandEvent& event);
-	void DeleteAnnotation(wxCommandEvent& event);
-	void SelLocal(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-
-	DECLARE_EVENT_TABLE()
-};
-BEGIN_EVENT_TABLE(WinEDA_AnnotateFrame, wxDialog)
-	EVT_BUTTON(ID_CLOSE_ANNOTATE, WinEDA_AnnotateFrame::OnQuit)
-	EVT_BUTTON(ID_ANNOTATE_CMP, WinEDA_AnnotateFrame::AnnotateComponents)
-	EVT_BUTTON(ID_DEANNOTATE_CMP, WinEDA_AnnotateFrame::DeleteAnnotation)
-	EVT_RADIOBOX(ID_SEL_PROJECT, WinEDA_AnnotateFrame::SelLocal)
-END_EVENT_TABLE()
-
-
+/******************************************************************/
 void InstallAnnotateFrame(WinEDA_DrawFrame *parent, wxPoint & pos)
+/******************************************************************/
 {
-	WinEDA_AnnotateFrame * frame = new WinEDA_AnnotateFrame(parent, pos);
+	WinEDA_AnnotateFrame * frame = new WinEDA_AnnotateFrame(parent);
 	frame->ShowModal(); frame->Destroy();
-}
-
-
-#define X_Size 290
-#define Y_Size 230
-
-/***************************************************************************************/
-WinEDA_AnnotateFrame::WinEDA_AnnotateFrame(WinEDA_DrawFrame *parent, wxPoint& framepos):
-		wxDialog(parent, -1, _("EESchema Annotation"), framepos, wxSize(X_Size, Y_Size),
-				 DIALOG_STYLE)
-/***************************************************************************************/
-{
-wxPoint pos;
-int w, h;
-
-	m_Parent = parent;
-	m_Abort = FALSE;
-
-	SetFont(*g_DialogFont);
-
-	pos.x = 5; pos.y = 5;
-	if ( (framepos.x == -1) && (framepos.y == -1) ) Centre();
-
-wxString choice_project_current[] =
-	{_("Hierarchy"), _("Current sheet") };
-	m_AnnotProjetCtrl = new wxRadioBox(this, ID_SEL_PROJECT,
-						_("annotate:"),
-						pos,wxSize(-1,-1),
-						2,choice_project_current,1,wxRA_SPECIFY_COLS);
-	if ( AnnotProject == FALSE )m_AnnotProjetCtrl->SetSelection(1);
-
-	m_AnnotProjetCtrl->GetSize(&w, &h);
-
-	/* Create the command buttons */
-	pos.x = 160; pos.y = 10;
-	wxButton * Button = new wxButton(this, ID_ANNOTATE_CMP,
-						_("&Annotate"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this,	ID_DEANNOTATE_CMP,
-						_("&Del Annotate"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetSize().y + 5;
-	new wxButton(this,	ID_CLOSE_ANNOTATE,
-						_("&Close"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 150;
-wxString choice_all_cmp[] =
-	{_("all components"), _("new components only") };
-	m_AnnotNewCmpCtrl = new wxRadioBox(this, ID_SEL_NEWCMP_ONLY,
-						_("select items:"),
-						pos,wxSize(-1,-1),
-						2,choice_all_cmp,1,wxRA_SPECIFY_COLS);
-	m_AnnotNewCmpCtrl->SetSelection(1);
-
-	pos.y += m_AnnotNewCmpCtrl->GetSize().y + 10;
-
-	SetClientSize(wxSize(X_Size, pos.y));
-}
-
-
-/*******************************************************************/
-/* Fonctions de positionnement des variables d'option d'annotation */
-/*******************************************************************/
-void WinEDA_AnnotateFrame::SelLocal(wxCommandEvent& event)
-{
-int ii = m_AnnotProjetCtrl->GetSelection();
-	AnnotProject = TRUE;
-	if ( ii == 1 ) AnnotProject = FALSE;
 }
 
 
@@ -157,6 +46,8 @@ SCH_SCREEN *Window;
 CmpListStruct * BaseListeCmp;
 
 	wxBusyCursor dummy;
+
+	AnnotProject = (m_AnnotProjetCtrl->GetSelection() == 0) ? TRUE : FALSE;
 
 	/* If it is an annotation for all the components, reset previous annotation: */
 	if( m_AnnotNewCmpCtrl->GetSelection() == 0 ) DeleteAnnotation(event);
@@ -234,13 +125,6 @@ CmpListStruct * BaseListeCmp;
 	Close();
 }
 
-/************************************************************************/
-void  WinEDA_AnnotateFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/************************************************************************/
-{
-     Close(true);   // true is to force the frame to close
-}
-
 
 /********************************************************************/
 void WinEDA_AnnotateFrame::DeleteAnnotation(wxCommandEvent& event)
@@ -258,6 +142,7 @@ EDA_SchComponentStruct *DrawLibItem;
 		m_Abort = TRUE; return;
 	}
 
+	AnnotProject = (m_AnnotProjetCtrl->GetSelection() == 0) ? TRUE : FALSE;
 	m_Abort = FALSE;
 
 	/* Update the sheet number and number of sheets*/

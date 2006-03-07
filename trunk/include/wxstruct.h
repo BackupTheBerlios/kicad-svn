@@ -433,7 +433,7 @@ public:
 	void recalcule_pad_net_code(void);	/* Routine de
 						 calcul et de mise a jour des net_codes des PADS */
 	void build_liste_pads(void);
-	int * build_ratsnest_pad(D_PAD * pt_pad_ref, int ox, int oy, int init);
+	int * build_ratsnest_pad(EDA_BaseStruct * ref, const wxPoint & refpos, bool init);
 
 	void Tst_Ratsnest(wxDC * DC, int ref_netcode );
 	void Recalcule_all_net_connexion(wxDC * DC);
@@ -822,6 +822,11 @@ public:
 	void ToolOnRightClick(wxCommandEvent& event);
 	void OnSelectOptionToolbar(wxCommandEvent& event);
 	void OnHotKey(wxDC * DC, int hotkey, EDA_BaseStruct * DrawStruct);
+
+	/* Gestion generale des operations sur block */
+	int ReturnBlockCommand(int key);
+	virtual void HandleBlockPlace(wxDC * DC);
+	virtual int HandleBlockEnd(wxDC * DC);
 
 	EDA_BaseStruct * ModeditLocateAndDisplay(void);
 
@@ -1231,17 +1236,15 @@ private:
 public:
 	// Constructor and destructor
 	WinEDA_EnterText(wxWindow *parent, const wxString & Title,
-			const wxString & TextToEdit, const wxPoint & Pos,
+			const wxString & TextToEdit, wxBoxSizer * BoxSizer,
 			const wxSize & Size );
 
 	~WinEDA_EnterText(void)
 		{
 		}
 
-	wxString GetData(void);
-	void GetData(char * buffer, int lenmax);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
+	wxString GetValue(void);
+	void GetValue(char * buffer, int lenmax);
 	void SetValue(const wxString & new_text);
 	void Enable(bool enbl);
 	void SetFocus(void) { m_FrameText->SetFocus(); }
@@ -1258,25 +1261,24 @@ public:
 	wxTextCtrl * m_FrameText;
 	wxTextCtrl * m_FrameSize;
 private:
-	wxSize m_WinSize;
 	wxStaticText * m_Title;
 
 public:
 	// Constructor and destructor
 	WinEDA_GraphicTextCtrl(wxWindow *parent, const wxString & Title,
 						const wxString & TextToEdit, int textsize,
-						int units, const wxPoint & pos, int framelen  = 200,
-						bool vertical_align = FALSE,
+						int units, wxBoxSizer * BoxSizer, int framelen  = 200,
 						int internal_unit = EESCHEMA_INTERNAL_UNIT);
 
 	~WinEDA_GraphicTextCtrl(void);
 
 	wxString GetText(void);
 	int GetTextSize(void);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
 	void Enable(bool state);
+	void SetTitle(const wxString & title);
 	void SetFocus(void) { m_FrameText->SetFocus(); }
+	void SetValue(const wxString & value);
+	void SetValue(int value);
 };
 
 
@@ -1292,23 +1294,20 @@ public:
 	wxTextCtrl * m_FramePosX;
 	wxTextCtrl * m_FramePosY;
 private:
-	wxSize m_WinSize;
 	wxStaticText * m_TextX, * m_TextY;
 
 public:
 	// Constructor and destructor
 	WinEDA_PositionCtrl(wxWindow *parent, const wxString & title,
 						const wxPoint & pos_to_edit,
-						int units, const wxPoint & Pos,
+						int units, wxBoxSizer * BoxSizer,
 						int internal_unit = EESCHEMA_INTERNAL_UNIT );
 
 	~WinEDA_PositionCtrl(void);
 
 	void Enable(bool on);
 	void SetValue(int x_value, int y_value);
-	wxPoint GetCoord(void);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
+	wxPoint GetValue(void);
 };
 
 /*****************************************************************/
@@ -1320,11 +1319,11 @@ public:
 	// Constructor and destructor
 	WinEDA_SizeCtrl(wxWindow *parent, const wxString & title,
 						const wxSize & size_to_edit,
-						int units, const wxPoint & Pos,
+						int units, wxBoxSizer * BoxSizer,
 						int internal_unit = EESCHEMA_INTERNAL_UNIT );
 
 	~WinEDA_SizeCtrl(void) {}
-	wxSize GetCoord(void);
+	wxSize GetValue(void);
 };
 
 
@@ -1343,13 +1342,12 @@ public:
 	wxTextCtrl * m_ValueCtrl;
 private:
 	int m_Internal_Unit;
-	wxSize m_WinSize;
 	wxStaticText * m_Text;
 
 public:
 	// Constructor and destructor
 	WinEDA_ValueCtrl(wxWindow *parent, const wxString & title, int value,
-						int units, const wxPoint & Pos,
+						int units, wxBoxSizer * BoxSizer,
 						int internal_unit = EESCHEMA_INTERNAL_UNIT );
 
 	~WinEDA_ValueCtrl(void);
@@ -1357,8 +1355,6 @@ public:
 	int GetValue(void);
 	void SetValue(int new_value);
 	void Enable(bool enbl);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
 	void SetToolTip(const wxString & text)
 		{
 		m_ValueCtrl->SetToolTip(text);
@@ -1374,20 +1370,18 @@ public:
 	double m_Value;
 	wxTextCtrl * m_ValueCtrl;
 private:
-	wxSize m_WinSize;
 	wxStaticText * m_Text;
 
 public:
 	// Constructor and destructor
-	WinEDA_DFloatValueCtrl(wxWindow *parent, const wxString & title, double value, const wxPoint & Pos);
+	WinEDA_DFloatValueCtrl(wxWindow *parent, const wxString & title,
+			double value,  wxBoxSizer * BoxSizer);
 
 	~WinEDA_DFloatValueCtrl(void);
 
 	double GetValue(void);
 	void SetValue(double new_value);
 	void Enable(bool enbl);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
 	void SetToolTip(const wxString & text)
 		{
 		m_ValueCtrl->SetToolTip(text);
@@ -1435,7 +1429,8 @@ public:
 						const wxChar ** ItemList,
 						const wxString & RefText,
 						void(* movefct)(wxString & Text) = NULL,
-						const wxColour & colour = wxNullColour);
+						const wxColour & colour = wxNullColour,
+						wxPoint dialog_position = wxDefaultPosition);
 	~WinEDAListBox(void);
 
 	void SortList( void );
@@ -1458,10 +1453,10 @@ private:
 /* class WinEDAChoiceBox */
 /*************************/
 /* class to display a choice list.
-wThis is a wrapper to wxComboBox (or wxChoice)
-but because they have some problems WinEDAChoiceBox uses workarounds
-in wxGTG 2.6.2 wxGetSelection() does not work properly,
-and wxChoice crashes if compiled in non unicode modes and uses utf8 codes
+This is a wrapper to wxComboBox (or wxChoice)
+but because they have some problems, WinEDAChoiceBox uses workarounds:
+ - in wxGTK 2.6.2 wxGetSelection() does not work properly,
+ - and wxChoice crashes if compiled in non unicode mode and uses utf8 codes
 */ 
 
 #define EVT_KICAD_CHOICEBOX EVT_COMBOBOX
@@ -1478,8 +1473,7 @@ public:
 	}
 
 	WinEDAChoiceBox(wxWindow* parent, wxWindowID id,
-				const wxPoint& pos = wxDefaultPosition,
-				const wxSize& size = wxDefaultSize,
+				const wxPoint& pos, const wxSize& size,
 				const wxArrayString & choices) :
 		wxComboBox(parent, id, wxEmptyString, pos, size,
 				choices, wxCB_READONLY)

@@ -32,10 +32,10 @@ install:
 
 
 clean:
-		-erase *.o
-		-erase *.exe
-		-erase *.res
-		-erase *.map
+		rm *.o
+		rm *.exe
+		rm *.res
+		rm *.map
 
 
 

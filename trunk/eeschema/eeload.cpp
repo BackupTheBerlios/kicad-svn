@@ -95,7 +95,6 @@ bool LibCacheExist = FALSE;
 
 
 	screen = ScreenSch ;
-	if( ClearProjectDrawList((SCH_SCREEN*) screen) == FALSE ) return(1);
 
 	FullFileName = FileName;
 	if( (FullFileName.IsEmpty() ) && !IsNew )
@@ -112,6 +111,8 @@ bool LibCacheExist = FALSE;
 					);
 		if ( FullFileName.IsEmpty() ) return ( FALSE );
 	}
+
+	if( ClearProjectDrawList((SCH_SCREEN*) screen) == FALSE ) return(1);
 
 	m_CurrentScreen = screen = ActiveScreen = ScreenSch;
 	screen->m_CurrentItem = NULL;

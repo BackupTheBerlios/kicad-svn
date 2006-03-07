@@ -175,25 +175,25 @@ wxString NetlistFullFileName = FullFilename;
 	FFileName = NetlistFullFileName;
 	NetNameBuffer = NetlistFullFileName;
 	if( SaveComponentList(NetlistFullFileName) == 0 )
-		{
+	{
 		DisplayError(this, _("Unable to create component file (.cmp)") );
 		return 0;
-		}
+	}
 
 	dest = wxFopen(NetlistFullFileName, wxT("wt") );
 	if( dest == 0 )
-		{
+	{
 		DisplayError(this, _("Unable to create netlist file") );
 		return 0;
-		}
+	}
 
 	switch ( output_type )
-		{
+	{
 		default:
 		case 0:
 		case 1: genorcad() ;
 			break;
-		}
+	}
 
 	return 1;
 }

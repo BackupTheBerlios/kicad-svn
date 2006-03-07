@@ -5,8 +5,7 @@
 	/*	 Fichier options.cpp 	*/
 
 /*
- Affichage et modifications des parametres de travail de PcbNew
- Parametres = dimensions des via, pistes, isolements, options...
+ Affichage et modifications des parametres de travail Gerbview
 */
 
 
@@ -41,12 +40,12 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_UNIT_MM:
-			UnitMetric = MILLIMETRE;
+			g_UnitMetric = MILLIMETRE;
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			break;
 
 		case ID_TB_OPTIONS_SELECT_UNIT_INCH:
-			UnitMetric = INCHES;
+			g_UnitMetric = INCHES;
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			break;
 
@@ -157,50 +156,59 @@ WinEDA_GerberGeneralOptionsFrame::WinEDA_GerberGeneralOptionsFrame(WinEDA_BasePc
 				 framepos, wxSize(300, 240),
 				wxDEFAULT_DIALOG_STYLE|wxFRAME_FLOAT_ON_PARENT )
 {
-wxPoint pos;
-int w, h;
-
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
-	pos.x = 70; pos.y = 180;
-	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Accept"), pos);
-	pos.x += Button->GetSize().x  + 5;
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MiddleBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MiddleBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Accept"));
 	Button->SetForegroundColour(*wxRED);
-	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
+	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 	/* Display Selection affichage des coordonnées polaires */
-	pos.x = 10; pos.y = 10;
 wxString list_coord[2] = { _("No Display"), _("Display") };
 	m_PolarDisplay = new wxRadioBox(this, -1, _("Display Polar Coord"),
-					pos, wxDefaultSize,
+					wxDefaultPosition, wxDefaultSize,
 					2, list_coord, 1);
 	m_PolarDisplay->SetSelection(DisplayOpt.DisplayPolarCood ? 1 : 0);
+	LeftBoxSizer->Add(m_PolarDisplay, 0, wxGROW|wxALL, 5);
 
 	/* Selection choix des unités d'affichage */
-	m_PolarDisplay->GetSize(&w, &h);
-	pos.y += h + 15;
 wxString list_units[2] = { _("Inches"), _("millimeters") };
-	m_BoxUnits = new wxRadioBox(this, -1, _("Units"), pos, wxDefaultSize,
+	m_BoxUnits = new wxRadioBox(this, -1, _("Units"), wxDefaultPosition, wxDefaultSize,
 					2, list_units, 1);
-	m_BoxUnits->SetSelection( UnitMetric ? 1 : 0);
+	m_BoxUnits->SetSelection( g_UnitMetric ? 1 : 0);
+	LeftBoxSizer->Add(m_BoxUnits, 0, wxGROW|wxALL, 5);
 
 	/* Selection forme du curseur */
-	pos.x += 155; pos.y = 10;
 wxString list_cursors[2] = { _("Small"), _("Big") };
-	m_CursorShape = new wxRadioBox(this, -1, _("Cursor"), pos, wxDefaultSize,
+	m_CursorShape = new wxRadioBox(this, -1, _("Cursor"), wxDefaultPosition, wxDefaultSize,
 					2, list_cursors, 1);
 	m_CursorShape->SetSelection( g_CursorShape ? 1 : 0);
+	MiddleBoxSizer->Add(m_CursorShape, 0, wxGROW|wxALL, 5);
 
 	/* Selection Default Scale (i.e. format 2.3 ou 3.4) */
-	m_CursorShape->GetSize(&w, &h);
-	pos.y += h + 15;
 wxString list_scales[2] = { _("format: 2.3"), _("format 3.4") };
 	m_GerberDefaultScale = new wxRadioBox(this, -1, _("Default format"),
-						pos, wxDefaultSize,
+						wxDefaultPosition, wxDefaultSize,
 					2, list_scales, 1);
 	m_GerberDefaultScale->SetSelection( (g_Default_GERBER_Format == 23) ? 0 : 1);
+	MiddleBoxSizer->Add(m_GerberDefaultScale, 0, wxGROW|wxALL, 5);
+
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /************************************************************************/
@@ -219,7 +227,7 @@ void WinEDA_GerberGeneralOptionsFrame::AcceptPcbOptions(wxCommandEvent& event)
 {
 	DisplayOpt.DisplayPolarCood =
 		(m_PolarDisplay->GetSelection() == 0) ? FALSE : TRUE;
-	UnitMetric = (m_BoxUnits->GetSelection() == 0)  ? 0 : 1;
+	g_UnitMetric = (m_BoxUnits->GetSelection() == 0)  ? 0 : 1;
 	g_CursorShape = m_CursorShape->GetSelection();
 	g_Default_GERBER_Format =
 		(m_GerberDefaultScale->GetSelection() == 0) ? 23 : 34;
@@ -274,45 +282,53 @@ WinEDA_LookFrame::WinEDA_LookFrame(WinEDA_BasePcbFrame *parent,
 		wxDEFAULT_DIALOG_STYLE|wxFRAME_FLOAT_ON_PARENT )
 /*******************************************************************************/
 {
-wxPoint pos;
-int ii, jj;
-
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
-	pos.x = 160; pos.y = 140;
-	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Accept"), pos);
-	Button->SetForegroundColour(*wxRED);
-	pos.x += Button->GetSize().x  + 5;
-	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MiddleBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MiddleBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-	pos.x = 5; pos.y = 5;
+	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Accept"));
+	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
+	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"));
+	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
 	// Show Option Draw Tracks
 wxString list_opt2[2] = { _("Sketch"), _("Filled") };
 	m_OptDisplayLines = new wxRadioBox(this, -1, _("Lines:"),
-				pos, wxDefaultSize,
+				wxDefaultPosition, wxDefaultSize,
 				2, list_opt2, 1);
 	if ( DisplayOpt.DisplayPcbTrackFill ) m_OptDisplayLines->SetSelection(1);
+	LeftBoxSizer->Add(m_OptDisplayLines, 0, wxGROW|wxALL, 5);
 
-	m_OptDisplayLines->GetSize(&ii, &jj);
-	pos.y += jj + 15;
-	m_OptDisplayDCodes = new wxCheckBox(this, -1,
-		_("Show D-Codes"), pos);
-	if ( DisplayOpt.DisplayPadNum ) m_OptDisplayDCodes->SetValue(TRUE);
-
-	pos.x += 100; pos.y = 5;
 	m_OptDisplayFlashes = new wxRadioBox(this, -1, _("Spots:"),
-				pos, wxDefaultSize,
+				wxDefaultPosition, wxDefaultSize,
 				2, list_opt2, 1);
 	if ( DisplayOpt.DisplayPadFill ) m_OptDisplayFlashes->SetSelection(1);
+	LeftBoxSizer->Add(m_OptDisplayFlashes, 0, wxGROW|wxALL, 5);
 
-	pos.x += 100; pos.y = 5;
 wxString list_opt3[3] = { _("Sketch"), _("Filled"), _("Line") };
 	m_OptDisplayDrawings = new wxRadioBox(this, -1, _("Display other items:"),
-				pos, wxDefaultSize,
+				wxDefaultPosition, wxDefaultSize,
 				3, list_opt3, 1);
 	m_OptDisplayDrawings->SetSelection(DisplayOpt.DisplayDrawItems);
+	MiddleBoxSizer->Add(m_OptDisplayDrawings, 0, wxGROW|wxALL, 5);
+
+	m_OptDisplayDCodes = new wxCheckBox(this, -1, _("Show D-Codes"));
+	if ( DisplayOpt.DisplayPadNum ) m_OptDisplayDCodes->SetValue(TRUE);
+	MiddleBoxSizer->Add(m_OptDisplayDCodes, 0, wxGROW|wxALL, 5);
+ 
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -355,11 +371,9 @@ void WinEDA_LookFrame::AcceptPcbOptions(wxCommandEvent& event)
 
 
 
-	/*****************************************************************/
-	/* void WinEDA_GerberFrame::InstallConfigFrame(const wxPoint & pos) */
-	/*****************************************************************/
-
+/***************************************************************************/
 void WinEDA_GerberFrame::InstallPcbOptionsFrame(const wxPoint & pos, int id)
+/***************************************************************************/
 {
 
 	switch ( id )

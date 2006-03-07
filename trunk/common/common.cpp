@@ -23,8 +23,108 @@ Ki_PageDescr::Ki_PageDescr(const wxSize & size, const wxPoint & offset, const wx
 	m_LeftMargin = m_RightMargin = m_TopMargin = m_BottomMargin = 400;
 }
 
+/************************************/
+wxString ReturnUnitSymbol(int Units )
+/************************************/
+{
+wxString label;
 
+	switch ( Units )
+	{
+		case INCHES:
+			label = _(" (\"):");
+			break;
 
+		case MILLIMETRE:
+			label = _(" (mm):");
+			break;
+
+		default:
+			break;
+	}
+	
+	return label;
+}
+
+/**************************************************/
+void AddUnitSymbol(wxStaticText & Stext, int Units)
+/**************************************************/
+/* Add string "  (mm):" or " ("):" to the static text Stext.
+Used in dialog boxes for entering values depending on selected units
+*/
+{
+wxString msg = Stext.GetLabel() + ReturnUnitSymbol(Units);
+	Stext.SetLabel(msg);
+}
+
+/****************************************************************************/
+void PutValueInLocalUnits(wxTextCtrl & TextCtr, int Value, int Internal_Unit)
+/****************************************************************************/
+/* Convert the number Value in a string according to the internal units
+	and the selected unit (g_UnitMetric) and put it in the wxTextCtrl TextCtrl
+*/
+{
+wxString msg = ReturnStringFromValue(g_UnitMetric, Value, Internal_Unit);
+	TextCtr.SetValue(msg);
+}
+
+/*******************************************************************/
+int ReturnValueFromTextCtrl(const wxTextCtrl & TextCtr, int Internal_Unit)
+/********************************************************************/
+/* Convert the Value in the wxTextCtrl TextCtrl in an integer,
+	according to the internal units and the selected unit (g_UnitMetric)
+*/
+{
+int value;
+wxString msg = TextCtr.GetValue();
+	value = ReturnValueFromString(g_UnitMetric, msg, Internal_Unit);
+	
+	return value;
+}
+
+/****************************************************************************/
+wxString ReturnStringFromValue(int Units, int Value, int Internal_Unit)
+/****************************************************************************/
+/* Return the string from Value, according to units (inch, mm ...) for display,
+	and the initial unit for value
+	Unit = display units (INCH, MM ..)
+	Value = value in Internal_Unit
+	Internal_Unit = units per inch for Value
+*/
+{
+wxString StringValue;
+double value_to_print;
+	
+	if ( Units >= CENTIMETRE ) StringValue << Value;
+	else
+	{
+		value_to_print = To_User_Unit(Units, Value,Internal_Unit);
+		StringValue.Printf( ( Internal_Unit > 1000 ) ? wxT("%.4f") : wxT("%.3f"),
+			 value_to_print );
+	}
+	
+	return StringValue;
+}
+
+/****************************************************************************/
+int ReturnValueFromString(int Units, const wxString & TextValue, int Internal_Unit)
+/****************************************************************************/
+/* Return the string from Value, according to units (inch, mm ...) for display,
+	and the initial unit for value
+	Unit = display units (INCH, MM ..)
+	Value = text
+	Internal_Unit = units per inch for computed value
+*/
+{
+int Value;
+double dtmp = 0;
+	
+	TextValue.ToDouble(&dtmp);
+	if ( Units >= CENTIMETRE ) Value = (int) round(dtmp);
+	else Value = From_User_Unit(Units, dtmp, Internal_Unit);
+	
+	return Value;
+}
 /******************************************************************/
 double To_User_Unit(bool is_metric, int val,int internal_unit_value)
 /******************************************************************/
@@ -295,16 +395,14 @@ void valeur_param(int valeur,wxString & buf_texte)
 						suivie de " ou mm
 */
 {
-extern bool UnitMetric;
-
-	if ( UnitMetric )
+	if ( g_UnitMetric )
 	{
-		buf_texte.Printf( wxT("%3.3f    "),(float) valeur * 0.00254);
+		buf_texte.Printf( wxT("%3.3f "),(float) valeur * 0.00254);
 		buf_texte << wxT("mm") ;
 	}
 	else
 	{
-		buf_texte.Printf( wxT("%2.4f    "),(float) valeur * 0.0001);
+		buf_texte.Printf( wxT("%2.4f "),(float) valeur * 0.0001);
 		buf_texte << wxT("\" ");
 	}
 }

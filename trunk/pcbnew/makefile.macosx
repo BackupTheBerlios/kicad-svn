@@ -31,8 +31,8 @@ install:
 
 
 clean:
-		-erase *.o
-		-erase *.map
+		rm *.o
+		rm *.map
 
 
 

@@ -16,9 +16,10 @@
 /* Routines Locales */
 static void Polyline_in_Ghost(WinEDA_DrawPanel * panel, wxDC * DC, bool erase);
 static void Segment_in_Ghost(WinEDA_DrawPanel * panel, wxDC * DC, bool erase);
-static void ExitTrace(WinEDA_DrawFrame * frame, wxDC * DC);
+static void AbortCreateNewLine(WinEDA_DrawFrame * frame, wxDC * DC);
 static bool IsTerminalPoint(SCH_SCREEN * screen, const wxPoint & pos, int layer );
 static bool IsJunctionNeeded (WinEDA_SchematicFrame * frame, wxPoint & pos );
+static void ComputeBreakPoint(EDA_DrawLineStruct * segment, const wxPoint & new_pos);
 
 
 wxPoint s_ConnexionStartPoint;
@@ -29,87 +30,110 @@ void WinEDA_SchematicFrame::BeginSegment(wxDC * DC, int type)
 /* Create a new segment ( WIRE, BUS ).
 */
 {
-EDA_DrawLineStruct * oldsegment, * newsegment;
-wxPoint pos = GetScreen()->m_Curseur;
+EDA_DrawLineStruct * oldsegment, * newsegment, * nextsegment;
+wxPoint cursorpos = GetScreen()->m_Curseur;
 	
-	if ( GetScreen()->m_CurrentItem &&
-		 (GetScreen()->m_CurrentItem->m_Flags == 0) )
+	if ( GetScreen()->m_CurrentItem && (GetScreen()->m_CurrentItem->m_Flags == 0) )
 		GetScreen()->m_CurrentItem = NULL;
 
 	if ( GetScreen()->m_CurrentItem )
-		{
+	{
 		switch (GetScreen()->m_CurrentItem->m_StructType )
-			{
+		{
 			case DRAW_SEGMENT_STRUCT_TYPE:
 			case DRAW_POLYLINE_STRUCT_TYPE:
 				break;
 
 			default:
 				return;
-			}
 		}
+	}
 
 	oldsegment = newsegment =
 			(EDA_DrawLineStruct *) GetScreen()->m_CurrentItem;
 
 	if (!newsegment)  /* first point : Create first wire ou bus */
 	{
-		s_ConnexionStartPoint = pos;
+		s_ConnexionStartPoint = cursorpos;
 		SchematicCleanUp(NULL);
 		switch(type)
 		{
 			default:
-				newsegment = new EDA_DrawLineStruct(pos, LAYER_NOTES);
+				newsegment = new EDA_DrawLineStruct(cursorpos, LAYER_NOTES);
 				break;
 			case LAYER_WIRE:
-				newsegment = new EDA_DrawLineStruct(pos, LAYER_WIRE);
+				newsegment = new EDA_DrawLineStruct(cursorpos, LAYER_WIRE);
 				/* A junction will be created later, when w'll know the
-				segment end, and if the junction is really needed */
+				segment end position, and if the junction is really needed */
 				break;
 			case LAYER_BUS:
-				newsegment = new EDA_DrawLineStruct(pos, LAYER_BUS);
+				newsegment = new EDA_DrawLineStruct(cursorpos, LAYER_BUS);
 				break;
 		}
 
 		newsegment->m_Flags = IS_NEW;
+		if( g_HVLines )	// We need 2 segments to go from a given start pint to an end point
+		{
+			nextsegment = newsegment->GenCopy();
+			nextsegment->m_Flags = IS_NEW;
+			newsegment->Pnext = nextsegment;
+			nextsegment->Pback = newsegment;
+		}
 		GetScreen()->m_CurrentItem = newsegment;
 		GetScreen()->ManageCurseur = Segment_in_Ghost;
-		GetScreen()->ForceCloseManageCurseur = ExitTrace;
+		GetScreen()->ForceCloseManageCurseur = AbortCreateNewLine;
 		g_ItemToRepeat = NULL;
 	}
 
 	else	/* Trace en cours: Placement d'un point supplementaire */
 	{
-		if( (oldsegment->m_Start.x == oldsegment->m_End.x) &&
-			(oldsegment->m_Start.y == oldsegment->m_End.y) )	/* Structure inutile */
-			return;
+		nextsegment = (EDA_DrawLineStruct*)oldsegment->Pnext;
+		if( ! g_HVLines )
+		{ /* if only one segment is needed and the current is has len = 0, do not create a new one*/
+			if( oldsegment->IsNull() ) return;
+		}
+		else
+		{ 	/* if we want 2 segment and the last two have len = 0, do not create a new one*/
+			if ( oldsegment->IsNull() && nextsegment && nextsegment->IsNull() )
+				return;
+		}
 
 		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
 
-
 		/* Creation du segment suivant ou fin de tracé si point sur pin, jonction ...*/
-		if ( IsTerminalPoint(GetScreen(), oldsegment->m_End, oldsegment->m_Layer) )
+		if ( IsTerminalPoint(GetScreen(), cursorpos, oldsegment->m_Layer) )
 		{
 			EndSegment(DC); return;
 		}
 
 		/* Placement en liste generale */
 		oldsegment->Pnext = GetScreen()->EEDrawList;
-		g_ItemToRepeat = GetScreen()->EEDrawList = oldsegment;
+		GetScreen()->EEDrawList = oldsegment;
 		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
 		RedrawOneStruct(DrawPanel,DC, oldsegment, GR_DEFAULT_DRAWMODE);
 		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
 
-		/* Creation du segment suivant */
-		newsegment = oldsegment->GenCopy();
-		newsegment->m_Start = oldsegment->m_End;
-		newsegment->m_End = pos;
-		oldsegment->m_Flags = 0;
+		/* Create a new segment, and chain it after the current new segment */
+		if ( nextsegment ) 
+		{
+			newsegment = nextsegment->GenCopy();
+			nextsegment->m_Start = newsegment->m_End;
+			nextsegment->Pnext = NULL;
+			nextsegment->Pback = newsegment;
+			newsegment->Pnext = nextsegment;
+			newsegment->Pback = NULL;
+		}
+		else
+		{
+			newsegment = oldsegment->GenCopy();
+			newsegment->m_Start = oldsegment->m_End;
+		}
+		newsegment->m_End = cursorpos;
+		oldsegment->m_Flags = SELECTED;
 		newsegment->m_Flags = IS_NEW;
 		GetScreen()->m_CurrentItem = newsegment;
 		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-		if ( (oldsegment->m_Start.x == s_ConnexionStartPoint.x)
-			&& (oldsegment->m_Start.y == s_ConnexionStartPoint.y))
+		if ( oldsegment->m_Start == s_ConnexionStartPoint )
 		{	/* This is the first segment: Now we know the start segment position.
 			Create a junction if needed. Note: a junction can be needed
 			later, if the new segment is merged (after a cleanup) with an older one 
@@ -121,107 +145,203 @@ wxPoint pos = GetScreen()->m_Curseur;
 }
 
 
-/*************************************************************/
-/*	 Routine de fin de trace d'une struct segment (Wire, Bus */
-/*************************************************************/
+/***********************************************/
 void WinEDA_SchematicFrame::EndSegment(wxDC *DC)
+/***********************************************/
+/* Called to terminate a bus, wire, or line creation
+*/
 {
-EDA_DrawLineStruct * segment = (EDA_DrawLineStruct *)GetScreen()->m_CurrentItem;
-wxPoint end_point = segment->m_End;
+EDA_DrawLineStruct * firstsegment = (EDA_DrawLineStruct *)GetScreen()->m_CurrentItem;
+EDA_DrawLineStruct * lastsegment = firstsegment;
+EDA_DrawLineStruct * segment;
 	
-	if ( GetScreen()->ManageCurseur == NULL ) return;
-	if ( segment == NULL ) return;
-	if ( (segment->m_Flags & IS_NEW) == 0) return;
+	if ( firstsegment == NULL ) return;
+	if ( (firstsegment->m_Flags & IS_NEW) == 0) return;
 
-	if( (segment->m_Start.x == segment->m_End.x) &&
-		(segment->m_Start.y == segment->m_End.y) )	/* Structure inutile */
+	/* Delete Null segments and Put line it in Drawlist */
+	lastsegment = firstsegment;
+	while ( lastsegment )
 	{
-		EraseStruct(segment, (SCH_SCREEN*)GetScreen());
-		segment = NULL;
+		EDA_DrawLineStruct * nextsegment = (EDA_DrawLineStruct *)lastsegment->Pnext;
+		if ( lastsegment->IsNull() )
+		{
+		EDA_DrawLineStruct * previous_segment = (EDA_DrawLineStruct *)lastsegment->Pback;
+			if ( firstsegment == lastsegment ) firstsegment = nextsegment;
+			if ( nextsegment ) nextsegment->Pback = NULL;
+			if ( previous_segment ) previous_segment->Pnext = nextsegment;
+			delete lastsegment;
+		}
+		lastsegment = nextsegment;
 	}
-
-	else
+	/* put the segment list to the main linked list */
+	segment = lastsegment = firstsegment;
+	while ( segment )
 	{
-
-		/* Put it in Drawlist */
-		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-		segment->Pnext = GetScreen()->EEDrawList;
-		g_ItemToRepeat = GetScreen()->EEDrawList = segment;
-		segment->m_Flags = 0;
+		lastsegment = segment;
+		segment = (EDA_DrawLineStruct *)segment->Pnext;
+		lastsegment->Pnext = GetScreen()->EEDrawList;
+		GetScreen()->EEDrawList = lastsegment;
 	}
-
+	
 	/* Fin de trace */
 	GetScreen()->ManageCurseur = NULL;
 	GetScreen()->ForceCloseManageCurseur = NULL;
 	GetScreen()->m_CurrentItem = NULL;
 
+wxPoint end_point, alt_end_point;
+	/* A junction can be needed to connect the last segment
+	usually to m_End coordinate.
+	But if the last segment is removed by a cleanup, because od redundancy,
+	a junction can be needed to connect the previous segment m_End coordinate
+	with is also the lastsegment->m_Start coordinate */
+	if ( lastsegment )
+	{
+		end_point = lastsegment->m_End;
+		alt_end_point = lastsegment->m_Start;
+	}
+
 	SchematicCleanUp(NULL);
 
-	// Automatic place of a junction on the end point, if needed
-	DrawJunctionStruct * junction1 = NULL, * junction2 = NULL;
-	if ( IsJunctionNeeded(this, end_point) )
+	/* clear flags and find last segment entered, for repeat function */
+	segment = (EDA_DrawLineStruct *) GetScreen()->EEDrawList;
+	while ( segment )
 	{
-		junction1 = CreateNewJunctionStruct(DC, end_point);
+		if ( segment->m_Flags )
+		{
+			if ( ! g_ItemToRepeat ) g_ItemToRepeat = segment;
+		}
+		segment->m_Flags = 0;
+		segment = (EDA_DrawLineStruct *)segment->Pnext;
 	}
+
+	// Automatic place of a junction on the end point, if needed
+	if ( lastsegment )
+	{
+		if( IsJunctionNeeded(this, end_point) )
+			CreateNewJunctionStruct(DC, end_point);
+
+		else if( IsJunctionNeeded(this, alt_end_point) )
+			CreateNewJunctionStruct(DC, alt_end_point);
+	}
+	
 	/* Automatic place of a junction on the start point if necessary because the 
 	Cleanup can suppress intermediate points by merging wire segments*/
 	if ( IsJunctionNeeded(this, s_ConnexionStartPoint) )
-	{
-		GetScreen()->m_Curseur = s_ConnexionStartPoint;
-		junction2 = CreateNewJunctionStruct(DC, s_ConnexionStartPoint);
-	}
+		CreateNewJunctionStruct(DC, s_ConnexionStartPoint);
+
 	TestDanglingEnds(GetScreen()->EEDrawList, DC);
+
 	
-	/* Redraw junctions which can be changed by TestDanglingEnds() */
-	if ( junction1 ) RedrawOneStruct(DrawPanel,DC, junction1, GR_DEFAULT_DRAWMODE);
-	if ( junction2 ) RedrawOneStruct(DrawPanel,DC, junction2, GR_DEFAULT_DRAWMODE);
-	
-	SetFlagModify(GetScreen());
-	if( segment )
+	/* Redraw wires and junctions which can be changed by TestDanglingEnds() */
+	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	EDA_BaseStruct *item = GetScreen()->EEDrawList;
+	while ( item )
 	{
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
-		RedrawOneStruct(DrawPanel,DC, segment, GR_DEFAULT_DRAWMODE);
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+		switch ( item->m_StructType )
+		{
+			case DRAW_JUNCTION_STRUCT_TYPE:
+			case DRAW_SEGMENT_STRUCT_TYPE:
+				RedrawOneStruct(DrawPanel,DC, item, GR_DEFAULT_DRAWMODE);
+				break;
+				
+			default:
+				break;
+		}
+		item = item->Pnext;
 	}
+	
+
+	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+
+	SetFlagModify(GetScreen());
 }
 
 /****************************************************************************/
 static void Segment_in_Ghost(WinEDA_DrawPanel * panel, wxDC * DC, bool erase)
 /****************************************************************************/
-/*  Dessin du Segment Fantome lors des deplacements du curseur
+/*  Redraw the segment (g_HVLines == FALSE ) or the two segments (g_HVLines == TRUE )
+	from the start point to the cursor, when moving the mouse
 */
 {
-EDA_DrawLineStruct * segment =
+EDA_DrawLineStruct * CurrentLine =
 		(EDA_DrawLineStruct *) panel->m_Parent->GetScreen()->m_CurrentItem;
-wxPoint endpos;
+EDA_DrawLineStruct * segment;
 int color;
 
-	if ( segment == NULL ) return;
+	if ( CurrentLine == NULL ) return;
 
-	color = ReturnLayerColor(segment->m_Layer) ^ HIGHT_LIGHT_FLAG;
-
-	endpos = panel->m_Parent->GetScreen()->m_Curseur;
-
-	if( g_HVLines )	/* Coerce the line to vertical or horizontal one: */
-		{
-		if (ABS(endpos.x - segment->m_Start.x) < ABS(endpos.y - segment->m_Start.y))
-			endpos.x = segment->m_Start.x;
-		else
-			endpos.y = segment->m_Start.y;
-		}
+	color = ReturnLayerColor(CurrentLine->m_Layer) ^ HIGHT_LIGHT_FLAG;
 
 	if( erase )		// Redraw if segment lengtht != 0
 	{
-		if ( (segment->m_Start.x != segment->m_End.x) ||
-			 (segment->m_Start.y != segment->m_End.y) )
-		RedrawOneStruct(panel,DC, segment, g_XorMode, color);
+		segment = CurrentLine;
+		while ( segment )
+		{
+			if ( ! segment->IsNull() )
+				RedrawOneStruct(panel,DC, segment, g_XorMode, color);
+			segment = (EDA_DrawLineStruct*)segment->Pnext;
+		}
 	}
-	segment->m_End = endpos;
-	// Redraw if segment lengtht != 0
 
-	if ( (segment->m_Start.x != segment->m_End.x) ||
-			(segment->m_Start.y != segment->m_End.y) )
-	RedrawOneStruct(panel,DC, segment, g_XorMode,color);
+wxPoint endpos = panel->m_Parent->GetScreen()->m_Curseur;
+	if( g_HVLines )	/* Coerce the line to vertical or horizontal one: */
+	{
+		 ComputeBreakPoint( CurrentLine, endpos);
+	}
+
+	else CurrentLine->m_End = endpos;
+		
+	// Redraw if segment lengtht != 0
+	segment = CurrentLine;
+	while ( segment )
+	{
+		if ( ! segment->IsNull() )
+			RedrawOneStruct(panel,DC, segment, g_XorMode, color);
+		segment = (EDA_DrawLineStruct*)segment->Pnext;
+	}
+}
+
+
+/**************************************************************************************/
+static void ComputeBreakPoint( EDA_DrawLineStruct * segment, const wxPoint & new_pos )
+/**************************************************************************************/
+/* compute the middle coordinate for 2 segments, from the start point to new_pos
+	with the 2 segments kept H or V only
+*/
+{
+EDA_DrawLineStruct  * nextsegment = (EDA_DrawLineStruct *)segment->Pnext;
+wxPoint middle_position = new_pos;
+	
+	if( nextsegment == NULL ) return;
+#if 0		
+	if (ABS(middle_position.x - segment->m_Start.x) < ABS(middle_position.y - segment->m_Start.y))
+		middle_position.x = segment->m_Start.x;
+	else
+		middle_position.y = segment->m_Start.y;
+#else
+int iDx = segment->m_End.x - segment->m_Start.x;
+int iDy = segment->m_End.y - segment->m_Start.y;
+	if ( iDy != 0 )			// keep the first segment orientation (currently horizontal)
+	{
+		middle_position.x = segment->m_Start.x;  
+	}
+	else if ( iDx != 0 )	// keep the first segment orientation (currently vertical)
+	{
+		middle_position.y = segment->m_Start.y;  
+	}
+	else
+	{
+		if (ABS(middle_position.x - segment->m_Start.x) < ABS(middle_position.y - segment->m_Start.y))
+			middle_position.x = segment->m_Start.x;
+		else
+			middle_position.y = segment->m_Start.y;
+	}
+#endif
+	
+	segment->m_End = middle_position;
+	
+	nextsegment->m_Start = middle_position;
+	nextsegment->m_End = new_pos;
 }
 
 /*****************************************************************************/
@@ -272,20 +392,20 @@ Routine effacant le dernier trait trace, ou l'element pointe par la souris
 
 	if( (GetScreen()->m_CurrentItem == NULL) ||
 		((GetScreen()->m_CurrentItem->m_Flags & IS_NEW) == 0) )
-		{
+	{
 		return;
-		}
+	}
 
 	/* Trace en cours: annulation */
 	if (GetScreen()->m_CurrentItem->m_StructType == DRAW_POLYLINE_STRUCT_TYPE)
-		{
+	{
 		Polyline_in_Ghost(DrawPanel, DC, FALSE); /* Effacement du trace en cours */
-		}
+	}
 
 	else
-		{
+	{
 		Segment_in_Ghost(DrawPanel, DC, FALSE); /* Effacement du trace en cours */
-		}
+	}
 
 	EraseStruct(GetScreen()->m_CurrentItem, GetScreen());
 	GetScreen()->ManageCurseur = NULL;
@@ -338,24 +458,32 @@ DrawNoConnectStruct *NewNoConnect;
 }
 
 
-/**********************************************************/
-static void ExitTrace(WinEDA_DrawFrame * frame, wxDC * DC)
-/**********************************************************/
-/* Routine de sortie des menus de trace */
+/*****************************************************************/
+static void AbortCreateNewLine(WinEDA_DrawFrame * frame, wxDC * DC)
+/*****************************************************************/
+/* Abort function for wire, bus or line creation
+*/
 {
 BASE_SCREEN * Screen = frame->GetScreen();
 
 	if( Screen->m_CurrentItem)  /* trace en cours */
-		{
+	{
 		Screen->ManageCurseur(frame->DrawPanel, DC, FALSE);
 		Screen->ManageCurseur = NULL;
 		Screen->ForceCloseManageCurseur = NULL;
 		EraseStruct(Screen->m_CurrentItem,(SCH_SCREEN*) Screen);
 		Screen->m_CurrentItem = NULL;
-		return;
-		}
+	}
 
 	else g_ItemToRepeat = NULL;	// Fin de commande generale
+		
+	/* Clear m_Flags wich is used in edit functions: */
+	EDA_BaseStruct * item = Screen->EEDrawList;
+	while ( item )
+	{
+		item->m_Flags = 0;
+		item = item->Pnext;
+	}
 }
 
 

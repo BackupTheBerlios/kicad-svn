@@ -39,20 +39,17 @@ END_EVENT_TABLE()
 	movefct = fonction de création de commentaires a afficher
 */
 
-#define M_LIST_POSX 5
-#define M_LIST_POSY 15
-
-
 WinEDAListBox::WinEDAListBox( wxWindow * parent, const wxString & title,
 						const wxChar ** itemlist,
 						const wxString & reftext,
 						void(* movefct)(wxString & Text),
-						const wxColour & colour):
-					wxDialog(parent, -1, title, wxPoint(10,10), wxSize(200,300),
-					wxDEFAULT_DIALOG_STYLE)
+						const wxColour & colour, wxPoint dialog_position):
+					wxDialog(parent, -1, title, dialog_position, wxDefaultSize,
+					wxDEFAULT_DIALOG_STYLE
+//					|wxRESIZE_BORDER
+					)
 {
-wxPoint pos;
-wxSize size, Wsize;
+wxSize size;
 const wxChar ** names;
 int ii;
 
@@ -61,26 +58,37 @@ int ii;
 	m_MoveFct = movefct;
 	m_WinMsg = NULL;
 	SetReturnCode(-1);
+	SetFont(*g_DialogFont);
 
 	if ( itemlist )
 		for ( names = m_ItemList, ii = 0; *names != NULL; names++)
 			ii++;
 	else ii = 30;
 
-	size.x = 160;
-	size.y = (ii * 12) + 40;
-	size.y = MIN( 300, size.y);
-	pos.x = M_LIST_POSX; pos.y = M_LIST_POSY;
+    wxBoxSizer * GeneralBoxSizer = new wxBoxSizer(wxVERTICAL);
+    SetSizer(GeneralBoxSizer);
+
+    wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+    GeneralBoxSizer->Add(MainBoxSizer, 0, wxGROW|wxEXPAND|wxALL, 1);
+
+    wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+    MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+    wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+    MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+	size.x = 200;
+	size.y = 350;
 	m_List = new wxListBox(this,
 							ID_LISTBOX_LIST,
-							pos, size,
+							wxDefaultPosition, size,
 							0, NULL,
-							wxLB_ALWAYS_SB|wxLB_SINGLE);
+							wxLB_NEEDED_SB|wxLB_SINGLE|wxLB_HSCROLL );
 	if ( colour != wxNullColour)
 	{
 		m_List->SetBackgroundColour(colour);
 		m_List->SetForegroundColour(*wxBLACK);
 	}
+    LeftBoxSizer->Add(m_List, 0, wxGROW|wxALL, 5);
 
 
 	if ( itemlist )
@@ -89,36 +97,37 @@ int ii;
 		m_List->Append(*names);
 		}
 
-	Wsize.y = pos.y + size.y;
+	wxButton * butt = new wxButton(this, ID_LISTBOX_OK, _("Ok"));
+    RightBoxSizer->Add(butt, 0, wxGROW|wxALL, 5);
+	butt->SetDefault();
 
-	pos.x += 5 + size.x; pos.y = 15;
-	wxButton * butt = new wxButton(this, ID_LISTBOX_OK, _("Ok"), pos);
-
-	pos.y += butt->GetDefaultSize().y + 10;
-	new wxButton(this, ID_LISTBOX_CANCEL, _("Cancel"), pos);
-
-	Wsize.x = pos.x + butt->GetDefaultSize().x + 10;
-	Wsize.y = MAX( Wsize.y, pos.y + butt->GetDefaultSize().y + 10);
+	butt = new wxButton(this, ID_LISTBOX_CANCEL, _("Cancel"));
+    RightBoxSizer->Add(butt, 0, wxGROW|wxALL, 5);
 
 	if (m_MoveFct )
 	{
-		pos.x = 5; pos.y = Wsize.y + 10;
-		size.x = 220; size.y = 60;
-		Wsize.y = pos.y + size.y;
-		m_WinMsg = new wxTextCtrl(this, -1, wxEmptyString, pos, size,
+		size.x = -1; size.y = 60;
+		m_WinMsg = new wxTextCtrl(this, -1, wxEmptyString, wxDefaultPosition, size,
 					wxTE_READONLY|wxTE_MULTILINE);
+    GeneralBoxSizer->Add(m_WinMsg, 0, wxGROW|wxALL, 5);
 	}
 
-	// Put the window on the parent window left upper corner
-	m_Parent->GetPosition(& pos.x, &pos.y);
-	// Ensure the window dialog is on screen :
-	if ( pos.x < 0 ) pos.x = 0;
-	if ( pos.y < 0 ) pos.y = 0;
-	pos.x += 20; pos.y += 30;
-	Wsize.y += 30;
-
-	SetSize(pos.x, pos.x, Wsize.x, Wsize.y);
-	Move(pos);
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
+ 
+	if ( dialog_position == wxDefaultPosition ) // Put the window on the parent centre
+	{
+		Centre();
+	}
+	else	// Ensure the window dialog is on screen :
+	{
+		wxPoint pos;
+		m_Parent->GetPosition(& pos.x, &pos.y);
+		if ( pos.x < 0 ) pos.x = 0;
+		if ( pos.y < 0 ) pos.y = 0;
+		pos.x += 20; pos.y += 30;
+		Move(pos);
+	}
 }
 
 
@@ -132,10 +141,13 @@ void WinEDAListBox::MoveMouseToOrigin(void)
 /******************************************/
 {
 int x, y, w, h;
-wxSize list_size = m_List->GetSize();	
+wxSize list_size = m_List->GetSize();
+int orgx = m_List->GetRect().GetLeft();
+int orgy = m_List->GetRect().GetTop();
+	
 	wxClientDisplayRect(&x, &y, &w, &h);
 	
-	WarpPointer(x + M_LIST_POSX + 20, y + M_LIST_POSY + (list_size.y/2) );
+	WarpPointer(x + orgx + 20, y + orgy + (list_size.y/2) );
 }
 
 /*********************************************/

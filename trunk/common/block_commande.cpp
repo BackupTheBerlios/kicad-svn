@@ -87,6 +87,11 @@ wxString msg;
 			msg = _("Block Invert");
 			break;
 
+		case BLOCK_MIRROR_X:
+		case BLOCK_MIRROR_Y: /* mirror */
+			msg = _("Block Mirror");
+			break;
+
 		case BLOCK_ABORT:
 			break;
 
@@ -144,6 +149,8 @@ DrawBlockStruct * Block = & GetScreen()->BlockLocate;
 		case BLOCK_ROTATE: /* Rotate 90 deg */
 		case BLOCK_INVERT: /* Flip */
 		case BLOCK_ZOOM: /* Window Zoom */
+		case BLOCK_MIRROR_X:
+		case BLOCK_MIRROR_Y: /* mirror */
 		case BLOCK_PRESELECT_MOVE: /* Move with preselection list*/
 			InitBlockLocateDatas(GetScreen(),startpos);
 			break;

@@ -43,6 +43,7 @@ BEGIN_EVENT_TABLE(WinEDA_LibeditFrame, wxFrame)
 				WinEDA_LibeditFrame::Process_Special_Functions)
 
 	/* Right Vertical toolbar */
+	EVT_TOOL( ID_NO_SELECT_BUTT,WinEDA_LibeditFrame::Process_Special_Functions)
 	EVT_TOOL_RANGE( ID_LIBEDIT_START_V_TOOL, ID_LIBEDIT_END_V_TOOL,
 					WinEDA_LibeditFrame::Process_Special_Functions)
 
@@ -103,6 +104,7 @@ LibraryStruct *Lib;
 		{
 			Event.Veto(); return;
 		}
+		else m_CurrentScreen->ClrModify();
 	}
 
 	for (Lib = g_LibraryList; Lib != NULL; Lib = Lib->m_Pnext)
@@ -326,6 +328,11 @@ wxClientDC dc(DrawPanel);
 	switch ( id )
 	{
 		case ID_LIBEDIT_SAVE_CURRENT_LIB:
+			if( m_CurrentScreen->IsModify() )
+			{
+				if( IsOK(this, _("Include last component changes") ) )
+					SaveOnePartInMemory();
+			}
 			SaveActiveLibrary();
 			break;
 

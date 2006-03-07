@@ -65,10 +65,10 @@ bool success = FALSE;
 	/* Compute the full file name */
 	if ( wxIsAbsolutePath(DocName) ) fullfilename = DocName;
 	else
-		{
+	{
 		docpath = LibPath + wxT("doc/");
 		fullfilename = docpath + DocName;
-		}
+	}
 
 #ifdef __WINDOWS__
 	fullfilename.Replace(UNIX_STRING_DIR_SEP, WIN_STRING_DIR_SEP);
@@ -77,7 +77,7 @@ bool success = FALSE;
 #endif
 
 	if ( wxIsWild(fullfilename) )
-		{
+	{
 		fullfilename =
 			EDA_FileSelector(_("Doc Files"),	/* Titre de la fenetre */
 					wxPathOnly(fullfilename),		/* Chemin par defaut */
@@ -90,15 +90,15 @@ bool success = FALSE;
 					wxPoint(-1,-1)
 					);
 		if ( fullfilename.IsEmpty() ) return FALSE;
-		}
+	}
 
 	if ( ! wxFileExists(fullfilename) )
-		{
+	{
 		Line = _("Doc File ") + fullfilename + _(" not found");
 		DisplayError(frame, Line);
 		return FALSE;
-		}
-
+	}
+		
 	/* Try to launch some browser (usefull under linux) */
 wxFileType * filetype;
 wxFileName CurrentFileName(fullfilename);

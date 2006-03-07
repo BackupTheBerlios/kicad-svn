@@ -1030,10 +1030,10 @@ MODULE * Module;
 	Pas = 100.0; if(NbModules) Pas /= NbModules;
 	Module = m_Pcb->m_Modules;
 	for( ii = 1 ; Module != NULL; Module = Module->Next(), ii++)
-		{
+	{
 		Module->WriteDescr(File);
 		DisplayActivity((int)(ii * Pas) , wxT("Modules:"));
-		}
+	}
 
 
 	/* sortie des inscriptions du PCB: */

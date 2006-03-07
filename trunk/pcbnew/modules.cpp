@@ -108,28 +108,28 @@ DRAG_SEGM * pt_drag;
 TRACK * pt_segm;
 MODULE * module;
 WinEDA_BasePcbFrame * pcbframe = (WinEDA_BasePcbFrame*)frame; 
-
+	
 	module = (MODULE *) frame->m_CurrentScreen->m_CurrentItem;
 	pcbframe->m_Pcb->m_Status_Pcb  &= ~CHEVELU_LOCAL_OK;
 
 	if (module)
-		{
+	{
 		// effacement module a l'ecran:
 		DrawModuleOutlines(frame->DrawPanel, DC, module);
 		/* restitution de l'empreinte si move ou effacement copie*/
 		if (module->m_Flags & IS_MOVED )
-			{
+		{
 			/* Move en cours : remise a l'etat d'origine */
 			if( g_Drag_Pistes_On)
-				{
+			{
 				/* Effacement des segments dragges */
 				pt_drag = g_DragSegmentList;
 				for( ; pt_drag != NULL; pt_drag = pt_drag->Pnext)
-					{
+				{
 					pt_segm = pt_drag->m_Segm;
 					pt_segm->Draw(frame->DrawPanel, DC, GR_XOR);
-					}
 				}
+			}
 
 			/* Remise en etat d'origine des segments dragges */
 			pt_drag = g_DragSegmentList;
@@ -141,16 +141,16 @@ WinEDA_BasePcbFrame * pcbframe = (WinEDA_BasePcbFrame*)frame;
 			}
 			EraseDragListe();
 			module->m_Flags = 0;
-			}
+		}
 
 		if (module->m_Flags & IS_NEW )
-			{
+		{
 			DeleteStructure(module);
 			module = NULL;
 			pcbframe->m_Pcb->m_Status_Pcb = 0 ;
 			pcbframe->build_liste_pads() ;
-			}
 		}
+	}
 
 	/* Reaffichage du module a l'ecran */
 	if ( module )
@@ -426,24 +426,24 @@ EDA_BaseStruct * PtStruct;
 	Module->Display_Infos(this);
 
 	if( !(Module->m_Flags & IS_MOVED) ) /* Inversion simple */
-		{
+	{
 		if ( DC )
-			{
+		{
 			Module->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR);
 			/* affichage chevelu general si necessaire */
 			ReCompile_Ratsnest_After_Changes( DC );
-			}
 		}
+	}
 
 	else
-		{
+	{
 		if ( DC )
-			{
+		{
 			DrawModuleOutlines(DrawPanel, DC, Module);
 			Dessine_Segments_Dragges(DrawPanel, DC);
-			}
-		m_Pcb->m_Status_Pcb &= ~CHEVELU_LOCAL_OK;
 		}
+		m_Pcb->m_Status_Pcb &= ~CHEVELU_LOCAL_OK;
+	}
 }
 
 
@@ -563,7 +563,7 @@ wxPoint newpos;
 
 	/* affichage chevelu general si necessaire */
 	ReCompile_Ratsnest_After_Changes( DC );
-
+	
 	module->Display_Infos(this);
 
 	m_CurrentScreen->ManageCurseur = NULL;
@@ -589,7 +589,7 @@ void WinEDA_BasePcbFrame::Rotate_Module(wxDC * DC, MODULE * module,
 
 	m_CurrentScreen->SetModify();
 
-	 /* efface ancienne position */
+	/* efface ancienne position */
 	if( !(module->m_Flags & IS_MOVED) ) /* Rotation simple */
 	{
 		if ( DC )

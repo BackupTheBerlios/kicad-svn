@@ -101,7 +101,6 @@ public:
 
 eda_global wxString g_SchematicRootFileName;
 eda_global wxString g_BoardFileName;
-eda_global bool UnitMetric;
 
 #ifdef MAIN
 wxString g_SchExtBuffer(wxT(".sch"));

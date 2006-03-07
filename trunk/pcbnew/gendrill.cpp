@@ -105,7 +105,7 @@ class WinEDA_DrillFrame: public wxDialog
 
 	// Constructor and destructor
 public:
-	WinEDA_DrillFrame(WinEDA_PcbFrame *parent, const wxPoint& pos);
+	WinEDA_DrillFrame(WinEDA_PcbFrame *parent);
 	~WinEDA_DrillFrame(void) {};
 
 private:
@@ -133,51 +133,45 @@ END_EVENT_TABLE()
 #define H_SIZE 550
 #define V_SIZE 250
 /*************************************************************************/
-WinEDA_DrillFrame::WinEDA_DrillFrame(WinEDA_PcbFrame *parent,
-					const wxPoint& framepos):
-		wxDialog(parent, -1, _("Drill tools"), framepos, wxSize(H_SIZE, V_SIZE),
+WinEDA_DrillFrame::WinEDA_DrillFrame(WinEDA_PcbFrame *parent):
+		wxDialog(parent, -1, _("Drill tools"), wxDefaultPosition, wxSize(H_SIZE, V_SIZE),
 				 DIALOG_STYLE)
 /*************************************************************************/
 {
-wxPoint pos;
-int w, h, bottom;
-wxSize size , client_size = GetClientSize();
-
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
-
+	
 	SetReturnCode(1);
 
-	pos.x = 10, pos.y = 5;
-	if ( (framepos.x == -1) && (framepos.x == -1) ) Centre();
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MiddleBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MiddleBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-//<ryan's edit>
 
     /* first column, NC drill options */
 wxString choice_unit_msg[] =
 	{_("millimeters"), _("inches") };
 	m_Choice_Unit = new wxRadioBox(this, ID_SEL_DRILL_UNITS,
 						_("Drill Units:"),
-						pos,wxSize(-1,-1),
+						wxDefaultPosition,wxSize(-1,-1),
 						2,choice_unit_msg,1,wxRA_SPECIFY_COLS);
 	if ( Unit_Drill_is_Inch )m_Choice_Unit->SetSelection(1);
-
-	m_Choice_Unit->GetSize(&w, &h);
-	size.x = pos.x + w;
-	pos.y += h + 10;
+	LeftBoxSizer->Add(m_Choice_Unit, 0, wxGROW|wxALL, 5);
 
 wxString choice_zeros_format_msg[] = {
 	_("decimal format"), _("suppress leading zeros"), _("suppress trailing zeros")
 	};
     m_Choice_Zeros_Format = new wxRadioBox(this, ID_SEL_ZEROS_FMT,
                           _("Zeros Format"),
-                          pos,wxSize(-1,-1),
+                          wxDefaultPosition,wxSize(-1,-1),
                           3,choice_zeros_format_msg,1,wxRA_SPECIFY_COLS);
     m_Choice_Zeros_Format->SetSelection(Zeros_Format);
-    m_Choice_Zeros_Format->GetSize(&w, &h);
-    size.x = MAX(size.x, pos.x + w);
-    size.y = pos.y + h;
-    pos.y += h + 10;
+	LeftBoxSizer->Add(m_Choice_Zeros_Format, 0, wxGROW|wxALL, 5);
 
 wxString *choice_precision_msg;
 wxString choice_precision_inch_msg[] = { _("2:3"), _("2:4")};
@@ -188,88 +182,64 @@ wxString choice_precision_metric_msg[] = { _("3:2"), _("3:3")};
         choice_precision_msg = choice_precision_metric_msg;
     m_Choice_Precision = new wxRadioBox(this, ID_SEL_PRECISION,
                           _("Precision"),
-                          pos,wxSize(-1,-1),
+                          wxDefaultPosition, wxSize(-1,-1),
                           2,choice_precision_msg,1,wxRA_SPECIFY_COLS);
+	LeftBoxSizer->Add(m_Choice_Precision, 0, wxGROW|wxALL, 5);
+
 wxString ps;
     ps << Precision.m_lhs << wxT(":") << Precision.m_rhs;
     m_Choice_Precision->SetStringSelection(ps);
     if (Zeros_Format==DECIMAL_FORMAT) m_Choice_Precision->Enable(false);
-    m_Choice_Precision->GetSize(&w, &h);
-    size.x = MAX(size.x, pos.x + w);
-    size.y = pos.y + h;
-    pos.y += h + 10;
-
+ 
 wxString choice_drill_offset_msg[] =
 	{_("absolute"), _("auxiliary axis")};
 	m_Choice_Drill_Offset = new wxRadioBox(this, ID_SEL_DRILL_SHEET,
 						_("Drill Origine:"),
-						pos,wxSize(-1,-1),
+						wxDefaultPosition,wxSize(-1,-1),
 						2,choice_drill_offset_msg,1,wxRA_SPECIFY_COLS);
 	if ( DrillOriginIsAuxAxis ) m_Choice_Drill_Offset->SetSelection(1);
-	m_Choice_Drill_Offset->GetSize(&w, &h);
-	size.y = pos.y + h;
-	size.x = MAX(size.x, pos.x + w);
-    pos.y += h + 10;
-
-    size.y += h + 20;
-
-    m_Choice_Unit->SetSize(size.x - 5, -1);
-    m_Choice_Drill_Offset->SetSize(size.x - 5, -1);
-    m_Choice_Zeros_Format->SetSize(size.x - 5, -1);
-    m_Choice_Precision->SetSize(size.x - 5, -1);
-
-	bottom = m_Choice_Drill_Offset->GetRect().GetBottom();
+	LeftBoxSizer->Add(m_Choice_Drill_Offset, 0, wxGROW|wxALL, 5);
 
     /* second column */
-    pos.x = size.x + 20;
-	pos.y = 5;
-
 wxString choice_drill_plan_msg[] =
 	{_("none"), _("drill sheet (HPGL)"), _("drill sheet (Postscript)")};
 	m_Choice_Drill_Plan = new wxRadioBox(this, ID_SEL_DRILL_SHEET,
 						_("Drill Sheet:"),
-						pos,wxSize(-1,-1),
+						wxDefaultPosition,wxSize(-1,-1),
 						3,choice_drill_plan_msg,1,wxRA_SPECIFY_COLS);
-    m_Choice_Drill_Plan->GetSize(&w, &h);
-	pos.y = h + 20;
-	pos.x += 5;
+	MiddleBoxSizer->Add(m_Choice_Drill_Plan, 0, wxGROW|wxALL, 5);
+
 	m_ViaDrillCtrl = new WinEDA_ValueCtrl(this, _("Via Drill"),
-			g_DesignSettings.m_ViaDrill, UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_DesignSettings.m_ViaDrill, g_UnitMetric, MiddleBoxSizer,
+			m_Parent->m_InternalUnits);
 
-	pos.y += m_ViaDrillCtrl->GetDimension().y + 20;
-	wxString value;
 	m_PenNum = new WinEDA_ValueCtrl(this, _("Pen Number"),
-			g_HPGL_Pen_Num, 2, pos, 1);
+			g_HPGL_Pen_Num, 2, MiddleBoxSizer, 1);
 
-	pos.y += m_PenNum->GetDimension().y + 20;
-	value.Printf( wxT("%d"), g_HPGL_Pen_Speed);
 	m_PenSpeed = new WinEDA_ValueCtrl(this, _("Speed(cm/s)"),
-			g_HPGL_Pen_Speed, CENTIMETRE, pos, 1);
+			g_HPGL_Pen_Speed, CENTIMETRE, MiddleBoxSizer, 1);
 
-    pos.y += m_PenSpeed->GetDimension().y + 20;
-    m_Check_Mirror = new wxCheckBox(this, -1, _("mirror y axis"), pos);
+    m_Check_Mirror = new wxCheckBox(this, -1, _("mirror y axis"));
     m_Check_Mirror->SetValue(Mirror);
 
-    pos.y = m_Check_Mirror->GetRect().GetBottom() + 10;
-    m_Check_Minimal = new wxCheckBox(this, -1, _("minimal header"), pos);
+    m_Check_Minimal = new wxCheckBox(this, -1, _("minimal header"));
     m_Check_Minimal->SetValue(Minimal);
+	MiddleBoxSizer->Add(m_Check_Minimal, 0, wxGROW|wxALL, 5);
 
     /* third column, buttons */
-    m_Choice_Drill_Plan->GetSize(&w, &h);
-	pos.x += w + 10; pos.y = 10;
 	wxButton * Button = new wxButton(this, ID_CREATE_DRILL_FILES,
-						_("&Execute"), pos);
+						_("&Execute"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this, ID_CLOSE_DRILL,
-						_("&Close"), pos);
+	Button = new wxButton(this, ID_CLOSE_DRILL, _("&Close"));
 	Button->SetForegroundColour(*wxBLUE);
-	Button->GetSize(&w, &h);
-    size.x = pos.x + w + 10;
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+	
+	Centre();
 
-	SetClientSize(wxSize(size.x, bottom+10));
-//</ryan's edit>
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -317,7 +287,7 @@ wxConfig * Config = m_Parent->m_EDA_Config;
 		Config->Read(DrillOriginIsAuxAxisKey, &DrillOriginIsAuxAxis );
 	}
 
-WinEDA_DrillFrame * frame = new WinEDA_DrillFrame(this, wxPoint(-1,-1));
+WinEDA_DrillFrame * frame = new WinEDA_DrillFrame(this);
 
 	frame->ShowModal(); frame->Destroy();
 }

@@ -105,15 +105,15 @@ END_EVENT_TABLE()
 #define UNITS_MILS 1000
 #define H_SIZE 640
 #define V_SIZE 430
+/********************************************************************/
 WinEDA_PlotFrame::WinEDA_PlotFrame(WinEDA_BasePcbFrame * parent):
 				wxDialog(parent, -1, _("Plot"),
 				wxPoint(-1,-1), wxSize(H_SIZE, V_SIZE),
 				wxDEFAULT_DIALOG_STYLE)
+/********************************************************************/
 {
-wxPoint pos;
 wxButton * Button;
-int ii, jj, bottom = V_SIZE;
-#define DELTA_Y 16
+int ii;
 
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
@@ -121,11 +121,25 @@ int ii, jj, bottom = V_SIZE;
 	m_PlotFormat = format_plot;
 	m_Plot_Sheet_Ref = NULL;
 
-	pos.x = 360; pos.y = 5;
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MidRightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MidLeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MidLeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MidRightBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+	wxBoxSizer * LayersBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	LeftBoxSizer->Add(LayersBoxSizer, 0, wxGROW|wxALL, 5);
+
 wxString fmtmsg[4] = { wxT("HPGL"), wxT("GERBER"), wxT("Postscript"), wxT("Postscript A4") };
 	m_PlotFormatOpt = new wxRadioBox(this, ID_SEL_PLOT_FORMAT,
-			_("Plot Format"), pos, wxSize(-1,-1),
+			_("Plot Format"), wxDefaultPosition, wxSize(-1,-1),
 			4, fmtmsg, 1, wxRA_SPECIFY_COLS);
+	MidRightBoxSizer->Add(m_PlotFormatOpt, 0, wxGROW|wxALL, 5);
 	switch ( m_PlotFormat )
 	{
 		case PLOT_FORMAT_HPGL:
@@ -139,55 +153,42 @@ wxString fmtmsg[4] = { wxT("HPGL"), wxT("GERBER"), wxT("Postscript"), wxT("Posts
 	}
 
 	/* Creation des menus d'option du format GERBER */
-	m_PlotFormatOpt->GetSize(&ii, &jj);
-	pos.y += jj + 10;
 	m_GerbSpotSizeMinOpt = new WinEDA_ValueCtrl(this, _("Spot min"),
-			spot_mini, UnitMetric, pos, UNITS_MILS);
+			spot_mini, g_UnitMetric, MidRightBoxSizer, UNITS_MILS);
 
 	/* Creation des menus d'option du format HPGL */
-	pos.y += m_GerbSpotSizeMinOpt->GetDimension().y + 8;
 	m_HPGLPenSizeOpt = new WinEDA_ValueCtrl(this, _("Pen Size"),
-			g_HPGL_Pen_Diam, UnitMetric, pos, UNITS_MILS);
+			g_HPGL_Pen_Diam, g_UnitMetric, MidRightBoxSizer, UNITS_MILS);
 
-	pos.y += m_HPGLPenSizeOpt->GetDimension().y + 8;
 	/* unites standards = cm  pour vitesse plume en HPLG */
 	m_HPGLPenSpeedOpt = new WinEDA_ValueCtrl(this, _("Pen Speed (cm/s)"),
-			g_HPGL_Pen_Speed, CENTIMETRE, pos, 1);
+			g_HPGL_Pen_Speed, CENTIMETRE, MidRightBoxSizer, 1);
 	m_HPGLPenSpeedOpt->SetToolTip(_("Set pen speed in cm/s"));
 
-	pos.y += m_HPGLPenSpeedOpt->GetDimension().y + 8;
 	m_HPGLPenOverlayOpt = new WinEDA_ValueCtrl(this, _("Pen Ovr"),
-			g_HPGL_Pen_Recouvrement, UnitMetric, pos, UNITS_MILS);
+			g_HPGL_Pen_Recouvrement, g_UnitMetric, MidRightBoxSizer, UNITS_MILS);
 	m_HPGLPenOverlayOpt->SetToolTip(_("Set plot overlay for filling"));
 
-	pos.y += m_HPGLPenOverlayOpt->GetDimension().y + 8;
 	m_LinesWidth = new WinEDA_ValueCtrl(this, _("Lines Width"),
-			g_PlotLine_Width, UnitMetric, pos, PCB_INTERNAL_UNIT);
+			g_PlotLine_Width, g_UnitMetric, MidRightBoxSizer, PCB_INTERNAL_UNIT);
 	m_LinesWidth->SetToolTip(_("Set width for lines in Line plot mode"));
-	pos.y += m_LinesWidth->GetDimension().y + 8;
-	bottom = MAX (bottom, pos.y);
 
 	/* Creation des boutons de commande */
-	pos.x = 475; pos.y = 5;
-	Button = new wxButton(this, ID_EXEC_PLOT,
-						_("Plot"), pos);
+	Button = new wxButton(this, ID_EXEC_PLOT, _("Plot"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this,	ID_CLOSE_PLOT,
-						_("Close"), pos);
+	Button = new wxButton(this,	ID_CLOSE_PLOT, _("Close"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this,	ID_SAVE_OPT_PLOT,
-						_("Save options"), pos);
+	Button = new wxButton(this,	ID_SAVE_OPT_PLOT, _("Save options"));
 	Button->SetForegroundColour(wxColour(0,80,0) );
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this,	ID_CREATE_DRILL_FILE,
-						_("Create Drill File"), pos);
+	Button = new wxButton(this,	ID_CREATE_DRILL_FILE, _("Create Drill File"));
 	Button->SetForegroundColour(wxColour(0,80,80) );
-
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 
 	// Create scale adjust option
@@ -197,136 +198,126 @@ wxString fmtmsg[4] = { wxT("HPGL"), wxT("GERBER"), wxT("Postscript"), wxT("Posts
 		m_Parent->m_Parent->m_EDA_Config->Read(wxT("PlotXFineScaleAdj"), &m_XScaleAdjust);
 		m_Parent->m_Parent->m_EDA_Config->Read(wxT("PlotYFineScaleAdj"), &m_YScaleAdjust);
 	}
-	pos.y += Button->GetSize().y + 15;
-	m_FineAdjustXscaleOpt = new WinEDA_DFloatValueCtrl(this, _("X Scale Adjust"), m_XScaleAdjust, pos);
+	m_FineAdjustXscaleOpt = new WinEDA_DFloatValueCtrl(this, _("X Scale Adjust"), m_XScaleAdjust, RightBoxSizer);
 	m_FineAdjustXscaleOpt->SetToolTip(_("Set X scale adjust for exact scale plotting"));
-	pos.y += m_FineAdjustXscaleOpt->GetDimension().y + 5;
-	m_FineAdjustYscaleOpt = new WinEDA_DFloatValueCtrl(this, _("Y Scale Adjust"), m_YScaleAdjust, pos);
+	m_FineAdjustYscaleOpt = new WinEDA_DFloatValueCtrl(this, _("Y Scale Adjust"), m_YScaleAdjust, RightBoxSizer);
 	m_FineAdjustYscaleOpt->SetToolTip(_("Set Y scale adjust for exact scale plotting"));
 
 
 	/* Creation de la liste des layers */
-	pos.x = 5; jj = pos.y = 5;
 	int mask = 1;
+	wxBoxSizer * OneColonLayerBoxSizer = new wxBoxSizer(wxVERTICAL);
+	LayersBoxSizer->Add(OneColonLayerBoxSizer, 0, wxGROW|wxALL, 5);
 	for ( ii = 0; ii < NB_LAYERS; ii++, mask <<= 1 )
 	{
-		if ( ii == 16 ) { pos.x += 90; jj = pos.y; pos.y = 5; }
+		if ( ii == 16 )
+		{
+			OneColonLayerBoxSizer = new wxBoxSizer(wxVERTICAL);
+			LayersBoxSizer->Add(OneColonLayerBoxSizer, 0, wxGROW|wxALL, 5);
+		}
+			
 		m_BoxSelecLayer[ii] = new wxCheckBox(this, -1,
-					ReturnPcbLayerName(ii), pos);
+					ReturnPcbLayerName(ii));
 		if ( mask & s_SelectedLayers) m_BoxSelecLayer[ii]->SetValue(TRUE);
-		pos.y += 16;
+		OneColonLayerBoxSizer->Add(m_BoxSelecLayer[ii], 0, wxGROW|wxALL, 1);
 	}
 
 	// Option d'impression du cartouche:
-	pos.x = 5; pos.y = jj + 10;
 	if ( m_Parent->m_Print_Sheet_Ref )
-		{
-		m_Plot_Sheet_Ref = new wxCheckBox(this, ID_PRINT_REF, _("Print Sheet Ref"),
-			pos);
+	{
+		m_Plot_Sheet_Ref = new wxCheckBox(this, ID_PRINT_REF, _("Print Sheet Ref") );
 		m_Plot_Sheet_Ref->SetValue(Plot_Sheet_Ref);
-		pos.y += DELTA_Y + 2;
-		}
+		LeftBoxSizer->Add(m_Plot_Sheet_Ref, 0, wxGROW|wxALL, 1);
+	}
 	else Plot_Sheet_Ref = FALSE;
 
 	// Option d'impression des pads sur toutes les couches
 	m_Plot_Pads_on_Silkscreen = new wxCheckBox(this,
-			ID_PRINT_PAD_ON_SILKSCREEN, _("Print Pads on Silkscreen"),
-			pos);
+			ID_PRINT_PAD_ON_SILKSCREEN, _("Print Pads on Silkscreen") );
 	m_Plot_Pads_on_Silkscreen->SetValue(PlotPadsOnSilkLayer);
 	m_Plot_Pads_on_Silkscreen->SetToolTip(
 		_("Enable/disable print/plot pads on Silkscreen layers") );
+	LeftBoxSizer->Add(m_Plot_Pads_on_Silkscreen, 0, wxGROW|wxALL, 1);
 
-	pos.y += DELTA_Y;
-	m_Force_Plot_Pads = new wxCheckBox(this, ID_FORCE_PRINT_PAD, _("Always Print Pads"),
-			pos);
+	m_Force_Plot_Pads = new wxCheckBox(this, ID_FORCE_PRINT_PAD,
+			_("Always Print Pads") );
 	m_Force_Plot_Pads->SetValue(Plot_Pads_All_Layers);
     m_Force_Plot_Pads->SetToolTip(_("Force print/plot pads on ALL layers") );
+	LeftBoxSizer->Add(m_Force_Plot_Pads, 0, wxGROW|wxALL, 1);
 
 	// Options d'impression des textes modules
-	pos.y += DELTA_Y;
-	m_Plot_Text_Value = new wxCheckBox(this, ID_PRINT_VALUE, _("Print Module Value"),
-			pos);
+	m_Plot_Text_Value = new wxCheckBox(this, ID_PRINT_VALUE, _("Print Module Value") );
 	m_Plot_Text_Value->SetValue(Sel_Texte_Valeur);
 	m_Plot_Text_Value->SetToolTip(
 		_("Enable/disable print/plot module value on Silkscreen layers") );
+	LeftBoxSizer->Add(m_Plot_Text_Value, 0, wxGROW|wxALL, 1);
 
-	pos.y += DELTA_Y;
-	m_Plot_Text_Ref = new wxCheckBox(this, ID_PRINT_REF, _("Print Module Reference"),
-			pos);
+	m_Plot_Text_Ref = new wxCheckBox(this, ID_PRINT_REF, _("Print Module Reference"));
 	m_Plot_Text_Ref->SetValue(Sel_Texte_Reference);
 	m_Plot_Text_Ref->SetToolTip(
 		_("Enable/disable print/plot module reference on Silkscreen layers") );
+	LeftBoxSizer->Add(m_Plot_Text_Ref, 0, wxGROW|wxALL, 1);
 
-	pos.y += DELTA_Y;
 	m_Plot_Text_Div = new wxCheckBox(this, ID_PRINT_MODULE_TEXTS,
-			_("Print other module texts"),
-			pos);
+			_("Print other module texts") );
 	m_Plot_Text_Div->SetValue(Sel_Texte_Divers);
 	m_Plot_Text_Div->SetToolTip(
 		_("Enable/disable print/plot module field texts on Silkscreen layers") );
+	LeftBoxSizer->Add(m_Plot_Text_Div, 0, wxGROW|wxALL, 1);
 
-	pos.y += DELTA_Y;
 	m_Plot_Invisible_Text = new wxCheckBox(this,
-			ID_FORCE_PRINT_INVISIBLE_TEXT, _("Force Print Invisible Texts"),
-			pos);
+			ID_FORCE_PRINT_INVISIBLE_TEXT, _("Force Print Invisible Texts") );
 	m_Plot_Invisible_Text->SetValue(Sel_Texte_Invisible);
 	m_Plot_Invisible_Text->SetToolTip(
 		_("Force print/plot module invisible texts on Silkscreen layers") );
+	LeftBoxSizer->Add(m_Plot_Invisible_Text, 0, wxGROW|wxALL, 1);
 
 
-	pos.x = 230; pos.y = 5;
 wxString drillmsg[3] = { _("No Drill mark"), _("Small mark"), _("Real Drill") };
 	m_Drill_Shape_Opt = new wxRadioBox(this, ID_DRILL_SHAPE_OPT,
-			_("Pads Drill Opt"), pos, wxSize(-1,-1),
+			_("Pads Drill Opt"), wxDefaultPosition, wxSize(-1,-1),
 			3, drillmsg, 1, wxRA_SPECIFY_COLS);
 	m_Drill_Shape_Opt->SetSelection(g_DrillShapeOpt);
+	MidLeftBoxSizer->Add(m_Drill_Shape_Opt, 0, wxGROW|wxALL, 5);
 
-	m_Drill_Shape_Opt->GetSize(&ii, &jj);
-	pos.y += 15 + jj;
 wxString scalemsg[5] =
 	{ _("Auto scale"), _("Scale 1"), _("Scale 1.5"), _("Scale 2"), _("Scale 3") };
 	m_Scale_Opt = new wxRadioBox(this, ID_SCALE_OPT,
-			_("Scale Opt"), pos, wxSize(-1,-1),
+			_("Scale Opt"), wxDefaultPosition, wxSize(-1,-1),
 			5, scalemsg, 1, wxRA_SPECIFY_COLS);
 	m_Scale_Opt->SetSelection(g_PlotScaleOpt);
+	MidLeftBoxSizer->Add(m_Scale_Opt, 0, wxGROW|wxALL, 5);
 
-
-	m_Scale_Opt->GetSize(&ii, &jj);
-	pos.y += jj + 15;
 wxString list_opt3[3] = {_("Line"), _("Filled"), _("Sketch") };
 	m_PlotModeOpt = new wxRadioBox(this, ID_PLOT_MODE_OPT, _("Plot mode"),
-				pos, wxDefaultSize,
+				wxDefaultPosition, wxDefaultSize,
 				3, list_opt3, 1);
 	m_PlotModeOpt->SetSelection(Plot_Mode);
+	MidLeftBoxSizer->Add(m_PlotModeOpt, 0, wxGROW|wxALL, 5);
 
-	m_PlotModeOpt->GetSize(&ii, &jj);
-	pos.y += jj + 15;
 	m_PlotMirorOpt = new wxCheckBox(this, ID_MIROR_OPT,
-						_("Plot Mirror"), pos);
+						_("Plot Mirror"));
 	m_PlotMirorOpt->SetValue(Plot_Set_MIROIR);
+	MidLeftBoxSizer->Add(m_PlotMirorOpt, 0, wxGROW|wxALL, 5);
 
-	pos.y += 17;
 	m_PlotNoViaOnMaskOpt = new wxCheckBox(this, ID_MASKVIA_OPT,
-						_("Vias on Mask"), pos);
+						_("Vias on Mask"));
 	m_PlotNoViaOnMaskOpt->SetValue(g_DrawViaOnMaskLayer);
  	m_PlotNoViaOnMaskOpt->SetToolTip(
 		_("Print/plot vias on mask layers. They are in this case not protected") );
+	MidLeftBoxSizer->Add(m_PlotNoViaOnMaskOpt, 0, wxGROW|wxALL, 5);
 
-
-	pos.y += 17;
 	m_HPGL_PlotCenter_Opt = new wxCheckBox(this, ID_PLOT_CENTRE_OPT,
-						_("Org = Centre"), pos);
+						_("Org = Centre"));
 	m_HPGL_PlotCenter_Opt->SetValue(HPGL_Org_Centre);
 	m_HPGL_PlotCenter_Opt->SetToolTip(_("Draw origin ( 0,0 )in on sheet center") );
-
-	pos.y += 20;
-	if ( bottom < pos.y ) bottom = pos.y;
-
-	SetClientSize(wxSize(H_SIZE, bottom) );
-
+	MidLeftBoxSizer->Add(m_HPGL_PlotCenter_Opt, 0, wxGROW|wxALL, 5);
 	// Mise a jour des activations des menus:
 wxCommandEvent event;
 	SetCommands(event);
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /***************************************************************/

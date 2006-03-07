@@ -1,5 +1,5 @@
 EXTRALIBS = ../common/common.a
-EXTRACPPFLAGS= -DPCBNEW -I./ -Ibitmaps -I../include -I../common -I../pcbnew -I../3d-viewer
+EXTRACPPFLAGS= -DPCBNEW -I./ -Ibitmaps -I../include -I../share -I../pcbnew -I../3d-viewer
 
 #COMMON = pcbnew.h struct.h class_pad.h class_module.h class_text_mod.h \
 #		class_edge_mod.h class_equipot.h
@@ -9,15 +9,16 @@ LIBVIEWER3D = ../3d-viewer/3d-viewer.a
 OBJECTS=	$(TARGET).o classpcb.o\
 		lay2plot.o\
 		modedit_undo_redo.o\
+		block_module_editor.o\
 		onrightclick.o\
 		modedit_onclick.o\
 		via_edit.o\
 		wxprint.o \
+		cursors.o\
 		menubarpcb.o \
 		menubarmodedit.o \
 		tool_onrightclick.o\
 		edit.o \
-		worksheet.o \
 		setpage.o \
 		tool_pcb.o \
 		pcbframe.o \
@@ -38,7 +39,6 @@ OBJECTS=	$(TARGET).o classpcb.o\
 		set_grid.o \
 		pcbcfg.o \
 		netlist.o \
-		cursors.o \
 		affiche.o \
 		pcbpiste.o \
 		tracepcb.o \
@@ -51,9 +51,11 @@ OBJECTS=	$(TARGET).o classpcb.o\
 		loadcmp.o \
 		zoom.o\
 		dialog_setup_libs.o \
-		options.o \
+		dialog_general_options.o \
 		muwave_command.o \
-		initpcb.o editrack.o \
+		initpcb.o\
+		editrack.o \
+		editrack-part2.o \
 		deltrack.o edit_track_width.o \
 		editmod.o\
 		editpads.o \
@@ -61,8 +63,9 @@ OBJECTS=	$(TARGET).o classpcb.o\
 		globaleditpad.o \
 		editedge.o\
 		edtxtmod.o \
+		dialog_edit_mod_text.o\
 		ratsnest.o drc.o \
-		block.o selcolor.o \
+		block.o\
 		clean.o \
 		pcbplot.o\
 		plothpgl.o\
@@ -84,7 +87,6 @@ OBJECTS=	$(TARGET).o classpcb.o\
 		plotps.o\
 		dragsegm.o\
 		autoplac.o\
-		gr_basic.o\
 		files.o\
 		infospgm.o\
 		router.o\
@@ -99,40 +101,34 @@ OBJECTS=	$(TARGET).o classpcb.o\
 		export_gencad.o\
 		hotkeys.o
 
-setpage.o: ../common/setpage.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+setpage.o: ../share/setpage.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-worksheet.o: ../common/worksheet.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawpanel.o: ../share/drawpanel.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-drawpanel.o: ../common/drawpanel.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-drawframe.o: ../common/drawframe.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-gr_basic.o: ../common/gr_basic.cpp ../include/gr_basic.h
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawframe.o: ../share/drawframe.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 menubarpcb.o: menubarpcb.cpp $(COMMON)
 
-options.o: options.cpp dialog_track_options.cpp dialog_display_options.cpp\
+dialog_general_options.o: dialog_general_options.cpp dialog_track_options.cpp dialog_display_options.cpp\
 		dialog_graphic_items_options.cpp $(COMMON)
 
 menubarmodedit.o: menubarmodedit.cpp $(COMMON)
 
 controle.o: controle.cpp $(COMMON)
 
+cursors.o: cursors.cpp $(COMMON)
+
 tool_onrightclick.o: tool_onrightclick.cpp $(COMMON)
 
 files.o: files.cpp $(COMMON)
 
-cursors.o: cursors.cpp $(COMMON)
-
 export_gencad.o: export_gencad.cpp $(COMMON)
 
-wxprint.o: ../common/wxprint.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+wxprint.o: ../share/wxprint.cpp ../share/dialog_print.cpp ../share/dialog_print.h $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 lay2plot.o: lay2plot.cpp $(COMMON)
 
@@ -161,7 +157,7 @@ pcbnew.o: pcbnew.cpp pcbnew.h pcbplot.h drag.h $(COMMON) \
 
 pcbcfg.o: pcbcfg.cpp $(COMMON) pcbcfg.h pcbplot.h
 
-netlist.o: netlist.cpp $(COMMON)
+netlist.o: netlist.cpp dialog_netlist.cpp dialog_netlist.h $(COMMON)
 
 gen_modules_placefile.o: gen_modules_placefile.cpp $(COMMON)
 
@@ -189,11 +185,11 @@ automove.o: automove.cpp autorout.h $(COMMON)
 
 loadcmp.o: loadcmp.cpp $(COMMON)
 
-zoom.o: ../common/zoom.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+zoom.o: ../share/zoom.cpp $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-infospgm.o: ../common/infospgm.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+infospgm.o: ../share/infospgm.cpp $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 affiche.o: affiche.cpp $(COMMON)
 
@@ -201,7 +197,7 @@ tr_modif.o: tr_modif.cpp $(COMMON)
 
 dialog_setup_libs.o: dialog_setup_libs.cpp $(COMMON)
 
-initpcb.o: initpcb.cpp $(COMMON)
+initpcb.o: initpcb.cpp dialog_initpcb.cpp dialog_initpcb.h $(COMMON)
 
 editrack.o: editrack.cpp $(COMMON)
 
@@ -213,9 +209,9 @@ track.o: track.cpp $(COMMON)
 
 edit_track_width.o: edit_track_width.cpp $(COMMON)
 
-editmod.o: editmod.cpp $(COMMON)
+editmod.o: editmod.cpp dialog_edit_module.cpp dialog_edit_module.h $(COMMON)
 
-editpads.o: editpads.cpp $(COMMON)
+editpads.o: editpads.cpp dialog_pad_edit.cpp dialog_pad_edit.h $(COMMON)
 
 move-drag_pads.o: move-drag_pads.cpp drag.h $(COMMON)
 
@@ -225,16 +221,15 @@ cotation.o: cotation.cpp $(COMMON)
 
 edtxtmod.o: edtxtmod.cpp $(COMMON)
 
+dialog_edit_mod_text.o: dialog_edit_mod_text.cpp dialog_edit_mod_text.h $(COMMON)
+
 ratsnest.o: ratsnest.cpp $(COMMON)
 
 connect.o: connect.cpp $(COMMON)
 
-drc.o: drc.cpp autorout.h $(COMMON)
+drc.o: drc.cpp dialog_drc.cpp dialog_drc.h autorout.h $(COMMON)
 
 block.o: block.cpp $(COMMON)
-
-selcolor.o: ../common/selcolor.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
 
 clean.o: clean.cpp $(COMMON)
 

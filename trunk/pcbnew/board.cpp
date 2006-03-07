@@ -80,15 +80,12 @@ BOARDHEAD::~BOARDHEAD(void)
 {
 }
 
-	/*************************/
-	/* int InitBoard (void) */
-	/*************************/
-
+/******************************/
+int BOARDHEAD::InitBoard (void)
+/*****************************/
  /* initialize the data structures
  	retourne la taille RAM utilisee, ou -1 si defaut
 */
-
-int BOARDHEAD::InitBoard (void)
 {
 int ii, kk;
 
@@ -159,10 +156,9 @@ int ii;
 
 
 
-	/******************************************/
-	/* void PlaceCells(BOARD * Pcb, int net_code,int flag) */
-	/******************************************/
-
+/*****************************************************/
+void PlaceCells(BOARD * Pcb, int net_code, int flag)
+/*****************************************************/
 /* Initialise les cellules du board a la valeur HOLE et VIA_IMPOSSIBLE
 	selon les marges d'isolement
 	les elements de net_code = net_code ne seront pas places comme occupe
@@ -174,7 +170,6 @@ int ii;
 	Selon les bits = 1 du parametre flag:
 		si FORCE_PADS : tous les pads seront places meme ceux de meme net_code
 */
-void PlaceCells(BOARD * Pcb, int net_code, int flag)
 {
 int ii;
 LISTE_PAD* ptr;
@@ -318,12 +313,10 @@ int masque_layer;
 		}
 }
 
-	/*********************/
-	/* void Build_Work() */
-	/*********************/
-
- /* Build liste conn */
+/******************************************************/
 int Build_Work(BOARD * Pcb, CHEVELU* pt_base_chevelu)
+/*****************************************************/
+ /* Build liste conn */
 {
 int ii;
 CHEVELU* pt_rats = pt_base_chevelu;

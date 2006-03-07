@@ -235,13 +235,10 @@ wxString msg;
 
 
 
-	/**************************************/
-	/* void clean_segments(COMMAND * frame) */
-	/**************************************/
-
-/* Supprime segments nulls, points inutiles .. */
-
+/************************************************************/
 static  int clean_segments(WinEDA_PcbFrame * frame, wxDC * DC)
+/************************************************************/
+/* Supprime segments nulls, points inutiles .. */
 {
 TRACK * PtSegm, * pt_aux;
 EDA_BaseStruct * NextS;
@@ -265,16 +262,9 @@ wxString msg;
 	for(PtSegm = frame->m_Pcb->m_Track; PtSegm != NULL; PtSegm = (TRACK*)NextS )
 		{
 		NextS = PtSegm->Pnext;
-		if( PtSegm->m_StructType == TYPEVIA)
-			{
-			continue;
-			}
+		if( ! PtSegm->IsNull() ) continue;
 
-		/* coord diff ? */
-		if (PtSegm->m_Start.x != PtSegm->m_End.x ) continue;
-		if (PtSegm->m_Start.y != PtSegm->m_End.y ) continue;
-
-		/* alors segment null:* suppression du point en trop */
+		/* Lenght segment = 0; delete it */
 		PtSegm->Draw(frame->DrawPanel, DC, GR_XOR);
 		DeleteStructure(PtSegm);
 		nbpoints_supprimes++;
@@ -343,7 +333,7 @@ wxString msg;
 		}
 
 	/**************************************************************/
-	/* suppression des points interm‚diaires ( segments alignes ) */
+	/* suppression des points intermediaires ( segments alignes ) */
 	/**************************************************************/
 
 	PtSegm = frame->m_Pcb->m_Track; nbpoints_supprimes = 0;

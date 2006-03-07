@@ -177,14 +177,14 @@ wxString fullfilename = FindKicadHelpPath();
 
 	fullfilename += wxT("kicad.hhp");
 	if ( wxFileExists(fullfilename) )
-		{
+	{
 		m_HtmlCtrl = new wxHtmlHelpController(wxHF_TOOLBAR |
 				wxHF_CONTENTS | wxHF_PRINT | wxHF_OPEN_FILES
 				/*| wxHF_SEARCH */);
 		m_HtmlCtrl->UseConfig(m_EDA_Config);
 		m_HtmlCtrl->SetTitleFormat( wxT("Kicad Help") );
 		m_HtmlCtrl->AddBook(fullfilename);
-		}
+	}
 }
 
 

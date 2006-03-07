@@ -15,32 +15,17 @@
 
 /* Routines Locales */
 static void Exit_Editrack(WinEDA_DrawFrame * frame, wxDC *DC);
-void Montre_Position_New_Piste(WinEDA_DrawPanel * panel,
+void ShowNewTrackWhenMovingCursor(WinEDA_DrawPanel * panel,
 				wxDC * DC, bool erase);
 static int Met_Coude_a_45(WinEDA_BasePcbFrame * frame, wxDC * DC,
 						TRACK * ptfinsegment);
+static void ComputeBreakPoint( TRACK * track, int n );
+static TRACK * DeleteNullTrackSegments(BOARD * pcb, TRACK * track, int * segmcount);
+static void EnsureEndTrackOnPad(D_PAD * Pad);
 
 /* variables locales */
 static int OldNetCodeSurbrillance;
 static int OldEtatSurbrillance;
-
-/***********************************************/
-void WinEDA_PcbFrame::DisplayTrackSettings(void)
-/***********************************************/
-/* Affiche la valeur courante du réglage de l'épaisseur des pistes et diam via
-*/
-{
-wxString msg;
-wxString buftrc, bufvia;
-
-	valeur_param(g_DesignSettings.m_CurrentTrackWidth, buftrc);
-	valeur_param(g_DesignSettings.m_CurrentViaSize, bufvia);
-	msg.Printf( _("Track Width: %s   Vias Size : %s"),
-			buftrc.GetData(), bufvia.GetData());
-	Affiche_Message( msg);
-	m_SelTrackWidthBox_Changed = TRUE;
-	m_SelViaSizeBox_Changed = TRUE;
-}
 
 
 /************************************************************/
@@ -54,9 +39,9 @@ WinEDA_PcbFrame * frame = (WinEDA_PcbFrame *) _frame;
 TRACK * track = (TRACK * ) frame->GetScreen()->m_CurrentItem;
 
 	if( track != NULL )
-		{
-		/* Effacement du trace en cours */
-		Montre_Position_New_Piste(frame->DrawPanel, DC, FALSE);
+	{
+		/* Erase the current drawing */
+		ShowNewTrackWhenMovingCursor(frame->DrawPanel, DC, FALSE);
 		if(g_HightLigt_Status) ( (WinEDA_PcbFrame *)frame)->Hight_Light(DC);
 		g_HightLigth_NetCode = OldNetCodeSurbrillance;
 		if(OldEtatSurbrillance) ( (WinEDA_PcbFrame *)frame)->Hight_Light(DC);
@@ -65,54 +50,14 @@ TRACK * track = (TRACK * ) frame->GetScreen()->m_CurrentItem;
 		TRACK * previoustrack;
 		// Delete current (new) track
 		for(  ;track != NULL; track = previoustrack)
-			{
+		{
 			previoustrack = (TRACK*) track->Pback;
 			delete track;
-			}
 		}
+	}
 	frame->GetScreen()->ManageCurseur = NULL;
 	frame->GetScreen()->ForceCloseManageCurseur = NULL;
 	frame->GetScreen()->m_CurrentItem = NULL;
-}
-
-
-
-/***********************************************/
-void WinEDA_PcbFrame::Ratsnest_On_Off(wxDC * DC)
-/***********************************************/
-
-/* Affiche ou efface le chevelu selon l'état du bouton d'appel */
-{
-int ii;
-CHEVELU * pt_chevelu;
-
-	if((m_Pcb->m_Status_Pcb & LISTE_CHEVELU_OK) == 0 )
-		{
-		if ( g_Show_Ratsnest ) Compile_Ratsnest( DC, TRUE );
-		return;
-		}
-
-	DrawGeneralRatsnest(DC, 0); /* effacement eventuel du chevelu affiche */
-
-	pt_chevelu = m_Pcb->m_Ratsnest;
-	if ( pt_chevelu == NULL ) return;
-
-	if(g_Show_Ratsnest)
-		{
-		for( ii = m_Pcb->GetNumRatsnests(); ii > 0 ; pt_chevelu++, ii--)
-			{
-			pt_chevelu->status |= CH_VISIBLE;
-			}
-		DrawGeneralRatsnest(DC, 0);
-		}
-
-	else
-		{
-		for( ii = m_Pcb->GetNumRatsnests(); ii > 0; pt_chevelu++, ii--)
-			{
-			pt_chevelu->status &= ~CH_VISIBLE;
-			}
-		}
 }
 
 
@@ -139,109 +84,139 @@ int masquelayer = g_TabOneLayerMask[GetScreen()->m_Active_Layer];
 EDA_BaseStruct * LockPoint;
 wxPoint pos = GetScreen()->m_Curseur;
 
-	GetScreen()->ManageCurseur = Montre_Position_New_Piste;
+	GetScreen()->ManageCurseur = ShowNewTrackWhenMovingCursor;
 	GetScreen()->ForceCloseManageCurseur = Exit_Editrack;
 
 	if(track == NULL )	/* debut reel du trace */
-		{
+	{
 		/* effacement surbrillance ancienne */
 		OldNetCodeSurbrillance = g_HightLigth_NetCode;
 		OldEtatSurbrillance = g_HightLigt_Status;
 
 		if(g_HightLigt_Status) Hight_Light(DC);
 
-		ptstartpiste = ptnewpiste = new TRACK(m_Pcb);
-		ptnewpiste->m_Flags = IS_NEW;
-		nbptnewpiste = 1;
+		g_FirstTrackSegment = g_CurrentTrackSegment = new TRACK(m_Pcb);
+		g_CurrentTrackSegment->m_Flags = IS_NEW;
+		g_TrackSegmentCount = 1;
 		g_HightLigth_NetCode = 0;
 
 		/* Localisation de la pastille de reference de la piste: */
 		LockPoint = LocateLockPoint(m_Pcb, pos, masquelayer);
 
 		if( LockPoint )
-			{
+		{
 			if( LockPoint->m_StructType == TYPEPAD )
-				{
+			{
 				pt_pad = (D_PAD *) LockPoint;
 				/* le debut de la piste est remis sur le centre du pad */
 				pos = pt_pad->m_Pos;
 				g_HightLigth_NetCode = pt_pad->m_NetCode;
-				}
+			}
 
 			else /* le point d'accrochage est un segment */
-				{
+			{
 				adr_buf = (TRACK *) LockPoint;
 				g_HightLigth_NetCode = adr_buf->m_NetCode;
 				CreateLockPoint( &pos.x, &pos.y, adr_buf, NULL);
-				}
 			}
+		}
 
-		build_ratsnest_pad(pt_pad, 0, 0, 1);
+		build_ratsnest_pad(LockPoint, wxPoint(0,0), TRUE);
 		Hight_Light(DC);
 
-		ptnewpiste->m_Flags = IS_NEW;
-		ptnewpiste->m_Layer = GetScreen()->m_Active_Layer;
-		ptnewpiste->m_Width = g_DesignSettings.m_CurrentTrackWidth ;
-		ptnewpiste->m_Start = pos;
-		ptnewpiste->m_End = ptnewpiste->m_Start;
-		ptnewpiste->m_NetCode = g_HightLigth_NetCode ;
+		g_CurrentTrackSegment->m_Flags = IS_NEW;
+		g_CurrentTrackSegment->m_Layer = GetScreen()->m_Active_Layer;
+		g_CurrentTrackSegment->m_Width = g_DesignSettings.m_CurrentTrackWidth ;
+		g_CurrentTrackSegment->m_Start = pos;
+		g_CurrentTrackSegment->m_End = g_CurrentTrackSegment->m_Start;
+		g_CurrentTrackSegment->m_NetCode = g_HightLigth_NetCode ;
 		if(pt_pad)
-			{
-			ptnewpiste->start = pt_pad ;
-			ptnewpiste->SetState(BEGIN_ONPAD,ON);
-			}
-		else ptnewpiste->start = adr_buf ;
+		{
+			g_CurrentTrackSegment->start = pt_pad ;
+			g_CurrentTrackSegment->SetState(BEGIN_ONPAD,ON);
+		}
+		else g_CurrentTrackSegment->start = adr_buf ;
 
-		Affiche_Infos_Piste(this, ptnewpiste) ;
-
+		if ( g_TwoSegmentTrackBuild )
+		{	// Create 2 segments
+			g_CurrentTrackSegment = new TRACK(*g_CurrentTrackSegment);
+			g_TrackSegmentCount++;
+			g_CurrentTrackSegment->Pback = g_FirstTrackSegment;
+			g_FirstTrackSegment->Pnext = g_CurrentTrackSegment;
+			g_CurrentTrackSegment->start = g_FirstTrackSegment;
+			g_FirstTrackSegment->end = g_CurrentTrackSegment;
+			g_FirstTrackSegment->SetState(BEGIN_ONPAD|END_ONPAD,OFF);
+		}
+		Affiche_Infos_Piste(this, g_CurrentTrackSegment) ;
+		GetScreen()->m_CurrentItem = g_CurrentTrackSegment;
 		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-		if( Drc_On && (Drc(this, DC,ptnewpiste,m_Pcb->m_Track,1 ) == BAD_DRC) )
-			return ptnewpiste;
-
+		if( Drc_On && (Drc(this, DC,g_CurrentTrackSegment,m_Pcb->m_Track,1 ) == BAD_DRC) )
+		{
+			return g_CurrentTrackSegment;
 		}
 
-	else	/* piste en cours : les coord du point d'arrivee ont ete mises
-			a jour par la routine Montre_Position_New_Piste*/
-		{
-		if( Drc_On && (Drc(this, DC,ptnewpiste,m_Pcb->m_Track,1 ) == BAD_DRC) )
-			return NULL;
+	}
 
-		if( (ptnewpiste->m_Start.x != ptnewpiste->m_End.x) ||
-			(ptnewpiste->m_Start.y != ptnewpiste->m_End.y) )
+	else	/* Track in progress : segment coordinates are updated by ShowNewTrackWhenMovingCursor*/
+	{
+		/* Tst for a D.R.C. error: */
+		if ( Drc_On )
+		{
+			if ( Drc(this, DC,g_CurrentTrackSegment,m_Pcb->m_Track,1 ) == BAD_DRC)
+				return NULL;
+			if ( g_TwoSegmentTrackBuild &&	// We must handle 2 segments
+				 g_CurrentTrackSegment->Back() )
 			{
-			/* efface ancienne position */
-			Montre_Position_New_Piste(DrawPanel, DC, FALSE);
+				if( Drc(this, DC,g_CurrentTrackSegment->Back(),m_Pcb->m_Track,1 ) == BAD_DRC )
+						return NULL;
+			}
+		}
+
+		/* Current track is Ok: current segment is kept, and a new one is created
+		unless the current segment is null, or 2 last are null if a 2 segments track build
+		*/
+		bool CanCreateNewSegment = TRUE;
+		if( ! g_TwoSegmentTrackBuild && g_CurrentTrackSegment->IsNull() )
+			CanCreateNewSegment = FALSE;
+		if( g_TwoSegmentTrackBuild && g_CurrentTrackSegment->IsNull() &&
+			g_CurrentTrackSegment->Back() && g_CurrentTrackSegment->Back()->IsNull() )
+				CanCreateNewSegment = FALSE;
+		if ( CanCreateNewSegment )
+		{
+			/* Erase old track on screen */
+			ShowNewTrackWhenMovingCursor(DrawPanel, DC, FALSE);
 
 			if( g_Raccord_45_Auto )
-				{
-				if( Met_Coude_a_45(this, DC, ptnewpiste) != 0 )
-					nbptnewpiste++;
-				}
-			Track = ptnewpiste->Copy();
-			Track->Insert(m_Pcb, ptnewpiste);
+			{
+				if( Met_Coude_a_45(this, DC, g_CurrentTrackSegment) != 0 )
+					g_TrackSegmentCount++;
+			}
+			Track = g_CurrentTrackSegment->Copy();
+			Track->Insert(m_Pcb, g_CurrentTrackSegment);
 
 			Track->SetState(BEGIN_ONPAD|END_ONPAD,OFF);
-			ptnewpiste->end = Locate_Pad_Connecte(m_Pcb, ptnewpiste, END);
-			if( ptnewpiste->end )
-				{
-				ptnewpiste->SetState(END_ONPAD,ON);
+			g_CurrentTrackSegment->end = Locate_Pad_Connecte(m_Pcb, g_CurrentTrackSegment, END);
+			if( g_CurrentTrackSegment->end )
+			{
+				g_CurrentTrackSegment->SetState(END_ONPAD,ON);
 				Track->SetState(BEGIN_ONPAD,ON);
-				}
-			Track->start = ptnewpiste->end;
-
-			ptnewpiste = Track;
-			ptnewpiste->m_Flags = IS_NEW;
-			nbptnewpiste++ ;
-			ptnewpiste->m_Start = ptnewpiste->m_End;
-			ptnewpiste->m_Layer = GetScreen()->m_Active_Layer;
-			ptnewpiste->m_Width = g_DesignSettings.m_CurrentTrackWidth ;
-			/* affiche nouvelle position */
-			Montre_Position_New_Piste(DrawPanel, DC, FALSE);
 			}
-		Affiche_Infos_Piste(this, ptnewpiste) ;
-		}
+			Track->start = g_CurrentTrackSegment->end;
 
-	return ptnewpiste;
+			g_CurrentTrackSegment = Track;
+			g_CurrentTrackSegment->m_Flags = IS_NEW;
+			g_TrackSegmentCount++ ;
+			g_CurrentTrackSegment->m_Start = g_CurrentTrackSegment->m_End;
+			g_CurrentTrackSegment->m_Layer = GetScreen()->m_Active_Layer;
+			g_CurrentTrackSegment->m_Width = g_DesignSettings.m_CurrentTrackWidth ;
+			/* Show the new position */
+			ShowNewTrackWhenMovingCursor(DrawPanel, DC, FALSE);
+		}
+		Affiche_Infos_Piste(this, g_CurrentTrackSegment) ;
+	}
+
+	GetScreen()->m_CurrentItem = g_CurrentTrackSegment;
+	return g_CurrentTrackSegment;
 }
 
 
@@ -264,7 +239,7 @@ TRACK *NewTrack;
 int pas_45;
 int dx0, dy0, dx1, dy1 ;
 
-	if(nbptnewpiste < 2 ) return(0) ;	/* il faut au moins 2 segments */
+	if(g_TrackSegmentCount < 2 ) return(0) ;	/* il faut au moins 2 segments */
 
 	Previous = (TRACK*)pt_segm->Pback;	  // pointe le segment precedent
 
@@ -368,9 +343,7 @@ void WinEDA_PcbFrame::End_Route(TRACK * track, wxDC * DC)
 /*
 	Routine de fin de trace d'une piste (succession de segments)
 */
-// ATTENTION a modifier pour que Track soit la piste à terminer
 {
-D_PAD * pt_pad;
 TRACK * pt_track;
 int masquelayer = g_TabOneLayerMask[GetScreen()->m_Active_Layer];
 wxPoint pos;
@@ -379,115 +352,89 @@ TRACK * adr_buf;
 
 	if( track == NULL ) return;
 
-	if ( Drc_On && ( Drc(this, DC,ptnewpiste,m_Pcb->m_Track,1 ) == BAD_DRC) )
+	if ( Drc_On && ( Drc(this, DC,g_CurrentTrackSegment,m_Pcb->m_Track,1 ) == BAD_DRC) )
 		return ;
 
 	/* Sauvegarde des coord du point terminal de la piste */
-	pos = ptnewpiste->m_End;
+	pos = g_CurrentTrackSegment->m_End;
 
 	if ( Begin_Route(track, DC) == NULL ) return;
 
-	Montre_Position_New_Piste(DrawPanel, DC, TRUE);  /* mise a jour trace reel */
-	Montre_Position_New_Piste(DrawPanel, DC, FALSE);  /* efface trace piste*/
+	ShowNewTrackWhenMovingCursor(DrawPanel, DC, TRUE);  /* mise a jour trace reel */
+	ShowNewTrackWhenMovingCursor(DrawPanel, DC, FALSE);  /* efface trace piste*/
 	trace_ratsnest_pad(DC);		  /* efface trace chevelu*/
+
+
+	// cleanup
+	if (g_CurrentTrackSegment->Pnext != NULL){
+		delete g_CurrentTrackSegment->Pnext;
+		g_CurrentTrackSegment->Pnext = NULL;
+	}
+
 
 	/* La piste est ici non chainee a la liste des segments de piste.
 		Il faut la replacer dans la zone de net,
 		le plus pres possible du segment d'attache ( ou de fin ), car
 		ceci contribue a la reduction du temps de calcul */
 
-	/* Rappel:
-	Il y a en principe au moins 2 segments.
-	Le dernier segment genere est de longueur tj nulle donc inutile,
-	et sera donc supprime ou utilise pour amener la piste sur un point d'ancrage */
 	/* Accrochage de la fin de la piste */
 	LockPoint = LocateLockPoint(m_Pcb, pos, masquelayer);
 
 	if ( LockPoint ) /* La fin de la piste est sur un PAD */
-		{
+	{
 		if( LockPoint->m_StructType ==  TYPEPAD )
-			{
-			pt_pad = (D_PAD *) LockPoint;
-			/* la fin de la piste est remise sur le centre du pad si necessaire*/
-			if( (ptnewpiste->m_End.x != pt_pad->m_Pos.x ) ||
-				(ptnewpiste->m_End.y != pt_pad->m_Pos.y) )
-				{ /* nouveau segment cree : le segment nul de fin de piste est utilise*/
-				ptnewpiste->m_End.x = pt_pad->m_Pos.x;
-				ptnewpiste->m_End.y = pt_pad->m_Pos.y;
-				}
-			else
-				{
-				/* le dernier segment sera supprime ( si plusieurs segments ) */
-				if( nbptnewpiste > 1 )
-					{
-					TRACK * Track;
-					Track = ptnewpiste;
-					ptnewpiste = (TRACK*) ptnewpiste->Pback; nbptnewpiste--;
-					DeleteStructure(Track);
-					}
-				}
-			ptnewpiste->end = pt_pad; ptnewpiste->SetState(END_ONPAD, ON);
-			}
+		{
+			EnsureEndTrackOnPad( (D_PAD *) LockPoint);
+		}
 
 		else	/* la fin de la piste est sur une autre piste: il faudra
 				peut-etre creer un point d'ancrage */
-			{
-			/* le dernier segment sera supprime */
-			if ( nbptnewpiste > 1 )
-				{
-				TRACK * Track;
-				Track = ptnewpiste;
-				ptnewpiste = (TRACK*)ptnewpiste->Pback; nbptnewpiste--;
-				DeleteStructure(Track);
-				}
+		{
 			adr_buf = (TRACK *) LockPoint;
 			g_HightLigth_NetCode = adr_buf->m_NetCode;
 			/* creation eventuelle d'un point d'accrochage */
-			LockPoint = CreateLockPoint(&ptnewpiste->m_End.x, &ptnewpiste->m_End.y,
-								adr_buf, ptnewpiste);
-			}
+			LockPoint = CreateLockPoint(&g_CurrentTrackSegment->m_End.x, &g_CurrentTrackSegment->m_End.y,
+								adr_buf, g_CurrentTrackSegment);
 		}
+	}
 
-	else  /* Extremite de piste 'en l'air' */
+
+	// Delete Null segments:
+	g_FirstTrackSegment = DeleteNullTrackSegments(m_Pcb, g_FirstTrackSegment, & g_TrackSegmentCount);
+	/* Test if no segment left. Can happend on a double click on the start point */
+	if ( g_FirstTrackSegment != NULL )
+	{
+
+		/* Put new track in buffer: search the best insertion poinr */
+		pt_track = g_FirstTrackSegment->GetBestInsertPoint(m_Pcb);
+	
+		/* Uut track in linked list */
+		g_FirstTrackSegment->Insert(m_Pcb, pt_track);
+	
+		trace_ratsnest_pad(DC);
+		Trace_Une_Piste(DrawPanel, DC, g_FirstTrackSegment, g_TrackSegmentCount,GR_OR) ;
+	
+		// Reset flags:
+		TRACK * ptr = g_FirstTrackSegment; int ii;
+		for ( ii = 0; (ptr != NULL) && (ii < g_TrackSegmentCount) ; ii++ )
 		{
-		/* le dernier segment est supprime */
-		if ( nbptnewpiste > 1 )
-			{
-			TRACK * Track;
-			Track = ptnewpiste;
-			ptnewpiste = (TRACK*)ptnewpiste->Pback; nbptnewpiste--;
-			DeleteStructure(Track);
-			}
+			ptr->m_Flags = 0; ptr = ptr->Next();
 		}
-
-	/* placement en buffer : recherche de la place */
-	pt_track = ptstartpiste->GetBestInsertPoint(m_Pcb);
-
-	/* Pt_track pointe ici un point d'insertion possible */
-	ptstartpiste->Insert(m_Pcb, pt_track);
-
-	trace_ratsnest_pad(DC);
-	Trace_Une_Piste(DrawPanel, DC, ptstartpiste, nbptnewpiste,GR_OR) ;
-
-	// Reset flags:
-	TRACK * ptr = ptstartpiste; int ii;
-	for ( ii = 0; (ptr != NULL) && (ii < nbptnewpiste) ; ii++ )
+	
+		/* Delete the old track, if exists */
+		if(g_AutoDeleteOldTrack)
 		{
-		ptr->m_Flags = 0; ptr = (TRACK *) ptr->Pnext;
+			EraseOldTrack(this, m_Pcb, DC, g_FirstTrackSegment, g_TrackSegmentCount);
 		}
-
-	/* Effacement automatique de la piste eventuellement redondante */
-	if(g_AutoDeleteOldTrack)
-		{
-		EraseOldTrack(this, m_Pcb, DC, ptstartpiste, nbptnewpiste);
-		}
-
-	test_1_net_connexion(DC, ptstartpiste->m_NetCode );
-
-	GetScreen()->SetModify();
-	Affiche_Infos_Status_Pcb(this);
-
-	ptstartpiste = NULL;
+	
+		/* compute the new rastnest : */
+		test_1_net_connexion(DC, g_FirstTrackSegment->m_NetCode );
+	
+		GetScreen()->SetModify();
+		Affiche_Infos_Status_Pcb(this);
+	}
+	/* Finish the work, clear used variables */
+	g_FirstTrackSegment = NULL;
 
 	if(g_HightLigt_Status) Hight_Light(DC);
 
@@ -501,7 +448,7 @@ TRACK * adr_buf;
 
 
 /****************************************************************************/
-void Montre_Position_New_Piste(WinEDA_DrawPanel * panel,wxDC * DC, bool erase)
+void ShowNewTrackWhenMovingCursor(WinEDA_DrawPanel * panel,wxDC * DC, bool erase)
 /****************************************************************************/
 /* redessin du contour de la piste  lors des deplacements de la souris
 	Cette routine est utilisee comme .ManageCurseur()
@@ -522,216 +469,42 @@ PCB_SCREEN * screen = (PCB_SCREEN *) panel->GetScreen();
 	/* efface ancienne position si elle a ete deja dessinee */
 	if( erase )
 		{
-		Trace_Une_Piste(panel, DC, ptstartpiste,nbptnewpiste,GR_XOR) ;
+		Trace_Une_Piste(panel, DC, g_FirstTrackSegment,g_TrackSegmentCount,GR_XOR) ;
 		((WinEDA_BasePcbFrame*)(panel->m_Parent))->trace_ratsnest_pad( DC);
 		}
 
 	/* dessin de la nouvelle piste : mise a jour du point d'arrivee */
-	ptnewpiste->m_Layer = screen->m_Active_Layer;
-	ptnewpiste->m_Width = g_DesignSettings.m_CurrentTrackWidth;
+	g_CurrentTrackSegment->m_Layer = screen->m_Active_Layer;
+	g_CurrentTrackSegment->m_Width = g_DesignSettings.m_CurrentTrackWidth;
 
 	if (Track_45_Only)
-		{/* Calcul de l'extremite de la piste pour orientations permises:
+	{
+		if ( g_TwoSegmentTrackBuild )
+ 			ComputeBreakPoint(g_CurrentTrackSegment, g_TrackSegmentCount);
+		else
+		{
+		/* Calcul de l'extremite de la piste pour orientations permises:
 										horiz,vertical ou 45 degre */
-		Calcule_Coord_Extremite_45(ptnewpiste->m_Start.x,ptnewpiste->m_Start.y,
-						&ptnewpiste->m_End.x, &ptnewpiste->m_End.y);
+		Calcule_Coord_Extremite_45(g_CurrentTrackSegment->m_Start.x,g_CurrentTrackSegment->m_Start.y,
+						&g_CurrentTrackSegment->m_End.x, &g_CurrentTrackSegment->m_End.y);
+
 		}
+	}
 
 	else	/* ici l'angle d'inclinaison est quelconque */
-		{
-		ptnewpiste->m_End = screen->m_Curseur;
-		}
+	{
+		g_CurrentTrackSegment->m_End = screen->m_Curseur;
+	}
 
-	Trace_Une_Piste(panel, DC, ptstartpiste,nbptnewpiste,GR_XOR) ;
+	Trace_Une_Piste(panel, DC, g_FirstTrackSegment,g_TrackSegmentCount,GR_XOR) ;
 
 	DisplayOpt.DisplayTrackIsol = IsolTmp;
 	DisplayOpt.DisplayPcbTrackFill = Track_fill_copy ;
 
 	((WinEDA_BasePcbFrame*)(panel->m_Parent))->
-		build_ratsnest_pad(NULL, ptnewpiste->m_End.x, ptnewpiste->m_End.y, 0);
+		build_ratsnest_pad(NULL, g_CurrentTrackSegment->m_End, FALSE);
+
 	((WinEDA_BasePcbFrame*)(panel->m_Parent))->trace_ratsnest_pad(DC);
-}
-
-
-/*************************************************************************/
-void WinEDA_PcbFrame::ExChange_Track_Layer(TRACK *pt_segm, wxDC * DC)
-/*************************************************************************/
-/*
- change de couche la piste pointee par la souris :
-	la piste doit etre sur une des couches de travail,
-	elle est mise sur l'autre couche de travail, si cela est possible
-	(ou si DRC = Off ).
-*/
-{
-int ii;
-TRACK *pt_track;
-int l1, l2 , nb_segm;
-
-	if ( (pt_segm == NULL ) || ( pt_segm->m_StructType == TYPEZONE ) )
-		{
-		return;
-		}
-
-	l1 = Route_Layer_TOP; l2 = Route_Layer_BOTTOM;
-
-	pt_track = Marque_Une_Piste(this, DC, pt_segm, &nb_segm, GR_XOR);
-
-	/* effacement du flag BUSY et sauvegarde en membre .param de la couche
-	initiale */
-	ii = nb_segm; pt_segm = pt_track;
-	for (; ii > 0; ii -- , pt_segm = (TRACK*)pt_segm->Pnext)
-		{
-		pt_segm->SetState(BUSY,OFF);
-		pt_segm->m_Param = pt_segm->m_Layer;	/* pour sauvegarde */
-		}
-
-	ii = 0; pt_segm = pt_track;
-	for ( ; ii < nb_segm; ii++, pt_segm = (TRACK*) pt_segm->Pnext )
-		{
-		if( pt_segm->m_StructType == TYPEVIA) continue;
-
-		/* inversion des couches */
-		if( pt_segm->m_Layer == l1 ) pt_segm->m_Layer = l2 ;
-		else if(pt_segm->m_Layer == l2 ) pt_segm->m_Layer = l1 ;
-
-		if( (Drc_On) && ( Drc(this, DC,pt_segm,m_Pcb->m_Track,1) == BAD_DRC ) )
-			{	/* Annulation du changement */
-			ii = 0; pt_segm = pt_track;
-			for ( ; ii < nb_segm; ii++, pt_segm = (TRACK*) pt_segm->Pnext )
-				{
-				pt_segm->m_Layer = pt_segm->m_Param;
-				}
-			Trace_Une_Piste(DrawPanel, DC, pt_track, nb_segm, GR_OR);
-			DisplayError(this, _("Drc error, cancelled"), 10);
-			return;
-			}
-		}
-	Trace_Une_Piste(DrawPanel, DC, pt_track, nb_segm, GR_OR | GR_SURBRILL);
-	/* controle des extremites de segments: sont-ils sur un pad */
-	ii = 0; pt_segm = pt_track;
-	for(; ii < nb_segm; pt_segm = (TRACK*)pt_segm->Pnext, ii++)
-		{
-		pt_segm->start = Locate_Pad_Connecte(m_Pcb, pt_segm, START);
-		pt_segm->end = Locate_Pad_Connecte(m_Pcb, pt_segm, END);
-		}
-	test_1_net_connexion(DC, pt_track->m_NetCode );
-	Affiche_Infos_Piste(this, pt_track) ;
-	GetScreen()->SetModify();
-}
-
-/****************************************************************/
-void WinEDA_PcbFrame::Other_Layer_Route(TRACK * track, wxDC * DC)
-/****************************************************************/
-/*
-	Change de couche active pour le routage.
-	Si une piste est en cours de trace : placement d'une Via
-*/
-{
-TRACK * pt_segm;
-SEGVIA * Via;
-int ii;
-int itmp;
-
-	if(track == NULL)
-		{
-		if(GetScreen()->m_Active_Layer != GetScreen()->m_Route_Layer_TOP)
-			 GetScreen()->m_Active_Layer = GetScreen()->m_Route_Layer_TOP;
-		else GetScreen()->m_Active_Layer = GetScreen()->m_Route_Layer_BOTTOM ;
-		Affiche_Status_Box();
-		SetToolbars();
-		return;
-		}
-
-	/* Les vias ne doivent pas etre inutilement empilees: */
-	if( Locate_Via(m_Pcb, ptnewpiste->m_End.x,ptnewpiste->m_End.y,ptnewpiste->m_Layer))
-		return;
-	pt_segm = ptstartpiste;
-	for ( ii = 0; ii < nbptnewpiste-1 ; ii++, pt_segm = (TRACK*)pt_segm->Pnext)
-		{
-		if( (pt_segm->m_StructType == TYPEVIA) &&
-			(ptnewpiste->m_End.x == pt_segm->m_Start.x) &&
-			(ptnewpiste->m_End.y == pt_segm->m_Start.y) )
-				return;
-		}
-	/* Test si segment possible a placer */
-	if ( Drc_On )
-		if ( Drc(this, DC,ptnewpiste,m_Pcb->m_Track,1) == BAD_DRC )
-			return ;
-
-	/* save etat actuel pour regeneration si via impossible a placer */
-	itmp = nbptnewpiste;
-	Begin_Route(ptnewpiste, DC);
-
-	GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-
-	Via = new SEGVIA(m_Pcb);
-	Via->m_Flags = IS_NEW;
-	Via->m_Width = g_DesignSettings.m_CurrentViaSize;
-	Via->m_Shape = g_DesignSettings.m_CurrentViaType ;
-	Via->m_NetCode = g_HightLigth_NetCode ;
-	Via->m_Start.x = Via->m_End.x = ptnewpiste->m_Start.x;
-	Via->m_Start.y = Via->m_End.y = ptnewpiste->m_Start.y;
-
-	Via->m_Layer = GetScreen()->m_Active_Layer;	// Provisoirement
-
-	if( GetScreen()->m_Active_Layer != GetScreen()->m_Route_Layer_TOP)
-			GetScreen()->m_Active_Layer = GetScreen()->m_Route_Layer_TOP ;
-	else	GetScreen()->m_Active_Layer = GetScreen()->m_Route_Layer_BOTTOM ;
-
-	if ( (Via->m_Shape & 15) == VIA_ENTERREE )
-	{
-		Via->m_Layer |= GetScreen()->m_Active_Layer << 4;
-	}
-	else if ( (Via->m_Shape & 15) == VIA_BORGNE )
-	{	// A revoir! ( la via devrai deboucher sur 1 cote )
-		Via->m_Layer |= GetScreen()->m_Active_Layer << 4;
-	}
-	else Via->m_Layer = 0x0F;
-
-	if ( Drc_On &&( Drc(this, DC,Via,m_Pcb->m_Track,1 ) == BAD_DRC ) )
-		{ /* Via impossible a placer ici */
-		delete Via;
-		GetScreen()->m_Active_Layer = ptnewpiste->m_Layer ;
-		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-		return;
-		}
-
-	/* la via est OK et est inseree avant le segment courant */
-	Via->Pnext = ptnewpiste;
-	Via->Pback = ptnewpiste->Pback;
-	ptnewpiste->Pback = Via;
-	if ( Via->Pback == NULL ) ptstartpiste = Via;
-	else Via->Pback->Pnext = Via;
-	nbptnewpiste++;
-
-	GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-	Affiche_Infos_Piste(this, Via);
-
-	Affiche_Status_Box();
-	SetToolbars();
-}
-
-
-/*************************************************/
-void WinEDA_PcbFrame::Affiche_Status_Net(wxDC * DC)
-/*************************************************/
-/* Affiche:
-	le status du net en haut d'ecran du segment pointe par la souris
-	ou le status PCB en bas d'ecran si pas de segment pointe
-*/
-{
-TRACK * pt_segm;
-int masquelayer = g_TabOneLayerMask[GetScreen()->m_Active_Layer];
-
-	pt_segm = Locate_Pistes(m_Pcb->m_Track, masquelayer, CURSEUR_OFF_GRILLE);
-	if(pt_segm == NULL)
-		{
-		Affiche_Infos_Status_Pcb(this);
-		}
-	else
-		{
-		test_1_net_connexion(DC, pt_segm->m_NetCode);
-		}
 }
 
 
@@ -785,126 +558,187 @@ int deltax, deltay, angle;
 }
 
 
-/**********************************************************************/
-void WinEDA_PcbFrame::Show_1_Ratsnest(EDA_BaseStruct * item, wxDC * DC)
-/**********************************************************************/
-/* Affiche le ratsnest relatif
-	au net du pad pointe par la souris
-	ou au module localise par la souris
-	Efface le chevelu affiche si aucun module ou pad n'est selectionne
-*/
+/********************************************************/
+void ComputeBreakPoint( TRACK * track, int SegmentCount )
+/********************************************************/
+/**
+ * Compute new track angle based on previous track.
+ */
 {
-int ii;
-CHEVELU * pt_chevelu;
-D_PAD * pt_pad = NULL;
-MODULE * Module = NULL;
+	int iDx = 0;
+	int iDy = 0;
+	int iAngle = 0;
 
-	if (g_Show_Ratsnest) return;	// Deja Affiché!
+	if ( SegmentCount <= 0 ) return;
+	if ( track == NULL ) return;
 
-	if((m_Pcb->m_Status_Pcb & LISTE_CHEVELU_OK) == 0 )
-		{
-		Compile_Ratsnest( DC, TRUE );
+	TRACK * NewTrack = track;
+	track = (TRACK*)track->Pback;
+	SegmentCount--;
+	if ( track )
+	{
+		iDx = ActiveScreen->m_Curseur.x - track->m_Start.x;
+		iDy = ActiveScreen->m_Curseur.y - track->m_Start.y;
+
+		iDx = abs(iDx);
+		iDy = abs(iDy);
+	}
+
+	TRACK * LastTrack = track ? (TRACK*)track->Pback : NULL;
+	if ( LastTrack ) {
+		if ( (LastTrack->m_End.x == LastTrack->m_Start.x) ||
+			(LastTrack->m_End.y == LastTrack->m_Start.y)    ){
+			iAngle = 45;
 		}
+	}
 
-	if ( item && (item->m_StructType == TYPEPAD) )
-		{
-		pt_pad = (D_PAD*)item;
-		Module = (MODULE *) pt_pad->m_Parent;
-		}
+	if (iAngle == 0){
+		if (iDx >= iDy) iAngle = 0;
+		else iAngle = 90;
 
-	if ( pt_pad ) /* Affichage du chevelu du net correspondant */
-		{
-		pt_pad->Display_Infos(this);
-		pt_chevelu = (CHEVELU*) m_Pcb->m_Ratsnest;
-		for( ii = m_Pcb->GetNumRatsnests(); ii > 0; pt_chevelu++, ii--)
-			{
-			if( pt_chevelu->m_NetCode == pt_pad->m_NetCode)
-				{
-				if( (pt_chevelu->status & CH_VISIBLE) != 0 ) continue;
-				pt_chevelu->status |= CH_VISIBLE;
-				if( (pt_chevelu->status & CH_ACTIF) == 0 ) continue;
+	}
 
-				GRSetDrawMode(DC, GR_XOR);
-				GRLine( &DrawPanel->m_ClipBox, DC, pt_chevelu->pad_start->m_Pos.x,
-									pt_chevelu->pad_start->m_Pos.y,
-									pt_chevelu->pad_end->m_Pos.x,
-									pt_chevelu->pad_end->m_Pos.y,
-									g_DesignSettings.m_RatsnestColor);
-				}
-			}
-		}
-	else
-		{
-		if ( item && (item->m_StructType == TYPEMODULE) )
-			{
-			Module = (MODULE*)item;
-			}
+	if ( track == NULL ) iAngle = -1;
+	switch ( iAngle )
+	{
+		case -1:
+			break;
 
-		if( Module)
-			{
-			Module->Display_Infos(this);
-			pt_pad = Module->m_Pads;
-			for( ; pt_pad != NULL; pt_pad = (D_PAD*)pt_pad->Pnext)
-				{
-				pt_chevelu = (CHEVELU*) m_Pcb->m_Ratsnest;
-				for( ii = m_Pcb->GetNumRatsnests(); ii > 0; pt_chevelu++, ii--)
-					{
-					if( (pt_chevelu->pad_start == pt_pad) ||
-						(pt_chevelu->pad_end == pt_pad) )
-						{
-						if( pt_chevelu->status & CH_VISIBLE ) continue;
-						pt_chevelu->status |= CH_VISIBLE;
-						if( (pt_chevelu->status & CH_ACTIF) == 0 ) continue;
+		case 0 :
+			if ( (ActiveScreen->m_Curseur.x - track->m_Start.x) < 0 )
+				track->m_End.x = ActiveScreen->m_Curseur.x + iDy;
+			else
+				track->m_End.x = ActiveScreen->m_Curseur.x - iDy;
+			track->m_End.y = track->m_Start.y;
+			break ;
 
-						GRSetDrawMode(DC, GR_XOR);
-						GRLine(&DrawPanel->m_ClipBox, DC, pt_chevelu->pad_start->m_Pos.x,
-									pt_chevelu->pad_start->m_Pos.y,
-									pt_chevelu->pad_end->m_Pos.x,
-									pt_chevelu->pad_end->m_Pos.y,
-									g_DesignSettings.m_RatsnestColor);
-						}
-					}
-				}
-			pt_pad = NULL;
-			}
-		}
+		case 45 :
+			iDx = min(iDx,iDy);
+			iDy = iDx ;
+			/* recalcul des signes de deltax et deltay */
+			if( (ActiveScreen->m_Curseur.x - track->m_Start.x) < 0 )
+				iDx = -iDx;
+			if( (ActiveScreen->m_Curseur.y - track->m_Start.y) < 0 )
+				iDy = -iDy;
+			track->m_End.x = track->m_Start.x + iDx;
+			track->m_End.y = track->m_Start.y + iDy;
+			break ;
 
-	/* Effacement complet des selections
-		si aucun pad ou module n'a ete localise */
-	if( (pt_pad == NULL) && (Module == NULL) )
-		{
-		MsgPanel->EraseMsgBox();
-		DrawGeneralRatsnest(DC);
-		pt_chevelu = (CHEVELU*) m_Pcb->m_Ratsnest;
-		for( ii = m_Pcb->GetNumRatsnests();(ii > 0) && pt_chevelu; pt_chevelu++, ii--)
-			pt_chevelu->status &= ~CH_VISIBLE;
-		}
+		case 90 :
+			if ( (ActiveScreen->m_Curseur.y - track->m_Start.y) < 0 )
+				track->m_End.y = ActiveScreen->m_Curseur.y + iDx;
+			else
+				track->m_End.y = ActiveScreen->m_Curseur.y - iDx;
+			track->m_End.x = track->m_Start.x;
+			break ;
+	}
+
+	if ( track )
+	{
+		if ( track->IsNull() ) track->m_End = ActiveScreen->m_Curseur;
+		NewTrack->m_Start = track->m_End;
+	}
+	NewTrack->m_End = ActiveScreen->m_Curseur;
 }
 
 
-/*****************************************************/
-void WinEDA_PcbFrame::Affiche_PadsNoConnect(wxDC * DC)
-/*****************************************************/
-/* Met en surbrillance les pads non encore connectes ( correspondants aux
-chevelus actifs
+/****************************************************************************/
+TRACK * DeleteNullTrackSegments(BOARD * pcb, TRACK * track, int * segmcount)
+/****************************************************************************/
+/* Delete track segments which have len = 0; after creating a new track
+	return a pointer on the first segment (start of track list)
 */
 {
-int ii;
-CHEVELU * pt_chevelu;
-D_PAD * pt_pad;
+TRACK * firsttrack = track;
+TRACK * oldtrack;
+int nn = 0;
+EDA_BaseStruct * LockPoint;
 
-	pt_chevelu = (CHEVELU*)m_Pcb->m_Ratsnest;
-	for( ii = m_Pcb->GetNumRatsnests();ii > 0; pt_chevelu++, ii--)
+	LockPoint = track->start;
+	while ( track != NULL )
+	{
+		oldtrack = track;
+		track = track->Next();
+		if ( ! oldtrack->IsNull() )
 		{
-		if( (pt_chevelu->status & CH_ACTIF) == 0 ) continue;
-		pt_pad = pt_chevelu->pad_start;
-
-		if (pt_pad)
-			pt_pad->Draw(DrawPanel,DC, wxPoint(0,0), GR_OR | GR_SURBRILL);
-
-		pt_pad = pt_chevelu->pad_end;
-		if (pt_pad)
-			pt_pad->Draw(DrawPanel,DC, wxPoint(0,0), GR_OR | GR_SURBRILL);
+			nn++;
+			continue;
 		}
+		// NULL segment, delete it
+		if ( firsttrack == oldtrack ) firsttrack = track;
+		oldtrack->UnLink();
+		delete oldtrack;
+	}
+
+	if ( segmcount ) *segmcount = nn;
+	
+	if ( nn == 0 ) return NULL;	// all the new track segments have been deleted
+
+
+	// we must set the pointers on connected items and the connection status
+	oldtrack = track = firsttrack;
+	firsttrack->start = NULL;
+	while ( track != NULL )
+	{
+		oldtrack = track;
+		track = track->Next();
+		oldtrack->end = track;
+		if ( track ) track->start = oldtrack;
+		oldtrack->SetStatus(0);
+	}
+
+	firsttrack->start = LockPoint;
+	if ( LockPoint && (LockPoint->m_StructType == TYPEPAD ) )
+		firsttrack->SetState(BEGIN_ONPAD,ON);
+
+	track = firsttrack;
+	while ( track != NULL )
+	{
+		TRACK * next_track = track->Next();
+		LockPoint = Locate_Pad_Connecte(pcb, track, END);
+		if ( LockPoint )
+		{
+			track->end = LockPoint;
+			track->SetState(END_ONPAD,ON);
+			if ( next_track )
+			{
+				next_track->start = LockPoint;
+				next_track->SetState(BEGIN_ONPAD,ON);
+			}
+		}
+		track = next_track;
+	}
+
+	return firsttrack;
 }
 
+/************************************/
+void EnsureEndTrackOnPad(D_PAD * Pad)
+/************************************/
+/* Ensure the end point of g_CurrentTrackSegment is on the pas "Pad"
+	if no, create a new track segment if necessary
+	and move current (or new) end segment on pad
+*/
+{
+	if( g_CurrentTrackSegment->m_End == Pad->m_Pos ) // Ok !
+	{
+		g_CurrentTrackSegment->end = Pad;
+		g_CurrentTrackSegment->SetState(END_ONPAD, ON);
+		return;
+	}
+		
+	TRACK * lasttrack = g_CurrentTrackSegment;
+	if ( ! g_CurrentTrackSegment->IsNull() )
+	{ /* Must create a new segment, from track end to pad center */
+		g_CurrentTrackSegment = new TRACK(*lasttrack);
+		g_TrackSegmentCount++;
+		lasttrack->Pnext = g_CurrentTrackSegment;
+		g_CurrentTrackSegment->Pback = lasttrack;
+		lasttrack->end = g_CurrentTrackSegment;
+	}
+	g_CurrentTrackSegment->m_End = Pad->m_Pos;
+	g_CurrentTrackSegment->SetState(END_ONPAD, OFF);
+
+	g_CurrentTrackSegment->end = Pad;
+	g_CurrentTrackSegment->SetState(END_ONPAD, ON);
+}

@@ -90,10 +90,7 @@ WinEDA_TextPCBPropertiesFrame::WinEDA_TextPCBPropertiesFrame(WinEDA_PcbFrame *pa
 			DIALOG_STYLE)
 /************************************************************************************/
 {
-wxPoint pos;
-int xx, yy;
 wxButton * Button;
-#define VPOS0 10
 
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
@@ -102,40 +99,45 @@ wxButton * Button;
 
 	CurrentTextPCB = TextPCB;
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * MiddleBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(MiddleBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
 	/* Creation des boutons de commande */
-	pos.x = 270; pos.y = VPOS0;
-	Button = new wxButton(this, ID_ACCEPT_TEXTE_PCB_PROPERTIES,
-						_("Ok"), pos);
+	Button = new wxButton(this, ID_ACCEPT_TEXTE_PCB_PROPERTIES );
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetDefaultSize().y + 10;
 	Button = new wxButton(this, ID_CLOSE_TEXTE_PCB_PROPERTIES,
-						_("Cancel"), pos);
+						_("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.x = 5; pos.y = VPOS0 + 10;
 	m_Name = new WinEDA_EnterText(this, _("Text:"),
 			TextPCB->m_Text,
-			pos, wxSize( 200, -1) );
+			LeftBoxSizer, wxSize( 200, -1) );
 
-	pos.y += 25 + m_Name->GetDimension().y;
 	m_TxtSizeCtrl = new WinEDA_SizeCtrl(this, _("Size"),
 			TextPCB->m_Size,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits);
 
-	pos.x += 15 + m_TxtSizeCtrl->GetDimension().x;
 	m_TxtWidthCtlr = new WinEDA_ValueCtrl(this, _("Width"),
 			TextPCB->m_Width,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits);
 
-	pos.x = 5; pos.y += 25 + m_TxtSizeCtrl->GetDimension().y;
 	m_TxtPosCtrl = new WinEDA_PositionCtrl(this, _("Position"),
 			TextPCB->m_Pos,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits);
 
-	pos.x += 15 + m_TxtPosCtrl->GetDimension().x;
 	m_SelLayerBox = new WinEDAChoiceBox(this, ID_TEXTPCB_SELECT_LAYER,
-					pos, wxDefaultSize);
+					wxDefaultPosition, wxDefaultSize);
+	MiddleBoxSizer->Add(m_SelLayerBox, 0, wxGROW|wxALL, 5);
+
 	int ii;
 	for ( ii = 0; ii < 29 ; ii ++ )
 		{
@@ -143,11 +145,11 @@ wxButton * Button;
 		}
 	m_SelLayerBox->SetSelection( TextPCB->m_Layer );
 
-	pos.x = 270; pos.y = VPOS0 + 80;
 wxString orient_msg[4] = { wxT("0"), wxT("90"), wxT("180"), wxT("-90") };
 	m_Orient = new wxRadioBox(this, -1, _("Orientation"),
-							pos, wxSize(-1,-1), 4, orient_msg,
+							wxDefaultPosition, wxSize(-1,-1), 4, orient_msg,
 							1, wxRA_SPECIFY_COLS );
+	MiddleBoxSizer->Add(m_Orient, 0, wxGROW|wxALL, 5);
 	switch(TextPCB->m_Orient )
 		{
 		default:
@@ -168,14 +170,15 @@ wxString orient_msg[4] = { wxT("0"), wxT("90"), wxT("180"), wxT("-90") };
 
 		}
 
-	m_Orient->GetSize(&xx, &yy);
-	pos.y += 15 + yy;
 wxString display_msg[2] = { _("Normal"), _("Mirror") };
 	m_Mirror = new wxRadioBox(this, -1, _("Display"),
-							pos, wxSize(-1,-1), 2, display_msg,
+							wxDefaultPosition, wxSize(-1,-1), 2, display_msg,
 							1, wxRA_SPECIFY_COLS );
 	if ( ! TextPCB->m_Miroir ) m_Mirror->SetSelection(1);;
+	MiddleBoxSizer->Add(m_Mirror, 0, wxGROW|wxALL, 5);
 
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -197,12 +200,12 @@ void WinEDA_TextPCBPropertiesFrame::TextPCBPropertiesAccept(wxCommandEvent& even
 		CurrentTextPCB->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0, 0), GR_XOR);
 	}
 
-	if ( ! m_Name->GetData().IsEmpty() )
+	if ( ! m_Name->GetValue().IsEmpty() )
 	{
-		CurrentTextPCB->m_Text = m_Name->GetData();
+		CurrentTextPCB->m_Text = m_Name->GetValue();
 	}
-	CurrentTextPCB->m_Pos = m_TxtPosCtrl->GetCoord();
-	CurrentTextPCB->m_Size = m_TxtSizeCtrl->GetCoord();
+	CurrentTextPCB->m_Pos = m_TxtPosCtrl->GetValue();
+	CurrentTextPCB->m_Size = m_TxtSizeCtrl->GetValue();
 	CurrentTextPCB->m_Width = m_TxtWidthCtlr->GetValue();
 	CurrentTextPCB->m_Miroir = (m_Mirror->GetSelection() == 0) ? 1 : 0;
 	CurrentTextPCB->m_Orient = m_Orient->GetSelection() * 900;

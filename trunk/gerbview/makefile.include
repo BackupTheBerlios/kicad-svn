@@ -1,6 +1,6 @@
 EXTRALIBS = ../common/common.a
 EXTRACPPFLAGS= -DGERBVIEW -DPCBNEW -I./ -I../gerbview -I../include\
-	-I../common -I../pcbnew -I../3d-viewer
+	-I../share -I../pcbnew -I../3d-viewer
 
 #COMMON = pcbnew.h struct.h
 
@@ -10,7 +10,6 @@ OBJECTS= \
 		lay2plot.o\
 		wxprint.o \
 		edit.o \
-		worksheet.o \
 		setpage.o \
 		tool_gerber.o \
 		gerberframe.o\
@@ -29,7 +28,6 @@ OBJECTS= \
 		zoom.o\
 		reglage.o \
 		options.o \
-		selcolor.o\
 		initpcb.o\
 		locate.o\
 		deltrack.o\
@@ -41,27 +39,19 @@ OBJECTS= \
 		undelete.o\
 		infospgm.o \
 		struct.o \
-		gr_basic.o\
 		files.o\
 		block.o\
 		controle.o\
 		basepcbframe.o
 
+setpage.o: ../share/setpage.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-setpage.o: ../common/setpage.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawpanel.o: ../share/drawpanel.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-worksheet.o: ../common/worksheet.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-drawpanel.o: ../common/drawpanel.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-drawframe.o: ../common/drawframe.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-gr_basic.o: ../common/gr_basic.cpp ../include/gr_basic.h
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawframe.o: ../share/drawframe.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 controle.o: controle.cpp $(COMMON)
 
@@ -72,8 +62,8 @@ files.o: files.cpp $(COMMON)
 cursors.o: ../pcbnew/cursors.cpp $(COMMON)
 	$(CC) -c $(EDACPPFLAGS) -o $@ ../pcbnew/$*.cpp
 
-wxprint.o: ../common/wxprint.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+wxprint.o: ../share/wxprint.cpp  ../share/dialog_print.cpp ../share/dialog_print.h $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 lay2plot.o: lay2plot.cpp $(COMMON)
 
@@ -106,11 +96,11 @@ surbrill.o: surbrill.cpp $(COMMON)
 
 pcbtexte.o: pcbtexte.cpp $(COMMON)
 
-zoom.o: ../common/zoom.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+zoom.o: ../share/zoom.cpp $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-infospgm.o: ../common/infospgm.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+infospgm.o: ../share/infospgm.cpp $(COMMON)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 affiche.o: affiche.cpp $(COMMON)
 
@@ -133,9 +123,6 @@ editedge.o: editedge.cpp $(COMMON)
 cotation.o: cotation.cpp $(COMMON)
 
 editexte.o: editexte.cpp $(COMMON)
-
-selcolor.o: ../common/selcolor.cpp $(COMMON)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
 
 clean.o: clean.cpp autorout.h $(COMMON)
 

@@ -80,7 +80,6 @@ MODULE * Module = NULL;
 			if( stricmp(Name,CONV_TO_UTF8(CmpName)) == 0 )  /* composant localise */
 			{
 				Module = new MODULE(m_Pcb);
-				if( Module == NULL ) continue;
 				Module->ReadDescr(lib_module, &LineNum);
 				Module->SetPosition(wxPoint(0,0) );
 				fclose(lib_module);

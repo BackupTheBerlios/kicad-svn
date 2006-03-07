@@ -14,11 +14,6 @@
 
 /* variables locales */
 
-   /***********************************************/
-	/* Definition de l'application Change Module   */
-	/***********************************************/
-
-
 enum id_ExchangeModule
 {
 	ID_EXEC_EXCHANGE_MODULE = 1900,
@@ -85,9 +80,7 @@ WinEDA_ExchangeModuleFrame::WinEDA_ExchangeModuleFrame(WinEDA_BasePcbFrame *pare
 		wxDialog(parent, -1, _("Exchange Modules"), framepos, wxSize(360, 460),
 					DIALOG_STYLE)
 {
-wxPoint pos;
 wxButton * Button;
-int lasty;
 
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
@@ -96,57 +89,65 @@ int lasty;
 
 	m_CurrentModule = Module;
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxVERTICAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * UpperBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	MainBoxSizer->Add(UpperBoxSizer, 0, wxGROW|wxALL, 5);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	UpperBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	UpperBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
 	/* Creation des boutons de commande */
-	pos.x = 180; pos.y = 5;
 	Button = new wxButton(this, ID_EXEC_EXCHANGE_MODULE,
-						_("Change module"), pos);
+						_("Change module"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP, 5);
 
-	pos.y += Button->GetDefaultSize().y + 3;
 	Button = new wxButton(this, ID_EXEC_EXCHANGE_ID_MODULES,
-						_("Change same modules"), pos);
+						_("Change same modules"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT, 5);
 
-	pos.y += Button->GetDefaultSize().y + 3;
 	Button = new wxButton(this, ID_EXEC_EXCHANGE_ID_MODULE_AND_VALUE,
-						_("Ch. same module+value"), pos);
+						_("Ch. same module+value"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT, 5);
 
-	pos.y += Button->GetDefaultSize().y + 3;
 	Button = new wxButton(this, ID_EXEC_EXCHANGE_ALL_MODULES,
-						_("Change all"), pos);
+						_("Change all"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT, 5);
 
-	pos.y += Button->GetDefaultSize().y + 14;
 	Button = new wxButton(this, ID_BROWSE_LIB_MODULES,
-						_("Browse Libs modules"), pos);
+						_("Browse Libs modules"));
 	Button->SetForegroundColour(wxColour(0,100,0) );
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT, 5);
 
-	pos.y += Button->GetDefaultSize().y + 8;
 	Button = new wxButton(this, ID_CLOSE_EXCHANGE_MODULE,
-						_("Close"), pos);
+						_("Close"));
 	Button->SetForegroundColour(*wxBLUE);
-	lasty = pos.y += Button->GetDefaultSize().y;
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
-	pos.x = 5; pos.y = 20;
 	m_OldModule = new WinEDA_EnterText(this, _("Current Module"),
 			m_CurrentModule ? m_CurrentModule->m_LibRef.GetData() :wxEmptyString,
-			pos, wxSize( 150,-1) );
+			LeftBoxSizer, wxSize( 150,-1) );
 	m_OldModule->Enable(FALSE);
 
-	pos.y += m_OldModule->GetDimension().y + 20;
 	m_OldValue = new WinEDA_EnterText(this, _("Current Value"),
 			m_CurrentModule ? m_CurrentModule->m_Value->m_Text.GetData() :wxEmptyString,
-			pos, wxSize( 150,-1) );
+			LeftBoxSizer, wxSize( 150,-1) );
 	m_OldValue->Enable(FALSE);
 
-	pos.y += m_OldValue->GetDimension().y + 20;
 	m_NewModule = new WinEDA_EnterText(this, _("New Module"),
-			m_OldModule->GetData().GetData(), pos, wxSize( 150,-1) );
+			m_OldModule->GetValue(), LeftBoxSizer, wxSize( 150,-1) );
 
-	pos.y = lasty + 10;
-	m_WinMsg = new wxTextCtrl(this, -1,wxEmptyString, pos, wxSize(340, 230),
+	m_WinMsg = new wxTextCtrl(this, -1,wxEmptyString, wxDefaultPosition, wxSize(340, 230),
 					wxTE_READONLY|wxTE_MULTILINE);
+	MainBoxSizer->Add(m_WinMsg, 0, wxGROW|wxALL, 5);
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -280,7 +281,7 @@ void WinEDA_ExchangeModuleFrame::Change_Module(wxCommandEvent& event)
 		- memes netnames pour pads de meme nom
 */
 {
-wxString newmodulename = m_NewModule->GetData();
+wxString newmodulename = m_NewModule->GetValue();
 
 	if( newmodulename == wxEmptyString ) return;
 
@@ -309,7 +310,7 @@ void WinEDA_ExchangeModuleFrame::Change_ModuleId(wxCommandEvent& event)
 wxString msg;
 MODULE * PtModule, *PtBack;
 bool change = FALSE;
-wxString newmodulename = m_NewModule->GetData();
+wxString newmodulename = m_NewModule->GetValue();
 wxString value, lib_reference;	// pour memo Reflib et value de reference
 bool check_module_value = FALSE;
 int ShowErr = 5;	// Affiche 5 messages d'err maxi

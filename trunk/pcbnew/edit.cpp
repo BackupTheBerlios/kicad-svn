@@ -179,7 +179,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 				{
 				GetScreen()->m_CurrentItem = DrawStruct =
 					Begin_Route(NULL, DC);
-				DrawPanel->m_AutoPAN_Request = TRUE;
+				if ( DrawStruct ) DrawPanel->m_AutoPAN_Request = TRUE;
 				}
 			else if (DrawStruct &&
 //					(DrawStruct->m_StructType == TYPETRACK) &&
@@ -1207,10 +1207,10 @@ wxClientDC dc(DrawPanel);
 
 		case ID_TRACK_BUTT:
 			if ( DrawStruct && (DrawStruct->m_Flags & IS_NEW) )
-					{
-					End_Route( (TRACK *) DrawStruct, DC);
-					DrawPanel->m_AutoPAN_Request = FALSE;
-					}
+			{
+				End_Route( (TRACK *) DrawStruct, DC);
+				DrawPanel->m_AutoPAN_Request = FALSE;
+			}
 			break;
 
 		case ID_PCB_ZONES_BUTT:

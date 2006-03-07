@@ -98,8 +98,8 @@ double value;
 	for ( ii = 0; ii < 6; ii++ )
 		{
 		if ( g_DesignSettings.m_TrackWidhtHistory[ii] == 0 ) break;
-		value = To_User_Unit(UnitMetric, g_DesignSettings.m_TrackWidhtHistory[ii], PCB_INTERNAL_UNIT);
-				if ( UnitMetric == INCHES )	// Affichage en mils
+		value = To_User_Unit(g_UnitMetric, g_DesignSettings.m_TrackWidhtHistory[ii], PCB_INTERNAL_UNIT);
+				if ( g_UnitMetric == INCHES )	// Affichage en mils
 					msg.Printf(_("Track %.1f"), value * 1000);
 				else
 					msg.Printf(_("Track %.3f"), value);
@@ -113,8 +113,8 @@ double value;
 	for ( ii = 0; ii < 4; ii++ )
 	{
 		if ( g_DesignSettings.m_ViaSizeHistory[ii] == 0 ) break;
-		value = To_User_Unit(UnitMetric, g_DesignSettings.m_ViaSizeHistory[ii], PCB_INTERNAL_UNIT);
-			if ( UnitMetric == INCHES )
+		value = To_User_Unit(g_UnitMetric, g_DesignSettings.m_ViaSizeHistory[ii], PCB_INTERNAL_UNIT);
+			if ( g_UnitMetric == INCHES )
 				msg.Printf(_("Via %.1f"), value * 1000);
 			else
 				msg.Printf(_("Via %.3f"), value);
@@ -184,9 +184,9 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 				ADD_MENUITEM(PopMenu, ID_POPUP_PLACE_BLOCK,
 					_("Place Block"), apply_xpm );
 				ADD_MENUITEM(PopMenu, ID_POPUP_COPY_BLOCK,
-					_("Copy Block (alt + drag mouse)"), copyblock_xpm );
+					_("Copy Block (shift + drag mouse)"), copyblock_xpm );
 				ADD_MENUITEM(PopMenu, ID_POPUP_INVERT_BLOCK,
-					_("Flip Block (shift + drag mouse)"), invert_module_xpm );
+					_("Flip Block (alt + drag mouse)"), invert_module_xpm );
 				ADD_MENUITEM(PopMenu, ID_POPUP_ROTATE_BLOCK,
 					_("Rotate Block (ctrl + drag mouse)"), rotate_pos_xpm );
 				ADD_MENUITEM(PopMenu, ID_POPUP_DELETE_BLOCK,

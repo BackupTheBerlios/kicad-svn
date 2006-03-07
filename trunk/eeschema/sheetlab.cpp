@@ -85,32 +85,39 @@ wxButton * Button;
 	m_Parent = parent;
 	Centre();
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
 	m_CurrentPinSheet = curr_pinsheet;
+
 	/* Creation des boutons de commande */
-	pos.x = 240; pos.y = 90;
 	Button = new wxButton(this, ID_ACCEPT_PINSHEET_PROPERTIES,
-						_("Ok"), pos);
+						_("Ok"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetDefaultSize().y + 10;
 	Button = new wxButton(this, ID_CANCEL_PINSHEET_PROPERTIES,
-						_("Cancel"), pos);
+						_("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 10; pos.y = 35;
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 	m_TextWin = new WinEDA_GraphicTextCtrl(this, _("Text:"),
 				m_CurrentPinSheet->m_Text, m_CurrentPinSheet->m_Size.x,
-				UnitMetric , pos, 200);
+				g_UnitMetric , LeftBoxSizer, 200);
 
 	// Selection de la forme :
-	pos.x = 15;
-	pos.y += m_TextWin->GetDimension().y + 10;
-
 	m_PinSheetShape = new wxRadioBox(this, -1, _("PinSheet Shape:"),
-				pos, wxSize(-1,-1),
+				wxDefaultPosition, wxSize(-1,-1),
 				NBSHAPES, shape_list, 1);
 	m_PinSheetShape->SetSelection( m_CurrentPinSheet->m_Shape );
+	LeftBoxSizer->Add(m_PinSheetShape, 0, wxGROW|wxALL, 5);
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 

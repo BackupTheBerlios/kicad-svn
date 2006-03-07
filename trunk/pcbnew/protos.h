@@ -246,7 +246,7 @@ MODULE * Load_Module_From_Library(WinEDA_DrawFrame * frame, wxDC * DC);
 /* EDITRACK.C : */
 /****************/
 
-void Montre_Position_New_Piste(WinEDA_DrawPanel * panel,
+void ShowNewTrackWhenMovingCursor(WinEDA_DrawPanel * panel,
 				wxDC * DC, bool erase);
 
 void Calcule_Coord_Extremite_45(int ox, int oy, int *fx, int * fy);

@@ -304,6 +304,9 @@ extern wxRealPoint g_UserGrid;
 extern int g_UserGrid_Unit;
 #endif
 
+COMMON_GLOBL int g_UnitMetric;			// display units mm = 1, inches = 0, cm = 2
+
+
 // shape selector for cursor screen
 COMMON_GLOBL int g_CursorShape;
 
@@ -538,6 +541,20 @@ void valeur_param(int valeur,wxString & buf_texte);
 	retourne en buffer : texte : valeur exprimee en pouces ou millimetres
 						suivie de " ou mm
 */
+
+wxString ReturnUnitSymbol(int Units = g_UnitMetric);
+int ReturnValueFromString(int Units, const wxString & TextValue, int Internal_Unit);
+wxString ReturnStringFromValue(int Units, int Value, int Internal_Unit);
+void AddUnitSymbol(wxStaticText & Stext, int Units = g_UnitMetric);
+	/* Add string "  (mm):" or " ("):" to the static text Stext.
+		Used in dialog boxes for entering values depending on selected units */
+void PutValueInLocalUnits(wxTextCtrl & TextCtr, int Value, int Internal_Unit);
+	/* Convert the number Value in a string according to the internal units
+		and the selected unit (g_UnitMetric) and put it in the wxTextCtrl TextCtrl */
+int ReturnValueFromTextCtrl(const wxTextCtrl & TextCtr, int Internal_Unit);
+	/* Convert the Value in the wxTextCtrl TextCtrl in an integer,
+		according to the internal units and the selected unit (g_UnitMetric) */
+
 double To_User_Unit(bool is_metric, int val,int internal_unit_value);
 int From_User_Unit(bool is_metric, double val,int internal_unit_value);
 wxString GenDate(void);

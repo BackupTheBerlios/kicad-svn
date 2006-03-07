@@ -7,6 +7,7 @@ dans une frame
 
 #include "fctsys.h"
 #include "gr_basic.h"
+#include "macros.h"
 
 #include "common.h"
 #include "colors.h"
@@ -38,38 +39,9 @@ private:
 };
 /* Construction de la table des evenements pour FrameClassMain */
 BEGIN_EVENT_TABLE(WinEDA_SelColorFrame, wxDialog)
-	EVT_BUTTON(ID_COLOR_BLACK, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+1, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+2, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+3, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+4, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+5, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+6, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+7, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+8, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+9, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+10, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+11, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+12, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+13, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+14, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+15, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+16, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+17, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+18, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+19, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+20, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+21, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+22, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+23, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+24, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+25, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+26, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+27, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+28, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+29, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+30, WinEDA_SelColorFrame::SelColor)
-	EVT_BUTTON(ID_COLOR_BLACK+31, WinEDA_SelColorFrame::SelColor)
+	EVT_COMMAND_RANGE(ID_COLOR_BLACK,ID_COLOR_BLACK+31,
+		wxEVT_COMMAND_BUTTON_CLICKED,
+		WinEDA_SelColorFrame::SelColor)
 END_EVENT_TABLE()
 
 /***************************************/
@@ -96,17 +68,20 @@ WinEDA_SelColorFrame::WinEDA_SelColorFrame(wxWindow *parent,
 {
 #define START_Y 10
 wxBitmapButton * Button;
-int ii, yy, butt_ID, buttcolor;
+int ii, butt_ID, buttcolor;
 wxPoint pos;
 int w = 20, h = 20;
-
+wxStaticText * text;
+int right, bottom, line_height;
+	
 	SetFont(*g_DialogFont);
 
 	SetReturnCode(-1);
 
-	pos.x = 5; pos.y = START_Y;
+	bottom = pos.x = 5; right = pos.y = START_Y;
+	line_height = h;
 	for ( ii = 0; ColorRefs[ii].m_Name != NULL ; ii++ )
-		{
+	{
 		butt_ID = ID_COLOR_BLACK + ii;
 		wxMemoryDC iconDC;
 		wxBitmap ButtBitmap(w,h);
@@ -126,26 +101,31 @@ int w = 20, h = 20;
 		iconDC.Clear();
 		iconDC.DrawRoundedRectangle(0,0, w, h, (double)h/3);
 
+		text = new wxStaticText(this,-1,
+					ColorRefs[ii].m_Name,
+					wxPoint(pos.x + 2 + w , pos.y ),
+					wxSize(-1,-1), 0 );
+		line_height = MAX( line_height, text->GetRect().GetHeight());
+		right = MAX(right, text->GetRect().GetRight());
+		bottom = MAX(bottom, text->GetRect().GetBottom());
+		
 		Button = new wxBitmapButton(this, butt_ID,
 						ButtBitmap,
-						wxPoint(pos.x, pos.y), wxSize(w,h) );
+						wxPoint(pos.x, pos.y  - ((h -line_height)/2)),
+						wxSize(w,h) );
 
-		new wxStaticText(this,-1,
-					ColorRefs[ii].m_Name,
-					wxPoint(pos.x + 2 + w , pos.y + 4 ),
-					wxSize(-1,-1), 0 );
-
-		yy = h + 5;
-		pos.y += yy;
+		pos.y +=  line_height + 5;
 		if ( ii == 7 )
-			{
-			pos.x += w + 80; pos.y = START_Y;
-			}
-		else if ( (ii == 15) || (ii == 23) )
-			{
-			pos.x += w + 110; pos.y = START_Y;
-			}
+		{
+			pos.x = right + 10; pos.y = START_Y;
 		}
+		else if ( (ii == 15) || (ii == 23) )
+		{
+			pos.x = right+ 10; pos.y = START_Y;
+		}
+	}
+	
+	SetClientSize( wxSize(right + 10, bottom + 10) );
 }
 
 

@@ -6,131 +6,16 @@
  Parametres = dimensions de la grille utilisateur
 */
 
-
 #include "fctsys.h"
 #include "gr_basic.h"
 
 #include "common.h"
 #include "pcbnew.h"
-#include "pcbplot.h"
-#include "autorout.h"
-
-#include "id.h"
 
 #include "protos.h"
 #include <wx/spinctrl.h>
 
-enum id_optpcb
-{
-	ID_ACCEPT_OPT = 1000,
-	ID_CANCEL_OPT
-};
-
-
-/**************************************************************************/
-/* classe derivee pour la frame de Configuration WinEDA_PcbGridFrame */
-/**************************************************************************/
-
-class WinEDA_PcbGridFrame: public wxDialog
-{
-private:
-protected:
-public:
-
-	WinEDA_BasePcbFrame * m_Parent;
-
-	wxRadioBox * m_UnitGrid;
-	wxTextCtrl * m_OptGridSizeX;
-	wxTextCtrl * m_OptGridSizeY;
-
-	// Constructor and destructor
-	WinEDA_PcbGridFrame(WinEDA_BasePcbFrame *parent,const wxPoint& pos);
-	~WinEDA_PcbGridFrame(void) {};
-
-	void OnCloseWindow(wxCloseEvent & event);
-	void OnQuit(wxCommandEvent & event);
-	void AcceptPcbOptions(wxCommandEvent& event);
-
-	DECLARE_EVENT_TABLE()
-
-};
-/* Construction de la table des evenements pour WinEDA_PcbGridFrame */
-BEGIN_EVENT_TABLE(WinEDA_PcbGridFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_OPT, WinEDA_PcbGridFrame::AcceptPcbOptions)
-	EVT_BUTTON(ID_CANCEL_OPT, WinEDA_PcbGridFrame::OnQuit)
-END_EVENT_TABLE()
-
-
-
-	/***************************************/
-	/* Constructeur de WinEDA_PcbGridFrame */
-	/***************************************/
-
-WinEDA_PcbGridFrame::WinEDA_PcbGridFrame(WinEDA_BasePcbFrame *parent,
-		const wxPoint& framepos):
-		wxDialog(parent, -1, _("User Grid Size"), framepos, wxDefaultSize,
-		DIALOG_STYLE )
-{
-wxPoint pos;
-wxString msg;
-int lowy = 0;
-PCB_SCREEN * screen;
-	
-	m_Parent = parent;
-	screen = m_Parent->GetScreen();	
-	SetFont(*g_DialogFont);
-
-	g_UserGrid = screen->m_UserGrid;
-	g_UserGrid_Unit = screen->m_UserGridUnit;
-
-	pos.x = 5; pos.y = 5;
-wxString UnitList[2] =
-	{ _("Inches"), _("mm")
-	};
-	
-	m_UnitGrid = new wxRadioBox(this, -1, _("Grid Size Units"), pos, wxDefaultSize,
-		2, UnitList, 1, wxRA_SPECIFY_COLS);
-	if ( screen->m_UserGridUnit != INCHES )
-		m_UnitGrid->SetSelection(1);
-	
-	pos.y += 75;
-	wxStaticText * Text = new wxStaticText(this, -1, _("User Grid Size X"),
-				pos, wxSize(-1,-1), 0 );
-	pos.y += 14;
-	msg.Printf( wxT("%.4f"), g_UserGrid.x );
-	m_OptGridSizeX = new wxTextCtrl(this, -1, msg, pos );
-
-	pos.y += 25;
-	Text = new wxStaticText(this, -1, _("User Grid Size Y"), pos,
-				wxSize(-1,-1), 0 );
-	pos.y += 14;
-	msg.Printf( wxT("%.4f"), g_UserGrid.y );
-	m_OptGridSizeY = new wxTextCtrl(this, -1, msg, pos );
-	lowy = pos.y + 20;
-
-	pos.x = 200; pos.y =15;
-	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
-	pos.y += Button->GetSize().y  + 5;
-	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	/* Size adjust */
-	pos.y =10 + lowy;
-	SetClientSize(wxSize(300, pos.y));
-}
-
-
-
-/**********************************************************************/
-void  WinEDA_PcbGridFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/**********************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
-}
-
-
+#include "set_grid.h"
 
 /****************************************************************/
 void WinEDA_PcbGridFrame::AcceptPcbOptions(wxCommandEvent& event)
@@ -160,4 +45,191 @@ void WinEDA_BasePcbFrame::InstallGridFrame(const wxPoint & pos)
 				new WinEDA_PcbGridFrame(this, pos);
 	GridFrame->ShowModal(); GridFrame->Destroy();
 }
+
+
+/*!
+ * WinEDA_PcbGridFrame type definition
+ */
+
+IMPLEMENT_DYNAMIC_CLASS( WinEDA_PcbGridFrame, wxDialog )
+
+/*!
+ * WinEDA_PcbGridFrame event table definition
+ */
+
+BEGIN_EVENT_TABLE( WinEDA_PcbGridFrame, wxDialog )
+
+////@begin WinEDA_PcbGridFrame event table entries
+    EVT_BUTTON( wxID_OK, WinEDA_PcbGridFrame::OnOkClick )
+
+    EVT_BUTTON( wxID_CANCEL, WinEDA_PcbGridFrame::OnCancelClick )
+
+////@end WinEDA_PcbGridFrame event table entries
+
+END_EVENT_TABLE()
+
+/*!
+ * WinEDA_PcbGridFrame constructors
+ */
+
+WinEDA_PcbGridFrame::WinEDA_PcbGridFrame( )
+{
+}
+
+WinEDA_PcbGridFrame::WinEDA_PcbGridFrame( WinEDA_BasePcbFrame* parent,
+			const wxPoint& pos,
+			wxWindowID id, const wxString& caption, const wxSize& size, long style )
+{
+wxString msg;
+PCB_SCREEN * screen;
+	
+	m_Parent = parent;
+	screen = m_Parent->GetScreen();	
+
+	g_UserGrid = screen->m_UserGrid;
+	g_UserGrid_Unit = screen->m_UserGridUnit;
+
+    Create(parent, id, caption, pos, size, style);
+
+	if ( screen->m_UserGridUnit != INCHES )
+		m_UnitGrid->SetSelection(1);
+
+	msg.Printf( wxT("%.4f"), g_UserGrid.x );
+	m_OptGridSizeX->SetValue(msg);
+	msg.Printf( wxT("%.4f"), g_UserGrid.y );
+	m_OptGridSizeY->SetValue(msg);
+}
+
+/*!
+ * WinEDA_PcbGridFrame creator
+ */
+
+bool WinEDA_PcbGridFrame::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
+{
+////@begin WinEDA_PcbGridFrame member initialisation
+    m_UnitGrid = NULL;
+    m_OptGridSizeX = NULL;
+    m_OptGridSizeY = NULL;
+////@end WinEDA_PcbGridFrame member initialisation
+
+////@begin WinEDA_PcbGridFrame creation
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
+    wxDialog::Create( parent, id, caption, pos, size, style );
+
+    CreateControls();
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
+////@end WinEDA_PcbGridFrame creation
+    return true;
+}
+
+/*!
+ * Control creation for WinEDA_PcbGridFrame
+ */
+
+void WinEDA_PcbGridFrame::CreateControls()
+{    
+	SetFont(*g_DialogFont);
+////@begin WinEDA_PcbGridFrame content construction
+    // Generated by DialogBlocks, 26/02/2006 17:39:11 (unregistered)
+
+    WinEDA_PcbGridFrame* itemDialog1 = this;
+
+    wxBoxSizer* itemBoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
+    itemDialog1->SetSizer(itemBoxSizer2);
+
+    wxBoxSizer* itemBoxSizer3 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer2->Add(itemBoxSizer3, 0, wxGROW|wxALL, 5);
+
+    wxString m_UnitGridStrings[] = {
+        _("Inches"),
+        _("mm")
+    };
+    m_UnitGrid = new wxRadioBox( itemDialog1, ID_RADIOBOX, _("Grid Size Units"), wxDefaultPosition, wxDefaultSize, 2, m_UnitGridStrings, 1, wxRA_SPECIFY_COLS );
+    itemBoxSizer3->Add(m_UnitGrid, 0, wxGROW|wxALL, 5);
+
+    itemBoxSizer3->Add(5, 5, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+
+    wxStaticText* itemStaticText6 = new wxStaticText( itemDialog1, wxID_STATIC, _("User Grid Size X"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer3->Add(itemStaticText6, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP|wxADJUST_MINSIZE, 5);
+
+    m_OptGridSizeX = new wxTextCtrl( itemDialog1, ID_TEXTCTRL, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer3->Add(m_OptGridSizeX, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
+
+    wxStaticText* itemStaticText8 = new wxStaticText( itemDialog1, wxID_STATIC, _("User Grid Size Y"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer3->Add(itemStaticText8, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP|wxADJUST_MINSIZE, 5);
+
+    m_OptGridSizeY = new wxTextCtrl( itemDialog1, ID_TEXTCTRL1, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer3->Add(m_OptGridSizeY, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
+
+    wxBoxSizer* itemBoxSizer10 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer2->Add(itemBoxSizer10, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxButton* itemButton11 = new wxButton( itemDialog1, wxID_OK, _("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemButton11->SetForegroundColour(wxColour(202, 0, 0));
+    itemBoxSizer10->Add(itemButton11, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+
+    wxButton* itemButton12 = new wxButton( itemDialog1, wxID_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemButton12->SetDefault();
+    itemButton12->SetForegroundColour(wxColour(0, 0, 255));
+    itemBoxSizer10->Add(itemButton12, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+
+////@end WinEDA_PcbGridFrame content construction
+}
+
+/*!
+ * Should we show tooltips?
+ */
+
+bool WinEDA_PcbGridFrame::ShowToolTips()
+{
+    return true;
+}
+
+/*!
+ * Get bitmap resources
+ */
+
+wxBitmap WinEDA_PcbGridFrame::GetBitmapResource( const wxString& name )
+{
+    // Bitmap retrieval
+////@begin WinEDA_PcbGridFrame bitmap retrieval
+    wxUnusedVar(name);
+    return wxNullBitmap;
+////@end WinEDA_PcbGridFrame bitmap retrieval
+}
+
+/*!
+ * Get icon resources
+ */
+
+wxIcon WinEDA_PcbGridFrame::GetIconResource( const wxString& name )
+{
+    // Icon retrieval
+////@begin WinEDA_PcbGridFrame icon retrieval
+    wxUnusedVar(name);
+    return wxNullIcon;
+////@end WinEDA_PcbGridFrame icon retrieval
+}
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK
+ */
+
+void WinEDA_PcbGridFrame::OnOkClick( wxCommandEvent& event )
+{
+	AcceptPcbOptions(event);
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
+ */
+
+void WinEDA_PcbGridFrame::OnCancelClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_PcbGridFrame.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_PcbGridFrame. 
+}
+
 

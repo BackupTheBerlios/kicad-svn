@@ -258,33 +258,10 @@ private:
 /* Table des evenements pour WinEDA_SetColorsFrame */
 BEGIN_EVENT_TABLE(WinEDA_SetColorsFrame, wxDialog)
 	EVT_RADIOBOX(ID_SEL_BG_COLOR, WinEDA_SetColorsFrame::BgColorChoice)
-	EVT_BUTTON(ID_COLOR_SETUP, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+1, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+2, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+3, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+4, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+5, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+6, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+7, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+8, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+9, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+10, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+11, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+12, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+13, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+14, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+15, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+16, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+17, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+18, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+19, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+20, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+21, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+22, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+23, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+24, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+25, WinEDA_SetColorsFrame::SetColor)
-	EVT_BUTTON(ID_COLOR_SETUP+26, WinEDA_SetColorsFrame::SetColor)
+	EVT_COMMAND_RANGE(ID_COLOR_SETUP, ID_COLOR_SETUP+26,
+			wxEVT_COMMAND_BUTTON_CLICKED,
+			WinEDA_SetColorsFrame::SetColor)
+
 END_EVENT_TABLE()
 
 
@@ -306,29 +283,38 @@ WinEDA_SetColorsFrame::WinEDA_SetColorsFrame(WinEDA_DrawFrame *parent,
 			wxSize(500, 270), DIALOG_STYLE)
 /**********************************************************************/
 {
-#define START_Y 25
+#define START_Y 15
 wxBitmapButton * Button;
 int ii, yy, butt_ID, buttcolor;
 wxPoint pos;
 int w = BUTT_SIZE_X, h = BUTT_SIZE_Y;
-
+wxStaticText * text;
+int right, bottom, line_height;
+wxPoint bg_color_pos;
+	
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
-	pos.x = 5; pos.y = START_Y;
+	pos.x = 10; pos.y = START_Y;
+	right = pos.x; bottom = 0;
+	line_height = h;
 	for ( ii = 0; laytool_list[ii] != NULL; ii++ )
 		{
 		if( laytool_list[ii]->m_Color == NULL)
 			{
 			if( pos.y != START_Y )
-				{
-				pos.x += w + 80; pos.y = START_Y;
-				}
+			{
+				pos.x = right + 10;
+				pos.y = START_Y;
+				bg_color_pos = pos;
+			}
 			wxString msg = wxGetTranslation(laytool_list[ii]->m_Name);
-			new wxStaticText(this,-1,
+			text = new wxStaticText(this,-1,
 					msg,
-					wxPoint(pos.x + 10, pos.y - 18 ),
+					wxPoint(pos.x, pos.y ),
 					wxSize(-1,-1), 0 );
+			line_height = MAX(line_height, text->GetRect().GetHeight());
+			pos.y += line_height;
 			continue;
 			}
 		butt_ID = ID_COLOR_SETUP + ii;
@@ -352,25 +338,36 @@ int w = BUTT_SIZE_X, h = BUTT_SIZE_Y;
 
 		Button = new wxBitmapButton(this, butt_ID,
 						ButtBitmap,
-						wxPoint(pos.x + 20, pos.y), wxSize(w,h) );
+						wxPoint(pos.x, pos.y - ((h -line_height)/2) ),
+						wxSize(w,h) );
 		laytool_list[ii]->m_Button = Button;
 
 		wxString msg = wxGetTranslation(laytool_list[ii]->m_Name);
-		new wxStaticText(this,-1,
+		text = new wxStaticText(this,-1,
 					msg,
-					wxPoint(pos.x + 25 + w , pos.y + 4 ),
+					wxPoint(pos.x + 5 + w , pos.y ),
 					wxSize(-1,-1), 0 );
+		wxPoint lowpos;
+		lowpos.x = text->GetRect().GetRight();
+		lowpos.y = text->GetRect().GetBottom();
+		right = MAX(right, lowpos.x);
+		bottom = MAX(bottom, lowpos.y);
+		bg_color_pos.y = lowpos.y;
 
-		yy = h + 5;
+		yy = line_height + 5;
 		pos.y += yy;
 		}
 
-	pos.x = 300; pos.y = 150;
+	bg_color_pos.x += 5; bg_color_pos.y += 25;
 wxString bg_choice[2] = { _("White Background"), _("Black Background")};
 	m_SelBgColor = new wxRadioBox(this, ID_SEL_BG_COLOR,
-			_("Background Colour"), pos,
+			_("Background Colour"), bg_color_pos,
 			wxDefaultSize, 2, bg_choice, 1, wxRA_SPECIFY_COLS);
 	m_SelBgColor->SetSelection( (g_DrawBgColor == BLACK) ? 1 : 0);
+	bottom = MAX(bottom, m_SelBgColor->GetRect().GetBottom());;
+	right = MAX(right, m_SelBgColor->GetRect().GetRight());;
+
+	SetClientSize(wxSize(right+10, bottom+10));
 }
 
 

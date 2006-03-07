@@ -90,9 +90,6 @@ WinEDA_ConfigFrame::WinEDA_ConfigFrame(WinEDA_GerberFrame *parent,
 		wxDEFAULT_DIALOG_STYLE|wxFRAME_FLOAT_ON_PARENT )
 {
 #define LEN_EXT 100
-wxPoint pos;
-wxSize size;
-int dimy;
 wxString title;
 
 	m_Parent = parent;
@@ -102,35 +99,38 @@ wxString title;
 	SetTitle(title);
 
 	LibModified = FALSE;
-
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+	
 	/* Creation des boutons de commande */
-	pos.x = 150; pos.y = 45;
-	wxButton * Button = new wxButton(this,	ID_SAVE_CFG,
-						_("Save Cfg"), pos);
+	wxButton * Button = new wxButton(this,	ID_SAVE_CFG, _("Save Cfg"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 10;
-	Button = new wxButton(this,	ID_EXIT_CFG,
-						_("Exit"), pos);
+	Button = new wxButton(this,	ID_EXIT_CFG, _("Exit"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.x = 10; pos.y = 30;
+	wxSize size;
 	size.x = LEN_EXT; size.y = -1;
 	TextDrillExt = new WinEDA_EnterText(this,
 				_("Drill File Ext:"), g_DrillFilenameExt,
-				pos, size);
+				LeftBoxSizer, size);
 
-	dimy = 40;
-
-	pos.y += dimy;
 	TextPhotoExt = new WinEDA_EnterText(this,
 				_("Gerber File Ext:"), g_PhotoFilenameExt,
-				pos, size);
+				LeftBoxSizer, size);
 
-	pos.y += dimy;
 	TextPenExt = new WinEDA_EnterText(this,
 				_("DCode File Ext:"),  g_PenFilenameExt,
-				pos, size);
+				LeftBoxSizer, size);
+ 
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -140,9 +140,9 @@ wxString title;
 
 void WinEDA_ConfigFrame::OnCloseWindow(wxCloseEvent & event)
 {
-	g_DrillFilenameExt = TextDrillExt->GetData();
-	g_PhotoFilenameExt = TextPhotoExt->GetData();
-	g_PenFilenameExt = TextPenExt->GetData();
+	g_DrillFilenameExt = TextDrillExt->GetValue();
+	g_PhotoFilenameExt = TextPhotoExt->GetValue();
+	g_PenFilenameExt = TextPenExt->GetValue();
 	EndModal(0);
 }
 

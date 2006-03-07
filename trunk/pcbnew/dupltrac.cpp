@@ -444,7 +444,7 @@ MODULE * Module;
 
 
 /******************************************************************************/
-/* TRACK * CreateLockPoint(int *pX, int *pY, TRACK * ptsegm, TRACK * refsegm) */
+TRACK * CreateLockPoint(int *pX, int *pY, TRACK * ptsegm, TRACK * refsegm)
 /******************************************************************************/
 
 /* Routine de creation d'un point intermediaire sur un segment
@@ -462,8 +462,6 @@ MODULE * Module;
 		mais ne cree pas de point supplementaire
 
 */
-
-TRACK * CreateLockPoint(int *pX, int *pY, TRACK * ptsegm, TRACK * refsegm)
 {
 int cX, cY;
 int dx, dy;			/* Coord de l'extremite du segm ptsegm / origine */

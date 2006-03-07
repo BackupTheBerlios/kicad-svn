@@ -41,6 +41,37 @@ SEGVIA::SEGVIA(EDA_BaseStruct * StructFather):
 {
 }
 
+/* Copy constructor */
+TRACK::TRACK(const TRACK & Source):
+		EDA_BaseLineStruct( Source.m_Parent, (DrawStructureType)Source.m_StructType)
+{
+	m_StructType = Source.m_StructType;
+	m_Shape = Source.m_Shape;
+	m_NetCode = Source.m_NetCode;
+	m_Flags = Source.m_Flags;
+	m_TimeStamp = Source.m_TimeStamp;
+	SetStatus(Source.ReturnStatus() );
+	m_Layer = Source.m_Layer;
+	m_Start = Source.m_Start;
+	m_End = Source.m_End;
+	m_Width = Source.m_Width;
+	m_Drill = Source.m_Drill;
+	m_Sous_Netcode = Source.m_Sous_Netcode;
+	m_Param = Source.m_Param;
+
+}
+
+
+/***********************/
+bool TRACK::IsNull(void)
+/***********************/
+// return TRUE if segment lenght = 0
+{
+	if ( ( m_StructType != TYPEVIA ) && ( m_Start == m_End )  )
+		return TRUE;
+	else return FALSE;
+}
+
 /*************************************************************/
 int TRACK::IsPointOnEnds(const wxPoint & point, int min_dist)
 /*************************************************************/
@@ -351,36 +382,14 @@ TRACK * TRACK:: Copy( int NbSegm  )
 TRACK * NewTrack, * FirstTrack, *OldTrack, * Source = this;
 int ii;
 
-	FirstTrack = NewTrack = new TRACK(NULL);
-	*NewTrack = * Source;
-
-	/* correction du chainage */
-	NewTrack->Pback = NewTrack->Pnext = NULL;
-
-	/* reset des pointeurs auxiliaires */
-	NewTrack->start = NewTrack->end = NULL;
-
-	if( NbSegm <=1 ) return (FirstTrack);
+	FirstTrack = NewTrack = new TRACK(*Source);
 
 	for( ii = 1; ii < NbSegm; ii++ )
 		{
-		Source = (TRACK*) Source->Pnext;
+		Source = Source->Next();
 		if( Source == NULL ) break;
 		OldTrack = NewTrack;
-		NewTrack = new TRACK(m_Parent);
-		if ( NewTrack == NULL ) break;
-		NewTrack->m_StructType = Source->m_StructType;
-		NewTrack->m_Shape = Source->m_Shape;
-		NewTrack->m_NetCode = Source->m_NetCode;
-		NewTrack->m_Flags = Source->m_Flags;
-		NewTrack->m_TimeStamp = Source->m_TimeStamp;
-		NewTrack->SetStatus(Source->ReturnStatus() );
-		NewTrack->m_Layer = Source->m_Layer;
-		NewTrack->m_Start = Source->m_Start;
-		NewTrack->m_End = Source->m_End;
-		NewTrack->m_Width = Source->m_Width;
-		NewTrack->m_Drill = Source->m_Drill;
-
+		NewTrack = new TRACK(*Source);
 		NewTrack->Insert(NULL, OldTrack);
 		}
 

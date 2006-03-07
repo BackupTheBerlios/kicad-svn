@@ -43,7 +43,8 @@ void WinEDA_LibeditFrame::ReCreateVToolbar(void)
 
 		// Set up toolbar
 		m_VToolBar->AddTool(ID_NO_SELECT_BUTT, wxEmptyString,
-				BITMAP(cursor_xpm), wxEmptyString, wxITEM_CHECK );
+				BITMAP(cursor_xpm),
+				_("deselect current tool"), wxITEM_CHECK );
 		m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
 
 		m_VToolBar->AddSeparator();

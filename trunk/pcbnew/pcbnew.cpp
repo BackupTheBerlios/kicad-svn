@@ -24,7 +24,7 @@
 
 #include "eda_dde.h"
 
-wxString Main_Title( wxT("PCBNEW 19-jan-06") );
+wxString Main_Title( wxT("PCBNEW 07-mar-06") );
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -75,15 +75,15 @@ wxString FFileName;
 	m_PcbFrame->SetTitle(Main_Title);
 	ScreenPcb->SetParentFrame(m_PcbFrame);
 	ActiveScreen = ScreenPcb;
-	SetTopWindow(m_PcbFrame);
 	m_PcbFrame->m_Pcb = new BOARD(NULL, m_PcbFrame);
 
+	SetTopWindow(m_PcbFrame);
 	m_PcbFrame->Show(TRUE);
 
 	if( CreateServer(m_PcbFrame, KICAD_PCB_PORT_SERVICE_NUMBER) )
-		{
+	{
 		SetupServerFunction(RemoteCommand);
-		}
+	}
 
 	m_PcbFrame->Zoom_Automatique(TRUE);
 

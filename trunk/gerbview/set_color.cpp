@@ -9,6 +9,8 @@
 
 #include "protos.h"
 
+#define BUTT_SIZE_X 20
+#define BUTT_SIZE_Y 16
 
 /* Variables locales */
 int CurrentColor;
@@ -17,10 +19,6 @@ int CurrentColor;
 
 /* Macro utile : */
 #define ADR(numlayer) &g_DesignSettings.m_LayerColor[(numlayer)]
-
-#define BUTT_SIZE_X 25
-#define BUTT_SIZE_Y 15
-
 
 enum col_sel_id {
 	ID_COLOR_RESET_SHOW_LAYER_ON = 1800,
@@ -148,29 +146,27 @@ WinEDA_SetColorsFrame::WinEDA_SetColorsFrame(WinEDA_DrawFrame *parent,
 			wxDEFAULT_DIALOG_STYLE|wxFRAME_FLOAT_ON_PARENT )
 /**********************************************************************/
 {
-#define START_Y 25
 wxBitmapButton * ButtonB;
-int ii, yy, xx, butt_ID, buttcolor;
-wxPoint pos;
-int w = BUTT_SIZE_X, h = BUTT_SIZE_Y;
+int ii, butt_ID, buttcolor;
 wxString msg;
+wxStaticText * text;
+wxBoxSizer * CurrBoxSizer = NULL;
 	
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 
-	pos.x = 5; pos.y = START_Y;
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+
 	for ( ii = 0; laytool_list[ii] != NULL; ii++ )
 	{
-		if( ! laytool_list[ii]->m_Color && ! laytool_list[ii]->m_NoDisplay )
+		if( ! CurrBoxSizer || ! laytool_list[ii]->m_Color && ! laytool_list[ii]->m_NoDisplay )
 		{
-			if( pos.y != START_Y )
-			{
-				pos.x += w + 100; pos.y = START_Y;
-			}
+			CurrBoxSizer = new wxBoxSizer(wxVERTICAL);
+			MainBoxSizer->Add(CurrBoxSizer, 0, wxGROW|wxALL, 5);
 			msg = wxGetTranslation(laytool_list[ii]->m_Name.GetData());
-			new wxStaticText(this,-1, msg,
-					wxPoint(pos.x + 10, pos.y - 18 ),
-					wxSize(-1,-1), 0 );
+			text = new wxStaticText(this,-1, msg );
+			CurrBoxSizer->Add(text, 0, wxGROW|wxALL, 5);
 			continue;
 		}
 
@@ -178,9 +174,12 @@ wxString msg;
 			laytool_list[ii]->m_Id = ID_COLOR_SETUP + ii;
 		butt_ID = laytool_list[ii]->m_Id;
 
-		laytool_list[ii]->m_CheckBox = new wxCheckBox(this,
-						ID_COLOR_CHECKBOX_ONOFF, wxEmptyString,
-						wxPoint(pos.x, pos.y));
+		wxBoxSizer * LineBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+		wxCheckBox * Checkb;
+		CurrBoxSizer->Add(LineBoxSizer, 0, wxGROW|wxALL, 0);
+		laytool_list[ii]->m_CheckBox = Checkb = new wxCheckBox(this,
+						ID_COLOR_CHECKBOX_ONOFF, wxEmptyString );
+		LineBoxSizer->Add(Checkb, 0, wxGROW|wxALL, 1);
 
 		if ( laytool_list[ii]->m_NoDisplayIsColor )
 		{
@@ -192,11 +191,9 @@ wxString msg;
 		else if ( laytool_list[ii]->m_NoDisplay )
 			laytool_list[ii]->m_CheckBox->SetValue(*laytool_list[ii]->m_NoDisplay);
 
-		xx = 3 + laytool_list[ii]->m_CheckBox->GetSize().x;
-
 		if( laytool_list[ii]->m_Color )
 		{
-			wxMemoryDC iconDC;
+			wxMemoryDC iconDC; int w = BUTT_SIZE_X, h = BUTT_SIZE_Y;
 			wxBitmap ButtBitmap(w,h);
 			iconDC.SelectObject( ButtBitmap );
 			buttcolor = *laytool_list[ii]->m_Color & MASKCOLOR;
@@ -214,36 +211,35 @@ wxString msg;
 			iconDC.DrawRectangle(0,0, w, h);
 
 			ButtonB = new wxBitmapButton(this, butt_ID,
-						ButtBitmap,
-						wxPoint(pos.x + xx, pos.y),
+						ButtBitmap, wxDefaultPosition,
 						wxSize(w,h) );
 			laytool_list[ii]->m_Button = ButtonB;
-			xx += 3 + w;
+			LineBoxSizer->Add(ButtonB, 0, wxALIGN_CENTER_VERTICAL|wxALL, 1);
 		}
 
 		msg = wxGetTranslation(laytool_list[ii]->m_Name.GetData());
-		new wxStaticText(this,-1, msg,
-					wxPoint(pos.x + xx , pos.y + 1 ),
-					wxSize(-1,-1), 0 );
-
-		yy = h + 5;
-		pos.y += yy;
+		text = new wxStaticText(this,-1, msg);
+		LineBoxSizer->Add(text, 0, wxGROW|wxALL, 1);
 	}
 
-	pos.y = 200;
+	CurrBoxSizer->AddSpacer(20);
 	wxButton * Button = new wxButton(this,ID_COLOR_RESET_SHOW_LAYER_ON,
-						_("Show All"), pos);
+						_("Show All"));
 	Button->SetForegroundColour(*wxBLUE);
+	CurrBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 2;
 	Button = new wxButton(this,ID_COLOR_RESET_SHOW_LAYER_OFF,
-						_("Show None"), pos);
+						_("Show None"));
 	Button->SetForegroundColour(*wxRED);
+	CurrBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 20;
 	Button = new wxButton(this,ID_COLOR_EXIT,
-						_("Exit"), pos);
+						_("Exit"));
 	Button->SetForegroundColour(*wxBLACK);
+	CurrBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /*******************************************************************/

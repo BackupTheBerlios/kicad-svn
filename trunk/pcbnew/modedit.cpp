@@ -77,6 +77,13 @@ wxClientDC dc(DrawPanel);
 		case ID_POPUP_PCB_EDIT_LAYER_CURRENT_EDGE:
 		case ID_POPUP_PCB_EDIT_LAYER_ALL_EDGE:
 		case ID_POPUP_PCB_ENTER_EDGE_WIDTH:
+		case ID_POPUP_DELETE_BLOCK:
+		case ID_POPUP_PLACE_BLOCK:
+		case ID_POPUP_ZOOM_BLOCK:
+		case ID_POPUP_MIRROR_Y_BLOCK:
+		case ID_POPUP_MIRROR_X_BLOCK:
+		case ID_POPUP_ROTATE_BLOCK:
+		case ID_POPUP_COPY_BLOCK:
 			break;
 
 		case ID_POPUP_CANCEL_CURRENT_COMMAND:
@@ -448,6 +455,45 @@ wxClientDC dc(DrawPanel);
 			DrawPanel->Refresh(TRUE);
 			break;
 
+		case ID_POPUP_PLACE_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_MOVE;
+			DrawPanel->m_AutoPAN_Request = FALSE;
+			HandleBlockPlace(&dc);
+			break;
+
+		case ID_POPUP_COPY_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_COPY;
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			DrawPanel->m_AutoPAN_Request = FALSE;
+			HandleBlockPlace(&dc);
+			break;
+
+		case ID_POPUP_ZOOM_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_ZOOM;
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			HandleBlockEnd(&dc);
+			break;
+
+		case ID_POPUP_DELETE_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_DELETE;
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			HandleBlockEnd(&dc);
+			break;
+
+		case ID_POPUP_ROTATE_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_ROTATE;
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			HandleBlockEnd(&dc);
+			break;
+
+		case ID_POPUP_MIRROR_X_BLOCK:
+		case ID_POPUP_MIRROR_Y_BLOCK:
+		case ID_POPUP_INVERT_BLOCK:
+			GetScreen()->BlockLocate.m_Command = BLOCK_INVERT;
+			m_CurrentScreen->BlockLocate.SetMessageBlock(this);
+			HandleBlockEnd(&dc);
+			break;
 		default:
 			DisplayError(this,
 				wxT("WinEDA_ModuleEditFrame::Process_Special_Functions error"));

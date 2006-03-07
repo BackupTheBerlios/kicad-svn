@@ -29,7 +29,7 @@
 static void CreateScreens(void);
 
 // Global variables
-wxString Main_Title( wxT("EESchema (15-jan-2006)") );
+wxString Main_Title( wxT("EESchema (07-mar-2006)") );
 
 	/************************************/
 	/* Called to initialize the program */
@@ -69,8 +69,9 @@ wxString FFileName;
 	SchematicFrame = new WinEDA_SchematicFrame(NULL, this,
 					 wxT("EESchema"), wxPoint(0,0), wxSize(600,400) );
 	ScreenSch->SetParentFrame(SchematicFrame);
-	SchematicFrame->Show(TRUE);
+
 	SetTopWindow(SchematicFrame);
+	SchematicFrame->Show(TRUE);
 
 	SchematicFrame->Zoom_Automatique(TRUE);
 

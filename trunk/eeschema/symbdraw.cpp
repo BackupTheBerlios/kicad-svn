@@ -34,132 +34,8 @@ static int FlSymbol_Fill = NO_FILL;
 	/************************************/
 	/* class WinEDA_PartPropertiesFrame */
 	/************************************/
-enum id_body_graphics_edit
-{
-	ID_ACCEPT_BODY_GRAPHICS_PROPERTIES = 2050,
-	ID_CLOSE_BODY_GRAPHICS_PROPERTIES
-};
+#include "dialog_cmp_graphic_properties.cpp"
 
-
-class WinEDA_bodygraphics_PropertiesFrame: public wxDialog
-{
-private:
-
-	WinEDA_LibeditFrame * m_Parent;
-	wxCheckBox * m_CommonUnit;
-	wxCheckBox * m_CommonConvert;
-	wxRadioBox * m_Filled;
-
-public:
-	// Constructor and destructor
-	WinEDA_bodygraphics_PropertiesFrame(WinEDA_LibeditFrame *parent, const wxPoint & pos);
-	~WinEDA_bodygraphics_PropertiesFrame(void){};
-
-private:
-	void bodygraphics_PropertiesAccept(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_bodygraphics_PropertiesFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_BODY_GRAPHICS_PROPERTIES,
-				WinEDA_bodygraphics_PropertiesFrame::bodygraphics_PropertiesAccept)
-	EVT_BUTTON(ID_CLOSE_BODY_GRAPHICS_PROPERTIES,
-				WinEDA_bodygraphics_PropertiesFrame::OnQuit)
-END_EVENT_TABLE()
-
-
-WinEDA_bodygraphics_PropertiesFrame::WinEDA_bodygraphics_PropertiesFrame(
-				WinEDA_LibeditFrame *parent, const wxPoint & framepos):
-		wxDialog(parent, -1, _("Graphic shape properties"),
-                    framepos, wxSize(290, 220), DIALOG_STYLE )
-{
-wxPoint pos;
-LibEDA_BaseStruct * CurrentItem = CurrentDrawItem;
-bool show_fill_option = FALSE;
-int fill_option = 0;
-wxButton * Button;
-    
-	m_Parent = parent;
-	Centre();
-
-	m_Filled = NULL;
-
-	/* Creation des boutons de commande */
-	pos.x = 190; pos.y = 20;
-	Button = new wxButton(this, ID_ACCEPT_BODY_GRAPHICS_PROPERTIES,
-						_("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_CLOSE_BODY_GRAPHICS_PROPERTIES,
-						_("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 10;
-	new wxStaticBox(this, -1,_("Options :"), pos, wxSize(150, 170));
-
-	pos.x += 5; pos.y += 30;
-	m_CommonUnit = new wxCheckBox(this, -1, _("Common to Units"), pos);
-	if ( CurrentItem )
-	{
-		if ( CurrentItem->m_Unit == 0 ) m_CommonUnit->SetValue(TRUE);
-	}
-	else if ( ! g_FlDrawSpecificUnit ) m_CommonUnit->SetValue(TRUE);
-
-	pos.y += 20;
-	m_CommonConvert = new wxCheckBox(this, -1, _("Common to convert"), pos);
-	if ( CurrentItem )
-	{
-		if ( CurrentItem->m_Convert == 0 ) m_CommonConvert->SetValue(TRUE);
-	}
-	else if ( !g_FlDrawSpecificConvert ) m_CommonConvert->SetValue(TRUE);
-
-	pos.y += 20;
-	if( CurrentItem )
-        switch(CurrentItem->m_StructType)
- 		{
-        case COMPONENT_ARC_DRAW_TYPE:
-            show_fill_option = TRUE;
-            fill_option = ((LibDrawArc*)CurrentItem)->m_Fill;
-            break;
-        
-		case COMPONENT_CIRCLE_DRAW_TYPE:
-            show_fill_option = TRUE;
-            fill_option = ((LibDrawCircle*)CurrentItem)->m_Fill;
-            break;
-        
-		case COMPONENT_RECT_DRAW_TYPE:
-            show_fill_option = TRUE;
-            fill_option = ((LibDrawSquare *)CurrentItem)->m_Fill;
-            break;
-        
-        case  COMPONENT_POLYLINE_DRAW_TYPE:
-            show_fill_option = TRUE;
-            fill_option = ((LibDrawPolyline*)CurrentItem)->m_Fill;
-            break;
-        
-        default: break;
-        }
-    if ( show_fill_option )
-    {
-    wxString opt_list[] = { _("Void"), _("Filled"), _("BgFilled") };    
-		m_Filled = new wxRadioBox(this, -1, _("Fill:"),
-                    pos, wxDefaultSize,
-                    3, opt_list, 1, wxRA_SPECIFY_COLS);
-		m_Filled->SetSelection(fill_option);
-    }            
-}
-
-
-/************************************************************************/
-void  WinEDA_bodygraphics_PropertiesFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/************************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
-}
 
 /************************************************************/
 void WinEDA_bodygraphics_PropertiesFrame::
@@ -235,7 +111,7 @@ void WinEDA_LibeditFrame::EditGraphicSymbol(wxDC * DC,
 	if ( DrawItem == NULL ) return;
 	
 	WinEDA_bodygraphics_PropertiesFrame * frame = new
-				WinEDA_bodygraphics_PropertiesFrame(this,wxPoint(-1,-1) );
+				WinEDA_bodygraphics_PropertiesFrame(this);
 	frame->ShowModal(); frame->Destroy();
 }
 

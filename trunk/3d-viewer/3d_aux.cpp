@@ -181,68 +181,45 @@ Info_3D_Visu::~Info_3D_Visu(void)
 /*****************************************************************/
 
 WinEDA_VertexCtrl::WinEDA_VertexCtrl(wxWindow *parent, const wxString & title,
-						int units, const wxPoint & Pos,
-						int internal_unit)
+						wxBoxSizer * BoxSizer,
+						int units, int internal_unit)
 {
-wxPoint aff_pos = Pos;
 wxString text;
-
+wxStaticText * msgtitle;
+	
 	m_Units = units;
 	m_Internal_Unit = internal_unit;
 
 	if ( title.IsEmpty()  )	text = _("Vertex ");
 	else text = title;
-	switch ( units )
-	{
-		case INCHES:
-			text << _(" (\"):");
-			break;
+	text += ReturnUnitSymbol(units);
 
-		case MILLIMETRE:
-			text << _(" (mm):");
-			break;
+	msgtitle = new wxStaticText(parent, -1, text, wxDefaultPosition, wxSize(-1,-1), 0 );
+	BoxSizer->Add(msgtitle, wxGROW|wxLEFT|wxRIGHT|wxTOP|wxBOTTOM|wxADJUST_MINSIZE);
 
-		default:
-			break;
+    wxFlexGridSizer * GridSizer = new wxFlexGridSizer(3, 2, 0, 0);
+    BoxSizer->Add(GridSizer, 0, wxGROW|wxALL, 5);
 
-	}
-	new wxStaticText(parent, -1, text, aff_pos, wxSize(-1,-1), 0 );
+	msgtitle = new wxStaticText(parent, -1, wxT("X:"));
+    GridSizer->Add(msgtitle, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxADJUST_MINSIZE, 5);
+	m_XValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, wxDefaultPosition, wxSize(-1,-1), 0 );
+	GridSizer->Add(m_XValueCtrl, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5);
 
-	aff_pos.y += 14;
-	new wxStaticText(parent, -1, wxT("X:"), aff_pos, wxSize(-1,-1), 0 );
-	aff_pos.x += 20;
-	m_XValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
+	msgtitle = new wxStaticText(parent, -1, wxT("Y:"), wxDefaultPosition, wxSize(-1,-1), 0 );
+    GridSizer->Add(msgtitle, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxADJUST_MINSIZE, 5);
+	m_YValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, wxDefaultPosition, wxSize(-1,-1), 0 );
+	GridSizer->Add(m_YValueCtrl, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5);
 
-	aff_pos.y += m_XValueCtrl->GetSize().y;
-	aff_pos.x -= 20;
-	new wxStaticText(parent, -1, wxT("Y:"), aff_pos, wxSize(-1,-1), 0 );
-	aff_pos.x += 20;
-	m_YValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
-
-	aff_pos.y += m_YValueCtrl->GetSize().y;
-	aff_pos.x -= 20;
-	new wxStaticText(parent, -1, wxT("Z:"), aff_pos, wxSize(-1,-1), 0 );
-	aff_pos.x += 20;
-	m_ZValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, aff_pos, wxSize(-1,-1), 0 );
-
-	m_WinSize.x = m_XValueCtrl->GetSize().x + aff_pos.x;
-	aff_pos.y += m_ZValueCtrl->GetSize().y;
-	m_WinSize.y = aff_pos.y - Pos.y;
+	msgtitle = new wxStaticText(parent, -1, wxT("Z:"), wxDefaultPosition, wxSize(-1,-1), 0 );
+	GridSizer->Add(msgtitle, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxADJUST_MINSIZE, 5);
+	m_ZValueCtrl = new wxTextCtrl(parent, -1, wxEmptyString, wxDefaultPosition, wxSize(-1,-1), 0 );
+	GridSizer->Add(m_ZValueCtrl, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT, 5);
 }
 
 WinEDA_VertexCtrl::~WinEDA_VertexCtrl(void)
 {
 }
 
-
-/*********************************************/
-wxSize WinEDA_VertexCtrl::GetDimension(void)
-/*********************************************/
-/* retourne la dimension de la zone occupee par la "frame"
-*/
-{
-	return m_WinSize;
-}
 
 /*******************************************/
 S3D_Vertex WinEDA_VertexCtrl::GetValue(void)

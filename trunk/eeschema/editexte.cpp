@@ -121,7 +121,7 @@ wxButton * Button;
 
 	m_TextWin = new WinEDA_GraphicTextCtrl(this, wxT("Text:"),
 				CurrentText->m_Text, CurrentText->m_Size.x,
-				UnitMetric , pos, 200);
+				g_UnitMetric , pos, 200);
 	m_TextWin->SetFocus();
 
 	// Selection de l'orientation :

@@ -125,7 +125,7 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 		}
 	ScreenModule->SetParentFrame(this);
 	ScreenModule->m_UndoRedoCountMax = 10;
-		
+
 	if( g_ModuleEditor_Pcb == NULL ) g_ModuleEditor_Pcb = new BOARD(NULL, this);
 	m_Pcb = g_ModuleEditor_Pcb;
 
@@ -140,8 +140,10 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 		long SizeX, SizeY;
 		if ( m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_X"), &SizeX) &&
 			 m_Parent->m_EDA_Config->Read( wxT("ModEditGrid_Y"), &SizeY) )
-		GridSize.x = SizeX;
-		GridSize.y = SizeY;
+		{
+			GridSize.x = SizeX;
+			GridSize.y = SizeY;
+		}
 	}
 	GetScreen()->SetGrid(GridSize);
 
@@ -151,6 +153,9 @@ WinEDA_ModuleEditFrame::WinEDA_ModuleEditFrame(wxWindow * father, WinEDA_App *pa
 	ReCreateAuxiliaryToolbar();
 	ReCreateVToolbar();
 	ReCreateOptToolbar();
+
+	if ( DrawPanel ) DrawPanel->m_Block_Enable = TRUE;
+
 }
 
 
@@ -213,17 +218,17 @@ bool active, islib = TRUE;
 	}
 
 	if ( m_Parent->m_PcbFrame->m_Pcb->m_Modules )
-		{
+	{
 		m_HToolBar->EnableTool(ID_MODEDIT_LOAD_MODULE_FROM_BOARD,TRUE);
-		}
+	}
 	else
-		{
+	{
 		m_HToolBar->EnableTool(ID_MODEDIT_LOAD_MODULE_FROM_BOARD,FALSE);
-		}
+	}
 
 
 	if ( m_VToolBar )
-		{
+	{
 		m_VToolBar->EnableTool(ID_MODEDIT_ADD_PAD,active);
 		m_VToolBar->EnableTool(ID_LINE_COMMENT_BUTT,active);
 		m_VToolBar->EnableTool(ID_PCB_CIRCLE_BUTT,active);
@@ -231,14 +236,14 @@ bool active, islib = TRUE;
 		m_VToolBar->EnableTool(ID_TEXT_COMMENT_BUTT,active);
 		m_VToolBar->EnableTool(ID_MODEDIT_PLACE_ANCHOR,active);
 		m_VToolBar->EnableTool(ID_PCB_DELETE_ITEM_BUTT,active);
-		}
+	}
 
 	if ( m_OptionsToolBar )
-		{
+	{
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_MM,
-			UnitMetric == MILLIMETRE ? TRUE : FALSE);
+			g_UnitMetric == MILLIMETRE ? TRUE : FALSE);
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_INCH,
-			UnitMetric == INCHES ? TRUE : FALSE);
+			g_UnitMetric == INCHES ? TRUE : FALSE);
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SHOW_POLAR_COORD,
 			DisplayOpt.DisplayPolarCood);
@@ -251,44 +256,44 @@ bool active, islib = TRUE;
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SHOW_PADS_SKETCH,
 			! m_DisplayPadFill);
-		}
+	}
 
 	if ( m_AuxiliaryToolBar )
-		{
+	{
 		int ii, jj;
 		if ( m_SelZoomBox )
-			{
+		{
 			int old_choice = m_SelZoomBox->GetChoice();
 			int new_choice = 1;
 			int zoom;
 			for ( jj = 1, zoom = 1; zoom <= m_ZoomMaxValue; zoom <<= 1, jj++ )
-					{
+				{
 				if ( m_CurrentScreen && (m_CurrentScreen->GetZoom() == zoom) )
 					break;
 					new_choice++;
-					}
+				}
 			if ( old_choice != new_choice )
 				m_SelZoomBox->SetSelection(new_choice);
-			}
+		}
 
 		if ( m_SelGridBox && GetScreen() )
-			{
+		{
 			int kk = m_SelGridBox->GetChoice();
 			for ( ii = 0; g_GridList[ii].x > 0; ii++ )
-				{
+			{
 				if ( !GetScreen()->m_UserGridIsON &&
 					(GetScreen()->GetGrid().x == g_GridList[ii].x) &&
 					(GetScreen()->GetGrid().y == g_GridList[ii].y))
-					{
+				{
 					if ( kk != ii )m_SelGridBox->SetSelection(ii);
 					kk = ii;
 					break;
-					}
 				}
+			}
 			if ( kk != ii )
 				m_SelGridBox->SetSelection(ii);	/* User Grid */
-			}
 		}
+	}
 
 	DisplayUnitsMsg();
 }

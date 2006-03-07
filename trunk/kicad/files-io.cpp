@@ -37,7 +37,7 @@ int id = event.GetId();
 wxString path = wxGetCwd();
 wxString fullfilename;
 bool IsNew = FALSE;
-
+	
 	switch (id)
 		{
 		case ID_SAVE_PROJECT: /* Update project File */

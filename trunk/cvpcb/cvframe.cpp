@@ -263,10 +263,10 @@ void WinEDA_CvpcbFrame::SaveQuitCvpcb(wxCommandEvent& event)
 /**********************************************************/
 {
 	if( SaveNetList(wxEmptyString)  > 0)
-		{
+	{
 		modified = 0;
 		Close(TRUE);
-		}
+	}
 }
 
 /*************************************************************/

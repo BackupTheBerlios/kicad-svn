@@ -81,7 +81,6 @@ WinEDA_MirePropertiesFrame::WinEDA_MirePropertiesFrame(WinEDA_PcbFrame *parent,
 		wxDialog(parent, -1, _("Mire properties"), framepos, wxSize(270, 210),
 				DIALOG_STYLE)
 {
-wxPoint pos;
 wxString number;
 wxButton * Button;
 
@@ -92,37 +91,43 @@ wxButton * Button;
 
 	m_MirePcb = Mire;
 
-	/* Creation des boutons de commande */
-	pos.x = 170; pos.y = 10;
-	Button = new wxButton(this, ID_ACCEPT_MIRE_PROPERTIES,
-						_("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-	pos.y += Button->GetDefaultSize().y + 20;
-	Button = new wxButton(this, ID_CANCEL_MIRE_PROPERTIES,
-						_("Cancel"), pos);
+	/* Creation des boutons de commande */
+	Button = new wxButton(this, ID_ACCEPT_MIRE_PROPERTIES, _("Ok"));
+	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
+	Button = new wxButton(this, ID_CANCEL_MIRE_PROPERTIES, _("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 	// Size:
-	pos.x = 5; pos.y = 10;
 	m_MireSizeCtrl = new WinEDA_ValueCtrl(this, _("Size"),
 			m_MirePcb->m_Size,
-			UnitMetric, pos, m_Parent->m_InternalUnits );
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits );
 
 	// Width:
-	pos.y += 50;
 	m_MireWidthCtrl = new WinEDA_ValueCtrl(this, _("Width"),
 			m_MirePcb->m_Width,
-			UnitMetric, pos, m_Parent->m_InternalUnits );
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits );
 
 	// Shape
-	pos.y += 50;
 wxString shape_list[2] = { _("shape +"), _("shape X") };
 	m_MireShape = new wxRadioBox(this, ID_LISTBOX_SHAPE_MIRE,
 				_("Mire Shape:"),
-				pos, wxSize(-1,-1),
+				wxDefaultPosition, wxSize(-1,-1),
 				2, shape_list, 1);
 	m_MireShape->SetSelection(m_MirePcb->m_Shape ? 1 : 0);
+	LeftBoxSizer->Add(m_MireShape, 0, wxGROW|wxALL, 5);
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 

@@ -7,8 +7,9 @@
 #define GROUPCOMMON wxT("/common")
 
 // Flag for member .m_Setup
-// .m_Setup = TRUE: write info in user config (i.e. for all project)
-// .m_Setup = FALSE: write info in project config (i.e. only for this project)
+// .m_Setup = TRUE: write info in user config
+//		(i.e. for all project, in registry base or equivalent)
+// .m_Setup = FALSE: write info in project config (i.e. only for this project, in .pro file)
 #define INSETUP TRUE
 
 
@@ -157,10 +158,10 @@ static  PARAM_CFG_BOOL Raccord45Cfg	// Generation automatique des Raccords a 45 
 	TRUE				/* Valeur par defaut */
 );
 
-static  PARAM_CFG_BOOL UnitCfg	// Units: 0 inch, 1 mm
+static  PARAM_CFG_INT UnitCfg	// Units: 0 inch, 1 mm
 (
 	wxT("Unite"),			/* identification */
-	&UnitMetric,		/* Adresse du parametre */
+	&g_UnitMetric,		/* Adresse du parametre */
 	FALSE				/* Valeur par defaut */
 );
 
@@ -726,17 +727,17 @@ static  PARAM_CFG_INT WTraitSerigraphiePlotCfg
 
 static  PARAM_CFG_DOUBLE UserGrilleXCfg
 (
-	wxT("UserGrX"),				/* identification */
+	wxT("UserGrX"),			/* identification */
 	&g_UserGrid.x,			/* Adresse du parametre */
-	0.01,						/* Valeur par defaut */
+	0.01,					/* Valeur par defaut */
 	0.0001, 100.0			/* Valeurs extremes (inches)*/
 );
 
 static  PARAM_CFG_DOUBLE UserGrilleYCfg
 (
-	wxT("UserGrY"),				/* identification */
+	wxT("UserGrY"),			/* identification */
 	&g_UserGrid.y,			/* Adresse du parametre */
-	0.01,						/* Valeur par defaut */
+	0.01,					/* Valeur par defaut */
 	0.0001, 100.0			/* Valeurs extremes  (inches)*/
 );
 
@@ -789,18 +790,26 @@ static  PARAM_CFG_INT PrmMaxLinksShowed
 	0, 15					/* Valeurs extremes */
 );
 
-static  PARAM_CFG_BOOL ShowRatsnestCfg
+static PARAM_CFG_BOOL ShowRatsnestCfg
 (
 	wxT("ShowRat"),				/* identification */
 	&g_Show_Ratsnest,			/* Adresse du parametre */
 	FALSE					/* Valeur par defaut */
 );
 
-static  PARAM_CFG_BOOL ShowModuleRatsnestCfg
+static PARAM_CFG_BOOL ShowModuleRatsnestCfg
 (
 	wxT("ShowMRa"),				/* identification */
 	&g_Show_Module_Ratsnest,	/* Adresse du parametre */
 	TRUE					/* Valeur par defaut */
+);
+
+static PARAM_CFG_BOOL TwoSegmentTrackBuildCfg
+(
+	INSETUP,
+	wxT("TwoSegT"),				/* identification */
+	&g_TwoSegmentTrackBuild,	/* Adresse du parametre */
+	TRUE						/* Valeur par defaut */
 );
 
 PARAM_CFG_BASE * ParamCfgList[] =
@@ -905,6 +914,7 @@ PARAM_CFG_BASE * ParamCfgList[] =
 	& PrmMaxLinksShowed,
 	& ShowRatsnestCfg,
 	& ShowModuleRatsnestCfg,
+	& TwoSegmentTrackBuildCfg,
 
 	NULL
 };

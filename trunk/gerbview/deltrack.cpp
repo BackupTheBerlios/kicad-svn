@@ -17,49 +17,37 @@
 /* Variables locales */
 
 
-	/*****************************************************************/
-	/* void WinEDA_GerberFrame::Delete_Segment(wxDC * DC, TRACK *Track) */
-	/*****************************************************************/
-
+/*****************************************************************/
+TRACK * WinEDA_GerberFrame::Delete_Segment(wxDC * DC, TRACK *Track)
+/*****************************************************************/
 /* Supprime 1 segment de piste.
 	2 Cas possibles:
 	Si On est en trace de nouvelle piste: Effacement du segment en
 		cours de trace
 	Sinon : Effacment du segment sous le curseur.
 */
-
-TRACK * WinEDA_GerberFrame::Delete_Segment(wxDC * DC, TRACK *Track)
 {
 	if ( Track == NULL ) return NULL;
 
 	if(Track->m_Flags & IS_NEW)  // Trace en cours, on peut effacer le dernier segment
 		{
-		if(nbptnewpiste > 0 )
+		if(g_TrackSegmentCount > 0 )
 			{
-			// effacement de la piste en cours
-//			Montre_Position_New_Piste(DrawPanel, DC, NEW_SCREEN);
-
 			// modification du trace
-			Track = ptnewpiste; ptnewpiste = (TRACK*) ptnewpiste->Pback;
-			delete Track; nbptnewpiste--;
+			Track = g_CurrentTrackSegment; g_CurrentTrackSegment = (TRACK*) g_CurrentTrackSegment->Pback;
+			delete Track; g_TrackSegmentCount--;
 
-			if( nbptnewpiste && (ptnewpiste->m_StructType == TYPEVIA))
+			if( g_TrackSegmentCount && (g_CurrentTrackSegment->m_StructType == TYPEVIA))
 				{
-				Track = ptnewpiste; ptnewpiste = (TRACK*) ptnewpiste->Pback;
+				Track = g_CurrentTrackSegment; g_CurrentTrackSegment = (TRACK*) g_CurrentTrackSegment->Pback;
 				delete Track;
-				nbptnewpiste-- ;
+				g_TrackSegmentCount-- ;
 				}
-			if( ptnewpiste ) ptnewpiste->Pnext = NULL;
-			
-			// Rectification couche active qui a pu changer si une via
-			// a ete effacee
-			if( nbptnewpiste )
-				GetScreen()->m_Active_Layer = ptnewpiste->m_Layer ;
-			else GetScreen()->m_Active_Layer = ptstartpiste->m_Layer ;
+			if( g_CurrentTrackSegment ) g_CurrentTrackSegment->Pnext = NULL;
 
 			Affiche_Status_Box();
 			
-			if(nbptnewpiste == 0 )
+			if(g_TrackSegmentCount == 0 )
 				{
 				GetScreen()->ManageCurseur = NULL;
 				GetScreen()->ForceCloseManageCurseur = NULL;
@@ -69,7 +57,7 @@ TRACK * WinEDA_GerberFrame::Delete_Segment(wxDC * DC, TRACK *Track)
 				{
 				if(GetScreen()->ManageCurseur)
 					GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
-				return ptnewpiste;
+				return g_CurrentTrackSegment;
 				}
 			}
 		return NULL;

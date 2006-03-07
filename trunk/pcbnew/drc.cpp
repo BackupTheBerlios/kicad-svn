@@ -40,106 +40,11 @@ static void Affiche_Erreur_DRC(WinEDA_DrawPanel * panel, wxDC * DC,
 			BOARD * Pcb, const D_PAD * pad1, const D_PAD * pad2);
 
 
-enum
-{
-ID_CLOSE_DRC = 8020,
-ID_STOP_CONTROL_DRC,
-ID_DRC_RUN,
-ID_LIST_UNCONNECTED_PADS,
-ID_ERASE_DRC_MARKERS
-};
 
 	/*******************************************/
 	/* Frame d'option et execution DRC general */
 	/*******************************************/
-
-class WinEDA_DrcFrame: public wxDialog
-{
-public:
-	WinEDA_PcbFrame * m_Parent;
-	wxDC * m_DC;
-	WinEDA_ValueCtrl * m_SetClearance;
-	wxTextCtrl * m_logWindow;
-
-public:
-	WinEDA_DrcFrame(WinEDA_PcbFrame * parent, wxDC * panelDC);
-	void CancelDrc(wxCommandEvent & event);
-	void TestDrc(wxCommandEvent & event);
-	void DelDRCMarkers(wxCommandEvent & event);
-	void OnCloseDrc(wxCommandEvent & event);
-	void ListUnconnectedPads(wxCommandEvent & event);
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_DrcFrame, wxDialog)
-	EVT_BUTTON(ID_CLOSE_DRC, WinEDA_DrcFrame::OnCloseDrc)
-	EVT_BUTTON(ID_STOP_CONTROL_DRC, WinEDA_DrcFrame::CancelDrc)
-	EVT_BUTTON(ID_DRC_RUN, WinEDA_DrcFrame::TestDrc)
-	EVT_BUTTON(ID_ERASE_DRC_MARKERS, WinEDA_DrcFrame::DelDRCMarkers)
-	EVT_BUTTON(ID_LIST_UNCONNECTED_PADS, WinEDA_DrcFrame::ListUnconnectedPads)
-END_EVENT_TABLE()
-
-
-
-WinEDA_DrcFrame::WinEDA_DrcFrame(WinEDA_PcbFrame * parent, wxDC * panelDC):
-				wxDialog(parent, -1, _("DRC Control"),
-				wxPoint(-1,-1), wxSize(400, 250),
-				wxDEFAULT_DIALOG_STYLE)
-{
-wxPoint pos;
-wxButton * Button;
-
-	m_Parent = parent;
-	m_DC = panelDC;
- 	AbortDrc = FALSE;
-
-	SetFont(*g_DialogFont);
-
-	Centre();
-
-
-	/* Creation des boutons de commande */
-	pos.x = 5; pos.y = 5;
-	m_SetClearance = new WinEDA_ValueCtrl(this, _("Clearance"),
-			g_DesignSettings.m_TrackClearence,
-			UnitMetric, pos, m_Parent->m_InternalUnits );
-
-	pos.x += 170;
-		Button = new wxButton(this, ID_DRC_RUN,
-						_("Test Drc"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this,	ID_STOP_CONTROL_DRC,
-						_("Stop Drc"), pos);
-	Button->SetForegroundColour(wxColor(0,80,80));
-
-	pos.x += Button->GetDefaultSize().x + 10;
-    pos.y = 5;
-	Button = new wxButton(this,	ID_ERASE_DRC_MARKERS,
-						_("Del Markers"), pos);
-	Button->SetForegroundColour(wxColor(0,80,0));
-
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this,	ID_LIST_UNCONNECTED_PADS,
-						_("List Unconn"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this,	ID_CLOSE_DRC,
-						_("Close"), pos);
-	Button->SetForegroundColour(*wxBLACK);
-
-	// Make a panel for display activity
-	pos.x = 5; pos.y += Button->GetDefaultSize().y + 10;
-	wxSize size = GetClientSize();
-	size.x -= 10; size.y -= pos.y + 15;
-	m_logWindow = new wxTextCtrl(this, -1, wxEmptyString,
-			pos, size,
-			wxTE_MULTILINE|wxSUNKEN_BORDER|wxTE_READONLY);
-}
-
+#include "dialog_drc.cpp"
 
 /***************************************************************/
 void WinEDA_DrcFrame::ListUnconnectedPads(wxCommandEvent & event)
@@ -176,26 +81,6 @@ int unconnect = 0;
 	m_logWindow->AppendText(_("End tst"));
 }
 
-/******************************************************/
-void WinEDA_DrcFrame::CancelDrc(wxCommandEvent & event)
-/******************************************************/
-{
-	if ( DrcInProgress ) AbortDrc = TRUE;
-	else wxBell();
-
-}
-
-/******************************************************/
-void WinEDA_DrcFrame::OnCloseDrc(wxCommandEvent & event)
-/******************************************************/
-{
-	if( DrcInProgress ) wxBell();
-	else
-		{
-		EndModal(0);
-		}
-}
-
 
 /****************************************************/
 void WinEDA_DrcFrame::TestDrc(wxCommandEvent & event)
@@ -204,16 +89,17 @@ void WinEDA_DrcFrame::TestDrc(wxCommandEvent & event)
 int errors;
 wxString msg;
 	if ( ! DrcInProgress )
-		{
+	{
 		AbortDrc = FALSE;
 		m_logWindow->Clear();
-		g_DesignSettings.m_TrackClearence = m_SetClearance->GetValue();
+		g_DesignSettings.m_TrackClearence =
+			ReturnValueFromTextCtrl(*m_SetClearance, m_Parent->m_InternalUnits);
 		errors = m_Parent->Test_DRC(m_DC);
 		if ( errors )
 			msg.Printf(_("** End Drc: %d errors **\n"),errors);
 		else msg = _("** End Drc: No Error **\n");
 		m_logWindow->AppendText(msg);
-		}
+	}
 	else wxBell();
 }
 

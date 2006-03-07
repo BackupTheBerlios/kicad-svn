@@ -166,7 +166,7 @@ LibraryStruct * Lib;
 		}
 
 	EDA_LibComponentStruct * LibEntry = FindLibPart(g_CurrentViewComponentName.GetData(),
-								 g_CurrentViewLibraryName.GetData(), FIND_ALIAS);
+								 g_CurrentViewLibraryName, FIND_ALIAS);
 
 	if ( LibEntry == NULL ) return;
 
@@ -284,7 +284,7 @@ wxString Msg;
 	if ( * g_CurrentViewComponentName )
 		{
 		LibEntry = FindLibPart(g_CurrentViewComponentName.GetData(),
-				 g_CurrentViewLibraryName.GetData(), FIND_ALIAS);
+				 g_CurrentViewLibraryName, FIND_ALIAS);
 		ViewCmpEntry = (LibCmpEntry * ) LibEntry;
 		}
 

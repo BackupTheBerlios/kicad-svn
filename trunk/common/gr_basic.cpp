@@ -6,31 +6,16 @@
 #include "fctsys.h"
 #include "gr_basic.h"
 #include "common.h"
-
-#ifdef PCBNEW
-#include "pcbnew.h"
-#endif
-
-#ifdef EESCHEMA
-#include "program.h"
-#include "libcmp.h"
-#include "general.h"
-#endif
-
-#ifdef CVPCB
-#include "pcbnew.h"
-#include "cvpcb.h"
-#endif
-
 #include "trigo.h"
+#include "macros.h"
 
 #ifndef FILLED
 #define FILLED 1
 #endif
 
-#ifndef EXCHG
-#define EXCHG(a,b) { int __temp__ = (a); (a) = (b); (b) = __temp__; }
-#endif
+
+/* global variables */
+extern BASE_SCREEN * ActiveScreen;
 
 /* Variables locales */
 static int GRLastMoveToX , GRLastMoveToY;

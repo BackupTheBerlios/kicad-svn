@@ -212,6 +212,9 @@ int distance(int dx, int dy, int spot_cX, int spot_cY, int seuil);
 /* EEREDRAW.CPP */
 /***************/
 
+void Draw_Marqueur(WinEDA_DrawPanel * panel, wxDC * DC,
+			wxPoint pos, char* pt_bitmap, int DrawMode, int Color);
+
 void DrawStructsInGhost(WinEDA_DrawPanel * panel, wxDC * DC,
 									EDA_BaseStruct * DrawStruct, int dx, int dy );
 void SetHighLightStruct(EDA_BaseStruct *HighLight);
@@ -481,10 +484,6 @@ int LocateAlias( const wxArrayString & AliasData, const wxString & Name);
 /************/
 void InstallFindFrame(WinEDA_SchematicFrame *parent, wxPoint &pos);
 
-/****************/
-/* SETCOLOR.CPP */
-/****************/
-int DisplayColorFrame(wxWindow * parent);
 
 /***************/
 /* OPTIONS.CPP */

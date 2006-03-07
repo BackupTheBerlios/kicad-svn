@@ -14,120 +14,15 @@
 #include "libcmp.h"
 #include "general.h"
 
-#include "protos.h"
-
 /* Variables Locales */
 static int ItemsCount, MarkerCount;
 static wxString s_OldStringFound;
 
-
-	/*************************************************/
-	/* classe derivee pour la frame de Config de Find */
-	/*************************************************/
-
-enum find_id {
-	FIND_SHEET = 1800,
-	FIND_HIERARCHY,
-	FIND_NEXT,
-	LOCATE_IN_LIBRARIES,
-	FIND_MARKERS,
-	FIND_NEXT_MARKER
-};
-
-/***************************************/
-class WinEDA_FindFrame: public wxDialog
-/***************************************/
-{
-public:
-
-	WinEDA_SchematicFrame * m_Parent;
-	WinEDA_EnterText * m_NewTextCtrl;
-
-	// Constructor and destructor
-	WinEDA_FindFrame(WinEDA_SchematicFrame *parent, wxPoint& pos);
-	~WinEDA_FindFrame(void) {};
-
-	void FindSchematicItem(wxCommandEvent& event);
-	void FindMarker(wxCommandEvent& event);
-	void LocatePartInLibs(wxCommandEvent& event);
-	int ExploreAllLibraries(const wxString & wildmask, wxString & FindList);
+#include "dialog_find.cpp"
 
 
-	DECLARE_EVENT_TABLE()
+#include "protos.h"
 
-};
-/* Construction de la table des evenements pour FrameClassMain */
-BEGIN_EVENT_TABLE(WinEDA_FindFrame, wxDialog)
-	EVT_BUTTON(FIND_SHEET, WinEDA_FindFrame::FindSchematicItem)
-	EVT_BUTTON(FIND_HIERARCHY, WinEDA_FindFrame::FindSchematicItem)
-	EVT_BUTTON(FIND_MARKERS, WinEDA_FindFrame::FindMarker)
-	EVT_BUTTON(FIND_NEXT_MARKER, WinEDA_FindFrame::FindMarker)
-	EVT_BUTTON(FIND_NEXT, WinEDA_FindFrame::FindSchematicItem)
-	EVT_BUTTON(LOCATE_IN_LIBRARIES, WinEDA_FindFrame::LocatePartInLibs)
-END_EVENT_TABLE()
-
-#define H_SIZE 340
-#define V_SIZE 80
-/*******************************************************************************/
-WinEDA_FindFrame::WinEDA_FindFrame(WinEDA_SchematicFrame *parent, wxPoint& framepos):
-		wxDialog(parent, -1, _("EESchema Locate"), framepos,
-				wxSize(H_SIZE, V_SIZE + 30), DIALOG_STYLE)
-/*******************************************************************************/
-{
-wxPoint pos;
-wxSize WinClientSize;
-	
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-
-	if ( (framepos.x == -1) && (framepos.x == -1) ) Centre();
-
-	/* Creation des boutons de commande */
-	pos.x = 5; pos.y = 50;
-	wxButton * Button = new wxButton(this, FIND_SHEET,
-						_("Item in &Sheet"), pos);
-
-	pos.x += Button->GetSize().x + 5;
-	Button = new wxButton(this, FIND_HIERARCHY,
-						_("Item in &Hierarchy"), pos);
-
-	pos.x += Button->GetSize().x + 5;
-	Button = new wxButton(this, FIND_NEXT,
-						_("Find &Next Item"), pos);
-	Button->SetForegroundColour(wxColor(0,80,0));
-	pos.x += Button->GetSize().x + 5;
-	WinClientSize.x = pos.x;
-
-	pos.x = 5;
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this, LOCATE_IN_LIBRARIES,
-						_("Cmp in &Lib"), pos);
-	Button->SetForegroundColour(wxColor(100,0,0) );
-
-	pos.x += Button->GetSize().x + 5;
-	Button = new wxButton(this, FIND_MARKERS,
-						_("Find Markers"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x += Button->GetSize().x + 5;
-	Button = new wxButton(this, FIND_NEXT_MARKER,
-						_("Next Marker"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-	pos.x += Button->GetSize().x + 5;
-	WinClientSize.x = MAX(WinClientSize.x, pos.x);
-
-	pos.y += Button->GetSize().y + 5;
-	WinClientSize.y = pos.y;
-
-	SetClientSize( WinClientSize );
-
-	pos.y = 15; pos.x = 5;
-	wxSize size = GetClientSize();
-	m_NewTextCtrl = new WinEDA_EnterText(this,
-				_("Item to find:"), s_OldStringFound,
-				pos, wxSize(size.x - 15,-1) );
-
-}
 
 
 /**************************************************************/
@@ -135,7 +30,7 @@ void InstallFindFrame(WinEDA_SchematicFrame *parent, wxPoint & pos)
 /**************************************************************/
 {
 	parent->DrawPanel->m_IgnoreMouseEvents = TRUE;
-	WinEDA_FindFrame * frame = new WinEDA_FindFrame(parent, pos);
+	WinEDA_FindFrame * frame = new WinEDA_FindFrame(parent);
 	frame->ShowModal(); frame->Destroy();
 	parent->DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
@@ -269,9 +164,12 @@ void WinEDA_FindFrame::FindSchematicItem(wxCommandEvent& event)
 {
 int id = event.GetId();
 
-	if( id == FIND_SHEET ) m_Parent->FindSchematicItem(m_NewTextCtrl->GetData(), 0);
-	else if( id == FIND_HIERARCHY ) m_Parent->FindSchematicItem(m_NewTextCtrl->GetData(), 1);
-	else if( id == FIND_NEXT ) m_Parent->FindSchematicItem(wxEmptyString, 2);
+	if( id == FIND_SHEET )
+		m_Parent->FindSchematicItem(m_NewTextCtrl->GetValue(), 0);
+	else if( id == FIND_HIERARCHY )
+		m_Parent->FindSchematicItem(m_NewTextCtrl->GetValue(), 1);
+	else if( id == FIND_NEXT )
+		m_Parent->FindSchematicItem(wxEmptyString, 2);
 
 	Close();
 }
@@ -456,7 +354,7 @@ LibraryStruct *Lib = NULL;
 EDA_LibComponentStruct * LibEntry;
 bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 	
-	Text = m_NewTextCtrl->GetData();
+	Text = m_NewTextCtrl->GetValue();
 	if ( Text.IsEmpty() )
 	{
 		Close(); return;
@@ -517,9 +415,9 @@ bool FoundInLib = FALSE;	// True si reference trouvee ailleurs qu'en cache
 }
 
 
-/****************************************************************************************/
+/***************************************************************************************/
 int WinEDA_FindFrame::ExploreAllLibraries(const wxString & wildmask, wxString & FindList)
-/****************************************************************************************/
+/***************************************************************************************/
 {
 wxString FullFileName;
 FILE * file;
