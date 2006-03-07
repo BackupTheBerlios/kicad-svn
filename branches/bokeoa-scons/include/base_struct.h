@@ -79,6 +79,9 @@ public:
 private:
 	int m_Status;
 
+private:
+	void InitVars(void);
+
 public:
 
 	EDA_BaseStruct::EDA_BaseStruct(EDA_BaseStruct * parent, int idType);
@@ -88,7 +91,7 @@ public:
 	/* Gestion de l'etat (status) de la structure (active, deleted..) */
 	int GetState(int type);
 	void SetState(int type, int state );
-	int ReturnStatus(void)
+	int ReturnStatus(void) const
 		{
 		return(m_Status);
 		}
@@ -173,7 +176,6 @@ public:
 
 public:
 	EDA_BaseLineStruct(EDA_BaseStruct * StructFather, DrawStructureType idtype);
-
 };
 
 

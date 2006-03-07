@@ -12,132 +12,19 @@
 
 #include "protos.h"
 
-/* Routines Locales */
+/**************************************/
+/* dialog WinEDA_PcbGlobalDeleteFrame */
+/**************************************/
+#include "dialog_initpcb.cpp"
 
 
-enum id_optpcb
-{
-	ID_ACCEPT_OPT = 1000,
-	ID_CANCEL_OPT
-};
-	/*************************************************/
-	/* classe derivee pour la frame de Configuration */
-	/*************************************************/
-
-class WinEDA_PcbGlobalDeleteFrame: public wxDialog
-{
-private:
-
-	WinEDA_PcbFrame * m_Parent;
-	wxCheckBox * m_DelZones;
-	wxCheckBox * m_DelTexts;
-	wxCheckBox * m_DelEdges;
-	wxCheckBox * m_DelDrawings;
-	wxCheckBox * m_DelModules;
-	wxCheckBox * m_DelTracks;
-	wxCheckBox * m_DelMarkers;
-	wxCheckBox * m_DelAlls;
-	wxCheckBox * m_TrackFilterAR;
-	wxCheckBox * m_TrackFilterLocked;
-
-
-	// Constructor and destructor
-public:
-	WinEDA_PcbGlobalDeleteFrame(WinEDA_PcbFrame *parent,const wxPoint& pos);
-	~WinEDA_PcbGlobalDeleteFrame(void) {};
-
-private:
-	void AcceptPcbDelete(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-
-	DECLARE_EVENT_TABLE()
-
-};
-/* Construction de la table des evenements pour WinEDA_PcbGlobalDeleteFrame */
-BEGIN_EVENT_TABLE(WinEDA_PcbGlobalDeleteFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_OPT, WinEDA_PcbGlobalDeleteFrame::AcceptPcbDelete)
-	EVT_BUTTON(ID_CANCEL_OPT, WinEDA_PcbGlobalDeleteFrame::OnQuit)
-END_EVENT_TABLE()
-
-
+/********************************************************************/
 void WinEDA_PcbFrame::InstallPcbGlobalDeleteFrame(const wxPoint & pos)
+/********************************************************************/
 {
 WinEDA_PcbGlobalDeleteFrame * frame =
-		new WinEDA_PcbGlobalDeleteFrame(this, pos);
+		new WinEDA_PcbGlobalDeleteFrame(this);
 	frame->ShowModal(); frame->Destroy();
-}
-
-	/*************************************************/
-	/* Constructeur de WinEDA_PcbGlobalDeleteFrame */
-	/************************************************/
-
-WinEDA_PcbGlobalDeleteFrame::WinEDA_PcbGlobalDeleteFrame(WinEDA_PcbFrame *parent,
-		const wxPoint& framepos):
-		wxDialog(parent, -1, _("General Delete"), framepos, wxSize(450, 200),
-				 DIALOG_STYLE)
-{
-wxPoint pos;
-int ii, jj;
-
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-
-	pos.x = 200; pos.y = 140;
-	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Accept"), pos);
-	pos.x += Button->GetSize().x  + 5;
-	Button->SetForegroundColour(*wxRED);
-	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	/* Display Selection affichage des coordonnées polaires */
-	pos.x = 5; pos.y = 5;
-	m_DelZones = new wxCheckBox(this, -1, _("Delete Zones"), pos);
-
-	m_DelZones->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelTexts = new wxCheckBox(this, -1, _("Delete Texts"), pos);
-
-	m_DelTexts->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelEdges = new wxCheckBox(this, -1, _("Delete Edges"), pos);
-
-	m_DelEdges->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelDrawings = new wxCheckBox(this, -1, _("Delete Drawings"), pos);
-
-	m_DelEdges->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelModules = new wxCheckBox(this, -1, _("Delete Modules"), pos);
-
-	m_DelModules->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelTracks = new wxCheckBox(this, -1, _("Delete Tracks"), pos);
-
-	m_DelTracks->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelMarkers = new wxCheckBox(this, -1, _("Delete Markers"), pos);
-
-	m_DelMarkers->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_DelAlls = new wxCheckBox(this, -1, _("Clear Board"), pos);
-
-	pos.x += 200; pos.y = 20;
-	new wxStaticBox(this, -1, _("Track Filter"), pos, wxSize(170, 65));
-	pos.x += 10; pos.y += 20;
-	m_TrackFilterAR = new wxCheckBox(this, -1, _("Include AutoRouted Tracks"), pos);
-	m_TrackFilterAR->SetValue(TRUE);
-
-	m_TrackFilterAR->GetSize(&jj, &ii);
-	pos.y += ii + 5;
-	m_TrackFilterLocked = new wxCheckBox(this, -1, _("Include Locked Tracks"), pos);
-}
-
-/**********************************************************************/
-void WinEDA_PcbGlobalDeleteFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/**********************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
 }
 
 

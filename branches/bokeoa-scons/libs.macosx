@@ -1,5 +1,5 @@
 #Configuration for build kicad
-KICAD_BIN = /Users/charras/kicad/macosx
+KICAD_BIN = /usr/local/kicad/macosx
 
 
 

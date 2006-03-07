@@ -46,7 +46,7 @@ static PARAM_CFG_INT UnitCfg
 (
 	INSETUP,
 	wxT("Unite"),			/* identification */
-	&UnitMetric,	 	/* Adresse du parametre */
+	&g_UnitMetric,	 	/* Adresse du parametre */
 	0,					/* Valeur par defaut */
 	0, 1				/* Valeurs extremes */
 );

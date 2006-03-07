@@ -88,9 +88,7 @@ WinEDA_CotationPropertiesFrame::WinEDA_CotationPropertiesFrame(WinEDA_PcbFrame *
 		wxDialog(parent, -1, _("Cotation properties"), framepos, wxSize(340, 270),
 				DIALOG_STYLE)
 {
-wxPoint pos;
 wxButton * Button;
-#define VPOS0 10
 
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
@@ -99,50 +97,57 @@ wxButton * Button;
 
 	CurrentCotation = Cotation;
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
 	/* Creation des boutons de commande */
-	pos.x = 230; pos.y = VPOS0;
 	Button = new wxButton(this, ID_ACCEPT_COTATION_PROPERTIES,
-						_("Ok"), pos);
+						_("Ok"));
 	Button->SetForegroundColour(*wxRED);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetDefaultSize().y + 10;
 	Button = new wxButton(this, ID_CLOSE_COTATION_PROPERTIES,
-						_("Cancel"), pos);
+						_("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetDefaultSize().y + 20;
 wxString display_msg[2] = { _("Normal"), _("Mirror") };
 	m_Mirror = new wxRadioBox(this, -1, _("Display"),
-							pos, wxSize(-1,-1), 2, display_msg,
+							wxDefaultPosition, wxSize(-1,-1), 2, display_msg,
 							1, wxRA_SPECIFY_COLS );
 	if ( ! Cotation->m_Text->m_Miroir ) m_Mirror->SetSelection(1);;
+	RightBoxSizer->Add(m_Mirror, 0, wxGROW|wxALL, 5);
 
-	pos.x = 5; pos.y = VPOS0 + 10;
 	m_Name = new WinEDA_EnterText(this, wxT("Text:"),
 			Cotation->m_Text->m_Text,
-			pos, wxSize( 200, -1) );
+			LeftBoxSizer, wxSize( 200, -1) );
 
-	pos.y += 20 + m_Name->GetDimension().y;
 	m_TxtSizeCtrl = new WinEDA_SizeCtrl(this, _("Size"),
 			Cotation->m_Text->m_Size,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits);
 
-	pos.y += 15 + m_TxtSizeCtrl->GetDimension().y;
 	m_TxtWidthCtrl = new WinEDA_ValueCtrl(this, _("Width"),
 			Cotation->m_Width,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
+			g_UnitMetric, LeftBoxSizer, m_Parent->m_InternalUnits);
 
-	pos.y += 10 + m_TxtWidthCtrl->GetDimension().y;
-	new wxStaticText(this, -1, _("Layer:"), pos);
-	pos.y += 12;
+	wxStaticText * text = new wxStaticText(this, -1, _("Layer:"));
+	LeftBoxSizer->Add(text, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP, 5);
 	m_SelLayerBox = new WinEDAChoiceBox(this, ID_TEXTPCB_SELECT_LAYER,
-					pos, wxDefaultSize);
+					wxDefaultPosition, wxDefaultSize);
+	LeftBoxSizer->Add(m_SelLayerBox, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 	int ii;
 	for ( ii = CMP_N + 1; ii < 29 ; ii ++ )
 		{
 		m_SelLayerBox->Append(ReturnPcbLayerName(ii));
 		}
 	m_SelLayerBox->SetSelection( Cotation->m_Layer - (CMP_N + 1) );
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /**********************************************************************/
@@ -163,12 +168,12 @@ void WinEDA_CotationPropertiesFrame::CotationPropertiesAccept(wxCommandEvent& ev
 		CurrentCotation->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR);
 	}
 
-	if ( m_Name->GetData() != wxEmptyString )
+	if ( m_Name->GetValue() != wxEmptyString )
 	{
-		CurrentCotation->SetText( m_Name->GetData());
+		CurrentCotation->SetText( m_Name->GetValue());
 	}
 
-	CurrentCotation->m_Text->m_Size = m_TxtSizeCtrl->GetCoord();
+	CurrentCotation->m_Text->m_Size = m_TxtSizeCtrl->GetValue();
 	CurrentCotation->m_Text->m_Width = CurrentCotation->m_Width =
 		m_TxtWidthCtrl->GetValue();
 	CurrentCotation->m_Text->m_Miroir = (m_Mirror->GetSelection() == 0) ? 1 : 0;
@@ -404,7 +409,7 @@ wxString msg;
 
 	/* On tient compte de l'inclinaison de la cote */
 	if(mesure)
-		{
+	{
 		hx = (abs)((int)( ( (float)deltay * hx) / mesure));
 		hy = (abs)((int)( ( (float)deltax * hy) / mesure));
 
@@ -419,7 +424,7 @@ wxString msg;
 		angle_f = angle - (M_PI * 27.5 /180);
 		fleche_dw_X = (int)(FLECHE_L * cos(angle_f));
 		fleche_dw_Y = (int)(FLECHE_L * sin(angle_f));
-		}
+	}
 
 
 	Cotation->FlecheG1_ox = Cotation->Barre_ox;

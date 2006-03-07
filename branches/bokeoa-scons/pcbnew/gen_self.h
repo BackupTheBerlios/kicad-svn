@@ -206,7 +206,7 @@ wxString msg;
 	}
 
 	/* Entree de la vraie longueur desiree */
-	if( ! UnitMetric )
+	if( ! g_UnitMetric )
 	{
 		fcoeff = 10000.0 ;
 		msg.Printf( wxT("%1.4f"), Mself.lng /fcoeff);

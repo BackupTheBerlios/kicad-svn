@@ -388,13 +388,13 @@ wxString msg;
 	// mise a jour des affichages
 	m_SelGridBox->Clear();
 	wxString format  = _("Grid");
-	if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+	if ( g_UnitMetric == INCHES ) format += wxT(" %.1f");
 	else format += wxT(" %.3f");
 
 	for ( ii = 0; g_GridList[ii].x > 0; ii++ )
 	{
-	double value = To_User_Unit(UnitMetric, g_GridList[ii].x, PCB_INTERNAL_UNIT);
-		if ( UnitMetric == INCHES )
+	double value = To_User_Unit(g_UnitMetric, g_GridList[ii].x, PCB_INTERNAL_UNIT);
+		if ( g_UnitMetric == INCHES )
 			msg.Printf( format.GetData(), value * 1000);
 		else
 			msg.Printf( format.GetData(), value);
@@ -430,26 +430,26 @@ long current_mask_layer;
 	int Masque_Layer = g_TabAllCopperLayerMask[g_DesignSettings.m_CopperLayerCount-1];
 	Masque_Layer |= ALL_NO_CU_LAYERS;
 	for ( ii = 0; ii < m_SelLayerBox->GetCount() ; ii ++ )
-		{
+	{
         jj = (int) ((size_t) m_SelLayerBox->GetClientData(ii));
         current_mask_layer |= g_TabOneLayerMask[jj];
-        }
+	}
 	if ( current_mask_layer != Masque_Layer) rebuild = TRUE;
 
     // Construction de la liste
     if ( rebuild )
-        {
+	{
         m_SelLayerBox->Clear();
     	for ( ii = 0, jj = 0; ii <= EDGE_N ; ii ++ )
-		    {
+		{
 		    if ( (g_TabOneLayerMask[ii] & Masque_Layer) )
-       		    {
+			{
            	    m_SelLayerBox->Append(ReturnPcbLayerName(ii));
            	    m_SelLayerBox->SetClientData(jj, (void*)ii);
       		    jj++;
-                }
-            }
-        }
+			}
+		}
+	}
 
     // Activation de l'affichage sur la bonne couche
 	// Pour eviter la reentrance (Bug wxGTK version Linux?), la selection n'est faite que si
@@ -457,13 +457,13 @@ long current_mask_layer;
     jj = m_SelLayerBox->GetCount();
     ll = m_SelLayerBox->GetChoice();
    	for ( ii = 0; ii < jj ; ii ++ )
-        {
+	{
   		if ( (int)((size_t)m_SelLayerBox->GetClientData(ii)) == GetScreen()->m_Active_Layer )
-       	    {
+		{
 			if ( ii != ll ) m_SelLayerBox->SetSelection( ii );
             break;
-           	}
-        }
+		}
+	}
 
     return m_SelLayerBox;
 }

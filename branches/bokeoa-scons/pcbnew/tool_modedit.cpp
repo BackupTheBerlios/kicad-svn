@@ -248,7 +248,7 @@ int ii;
 wxString msg;
 
 	if ( m_AuxiliaryToolBar == NULL )
-		{
+	{
 		m_AuxiliaryToolBar = new WinEDA_Toolbar(TOOLBAR_AUX, this, ID_AUX_TOOLBAR, TRUE);
 
 		// Set up toolbar
@@ -268,29 +268,29 @@ wxString msg;
 		msg = _("Auto");
 		m_SelZoomBox->Append(msg);
 		for ( int jj = 0, ii = 1; ii <= m_ZoomMaxValue; ii <<= 1, jj++ )
-			{
+		{
 			msg.Printf(_("Zoom %d"), ii);
 			m_SelZoomBox->Append(msg);
-			}
+		}
 		m_SelZoomBox->Append(wxT(""));
 
 		m_AuxiliaryToolBar->AddControl( m_SelZoomBox);
 		// after adding the buttons to the toolbar, must call Realize() to reflect
 		// the changes
 		m_AuxiliaryToolBar->Realize();
-		}
+	}
 
 	// mise a jour des affichages
 	m_SelGridBox->Clear();
 	for ( ii = 0; g_GridList[ii].x > 0; ii++ )
-		{
-		double value = To_User_Unit(UnitMetric, g_GridList[ii].x, PCB_INTERNAL_UNIT);
-				if ( UnitMetric == INCHES )
+	{
+		double value = To_User_Unit(g_UnitMetric, g_GridList[ii].x, PCB_INTERNAL_UNIT);
+				if ( g_UnitMetric == INCHES )
 					msg.Printf(_("Grid %.1f"), value * 1000);
 				else
 					msg.Printf(_("Grid %.3f"), value);
 		m_SelGridBox->Append(msg);
-		}
+	}
 	m_SelGridBox->Append( _("User Grid") );
 
 	SetToolbars();

@@ -390,9 +390,9 @@ GERBER_Descr * Gerber_layer_descr	= g_GERBER_Descr_List[layer];
 	if ( m_OptionsToolBar )
 	{
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_MM,
-			UnitMetric == MILLIMETRE ? TRUE : FALSE);
+			g_UnitMetric == MILLIMETRE ? TRUE : FALSE);
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_INCH,
-			UnitMetric == INCHES ? TRUE : FALSE);
+			g_UnitMetric == INCHES ? TRUE : FALSE);
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SHOW_POLAR_COORD,
 			DisplayOpt.DisplayPolarCood);

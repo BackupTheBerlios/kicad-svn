@@ -27,17 +27,15 @@ static int tri_par_netcode(TRACK ** pt_ref, TRACK ** pt_compare);
 /*..*/
 
 
-	/*****************************************************************/
-	/* int change_equipot(pt_start_conn,pt_end_conn,old_val,new_val) */
-	/*****************************************************************/
-
+/*****************************************************************/
+static int change_equipot(TRACK* pt_start_conn,TRACK* pt_end_conn,
+			int old_val, int new_val)
+/*****************************************************************/
 /*
  Change les num locaux d'equipot old valeur en new valeur
  retourne le nombre de changements
 	si pt_end_conn = NULL: recherche jusqu'a fin de chaine
 */
-static int change_equipot(TRACK* pt_start_conn,TRACK* pt_end_conn,
-			int old_val, int new_val)
 {
 TRACK * pt_conn;
 int nb_change = 0 ;
@@ -98,7 +96,7 @@ EDA_BaseStruct * PtStruct;
 	/* Initialisations prealables */
 	pt_conn = pt_start_conn;
 	for ( ; pt_conn != NULL; pt_conn= (TRACK*) pt_conn->Pnext)
-		{
+	{
 		pt_conn->m_Sous_Netcode = 0;
 		PtStruct = pt_conn->start;
 		if( PtStruct && (PtStruct->m_StructType == TYPEPAD) )
@@ -109,69 +107,69 @@ EDA_BaseStruct * PtStruct;
 			((D_PAD*)PtStruct)->m_physical_connexion = 0;
 
 		if (pt_conn == pt_end_conn) break;
-		}
+	}
 	sous_net_code = 1 ; pt_start_conn->m_Sous_Netcode = sous_net_code;
 
 	/* debut du calcul de propagation */
 	pt_conn = pt_start_conn;
 	for ( ; pt_conn != NULL; pt_conn= (TRACK*) pt_conn->Pnext)
-		{
+	{
 		/* Traitement des connexions a pads */
 		PtStruct = pt_conn->start;
 		if( PtStruct && (PtStruct->m_StructType == TYPEPAD) )
 				/* la connexion debute sur 1 pad */
-			{
+		{
 			pt_pad = (D_PAD*) PtStruct;
 			if( pt_conn->m_Sous_Netcode) /* la connexion fait deja partie d'une chaine */
-				{
+			{
 				if(pt_pad->m_physical_connexion > 0) /* le pad fait aussi partie d'une chaine */
-					{
+				{
 					change_equipot(pt_start_conn,pt_end_conn,
 						pt_pad->m_physical_connexion,pt_conn->m_Sous_Netcode);
-					}
-				else pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
 				}
+				else pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
+			}
 			else	/* la connexion ne fait pas partie encore d'une chaine */
-				{
+			{
 				if(pt_pad->m_physical_connexion > 0)
-					{
+				{
 					pt_conn->m_Sous_Netcode = pt_pad->m_physical_connexion;
-					}
+				}
 				else
-					{
+				{
 					sous_net_code++ ; pt_conn->m_Sous_Netcode = sous_net_code;
 					pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
-					}
 				}
 			}
+		}
 
 		PtStruct = pt_conn->end;
 		if( PtStruct && (PtStruct->m_StructType == TYPEPAD) )
 				 /* la connexion finit sur 1 pad */
-			{
+		{
 			pt_pad = (D_PAD*)PtStruct;
 			if( pt_conn->m_Sous_Netcode)
-				{
+			{
 				if(pt_pad->m_physical_connexion > 0)
-					{
+				{
 					change_equipot(pt_start_conn,pt_end_conn,
 						pt_pad->m_physical_connexion,pt_conn->m_Sous_Netcode);
-					}
-				else pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
 				}
+				else pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
+			}
 			else
-				{
+			{
 				if(pt_pad->m_physical_connexion > 0)
-					{
+				{
 					pt_conn->m_Sous_Netcode =  pt_pad->m_physical_connexion;
-					}
+				}
 				else
-					{
+				{
 					sous_net_code++ ; pt_conn->m_Sous_Netcode = sous_net_code;
 					pt_pad->m_physical_connexion = pt_conn->m_Sous_Netcode;
-					}
 				}
 			}
+		}
 
 
 		/* traitement des connexions entre segments */
@@ -277,8 +275,6 @@ int current_net_code;
 
 		pt_start_conn = (TRACK*)pt_end_conn->Pnext;
 		}
-
-	/* Test des chevelus : suppression des chevelus routes */
 
 	return;
 }
@@ -396,41 +392,39 @@ TRACK * Track;
 
 	/* calcul des connexions */
 	for( Track = pt_start_conn; Track != NULL; Track = (TRACK*) Track->Pnext)
-		{
+	{
 		if(Track->m_StructType == TYPEVIA)
-			{
+		{
 			TRACK* pt_segm;
 			int layermask = Track->ReturnMaskLayer();
 			for( pt_segm = pt_start_conn; pt_segm != NULL; pt_segm = (TRACK*) pt_segm->Pnext)
-				{
+			{
 				int curlayermask = pt_segm->ReturnMaskLayer();
-				if( (pt_segm->m_Start.x == Track->m_Start.x) &&
-					(pt_segm->m_Start.y == Track->m_Start.y) && ( layermask & curlayermask ) )
-					{
+				if( !pt_segm->start && (pt_segm->m_Start == Track->m_Start) &&
+					 ( layermask & curlayermask ) )
+				{
 					pt_segm->start = Track;
-					}
-				if( (pt_segm->m_End.x == Track->m_Start.x) &&
-					(pt_segm->m_End.y == Track->m_Start.y) && (layermask & curlayermask) )
-					{
-					pt_segm->end = Track;
-					}
-				if( pt_segm == pt_end_conn ) break;
 				}
+				if( !pt_segm->end && (pt_segm->m_End == Track->m_Start) &&
+					(layermask & curlayermask) )
+				{
+					pt_segm->end = Track;
+				}
+				if( pt_segm == pt_end_conn ) break;
 			}
+		}
 
 		if( Track->start == NULL )
-			{
-			Track->start = Locate_Piste_Connectee(Track,
-								Track,pt_end_conn,START);
-			}
+		{
+			Track->start = Locate_Piste_Connectee(Track, Track,pt_end_conn,START);
+		}
 
 		if( Track->end == NULL )
-			{
-			Track->end = Locate_Piste_Connectee(Track,
-								Track,pt_end_conn,END);
-			}
-		if (Track == pt_end_conn) break;
+		{
+			Track->end = Locate_Piste_Connectee(Track, Track,pt_end_conn,END);
 		}
+		if (Track == pt_end_conn) break;
+	}
 
 	/* Generation des sous equipots du net */
 	propage_equipot(pt_start_conn,pt_end_conn);
@@ -706,19 +700,17 @@ int ii ;
 
 
 
-	/***************************************/
-	/* static void RebuildTrackChain(void) */
-	/***************************************/
-
+/*****************************************/
+static void RebuildTrackChain(BOARD * pcb)
+/*****************************************/
 /* Recalcule le chainage des pistes pour que le chainage soit fait par
    netcodes croissants
 */
-static void RebuildTrackChain(BOARD * pcb)
 {
 TRACK * Track, ** Liste;
 int ii, nbsegm;
 
-	/* Calcul du nombre de segments */
+	/* Count segments */
 	nbsegm = pcb->GetNumSegmTrack();
 	if( pcb->m_Track == NULL ) return;
 
@@ -733,7 +725,7 @@ int ii, nbsegm;
 	qsort(Liste, nbsegm, sizeof(TRACK*),
 					 (int(*)(const void *, const void *)) tri_par_netcode);
 
-	/* Mise a jour du chainage */
+	/* Update the linked list pointers */
 
 	Track = Liste[0];
 	Track->Pback = pcb; Track->Pnext = Liste[1];

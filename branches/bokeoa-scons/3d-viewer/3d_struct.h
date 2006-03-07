@@ -104,22 +104,19 @@ private:
 	int m_Units;
 	int m_Internal_Unit;
 	wxTextCtrl * m_XValueCtrl, * m_YValueCtrl, * m_ZValueCtrl;
-	wxSize m_WinSize;
 	wxStaticText * m_Text;
 
 public:
 	// Constructor and destructor
 	WinEDA_VertexCtrl(wxWindow *parent, const wxString & title,
-						int units, const wxPoint & Pos,
-						int internal_unit);
+						wxBoxSizer * BoxSizer,
+						int units, int internal_unit);
 
 	~WinEDA_VertexCtrl(void);
 
 	S3D_Vertex GetValue(void);
 	void SetValue(S3D_Vertex vertex);
 	void Enable(bool enbl);
-	wxSize GetDimension(void);	// retourne la dimension de la zone occupee
-								// par la "frame"
 	void SetToolTip(const wxString & text);
 };
 

@@ -19,13 +19,6 @@
 static wxString Current_PadNetName;
 
 
-#define NBORIENT 5
-static wxString orient_list[NBORIENT] =
-{
- wxT("0"), wxT("90"), wxT("-90"), wxT("180"), wxT("User")
-};
-
-
 #define NBSHAPES 4
 int CodeShape[NBSHAPES] = /* forme des pads  */
 {
@@ -34,11 +27,6 @@ int CodeShape[NBSHAPES] = /* forme des pads  */
 
 
 #define NBTYPES 5
-static wxString type_list[NBTYPES] =	// Type des pads
-{
-	wxT("Standard"), wxT("SMD"), wxT("Conn"), wxT("Hole"), wxT("Mechanical")
-};
-
 int CodeType[NBTYPES] =
 { STANDARD, SMD, CONN, P_HOLE, MECA
 };
@@ -55,76 +43,13 @@ static long Std_Pad_Layers[NBTYPES] =
 		SOLDERMASK_LAYER_CU|SOLDERMASK_LAYER_CMP
 };
 
-enum id_pad_properties
-{
-	ID_ACCEPT_PAD_PROPERTIES = 1900,
-	ID_CLOSE_PAD_PROPERTIES,
-	ID_LISTBOX_TYPE_PAD,
-	ID_LISTBOX_SHAPE_PAD,
-	ID_LISTBOX_ORIENT_PAD
-};
 
 
 	/************************************/
 	/* class WinEDA_PadPropertiesFrame */
 	/************************************/
 
-class WinEDA_PadPropertiesFrame: public wxDialog
-{
-private:
-
-	WinEDA_BasePcbFrame * m_Parent;
-	wxDC * m_DC;
-	D_PAD * CurrentPad;
-	WinEDA_SizeCtrl * m_PadSizeCtrl;
-	WinEDA_SizeCtrl * m_PadDeltaSizeCtrl;
-	WinEDA_SizeCtrl * m_PadOffsetCtrl;
-	WinEDA_ValueCtrl * m_PadDrillCtrl;
-	WinEDA_EnterText * m_PadNumCtrl;
-	WinEDA_EnterText * m_PadNetNameCtrl;
-	wxRadioBox * m_PadType;
-	wxRadioBox * m_PadShape;
-	wxRadioBox * m_PadOrient;	// Pour selection rapide des oientations
-	WinEDA_ValueCtrl * m_PadOrientCtrl;	// Pour orientation a 0.1 degre pres
-	wxCheckBox * m_PadLayerCu;
-	wxCheckBox * m_PadLayerCmp;
-	wxCheckBox * m_PadLayerAdhCmp;
-	wxCheckBox * m_PadLayerAdhCu;
-	wxCheckBox * m_PadLayerPateCmp;
-	wxCheckBox * m_PadLayerPateCu;
-	wxCheckBox * m_PadLayerSilkCmp;
-	wxCheckBox * m_PadLayerSilkCu;
-	wxCheckBox * m_PadLayerMaskCmp;
-	wxCheckBox * m_PadLayerMaskCu;
-	wxCheckBox * m_PadLayerECO1;
-	wxCheckBox * m_PadLayerECO2;
-	wxCheckBox * m_PadLayerDraft;
-
-public:
-	// Constructor and destructor
-	WinEDA_PadPropertiesFrame(WinEDA_BasePcbFrame *parent,
-							D_PAD * Pad, wxDC * DC, const wxPoint & pos);
-	~WinEDA_PadPropertiesFrame(void)
-		{
-		}
-
-private:
-	void OnQuit(wxCommandEvent& event);
-	void PadPropertiesAccept(wxCommandEvent& event);
-	void PadTypeSelected(void);
-	void PadTypeSelectedEvent(wxCommandEvent& event);
-	void PadOrientEvent(wxCommandEvent& event);
-	void SetPadLayersList(long layer_mask);
-
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_PadPropertiesFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_PAD_PROPERTIES, WinEDA_PadPropertiesFrame::PadPropertiesAccept)
-	EVT_BUTTON(ID_CLOSE_PAD_PROPERTIES, WinEDA_PadPropertiesFrame::OnQuit)
-	EVT_RADIOBOX(ID_LISTBOX_TYPE_PAD, WinEDA_PadPropertiesFrame::PadTypeSelectedEvent)
-	EVT_RADIOBOX(ID_LISTBOX_ORIENT_PAD, WinEDA_PadPropertiesFrame::PadOrientEvent)
-END_EVENT_TABLE()
+#include "dialog_pad_edit.cpp"
 
 
 /*************************************************************/
@@ -134,94 +59,46 @@ void WinEDA_BasePcbFrame::InstallPadOptionsFrame(D_PAD * Pad,
 {
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_PadPropertiesFrame * frame = new WinEDA_PadPropertiesFrame(this,
-					 Pad, DC, pos);
+					 Pad, DC);
 	frame->ShowModal(); frame->Destroy();
 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
-#define H_SIZE 450
-#define V_SIZE 520
-/*********************************************************************************/
-WinEDA_PadPropertiesFrame::WinEDA_PadPropertiesFrame(WinEDA_BasePcbFrame *parent,
-				D_PAD * Pad,wxDC * DC,
-				const wxPoint & framepos):
-		wxDialog(parent, -1, _("Pad properties"), framepos, wxSize(H_SIZE, V_SIZE),
-			DIALOG_STYLE)
-/*********************************************************************************/
+/********************************************************/
+void WinEDA_PadPropertiesFrame::SetOthersControls(void)
+/********************************************************/
 {
-wxPoint pos;
-int tmp, ii, xx, yy;
-wxString number;
-wxButton * Button;
-MODULE * Module = NULL;
+int tmp;
+	
+	m_PadNumCtrl->SetValue(g_Current_PadName);
+	m_PadNetNameCtrl->SetValue(Current_PadNetName);
 
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-	m_DC = DC;
-	Centre();
+	m_PadSizeCtrl = new WinEDA_SizeCtrl(this, _("Pad Size"),
+			CurrentPad ? CurrentPad->m_Size : g_Pad_Master.m_Size,
+			g_UnitMetric, m_PadSizeBoxSizer, m_Parent->m_InternalUnits);
 
-	CurrentPad = Pad;
+	m_PadDeltaSizeCtrl = new WinEDA_SizeCtrl(this, _("Delta"),
+			CurrentPad ? CurrentPad->m_DeltaSize : g_Pad_Master.m_DeltaSize,
+			g_UnitMetric, m_PadDeltaBoxSizer, m_Parent->m_InternalUnits);
+
+	m_PadDrillCtrl = new WinEDA_ValueCtrl(this, _("Pad Drill"),
+			CurrentPad ? CurrentPad->m_Drill : g_Pad_Master.m_Drill,
+			g_UnitMetric, m_PadDeltaBoxSizer, m_Parent->m_InternalUnits );
+
+	m_PadOffsetCtrl = new WinEDA_SizeCtrl(this, _("Offset"),
+			CurrentPad ? CurrentPad->m_Offset : g_Pad_Master.m_Offset,
+			g_UnitMetric, m_PadOffsetBoxSizer, m_Parent->m_InternalUnits);
 
 	if ( CurrentPad )
 	{
-		Current_PadNetName = CurrentPad->m_Netname;
-		g_Current_PadName = CurrentPad->ReturnStringPadName();
-		Module = (MODULE*) CurrentPad->m_Parent;
+		tmp = CurrentPad->m_Orient - m_Module->m_Orient;
 	}
-
-	/* Creation des boutons de commande */
-	pos.x = 170; pos.y = 10;
-	Button = new wxButton(this, ID_ACCEPT_PAD_PROPERTIES,
-						_("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.x += Button->GetDefaultSize().x + 20;
-	Button = new wxButton(this, ID_CLOSE_PAD_PROPERTIES,
-						_("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 20;
-	m_PadNumCtrl = new WinEDA_EnterText(this, _("Pad Num :"),
-					g_Current_PadName, pos, wxSize(80, -1));
-
-	pos.y += m_PadNumCtrl->GetDimension().y + 15;
-	m_PadNetNameCtrl = new WinEDA_EnterText(this, _("Pad Net Name :"),
-					Current_PadNetName, pos, wxSize(120, -1));
-
-	pos.y += m_PadNetNameCtrl->GetDimension().y + 15;
-	m_PadSizeCtrl = new WinEDA_SizeCtrl(this, _("Pad Size"),
-			CurrentPad ? CurrentPad->m_Size : g_Pad_Master.m_Size,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
-
-	pos.y += m_PadSizeCtrl->GetDimension().y + 10;
-	m_PadDeltaSizeCtrl = new WinEDA_SizeCtrl(this, _("Delta"),
-			CurrentPad ? CurrentPad->m_DeltaSize : g_Pad_Master.m_DeltaSize,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
-
-	pos.y += m_PadDeltaSizeCtrl->GetDimension().y + 20;
-	m_PadDrillCtrl = new WinEDA_ValueCtrl(this, _("Pad Drill"),
-			CurrentPad ? CurrentPad->m_Drill : g_Pad_Master.m_Drill,
-			UnitMetric, pos, m_Parent->m_InternalUnits );
-
-	pos.y += m_PadDrillCtrl->GetDimension().y + 10;
-	m_PadOffsetCtrl = new WinEDA_SizeCtrl(this, _("Offset"),
-			CurrentPad ? CurrentPad->m_Offset : g_Pad_Master.m_Offset,
-			UnitMetric, pos, m_Parent->m_InternalUnits);
-
-	pos.y += m_PadOffsetCtrl->GetDimension().y + 10;
-	if ( CurrentPad )
-		{
-		tmp = CurrentPad->m_Orient - Module->m_Orient;
-		}
 	else tmp = g_Pad_Master.m_Orient;
 	m_PadOrientCtrl = new WinEDA_ValueCtrl(this, _("Pad Orient (0.1 deg)"),
-			tmp, 2, pos, 1);
+			tmp, 2, m_LeftBoxSizer, 1);
 
 
 	// Pad Orient
-	pos.x += 130; pos.y = 50;
-	m_PadOrient = new wxRadioBox(this, ID_LISTBOX_ORIENT_PAD, _("Pad Orient:"),
-				pos, wxSize(-1,-1), NBORIENT, orient_list, 1);
 	switch ( tmp )
 	{
 		case 0:
@@ -252,15 +129,6 @@ MODULE * Module = NULL;
 			break;
 	}
 
-	m_PadOrient->GetSize(&xx, &yy);
-	pos.y += yy + 10;
-wxString shape_list[NBSHAPES] =
-	{
-	 _("Circle"), _("Oval"), _("Rect"), _("Trapeze")
-	};
-	m_PadShape = new wxRadioBox(this, ID_LISTBOX_SHAPE_PAD, _("Pad Shape:"),
-				pos, wxSize(-1,-1),
-				NBSHAPES, shape_list, 1);
 	tmp = CurrentPad ? CurrentPad->m_PadShape : g_Pad_Master.m_PadShape;
 	switch ( tmp )
 		{
@@ -286,14 +154,9 @@ wxString shape_list[NBSHAPES] =
 		}
 
 	// Selection du type
-	m_PadShape->GetSize(&xx, &yy);
-	pos.y += yy + 10;
-	m_PadType = new wxRadioBox(this, ID_LISTBOX_TYPE_PAD, _("Pad Type:"),
-				pos, wxSize(-1,-1),
-				NBTYPES, type_list, 1);
 	tmp = CurrentPad ? CurrentPad->m_Attribut : g_Pad_Master.m_Attribut;
 	m_PadType->SetSelection( 0 );
-	for ( ii = 0; ii < NBTYPES; ii++ )
+	for ( int ii = 0; ii < NBTYPES; ii++ )
 	{
 		if ( CodeType[ii] == tmp )
 		{
@@ -302,57 +165,9 @@ wxString shape_list[NBSHAPES] =
 	}
 
 	// Selection des couches cuivre :
-	pos.x += 130; pos.y = 80;
-	m_PadLayerCu = new wxCheckBox(this, -1, wxT("Copper layer"), pos);
-
-	pos.y += 20;
-	m_PadLayerCmp = new wxCheckBox(this, -1, wxT("Comp layer"), pos);
-
-	pos.y += 25;
-	m_PadLayerAdhCmp = new wxCheckBox(this, -1, wxT("Adhesive Cmp"), pos);
-
-	pos.y += 20;
-	m_PadLayerAdhCu = new wxCheckBox(this, -1, wxT("Adhesive Copper"), pos);
-
-	pos.y += 20;
-	m_PadLayerPateCmp = new wxCheckBox(this, -1, wxT("Solder paste Cmp"), pos);
-
-	pos.y += 20;
-	m_PadLayerPateCu = new wxCheckBox(this, -1, wxT("Solder paste Copper"), pos);
-
-	pos.y += 20;
-	m_PadLayerSilkCmp = new wxCheckBox(this, -1, wxT("Silkscreen Cmp"), pos);
-
-	pos.y += 20;
-	m_PadLayerSilkCu = new wxCheckBox(this, -1, wxT("Silkscreen Copper"), pos);
-
-	pos.y += 20;
-	m_PadLayerMaskCmp = new wxCheckBox(this, -1, wxT("Solder mask Cmp"), pos);
-
-	pos.y += 20;
-	m_PadLayerMaskCu = new wxCheckBox(this, -1, wxT("Solder mask Copper"), pos);
-
-	pos.y += 20;
-	m_PadLayerECO1 = new wxCheckBox(this, -1, wxT("E.C.O.1 layer"), pos);
-
-	pos.y += 20;
-	m_PadLayerECO2 = new wxCheckBox(this, -1, wxT("E.C.O.2 layer"), pos);
-
-	pos.y += 20;
-	m_PadLayerDraft = new wxCheckBox(this, -1, wxT("Draft layer"), pos);
-
 	if ( CurrentPad ) SetPadLayersList(CurrentPad->m_Masque_Layer);
 	else PadTypeSelected();
 }
-
-/**********************************************************************/
-void  WinEDA_PadPropertiesFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/**********************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
-}
-
 
 
 /*******************************************************************/
@@ -467,13 +282,13 @@ long PadLayerMask;
 
 	g_Pad_Master.m_Attribut = CodeType[m_PadType->GetSelection()];
 	g_Pad_Master.m_PadShape = CodeShape[m_PadShape->GetSelection()];
-	g_Pad_Master.m_Size = m_PadSizeCtrl->GetCoord();
-	g_Pad_Master.m_DeltaSize = m_PadDeltaSizeCtrl->GetCoord();
-	g_Pad_Master.m_Offset = m_PadOffsetCtrl->GetCoord();
+	g_Pad_Master.m_Size = m_PadSizeCtrl->GetValue();
+	g_Pad_Master.m_DeltaSize = m_PadDeltaSizeCtrl->GetValue();
+	g_Pad_Master.m_Offset = m_PadOffsetCtrl->GetValue();
 	g_Pad_Master.m_Drill = m_PadDrillCtrl->GetValue();
 	g_Pad_Master.m_Orient = m_PadOrientCtrl->GetValue();
-	g_Current_PadName = m_PadNumCtrl->GetData().Left(4);
-	Current_PadNetName = m_PadNetNameCtrl->GetData();
+	g_Current_PadName = m_PadNumCtrl->GetValue().Left(4);
+	Current_PadNetName = m_PadNetNameCtrl->GetValue();
 
 	PadLayerMask = 0;
 	if( m_PadLayerCu->GetValue() ) PadLayerMask |= CUIVRE_LAYER;

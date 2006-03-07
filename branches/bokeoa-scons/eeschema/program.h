@@ -20,15 +20,6 @@
 
 #define HIGHLIGHT_COLOR WHITE
 
-/* Bits Flags utilisés en édition (membre .Flags de EDA_BaseStruct)*/
-#define IS_LINKED 1
-#define IN_EDIT 2
-#define IS_MOVED 4
-#define IS_NEW 8
-#define IS_RESIZED 0x10
-#define STARTPOINT 0x100
-#define ENDPOINT 0x200
-#define SELECTED 0x400
 
 #define TEXT_NO_VISIBLE 1
 
@@ -138,6 +129,10 @@ public:
 	~EDA_DrawLineStruct(void) {}
 	bool IsOneEndPointAt(const wxPoint & pos);
 	EDA_DrawLineStruct * GenCopy(void);
+	bool IsNull(void)
+		{
+			return (m_Start == m_End);
+		}
 };
 
 

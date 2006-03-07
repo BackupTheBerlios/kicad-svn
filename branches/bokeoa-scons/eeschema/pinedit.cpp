@@ -2,18 +2,7 @@
 	/*  EESchema - PinEdit.cpp */
 	/***************************/
 
-#include "fctsys.h"
-#include "gr_basic.h"
-
-#include "common.h"
-#include "program.h"
-#include "libcmp.h"
-#include "general.h"
-#include "id.h"
-
-#include "wx/spinctrl.h"
-
-#include "protos.h"
+#include "pinedit-dialog.h"
 
 static int CodeOrient[4] =
 {
@@ -55,231 +44,8 @@ static int 	LastPinType = PIN_INPUT,
 			LastPinCommonUnit = FALSE,
 			LastPinNoDraw = FALSE;
 
-enum id_pinedit
-{
-	ID_ACCEPT_PIN_PROPERTIES = 1900,
-	ID_CLOSE_PIN_PROPERTIES
-};
 
-
-	/************************************/
-	/* class WinEDA_PartPropertiesFrame */
-	/************************************/
-
-class WinEDA_PinPropertiesFrame: public wxDialog
-{
-private:
-
-	WinEDA_LibeditFrame * m_Parent;
-	WinEDA_GraphicTextCtrl * m_PinNameCtrl;
-	WinEDA_GraphicTextCtrl * m_PinNumCtrl;
-	wxRadioBox * m_PinType;
-	wxRadioBox * m_PinShape;
-	wxRadioBox * m_PinOrient;
-	wxCheckBox * m_CommonUnit;
-	wxCheckBox * m_CommonConvert;
-	wxCheckBox * m_NoDraw;
-
-	wxSpinCtrl * m_PinSize;
-	wxSpinCtrl * m_PinNumSize;
-	wxSpinCtrl * m_PinNameSize;
-
-public:
-	// Constructor and destructor
-	WinEDA_PinPropertiesFrame(WinEDA_LibeditFrame *parent, const wxPoint & pos);
-	~WinEDA_PinPropertiesFrame(void)
-		{
-		}
-
-private:
-	void OnQuit(wxCommandEvent& event);
-	void PinPropertiesAccept(wxCommandEvent& event);
-	void SetPinName(const wxString & newname, int newsize);
-	void SetPinNum(const wxString & newnum, int newsize);
-	void NewSizePin(int newsize);
-	void SetPinShape( int newshape);
-	void SetPinType(int newtype);
-	void SetPinOrient(int neworient);
-	void SetAttributsPin(bool draw, bool unit, bool convert);
-
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_PinPropertiesFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_PIN_PROPERTIES, WinEDA_PinPropertiesFrame::PinPropertiesAccept)
-	EVT_BUTTON(ID_CLOSE_PIN_PROPERTIES, WinEDA_PinPropertiesFrame::OnQuit)
-END_EVENT_TABLE()
-
-
-/**************************************************************************/
-void InstallPineditFrame(WinEDA_LibeditFrame * parent, const wxPoint & pos)
-/**************************************************************************/
-{
-wxPoint MousePos = parent->GetScreen()->m_Curseur;
-	
-	if ( (CurrentDrawItem == NULL) || (CurrentDrawItem->m_StructType == COMPONENT_PIN_DRAW_TYPE) )
-		{
-		WinEDA_PinPropertiesFrame * frame = new WinEDA_PinPropertiesFrame(parent, pos);
-		frame->ShowModal(); frame->Destroy();
-		}
-	else DisplayError(parent, wxT("Error: Not a Pin!") );
-	parent->GetScreen()->m_Curseur = MousePos;
-	parent->DrawPanel->MouseToCursorSchema();
-}
-
-
-#define X_SIZE 550
-#define Y_SIZE 335
-WinEDA_PinPropertiesFrame::WinEDA_PinPropertiesFrame(WinEDA_LibeditFrame *parent,
-				const wxPoint & framepos):
-		wxDialog(parent, -1, _("Pin properties"), framepos, wxSize(X_SIZE, Y_SIZE),
-				DIALOG_STYLE)
-{
-wxPoint pos;
-int tmp, ii;
-wxString number;
-LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
-wxString StringPinNum;
-wxButton * Button;
-
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-
-	Centre();
-
-	if ( CurrentPin )
-	{
-		CurrentPin->ReturnPinStringNum(StringPinNum);
-		m_Parent->InitEditOnePin();
-	}
-
-	/* Creation des boutons de commande */
-	pos.x = 300; pos.y = 10;
-	Button = new wxButton(this, ID_ACCEPT_PIN_PROPERTIES,
-						_("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.x += Button->GetDefaultSize().x + 10;
-	Button = new wxButton(this, ID_CLOSE_PIN_PROPERTIES,
-						_("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 30;
-	m_PinNameCtrl = new WinEDA_GraphicTextCtrl(this, _("Pin Name :"),
-				CurrentPin ? CurrentPin->m_PinName.GetData() : NULL,
-				CurrentPin ? CurrentPin->m_SizeName : LastPinNameSize,
-				UnitMetric, pos, 190 ,FALSE);
-
-
-	pos.y += 58;
-	m_PinNumCtrl = new WinEDA_GraphicTextCtrl(this, _("Pin Num :"),
-				StringPinNum,
-				CurrentPin ? CurrentPin->m_SizeNum : LastPinNumSize,
-				UnitMetric, pos, 190 ,FALSE);
-
-
-	// Pin Options
-	pos.x = 5; pos.y += 45; tmp = pos.y;
-	new wxStaticBox(this, -1,_(" Pin Options :"), pos, wxSize(190, 140));
-
-	pos.x += 5; pos.y += 20;
-	wxStaticText * title = new wxStaticText(this, -1,_("Pin lenght :"), pos);
-	pos.y += title->GetSize().y + 2;
-	number.Printf( wxT("%d"), CurrentPin ? CurrentPin->m_PinLen : LastPinSize);
-	m_PinSize = new wxSpinCtrl(this,-1,number, pos,
-				wxSize(60, -1), wxSP_ARROW_KEYS | wxSP_WRAP,
-				0, 2000);
-
-	pos.y += 30;
-	m_CommonUnit = new wxCheckBox(this, -1, _("Common to Units"), pos);
-	if ( CurrentPin )
-		{
-		if ( CurrentPin->m_Unit == 0 ) m_CommonUnit->SetValue(TRUE);
-		}
-	else m_CommonUnit->SetValue(LastPinCommonUnit);
-
-	pos.y += 20;
-	m_CommonConvert = new wxCheckBox(this, -1, _("Common to convert"), pos);
-	if ( CurrentPin )
-		{
-		if ( CurrentPin->m_Convert == 0 ) m_CommonConvert->SetValue(TRUE);
-		}
-	else m_CommonConvert->SetValue(LastPinCommonConvert);
-
-	pos.y += 20;
-	m_NoDraw = new wxCheckBox(this, -1, _("No Draw"), pos);
-	if ( CurrentPin )
-		{
-		if ( CurrentPin->m_Attributs & PINNOTDRAW ) m_NoDraw->SetValue(TRUE);
-		}
-	else m_NoDraw->SetValue(LastPinNoDraw);
-
-	// Selection de l'orientation :
-	pos.x += 195; pos.y = tmp;
-	wxString orient_list[4] = { _("Right"), _("Left"), _("Up"), _("Down")};
-	m_PinOrient = new wxRadioBox(this, -1, _("Pin Orient:"),
-				pos, wxSize(-1,-1),
-				4, orient_list, 1);
-	tmp = CurrentPin ? CurrentPin->m_Orient : LastPinOrient;
-	switch ( tmp )
-		{
-		case PIN_RIGHT:
-			m_PinOrient->SetSelection(0);
-			break;
-
-		case PIN_LEFT:
-			m_PinOrient->SetSelection(1);
-			break;
-
-		case PIN_UP:
-			m_PinOrient->SetSelection(2);
-			break;
-
-		case PIN_DOWN:
-			m_PinOrient->SetSelection(3);
-			break;
-		}
-
-	// Selection de la forme
-	pos.x += m_PinOrient->GetSize().x + 10; pos.y = 80;
-	m_PinShape = new wxRadioBox(this, -1, _("Pin Shape:"),
-				pos, wxSize(-1,-1),
-				NBSHAPES, shape_list, 1);
-
-	tmp = CurrentPin ? CurrentPin->m_PinShape : LastPinShape;
-	m_PinShape->SetSelection( 0 );
-	for ( ii = 0; ii < NBSHAPES; ii++ )
-		{
-		if ( CodeShape[ii] == tmp )
-			{
-			m_PinShape->SetSelection( ii ); break ;
-			}
-		}
-
-	// Selection du type electrique :
-wxString type_list[10] =
-		{ _("Input"), _("Output"), _("Bidi"), _("3 States"),
-			_("Passive"),  _("Unspecified"),
-			_("Power In"), _("Power Out"), _("Open coll"), _("Open emit") };
-	pos.x += m_PinShape->GetSize().x + 10; pos.y = 50;
-	m_PinType = new wxRadioBox(this, -1, _("Electrical Type:"),
-				pos, wxSize(-1,-1),
-				10, type_list, 1);
-	m_PinType->SetSelection( CurrentPin ? CurrentPin->m_PinType : LastPinType);
-
-	pos.x += m_PinType->GetSize().x + 10; pos.y = 50;
-	
-	SetClientSize(wxSize(pos.x, Y_SIZE) ) ; 
-}
-
-
-/************************************************************************/
-void  WinEDA_PinPropertiesFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/************************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
-}
+#include "pinedit-dialog.cpp"
 
 /*************************************************************************/
 void WinEDA_PinPropertiesFrame::PinPropertiesAccept(wxCommandEvent& event)
@@ -287,15 +53,19 @@ void WinEDA_PinPropertiesFrame::PinPropertiesAccept(wxCommandEvent& event)
 /* Met a jour les differents parametres pour le composant en cours d'édition
 */
 {
-	LastPinType = m_PinType->GetSelection();
+wxString msg;
+	
+	LastPinType = m_PinElectricalType->GetSelection();
 	LastPinShape = CodeShape[m_PinShape->GetSelection()];
 	LastPinOrient = CodeOrient[m_PinOrient->GetSelection()];
 	LastPinCommonConvert = m_CommonConvert->GetValue();
 	LastPinCommonUnit = m_CommonUnit->GetValue();
 	LastPinNoDraw = m_NoDraw->GetValue();
 	LastPinSize = m_PinSize->GetValue();
-	LastPinNameSize = m_PinNameCtrl->GetTextSize();
-	LastPinNumSize = m_PinNumCtrl->GetTextSize();
+	msg = m_PinNameSizeCtrl->GetValue();
+	LastPinNameSize = ReturnValueFromString(g_UnitMetric, msg, m_Parent->m_InternalUnits);
+	msg = m_PinNumSizeCtrl->GetValue();
+	LastPinNumSize = ReturnValueFromString(g_UnitMetric, msg, m_Parent->m_InternalUnits);
 
 	if ( CurrentDrawItem )   // Set Pin Name & Num
 	{
@@ -307,8 +77,8 @@ void WinEDA_PinPropertiesFrame::PinPropertiesAccept(wxCommandEvent& event)
 		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
 				0,0, CurrentPin,CurrentUnit, g_XorMode);
 
-		SetPinName(m_PinNameCtrl->GetText(), LastPinNameSize);
-		SetPinNum(m_PinNumCtrl->GetText(), LastPinNumSize);
+		SetPinName(m_PinNameCtrl->GetValue(), LastPinNameSize);
+		SetPinNum(m_PinNumCtrl->GetValue(), LastPinNumSize);
 		NewSizePin(LastPinSize);
 		SetPinShape(LastPinShape);
 		SetPinType(LastPinType);
@@ -1058,15 +828,16 @@ wxString msg;
 	error = 0;
 	for( ii = 1; ii < nb_pins; ii++ )
 	{
-		wxString aux_msg;
+		wxString aux_msg, StringPinNum;
 		LibDrawPin * curr_pin = PinList[ii];
 		Pin = PinList[ii -1];
 		if ( Pin->m_PinNum != curr_pin->m_PinNum ) continue;
 		if ( Pin->m_Convert != curr_pin->m_Convert ) continue;
 		if ( Pin->m_Unit != curr_pin->m_Unit ) continue;
 		error ++;
+		curr_pin->ReturnPinStringNum(StringPinNum);
 		msg.Printf(_("Duplicate Pin %4.4s (Pin %s loc %d, %d, and Pin %s loc %d, %d)"),
-				(char*) &curr_pin->m_PinNum, curr_pin->m_PinName.GetData(), curr_pin->m_Pos.x, -curr_pin->m_Pos.y,
+				StringPinNum.GetData(), curr_pin->m_PinName.GetData(), curr_pin->m_Pos.x, -curr_pin->m_Pos.y,
 				Pin->m_PinName.GetData(), Pin->m_Pos.x, -Pin->m_Pos.y);
 		if ( CurrentLibEntry->m_UnitCount > 1 )
 		{

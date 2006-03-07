@@ -210,9 +210,9 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 		if ( m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_X"), &SizeX) &&
 			 m_Parent->m_EDA_Config->Read( wxT("PcbEditGrid_Y"), &SizeY) )
 		{
-		GridSize.x = SizeX;
-		GridSize.y = SizeY;
-	}
+			GridSize.x = SizeX;
+			GridSize.y = SizeY;
+		}
 	}
 	GetScreen()->SetGrid(GridSize);
 	
@@ -344,9 +344,9 @@ int ii, jj;
 			Drc_On ? _("DCR Off (Disable !!!), Currently: DRC is active") : _("DRC On (Currently: DRC is DISABLE !!!)"));
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_MM,
-			UnitMetric == MILLIMETRE ? TRUE : FALSE);
+			g_UnitMetric == MILLIMETRE ? TRUE : FALSE);
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_INCH,
-			UnitMetric == INCHES ? TRUE : FALSE);
+			g_UnitMetric == INCHES ? TRUE : FALSE);
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SHOW_POLAR_COORD,
 			DisplayOpt.DisplayPolarCood);
@@ -406,15 +406,15 @@ int ii, jj;
 			m_SelTrackWidthBox_Changed = FALSE;
 			m_SelTrackWidthBox->Clear();
 			wxString format = _("Track");
-			if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+			if ( g_UnitMetric == INCHES ) format += wxT(" %.1f");
 			else format += wxT(" %.3f");
 			for ( ii = 0; ii < HIST0RY_NUMBER; ii++)
 				{
 				if ( g_DesignSettings.m_TrackWidhtHistory[ii] == 0 ) break;	// Fin de liste
-				double value = To_User_Unit(UnitMetric,
+				double value = To_User_Unit(g_UnitMetric,
 					g_DesignSettings.m_TrackWidhtHistory[ii], PCB_INTERNAL_UNIT);
 
-				if ( UnitMetric == INCHES )
+				if ( g_UnitMetric == INCHES )
 					msg.Printf(format.GetData(), value * 1000);
 				else
 					msg.Printf(format.GetData(), value);
@@ -429,15 +429,15 @@ int ii, jj;
 			m_SelViaSizeBox_Changed = FALSE;
 			m_SelViaSizeBox->Clear();
 			wxString format = _("Via");
-			if ( UnitMetric == INCHES ) format += wxT(" %.1f");
+			if ( g_UnitMetric == INCHES ) format += wxT(" %.1f");
 			else format += wxT(" %.3f");
 			for ( ii = 0; ii < HIST0RY_NUMBER; ii++)
 				{
 				if ( g_DesignSettings.m_ViaSizeHistory[ii] == 0 ) break;	// Fin de liste
-				double value = To_User_Unit(UnitMetric,
+				double value = To_User_Unit(g_UnitMetric,
 					g_DesignSettings.m_ViaSizeHistory[ii], PCB_INTERNAL_UNIT);
 
-				if ( UnitMetric == INCHES )
+				if ( g_UnitMetric == INCHES )
 					msg.Printf(format.GetData(), value * 1000);
 				else
 					msg.Printf(format.GetData(), value);
@@ -453,11 +453,11 @@ int ii, jj;
 			int new_choice = 1;
 			int zoom;
 			for ( jj = 1, zoom = 1; zoom <= m_ZoomMaxValue; zoom <<= 1, jj++ )
-					{
+				{
 				if ( m_CurrentScreen && (m_CurrentScreen->GetZoom() == zoom) )
 					break;
 					new_choice++;
-					}
+				}
 			if ( old_choice != new_choice )
 				m_SelZoomBox->SetSelection(new_choice);
 			}

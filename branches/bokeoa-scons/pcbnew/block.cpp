@@ -195,7 +195,7 @@ int cmd = 0;
 			break;
 
 		case GR_KB_SHIFT:
-			cmd = BLOCK_INVERT;
+			cmd = BLOCK_COPY;
 			break;
 
 		case GR_KB_CTRL :
@@ -207,7 +207,7 @@ int cmd = 0;
 			break;
 
 		case GR_KB_ALT :
-			cmd = BLOCK_COPY;
+			cmd = BLOCK_INVERT;
 			break;
 
 		case MOUSE_MIDDLE:
@@ -1125,13 +1125,13 @@ wxPoint oldpos;
 
 	/* Module copy */
 	if ( Block_Include_Modules )
-		{
+	{
 		Affiche_Message( _("Module copy") );
 		module = m_Pcb->m_Modules;
 		oldpos = GetScreen()->m_Curseur;
 
 		for ( ; module != NULL; module = (MODULE*) module->Pnext)
-			{
+		{
 			MODULE * new_module;
 			if( IsModuleInBox(GetScreen()->BlockLocate, module) == NULL ) continue;
 			/* le module est ici bon a etre deplace */
@@ -1149,9 +1149,9 @@ wxPoint oldpos;
 			GetScreen()->m_Curseur.x = module->m_Pos.x + GetScreen()->BlockLocate.m_MoveVector.x;
 			GetScreen()->m_Curseur.y = module->m_Pos.y + GetScreen()->BlockLocate.m_MoveVector.y;
 			Place_Module(new_module, DC);
-			}
-		GetScreen()->m_Curseur = oldpos;
 		}
+		GetScreen()->m_Curseur = oldpos;
+	}
 
 	/* calcul du vecteur de deplacement pour les deplacements suivants */
 	deltaX = GetScreen()->BlockLocate.m_MoveVector.x ;

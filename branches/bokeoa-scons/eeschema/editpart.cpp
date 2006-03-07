@@ -233,7 +233,7 @@ int ii;
 							DrawPartStruct::ReturnFieldName(ii),
 							m_Cmp->m_Field[ii].m_Text,
 							m_Cmp->m_Field[ii].m_Size.x,
-							UnitMetric ,
+							g_UnitMetric ,
 							pos, 200, TRUE);
 		field_pos.x = m_Cmp->m_Field[ii].m_Pos.x - cmp_pos.x;
 		field_pos.y = m_Cmp->m_Field[ii].m_Pos.y - cmp_pos.y;
@@ -241,7 +241,7 @@ int ii;
 			field_pos = wxPoint(0,0);
 		FieldPosition[ii] = new WinEDA_PositionCtrl( m_PanelField[ii], _("Pos"),
 							field_pos,
-							UnitMetric ,
+							g_UnitMetric ,
 							wxPoint (pos.x + 150, pos.y + 32),
 							m_Parent->m_InternalUnits );
 	}
@@ -359,7 +359,7 @@ wxString newname;
 
 	RedrawOneStruct(m_Parent->DrawPanel, &dc, m_Cmp, g_XorMode);
 
-	newname = m_RefInLib->GetData();
+	newname = m_RefInLib->GetValue();
 	newname.MakeUpper();
 	newname.Replace(wxT(" "), wxT("_"));
 
@@ -444,7 +444,7 @@ wxString newname;
 		else
 			m_Cmp->m_Field[ii].m_Attributs |= TEXT_NO_VISIBLE;
 		m_Cmp->m_Field[ii].m_Orient = VorientFieldText[ii]->GetValue() ? 1 : 0;
-		m_Cmp->m_Field[ii].m_Pos = FieldPosition[ii]->GetCoord();
+		m_Cmp->m_Field[ii].m_Pos = FieldPosition[ii]->GetValue();
 		m_Cmp->m_Field[ii].m_Pos.x += cmp_pos.x;
 		m_Cmp->m_Field[ii].m_Pos.y += cmp_pos.y;
 	}

@@ -9,6 +9,7 @@
 #define SIZETEXT 60		/* Dimension des textes du cartouche */
 #define SIZETEXT_REF 50	/* Dimension des lettres du marquage des reperes */
 #define PAS_REF 2000	/* pas des marquages de reference des reperes */
+#define TEXT_VTAB_HEIGHT SIZETEXT*2
 
 /* Les coord ci dessous sont relatives au coin bas - droit de la feuille, et
 seront soustraires de cette origine
@@ -27,6 +28,7 @@ seront soustraires de cette origine
 #define BLOCK_TITLE_X BLOCK_OX - SIZETEXT
 #define BLOCK_TITLE_Y (SIZETEXT*5)
 #define BLOCK_COMMENT_X BLOCK_OX - SIZETEXT
+#define VARIABLE_BLOCK_START_POSITION (SIZETEXT * 6)
 #define BLOCK_COMPANY_Y (SIZETEXT*7)
 #define BLOCK_COMMENT1_Y (SIZETEXT*9)
 #define BLOCK_COMMENT2_Y (SIZETEXT*11)
@@ -46,21 +48,23 @@ public:
 
 /* Type des descriptions Ki_WorkSheetData */
 enum TypeKi_WorkSheetData
-	{
+{
 	WS_DATE,
 	WS_REV,
 	WS_LICENCE,
 	WS_SIZESHEET,
 	WS_IDENTSHEET,
 	WS_TITLE,
-	WS_NAMECOMP,
+	WS_COMPANY_NAME,
 	WS_COMMENT1,
 	WS_COMMENT2,
 	WS_COMMENT3,
 	WS_COMMENT4,
 	WS_SEGMENT,
+	WS_UPPER_SEGMENT,
+	WS_LEFT_SEGMENT,
 	WS_CADRE
-	};
+};
 
 extern Ki_WorkSheetData WS_Date;
 extern Ki_WorkSheetData WS_Revision;
@@ -73,8 +77,8 @@ extern Ki_WorkSheetData WS_Comment1;
 extern Ki_WorkSheetData WS_Comment2;
 extern Ki_WorkSheetData WS_Comment3;
 extern Ki_WorkSheetData WS_Comment4;
-extern Ki_WorkSheetData WS_Segm1;
-extern Ki_WorkSheetData WS_Segm2;
+extern Ki_WorkSheetData WS_MostLeftLine;
+extern Ki_WorkSheetData WS_MostUpperLine;
 extern Ki_WorkSheetData WS_Segm3;
 extern Ki_WorkSheetData WS_Segm4;
 extern Ki_WorkSheetData WS_Segm5;
@@ -139,7 +143,7 @@ Ki_WorkSheetData WS_Title =
 
 Ki_WorkSheetData WS_Company =
 	{
-	WS_NAMECOMP,
+	WS_COMPANY_NAME,
 	&WS_Comment1,
 	BLOCK_COMMENT_X, BLOCK_COMPANY_Y,
 	0,0,
@@ -176,24 +180,24 @@ Ki_WorkSheetData WS_Comment3 =
 Ki_WorkSheetData WS_Comment4 =
 	{
 	WS_COMMENT4,
-	&WS_Segm1,
+	&WS_MostLeftLine,
 	BLOCK_COMMENT_X, BLOCK_COMMENT4_Y,
 	0,0,
 	NULL,NULL
 	};
 
-Ki_WorkSheetData WS_Segm1 =   /* segment vertical gauche */
+Ki_WorkSheetData WS_MostLeftLine =   /* segment vertical gauche */
 	{
-	WS_SEGMENT,
-	&WS_Segm2,
+	WS_LEFT_SEGMENT,
+	&WS_MostUpperLine,
 	BLOCK_OX, SIZETEXT * 16,
 	BLOCK_OX, 0,
 	NULL,NULL
 	};
 
-Ki_WorkSheetData WS_Segm2 =	/* segment horizontal superieur */
+Ki_WorkSheetData WS_MostUpperLine =	/* segment horizontal superieur */
 	{
-	WS_SEGMENT,
+	WS_UPPER_SEGMENT,
 	&WS_Segm3,
 	BLOCK_OX, SIZETEXT * 16,
 	0, SIZETEXT * 16,

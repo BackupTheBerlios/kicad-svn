@@ -17,11 +17,11 @@
 /* variables locales */
 CHEVELU * g_pt_chevelu ;
 CHEVELU * local_liste_chevelu;	// adresse de base du buffer des chevelus locaux
-int nb_local_chevelu;		// nbr de links du module en deplacement
-int nb_pads_ref;			// nbr de nodes du module en deplacement
-int nb_pads_externes;		// nbr de pads connectes au module en deplacement
+int nb_local_chevelu;			// nbr de links du module en deplacement
+int nb_pads_ref;				// nbr de nodes du module en deplacement
+int nb_pads_externes;			// nbr de pads connectes au module en deplacement
 bool DisplayRastnestInProgress;	// autorise affichage chevelu en cours de calcul
-							// de celui-ci
+								// de celui-ci
 
 
 
@@ -116,12 +116,12 @@ LISTE_PAD * pt_liste_pad_tmp,
 
 	/* Recherche du pad le plus proche du block 1 */
 	for ( ; pt_liste_pad < pt_limite ; pt_liste_pad++ )
-		{
+	{
 		D_PAD * ref_pad = *pt_liste_pad;
 		if(ref_pad->m_logical_connexion != 1) continue ;
 
 		for ( pt_liste_pad_aux = pt_start_liste ; ;pt_liste_pad_aux++)
-			{
+		{
 			D_PAD * curr_pad = *pt_liste_pad_aux;
 			if(pt_liste_pad_aux >= pt_limite ) break ;
 			if(curr_pad->m_logical_connexion == 1) continue ;
@@ -132,23 +132,23 @@ LISTE_PAD * pt_liste_pad_tmp,
 				   + abs( curr_pad->m_Pos.y - ref_pad->m_Pos.y) ;
 
 			if(dist_min > current_dist)
-				{
+			{
 				current_num_block = curr_pad->m_logical_connexion ;
 				dist_min = current_dist;
 				pt_liste_pad_tmp = pt_liste_pad_aux;
 				pt_liste_pad_block1 = pt_liste_pad;
-				}
 			}
 		}
+	}
 
 	if (current_num_block > 1) /* le block n a ete connecte au bloc 1 */
-		{
+	{
 		/* le block n est fondu avec le bloc 1 : */
 		for( pt_liste_pad = pt_start_liste; pt_liste_pad < pt_limite; pt_liste_pad++ )
-			{
+		{
 			if( (*pt_liste_pad)->m_logical_connexion == current_num_block)
 						(*pt_liste_pad)->m_logical_connexion = 1;
-			}
+		}
 
 		pt_liste_pad = pt_liste_pad_block1 ;
 
@@ -167,7 +167,7 @@ LISTE_PAD * pt_liste_pad_tmp,
 						g_DesignSettings.m_RatsnestColor) ;
 
 		g_pt_chevelu++ ;
-		}
+	}
 	return(current_num_block) ;
 }
 
@@ -208,14 +208,14 @@ D_PAD * ref_pad, * pad;
 	if ( DC ) GRSetDrawMode(DC, GR_XOR);
 
 	for (  ; pt_liste_pad < pt_limite ; pt_liste_pad++ )
-		{
+	{
 		ref_pad = *pt_liste_pad;
 		if(ref_pad->m_logical_connexion) continue; // Pad deja connecte
 
 		pt_liste_pad_tmp = NULL ; dist_min = 0x7FFFFFFF;
 
 		for ( pt_liste_pad_aux = pt_start_liste ; ;pt_liste_pad_aux++)
-			{
+		{
 			if (pt_liste_pad_aux >= pt_limite ) break ;
 			if(pt_liste_pad_aux == pt_liste_pad) continue ;
 
@@ -226,29 +226,29 @@ D_PAD * ref_pad, * pad;
 					+ abs( pad->m_Pos.y - ref_pad->m_Pos.y);
 
 			if(dist_min > current_dist)
-				{
+			{
 				dist_min = current_dist;
 				pt_liste_pad_tmp = pt_liste_pad_aux;
-				}
 			}
+		}
 
 		if (pt_liste_pad_tmp != NULL)
-			{
+		{
 			pad = *pt_liste_pad_tmp;
 
 			/* Mise a jour du numero de block ( ou de sous graphe ) */
 			/* si aucun des 2 pads n'est deja connecte : creation d'un nouveau block */
 			if ( (pad->m_logical_connexion == 0) && (ref_pad->m_logical_connexion == 0) )
-				{
+			{
 				current_num_block++ ;
 				pad->m_logical_connexion = current_num_block ;
 				ref_pad->m_logical_connexion = current_num_block ;
-				}
+			}
 			/* si 1 des 2 pads est deja connecte : mise a jour pour l'autre */
 			else
-				{
+			{
 				ref_pad->m_logical_connexion = pad->m_logical_connexion;
-				}
+			}
 			(*nblinks)++;
 			g_pt_chevelu->m_NetCode = ref_pad->m_NetCode;
 			g_pt_chevelu->status = CH_ACTIF|CH_VISIBLE;
@@ -257,16 +257,16 @@ D_PAD * ref_pad, * pad;
 			g_pt_chevelu->pad_end = pad;
 
 			if(DisplayRastnestInProgress)
-				{
+			{
 				GRLine(&DrawPanel->m_ClipBox, DC, g_pt_chevelu->pad_start->m_Pos.x,
 							g_pt_chevelu->pad_start->m_Pos.y,
 							g_pt_chevelu->pad_end->m_Pos.x,
 							g_pt_chevelu->pad_end->m_Pos.y,
 							g_DesignSettings.m_RatsnestColor);
-				}
-			g_pt_chevelu++ ;
 			}
+			g_pt_chevelu++ ;
 		}
+	}
 
 	return(current_num_block) ;
 }
@@ -319,10 +319,10 @@ EQUIPOT * equipot;
 
 	pt_liste_pad = m_Pcb->m_Pads;
 	for( ii = m_Pcb->m_NbPads ; ii > 0 ; pt_liste_pad++, ii-- )
-		{
+	{
 		pad = *pt_liste_pad;
 		pad->m_logical_connexion = 0;
-		}
+	}
 
 	/* classement des pointeurs sur pads par nets */
 	qsort(m_Pcb->m_Pads,m_Pcb->m_NbPads,sizeof(LISTE_PAD),
@@ -423,13 +423,13 @@ EQUIPOT * equipot;
 	CHEVELU * Chevelu = (CHEVELU*)m_Pcb->m_Ratsnest;
 	GRSetDrawMode(DC, GR_XOR);
 	for( ii = m_Pcb->GetNumRatsnests(); ii > 0; ii--, Chevelu++ )
-		{
+	{
 		if( ! g_Show_Ratsnest ) Chevelu->status &= ~CH_VISIBLE;
         if ( DC ) GRLine(&DrawPanel->m_ClipBox, DC,
 					Chevelu->pad_start->m_Pos.x, Chevelu->pad_start->m_Pos.y,
 					Chevelu->pad_end->m_Pos.x, Chevelu->pad_end->m_Pos.y,
 					g_DesignSettings.m_RatsnestColor);
-		}
+	}
 
 }
 
@@ -528,12 +528,12 @@ CHEVELU * chevelu, * min_chevelu;
 
 	/* les 2 blocks vont etre fondus */
 	for( pt_liste_pad = pt_liste_pad_start; pt_liste_pad < pt_liste_pad_end; pt_liste_pad++ )
-		{
+	{
 		if( (*pt_liste_pad)->m_logical_connexion == current_num_block)
-			{
+		{
 			(*pt_liste_pad)->m_logical_connexion = min_block;
-			}
 		}
+	}
 
 	return(current_num_block) ;
 }
@@ -562,36 +562,36 @@ Ces blocks sont donc constitués de 2 pads.
 
 		Retourne:
 			nombre de blocks crees (paquets de pads)
- */
+*/
 {
 D_PAD * pad_start, * pad_end;
 CHEVELU * chevelu;
 
 	for ( chevelu = start_rat_list; chevelu < end_rat_list; chevelu++ )
-		{
+	{
 		pad_start = chevelu->pad_start; pad_end = chevelu->pad_end;
 		/* Mise a jour du numero de block ( ou de sous graphe ) */
 
 		/* si aucun des 2 pads n'est deja connecte : creation d'un nouveau block */
 		if ( (pad_start->m_logical_connexion == 0) && (pad_end->m_logical_connexion == 0) )
-			{
+		{
 			current_num_block++ ;
 			pad_start->m_logical_connexion = current_num_block ;
 			pad_end->m_logical_connexion = current_num_block;
 			chevelu->status |= CH_ACTIF;
-			}
+		}
 			/* si 1 des 2 pads est deja connecte : mise a jour pour l'autre */
 		else if ( pad_start->m_logical_connexion == 0)
-			{
+		{
 			pad_start->m_logical_connexion = pad_end->m_logical_connexion;
 			chevelu->status |= CH_ACTIF;
-			}
+		}
 		else if ( pad_end->m_logical_connexion == 0)
-			{
+		{
 			pad_end->m_logical_connexion = pad_start->m_logical_connexion;
 			chevelu->status |= CH_ACTIF;
-			}
 		}
+	}
 
 	return(current_num_block) ;
 }
@@ -653,10 +653,10 @@ EQUIPOT * equipot;
 	m_Pcb->m_NbNoconnect = 0;
 	CHEVELU * Chevelu = m_Pcb->m_Ratsnest;
 	for( ii = m_Pcb->GetNumRatsnests(); ii > 0; ii--, Chevelu++ )
-		{
+	{
 		if( Chevelu->status & CH_ACTIF )
 			m_Pcb->m_NbNoconnect++;
-		}
+	}
 }
 
 /**************************************************************************/
@@ -1112,7 +1112,7 @@ int ii;
 
 
 /*********************************************************************************************/
-/* int * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, int ox, int oy, int init) */
+/* int * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, const wxPoint & refpos) */
 /*********************************************************************************************/
 
 /*
@@ -1148,57 +1148,75 @@ int lengthref, lengthcmp;
 }
 
 /****************************************************************************************/
-int * WinEDA_BasePcbFrame::build_ratsnest_pad(D_PAD * pad_ref, int ox, int oy, int init)
+int * WinEDA_BasePcbFrame::build_ratsnest_pad(EDA_BaseStruct * ref,
+		const wxPoint & refpos, bool init)
 /****************************************************************************************/
 {
 int ii;
 int * pt_coord, * base_data;
-int current_net_code;
+int current_net_code = 0, conn_number = 0;
 LISTE_PAD * padlist;
-
+D_PAD * pad_ref = NULL;
 
 	if( ((m_Pcb->m_Status_Pcb & LISTE_CHEVELU_OK) == 0 ) ||
-   	 ((m_Pcb->m_Status_Pcb & LISTE_PAD_OK) == 0) )
-		{
+		((m_Pcb->m_Status_Pcb & LISTE_PAD_OK) == 0) )
+	{
 		nb_local_chevelu = 0;
 		return(NULL);
-		}
+	}
 
 
 	base_data = pt_coord = (int *) adr_lowmem;
 	local_liste_chevelu = (CHEVELU *) pt_coord;
 	if (init)
-		{
+	{
 		nb_local_chevelu = 0;
-		if(pad_ref == NULL) return(NULL);
-		current_net_code = pad_ref->m_NetCode;
+		if(ref == NULL) return(NULL);
 
+		switch ( ref->m_StructType )
+		{
+			case TYPEPAD:
+				pad_ref = (D_PAD*) ref;
+				current_net_code = pad_ref->m_NetCode;
+				conn_number = pad_ref->m_physical_connexion;
+				break;
+
+			case TYPETRACK:
+			case TYPEVIA:
+			{
+				TRACK *track_ref = (TRACK*) ref;
+				current_net_code = track_ref->m_NetCode;
+				conn_number = track_ref->m_Sous_Netcode;
+				break;
+			}
+				
+		}
 		if ( current_net_code <= 0 ) return NULL;
 
-		*pt_coord = ox; pt_coord++; *pt_coord = oy; pt_coord++;
+		*pt_coord = refpos.x; pt_coord++;
+		*pt_coord = refpos.y; pt_coord++;
 
 		if( m_Pcb->m_Ratsnest == NULL ) return(NULL);
 
 		padlist = m_Pcb->m_Pads;
 		for( ii = 0 ;ii < m_Pcb->m_NbPads; padlist++, ii++)
-			{
-         D_PAD * pad = *padlist;
+		{
+			D_PAD * pad = *padlist;
 			if( pad->m_NetCode != current_net_code ) continue;
-         if( pad == pad_ref ) continue;
-			if( !pad->m_physical_connexion ||
-			  (pad->m_physical_connexion != pad_ref->m_physical_connexion) )
-				{
+			if( pad == pad_ref ) continue;
+			if( !pad->m_physical_connexion || (pad->m_physical_connexion != conn_number) )
+			{
 				*pt_coord = pad->m_Pos.x; pt_coord++;
 				*pt_coord = pad->m_Pos.y; pt_coord++;
 				nb_local_chevelu++;
-				}
-			 }
-  		}	/* Fin Init */
+			}
+		}
+	}	/* Fin Init */
 
 	else if( nb_local_chevelu )
-		{
-		*pt_coord = ox; *(pt_coord+1) = oy;
-		}
+	{
+		*pt_coord = refpos.x; *(pt_coord+1) = refpos.y;
+	}
 
 	qsort(base_data + 2,nb_local_chevelu,2*sizeof(int),
 					(int(*)(const void *, const void *))sort_by_localnetlength) ;

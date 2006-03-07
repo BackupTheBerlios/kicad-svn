@@ -29,6 +29,14 @@ int listlib(void)
 /*********************/
 /* Routine lisant la liste des librairies, et generant la liste chainee
  des modules disponibles
+
+Module descr format:
+$MODULE c64acmd
+Li c64acmd
+Cd Connecteur DIN Europe 96 Contacts AC male droit
+Kw CONN DIN
+$EndMODULE
+
 */
 {
 char buffer[1024];
@@ -218,7 +226,7 @@ FILE * LibDoc;
 						NewMod = BaseListePkg;
 						while ( NewMod )
 						{
-							if( ModuleName = NewMod->m_Module ) break;
+							if( ModuleName == NewMod->m_Module ) break;
 							NewMod = NewMod->Pnext;
 						}
 						break;

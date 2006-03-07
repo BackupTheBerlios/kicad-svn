@@ -281,7 +281,7 @@ wxString FullFileName = m_PrjFileName;
 
 
 	switch (id)
-		{
+	{
 		case ID_TO_PCB:
 			ChangeFileNameExt(FullFileName, g_BoardExtBuffer);
 			AddDelimiterString(FullFileName);
@@ -322,7 +322,7 @@ wxString FullFileName = m_PrjFileName;
 			extension = wxT(".*");
 #endif
 			FullFileName = EDA_FileSelector( _("Load file:"),
-					wxGetCwd(),		  	/* Defualt path */
+					wxGetCwd(),		  	/* Default path */
 					wxEmptyString,		/* default filename */
 					extension,			/* default ext. */
 					mask,				/* mask for filename filter */
@@ -332,12 +332,10 @@ wxString FullFileName = m_PrjFileName;
 					);
 			if ( ! FullFileName.IsEmpty() )
 				{
-				wxString fullnamewithquotes;
-				fullnamewithquotes = wxT("\"") + FullFileName;
-				fullnamewithquotes += wxT("\"");
+				AddDelimiterString(FullFileName);
 				wxString editorname = GetEditorName();
 				if ( ! editorname.IsEmpty() )
-					ExecuteFile(this, editorname, fullnamewithquotes);
+					ExecuteFile(this, editorname, FullFileName);
 				}
 			}
 			break;
@@ -345,7 +343,6 @@ wxString FullFileName = m_PrjFileName;
 			break;
 		default: DisplayError(this, wxT("WinEDA_MainFrame::Process_Fct Internal Error"));
 			break;
-		}
-
+	}
 }
 

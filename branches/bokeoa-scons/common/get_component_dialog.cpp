@@ -109,24 +109,24 @@ wxStaticText * Text;
 	Button->SetDefault();
 	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
 
-	pos.y += 30;
+	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this, ID_ACCEPT_KEYWORD, _("Search KeyWord"), pos);
 	Button->SetForegroundColour(*wxRED);
 	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
 
-	pos.y += 30;
+	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this, ID_CANCEL, _("Cancel"), pos);
 	Button->SetForegroundColour(*wxBLUE);
 	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
 
-	pos.y += 30;
+	pos.y += Button->GetSize().y + 5;
 	Button = new wxButton(this, ID_LIST_ALL, _("List All"), pos);
 	Button->SetForegroundColour(wxColor(0, 80, 0));
 
 #ifndef __WXMAC__
 	if ( m_AuxTool )	/* The selection can be done by an extra function */
 	{
-		pos.y += 30;
+		pos.y += Button->GetSize().y + 5;
 		Button = new wxButton(this, ID_EXTRA_TOOL, _("By Lib Browser"), pos);
 		Button->SetForegroundColour(wxColor(80, 0, 80));
 	}

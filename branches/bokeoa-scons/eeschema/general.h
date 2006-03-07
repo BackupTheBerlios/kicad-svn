@@ -29,7 +29,7 @@
 
 #define HIGHLIGHT_COLOR WHITE
 
-/* Flags used in edition commnads (EDA_BaseStruct, .Flags )*/
+/* Flags used in editing commnands (EDA_BaseStruct, .Flags )*/
 #define IS_LINKED 1
 #define IN_EDIT 2
 #define IS_MOVED 4
@@ -37,6 +37,7 @@
 #define IS_RESIZED 0x10
 #define STARTPOINT 0x100
 #define ENDPOINT 0x200
+#define SELECTED 0x400
 
 /* Used for EDA_BaseStruct, .m_Select member */
 #define IS_SELECTED 1
@@ -157,8 +158,6 @@ int g_HVLines = 1;				// Bool: force H or V directions (Wires, Bus ..)
 extern wxSize g_User_Grid;
 extern int g_HVLines;
 #endif
-
-eda_global int UnitMetric;			// Bool: display units in mm ( false in inches)
 
 eda_global int g_PlotPSColorOpt;	// True = plot postcript color (see plotps.cpp)
 

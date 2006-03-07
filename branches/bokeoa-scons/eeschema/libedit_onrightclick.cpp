@@ -23,7 +23,6 @@
 #include "Pin_Name_to.xpm"
 #include "Pin_Number_to.xpm"
 #include "Delete_Pin.xpm"
-#include "Mirror_H.xpm"
 
 /* functions to add commands and submenus depending on the item */
 static void AddMenusForBlock(wxMenu * PopMenu, WinEDA_LibeditFrame * frame);

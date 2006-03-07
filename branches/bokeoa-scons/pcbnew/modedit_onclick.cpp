@@ -17,7 +17,6 @@
 
 #include "Edit_Module.xpm"
 #include "Rotate_Module+.xpm"
-#include "Invert_Module.xpm"
 #include "Move_Field.xpm"
 #include "Rotate_Field.xpm"
 #include "Move_Pad.xpm"
@@ -150,10 +149,10 @@ wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d 
 
 		case ID_MODEDIT_ADD_PAD:
 			if ( m_Pcb->m_Modules )
-				{
+			{
 				SaveCopyInUndoList();
 				AddPad(m_Pcb->m_Modules, DC);
-				}
+			}
 			break;
 
 		default :
@@ -177,6 +176,7 @@ de la souris.
 EDA_BaseStruct *DrawStruct = m_CurrentScreen->m_CurrentItem;
 wxString msg;
 bool append_set_width = FALSE;
+bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 
 	 // Simple localisation des elements si possible
 	if ( (DrawStruct == NULL) || (DrawStruct->m_Flags == 0) )
@@ -200,10 +200,31 @@ bool append_set_width = FALSE;
 
 	else
 	{
-		if ( DrawStruct && DrawStruct->m_Flags )
+		if ( (DrawStruct && DrawStruct->m_Flags) || BlockActive )
 		{
+			if ( BlockActive )	// Put block commnands in list
+			{
+				ADD_MENUITEM(PopMenu, ID_POPUP_CANCEL_CURRENT_COMMAND,
+					_("Cancel Block"), cancel_xpm );
+				ADD_MENUITEM(PopMenu, ID_POPUP_ZOOM_BLOCK,
+					_("Zoom Block (Midd butt drag)"), zoom_selected_xpm );
+				PopMenu->AppendSeparator();
+				ADD_MENUITEM(PopMenu, ID_POPUP_PLACE_BLOCK,
+					_("Place Block"), apply_xpm );
+				ADD_MENUITEM(PopMenu, ID_POPUP_COPY_BLOCK,
+					_("Copy Block (shift + drag mouse)"), copyblock_xpm );
+				ADD_MENUITEM(PopMenu, ID_POPUP_MIRROR_X_BLOCK,
+					_("Mirror Block (alt + drag mouse)"), mirror_H_xpm );
+				ADD_MENUITEM(PopMenu, ID_POPUP_ROTATE_BLOCK,
+					_("Rotate Block (ctrl + drag mouse)"), rotate_pos_xpm );
+				ADD_MENUITEM(PopMenu, ID_POPUP_DELETE_BLOCK,
+					_("Delete Block (shift+ctrl + drag mouse)"), delete_xpm );
+			}
+			else
+			{
 			ADD_MENUITEM(PopMenu, ID_POPUP_CANCEL_CURRENT_COMMAND,
 				_("Cancel"), cancel_xpm);
+			}
 			PopMenu->AppendSeparator();
 		}
 	}
@@ -220,7 +241,7 @@ int flags = DrawStruct->m_Flags;
 			ADD_MENUITEM(transform_choice, ID_MODEDIT_MODULE_ROTATE,
 				_("Rotate"), rotate_module_pos_xpm);
 			ADD_MENUITEM(transform_choice, ID_MODEDIT_MODULE_MIRROR,
-				_("Mirror"), invert_module_xpm);
+				_("Mirror"), mirror_H_xpm);
 #if 0
 			transform_choice->Append(ID_MODEDIT_MODULE_SCALE, _("Scale"));
 			transform_choice->Append(ID_MODEDIT_MODULE_SCALE, _("Scale X"));

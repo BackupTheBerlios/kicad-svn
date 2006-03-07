@@ -41,10 +41,10 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_UNIT_MM:
-			UnitMetric = MILLIMETRE;
+			g_UnitMetric = MILLIMETRE;
 		case ID_TB_OPTIONS_SELECT_UNIT_INCH:
 			if ( id == ID_TB_OPTIONS_SELECT_UNIT_INCH )
-				UnitMetric = INCHES;
+				g_UnitMetric = INCHES;
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			ReCreateAuxiliaryToolbar();
 			break;

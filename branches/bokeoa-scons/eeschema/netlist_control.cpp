@@ -49,6 +49,9 @@ public:
 	WinEDA_EnterText * m_CommandStringCtrl;
 	WinEDA_EnterText * m_TitleStringCtrl;
 	wxButton * m_ButtonCancel;
+	wxBoxSizer * m_LeftBoxSizer;
+	wxBoxSizer * m_RightBoxSizer;
+	wxBoxSizer * m_LowBoxSizer;
 
 	EDA_NoteBookPage(wxNotebook* parent, const wxString & title,
 			int id_NetType, int idCheckBox, int idCreateFile);
@@ -74,15 +77,26 @@ EDA_NoteBookPage::EDA_NoteBookPage(wxNotebook* parent, const wxString & title,
 
 	parent->AddPage(this, title, g_NetFormat == m_IdNetType);
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxVERTICAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * UpperBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	m_LowBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(UpperBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(m_LowBoxSizer, 0, wxGROW|wxALL, 5);
+
+	m_LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	m_RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	UpperBoxSizer->Add(m_LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	UpperBoxSizer->Add(m_RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
 	if ( idCheckBox )
 	{
-		wxPoint pos;
-		pos.x = 5; pos.y = 15;
-		new wxStaticBox(this, -1, _(" Options : "), pos, wxSize(210, 50));
+		wxStaticText * text = new wxStaticText(this, -1, _("Options:"));
+		m_LeftBoxSizer->Add(text, 0, wxGROW|wxALL, 5);
 
-		pos.x = 10; pos.y += 20;
 		m_IsCurrentFormat = new wxCheckBox(this, idCheckBox,
-			_("Default format"), pos);
+			_("Default format"));
+		m_LeftBoxSizer->Add(m_IsCurrentFormat, 0, wxGROW|wxALL, 5);
 
 		if ( g_NetFormat == m_IdNetType )
 			m_IsCurrentFormat->SetValue(TRUE);
@@ -91,26 +105,25 @@ EDA_NoteBookPage::EDA_NoteBookPage(wxNotebook* parent, const wxString & title,
 
 	if ( idCreateFile )	// Create the 2 standard buttons: Create File ans Cancel
 	{
-		wxPoint pos;
 		wxButton * Button;
-		pos.x = 230; pos.y = 10;
 		if ( idCreateFile == ID_SETUP_PLUGIN )
 		{
 			Button = new wxButton(this, idCreateFile,
-								_("&Browse Plugin"), pos);
+								_("&Browse Plugin"));
 		}
 		else
 		{
 			Button = new wxButton(this, idCreateFile,
-								_("&Netlist"), pos);
+								_("&Netlist"));
 		}
 		Button->SetForegroundColour(*wxRED);
+		m_RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-		pos.y += Button->GetDefaultSize().y + 10;
 		m_ButtonCancel =
 			Button = new wxButton(this,	ID_CLOSE_NETLIST,
-							_("&Close"), pos);
+							_("&Close"));
 		Button->SetForegroundColour(*wxBLUE);
+		m_RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 	}
 }
 
@@ -166,12 +179,11 @@ void InstallNetlistFrame(WinEDA_DrawFrame *parent, wxPoint & pos)
 /*************************************************************************************/
 WinEDA_NetlistFrame::WinEDA_NetlistFrame(WinEDA_DrawFrame *parent, wxPoint& framepos):
 		wxDialog(parent, -1, _("Netlist"), framepos, wxSize(H_SIZE, V_SIZE),
-				DIALOG_STYLE)
+				DIALOG_STYLE|wxRESIZE_BORDER)
 /*************************************************************************************/
 /* Constructor for the netlist generation dialog box
 */
 {
-wxPoint pos;
 int ii;
 
 	m_Parent = parent;
@@ -186,17 +198,13 @@ int ii;
 
 	if ( (framepos.x == -1) && (framepos.x == -1) ) Centre();
 
+    wxBoxSizer * GeneralBoxSizer = new wxBoxSizer(wxVERTICAL);
+    SetSizer(GeneralBoxSizer);
+
 	m_NoteBook = new wxNotebook(this, ID_NETLIST_NOTEBOOK,
    		wxDefaultPosition,wxSize(H_SIZE-6, V_SIZE - 28));
 	m_NoteBook->SetFont(*g_DialogFont);
-
-
-	wxLayoutConstraints* c = new wxLayoutConstraints;
-	c->left.SameAs(this, wxLeft, 4);
-	c->right.SameAs(this, wxRight, 4);
-	c->top.SameAs(this, wxTop, 4);
-	c->bottom.SameAs(this, wxBottom, 10);
-	m_NoteBook->SetConstraints(c);
+    GeneralBoxSizer->Add(m_NoteBook, 0, wxGROW|wxALL, 5);
 
 	// Add panels
 
@@ -217,6 +225,9 @@ int ii;
 	
 	// Add custom panels:
 	InstallCustomPages();
+
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 
@@ -226,44 +237,38 @@ void WinEDA_NetlistFrame::InstallPageSpice(void)
 /* Create the spice page
 */
 {
-wxPoint pos;
 wxButton * Button;
+EDA_NoteBookPage * page;
 	
-	m_PanelNetType[PANELSPICE] = new EDA_NoteBookPage(m_NoteBook, wxT("Spice"), NET_TYPE_SPICE, 0, 0);
+	page = m_PanelNetType[PANELSPICE] = new EDA_NoteBookPage(m_NoteBook, wxT("Spice"), NET_TYPE_SPICE, 0, 0);
 
-	pos.x = 10; pos.y = 5;
-	m_PanelNetType[PANELSPICE]->m_IsCurrentFormat = new wxCheckBox(m_PanelNetType[PANELSPICE],ID_CURRENT_FORMAT_IS_DEFAULT,
-					_("Default format"), pos);
-	m_PanelNetType[PANELSPICE]->m_IsCurrentFormat->SetValue( g_NetFormat == NET_TYPE_SPICE);
-
-	pos.y += 25;
+	page->m_IsCurrentFormat = new wxCheckBox(page,ID_CURRENT_FORMAT_IS_DEFAULT,
+					_("Default format"));
+	page->m_IsCurrentFormat->SetValue( g_NetFormat == NET_TYPE_SPICE);
+	page->m_LeftBoxSizer->Add(page->m_IsCurrentFormat, 0, wxGROW|wxALL, 5);
+	
 wxString netlist_opt[2] = { _("Use Net Names"), _("Use Net Numbers") };
-	m_UseNetNamesInNetlist = new wxRadioBox(m_PanelNetType[PANELSPICE],-1, _("Netlist Options:"),
-			pos, wxDefaultSize,
+	m_UseNetNamesInNetlist = new wxRadioBox(page,-1, _("Netlist Options:"),
+			wxDefaultPosition, wxDefaultSize,
 			2, netlist_opt, 1, wxRA_SPECIFY_COLS);
 	if ( ! g_OptNetListUseNames ) m_UseNetNamesInNetlist->SetSelection(1);
+	page->m_LeftBoxSizer->Add(m_UseNetNamesInNetlist, 0, wxGROW|wxALL, 5);
 
-	int xx, yy;
-	m_UseNetNamesInNetlist->GetSize(&xx, &yy);
-	pos.x = 5; pos.y += yy + 25;
-	m_PanelNetType[PANELSPICE]->m_CommandStringCtrl = new WinEDA_EnterText(m_PanelNetType[PANELSPICE],
+	page->m_CommandStringCtrl = new WinEDA_EnterText(page,
 				_("Simulator command:"), g_SimulatorCommandLine,
-				pos, wxSize(H_SIZE- 20, -1) );
+				page->m_LowBoxSizer, wxSize(H_SIZE- 10, -1) );
 	// Add buttons
-	pos.x = 230; pos.y = 5;
-	Button = new wxButton(m_PanelNetType[PANELSPICE], ID_CREATE_NETLIST,
-						_("Netlist"), pos);
+	Button = new wxButton(page, ID_CREATE_NETLIST, _("Netlist") );
 	Button->SetForegroundColour(*wxRED);
+	page->m_RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(m_PanelNetType[PANELSPICE], ID_RUN_SIMULATOR,
-						_("&Run Simulator"), pos);
+	Button = new wxButton(page, ID_RUN_SIMULATOR, _("&Run Simulator"));
 	Button->SetForegroundColour(wxColour(0,100,0));
+	page->m_RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(m_PanelNetType[PANELSPICE], ID_CLOSE_NETLIST,
-						_("&Close"), pos);
+	Button = new wxButton(page, ID_CLOSE_NETLIST, _("&Close"));
 	Button->SetForegroundColour(*wxBLUE);
+	page->m_RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 }
 
 /*************************************************/
@@ -274,7 +279,6 @@ void WinEDA_NetlistFrame::InstallCustomPages(void)
 {
 int ii, CustomCount;
 wxString title, previoustitle, msg;
-wxPoint pos;
 EDA_NoteBookPage * CurrPage;
 
 	CustomCount = CUSTOMPANEL_COUNTMAX;
@@ -299,18 +303,15 @@ EDA_NoteBookPage * CurrPage;
 				NET_TYPE_CUSTOM1 + ii,
 				ID_CURRENT_FORMAT_IS_DEFAULT , ID_CREATE_NETLIST);
 
-		pos.x = 5;
-		pos.y = CurrPage->m_ButtonCancel->GetRect().GetBottom() + 25;
 		msg = CUSTOM_NETLIST_COMMAND; msg << ii+1;
 		wxString Command = m_Parent->m_Parent->m_EDA_Config->Read(msg);
 		CurrPage->m_CommandStringCtrl = new WinEDA_EnterText(CurrPage,
 					_("Netlist command:"), Command,
-					pos, wxSize(H_SIZE- 10, -1) );
+					CurrPage->m_LowBoxSizer, wxSize(H_SIZE- 10, -1) );
 
-		pos.y += CurrPage->m_CommandStringCtrl->GetDimension().y + 25;
 		CurrPage->m_TitleStringCtrl = new WinEDA_EnterText(CurrPage,
 					_("Title:"), title,
-					pos, wxSize(H_SIZE- 10, -1) );
+					CurrPage->m_LowBoxSizer, wxSize(H_SIZE- 10, -1) );
 	}
 }
 
@@ -342,7 +343,7 @@ EDA_NoteBookPage * CurrPage;
 	CurrPage->m_CommandStringCtrl->SetValue(FullFileName);
 	
 	/* Get a title for thgis page */
-	wxString title = CurrPage->m_TitleStringCtrl->GetData();
+	wxString title = CurrPage->m_TitleStringCtrl->GetValue();
 	if ( title.IsEmpty() )
 		DisplayInfo(this, _("Now, you must choose a title for this netlist control page\nand close the dialog box"));
 }
@@ -374,7 +375,8 @@ void WinEDA_NetlistFrame::NetlistUpdateOpt(void)
 {
 int ii;
 	
-	g_SimulatorCommandLine = m_PanelNetType[PANELSPICE]->m_CommandStringCtrl->GetData();
+	g_SimulatorCommandLine =
+		m_PanelNetType[PANELSPICE]->m_CommandStringCtrl->GetValue();
 	g_NetFormat = NET_TYPE_PCBNEW;
 
 	for ( ii = 0; ii < PANELCUSTOMBASE+CUSTOMPANEL_COUNTMAX; ii++ )
@@ -445,7 +447,7 @@ EDA_NoteBookPage * CurrPage;
 	SchematicCleanUp(NULL);
 	BuildNetList(m_Parent, ScreenSch);
 	if ( CurrPage->m_CommandStringCtrl)
-		g_NetListerCommandLine = CurrPage->m_CommandStringCtrl->GetData();
+		g_NetListerCommandLine = CurrPage->m_CommandStringCtrl->GetValue();
 	else g_NetListerCommandLine.Empty();
 		
 	switch (g_NetFormat)
@@ -486,7 +488,7 @@ wxString msg, Command;
 		msg = wxT("Custom"); msg << ii+1;
 		if ( CurrPage->m_TitleStringCtrl )
 		{
-			wxString title = CurrPage->m_TitleStringCtrl->GetData();
+			wxString title = CurrPage->m_TitleStringCtrl->GetValue();
 			if ( msg != title )	// Title has changed, Update config
 			{
 				msg = CUSTOM_NETLIST_TITLE; msg << ii+1;
@@ -496,7 +498,7 @@ wxString msg, Command;
 		
 		if ( CurrPage->m_CommandStringCtrl )
 		{
-			Command = CurrPage->m_CommandStringCtrl->GetData();
+			Command = CurrPage->m_CommandStringCtrl->GetValue();
 			msg = CUSTOM_NETLIST_COMMAND; msg << ii+1;
 			m_Parent->m_Parent->m_EDA_Config->Write(msg, Command);
 		}
@@ -511,7 +513,8 @@ void WinEDA_NetlistFrame::RunSimulator(wxCommandEvent& event)
 {
 wxString NetlistFullFileName, ExecFile, CommandLine;
 
-	g_SimulatorCommandLine = m_PanelNetType[PANELSPICE]->m_CommandStringCtrl->GetData();
+	g_SimulatorCommandLine =
+		m_PanelNetType[PANELSPICE]->m_CommandStringCtrl->GetValue();
 	g_SimulatorCommandLine.Trim(FALSE);
 	g_SimulatorCommandLine.Trim(TRUE);
 	ExecFile = g_SimulatorCommandLine.BeforeFirst(' ');

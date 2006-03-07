@@ -30,12 +30,11 @@ OBJECTS = $(TARGET).o \
 			cfg.o listlib.o \
 			infospgm.o autosel.o \
 			setvisu.o\
-			options.o\
+			dialog_display_options.o\
 			zoom.o \
 			visumod.o\
 			tracemod.o \
-            gr_basic.o \
-			classpcb.o \
+ 			classpcb.o \
 			class_board.o \
 			class_module.o \
 			class_pad.o \
@@ -51,11 +50,11 @@ displayframe.o: displayframe.cpp $(DEPEND)
 
 listboxes.o: listboxes.cpp $(DEPEND)
 
-drawpanel.o: ../common/drawpanel.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawpanel.o: ../share/drawpanel.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-drawframe.o: ../common/drawframe.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawframe.o: ../share/drawframe.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 init.o: init.cpp $(DEPEND)
 
@@ -120,24 +119,22 @@ listlib.o: listlib.cpp $(DEPEND)
 
 cfg.o: cfg.cpp cfg.h $(DEPEND)
 
-menucfg.o: menucfg.cpp $(DEPEND)
+menucfg.o: menucfg.cpp dialog_cvpcb_config.cpp dialog_cvpcb_config.h $(DEPEND)
 
-infospgm.o: ../common/infospgm.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+infospgm.o: ../share/infospgm.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 autosel.o: autosel.cpp $(DEPEND)
 
 setvisu.o: setvisu.cpp $(DEPEND)
 
-zoom.o: ../common/zoom.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+zoom.o: ../share/zoom.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 visumod.o: visumod.cpp $(DEPEND)
 
 tracemod.o: ../pcbnew/tracemod.cpp ../include/gr_basic.h $(DEPEND)
 	$(CC) -c $(EDACPPFLAGS) -o $@ ../pcbnew/$*.cpp
 
-options.o: options.cpp $(DEPEND)
+dialog_display_options.o: dialog_display_options.cpp dialog_display_options.h $(DEPEND)
 
-gr_basic.o: ../common/gr_basic.cpp ../include/gr_basic.h $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp

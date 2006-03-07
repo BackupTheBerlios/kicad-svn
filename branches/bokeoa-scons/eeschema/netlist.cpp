@@ -623,7 +623,7 @@ int Num;
 wxString BufLine;
 long tmp;
 bool error = FALSE;
-
+	
 	/* Search for  '[' because a bus label is like "busname[nn..mm]" */
 	Num = LabelDrawList.Find('[');
 	if ( Num < 0 ) return(0);

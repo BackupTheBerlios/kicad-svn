@@ -36,6 +36,10 @@ public:
 	TRACK::TRACK(const TRACK & track);
 
 	TRACK * Next(void);	// Retourne le chainage avant
+	TRACK * Back(void)	// Retourne le chainage avant
+	{
+		return (TRACK*) Pback;
+	}
 
 	/* supprime du chainage la structure Struct */
 	void UnLink( void );
@@ -66,6 +70,7 @@ public:
 
 	int ReturnMaskLayer(void);
 	int IsPointOnEnds(const wxPoint & point, int min_dist = 0);
+	bool IsNull(void);	// return TRUE if segment lenght = 0
 };
 
 class SEGZONE: public TRACK

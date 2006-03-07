@@ -198,7 +198,7 @@ int CurrentTime = time(NULL);
 
 		case 'U' | GR_KB_CTRL :
 		case 'u' | GR_KB_CTRL :
-			UnitMetric = (UnitMetric == INCHES ) ? MILLIMETRE : INCHES;
+			g_UnitMetric = (g_UnitMetric == INCHES ) ? MILLIMETRE : INCHES;
 			break ;
 
 		case WXK_F1 :

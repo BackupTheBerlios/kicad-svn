@@ -15,152 +15,239 @@
 #include "libcmp.h"
 #include "general.h"
 
-#include "wx/spinctrl.h"
+#include "symbtext.h"
 
 #include "protos.h"
 
 
-/* Routines locales */
 
-enum id_body_text_edit
-{
-	ID_ACCEPT_BODY_TEXT_PROPERTIES = 2000,
-	ID_CLOSE_BODY_TEXT_PROPERTIES
-};
+/*!
+ * WinEDA_bodytext_PropertiesFrame type definition
+ */
 
+IMPLEMENT_DYNAMIC_CLASS( WinEDA_bodytext_PropertiesFrame, wxDialog )
 
-	/************************************/
-	/* class WinEDA_PartPropertiesFrame */
-	/************************************/
+/*!
+ * WinEDA_bodytext_PropertiesFrame event table definition
+ */
 
-class WinEDA_bodytext_PropertiesFrame: public wxDialog
-{
-private:
+BEGIN_EVENT_TABLE( WinEDA_bodytext_PropertiesFrame, wxDialog )
 
-	WinEDA_LibeditFrame * m_Parent;
-	wxCheckBox * m_Orient;
-	wxCheckBox * m_CommonUnit;
-	wxCheckBox * m_CommonConvert;
+////@begin WinEDA_bodytext_PropertiesFrame event table entries
+    EVT_BUTTON( wxID_OK, WinEDA_bodytext_PropertiesFrame::OnOkClick )
 
-	WinEDA_EnterText * NewText;
-	wxSpinCtrl * m_Size;
+    EVT_BUTTON( wxID_CANCEL, WinEDA_bodytext_PropertiesFrame::OnCancelClick )
 
-public:
-	// Constructor and destructor
-	WinEDA_bodytext_PropertiesFrame(WinEDA_LibeditFrame *parent,
-								const wxPoint & pos);
-	~WinEDA_bodytext_PropertiesFrame(void){};
+////@end WinEDA_bodytext_PropertiesFrame event table entries
 
-private:
-	void bodytext_PropertiesAccept(wxCommandEvent& event);
-	void OnQuit(wxCommandEvent& event);
-
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_bodytext_PropertiesFrame, wxDialog)
-	EVT_BUTTON(ID_ACCEPT_BODY_TEXT_PROPERTIES,
-				WinEDA_bodytext_PropertiesFrame::bodytext_PropertiesAccept)
-	EVT_BUTTON(ID_CLOSE_BODY_TEXT_PROPERTIES,
-			WinEDA_bodytext_PropertiesFrame::OnQuit)
 END_EVENT_TABLE()
 
+/*!
+ * WinEDA_bodytext_PropertiesFrame constructors
+ */
 
-/********************************************************************/
-WinEDA_bodytext_PropertiesFrame::WinEDA_bodytext_PropertiesFrame(
-				WinEDA_LibeditFrame *parent, const wxPoint & framepos):
-		wxDialog(parent, -1, _("Graphic text properties"),
-				framepos, wxSize(400, 270), DIALOG_STYLE )
-/********************************************************************/
+WinEDA_bodytext_PropertiesFrame::WinEDA_bodytext_PropertiesFrame( )
 {
-wxPoint pos;
-int tmp;
-wxString number;
+}
+
+WinEDA_bodytext_PropertiesFrame::WinEDA_bodytext_PropertiesFrame( WinEDA_LibeditFrame* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
+{
 LibDrawText * CurrentText = (LibDrawText *) CurrentDrawItem;
-wxButton * Button;
+wxString msg;
 	
 	m_Parent = parent;
-	SetFont(*g_DialogFont);
-
-	Centre();
-
-	/* Creation des boutons de commande */
-	pos.x = 300; pos.y = 10;
-	Button = new wxButton(this, ID_ACCEPT_BODY_TEXT_PROPERTIES,
-						_("Ok"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_CLOSE_BODY_TEXT_PROPERTIES,
-						_("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 15;
-	new wxStaticBox(this, -1,_(" Text : "), pos, wxSize(250, 60));
-
-	pos.x = 10; pos.y += 26;
-	NewText = new WinEDA_EnterText(this, _("Name:"),
-						CurrentText ? CurrentText->m_Text.GetData() : wxEmptyString,
-				pos, wxSize(150,-1) );
-	pos.x = 170;
-	number.Printf( wxT("%d"),
-				CurrentText ? CurrentText->m_Size.x : g_LastTextSize);
-	m_Size = new wxSpinCtrl(this,-1,number, pos,
-				wxSize(60, -1), wxSP_ARROW_KEYS | wxSP_WRAP,
-				0, 300);
-
-
-	// Text Options
-	pos.x = 5; pos.y += 38; tmp = pos.y;
-	new wxStaticBox(this, -1,_(" Text Options : "), pos, wxSize(160, 120));
-
-	pos.x += 5; pos.y += 30;
-	m_CommonUnit = new wxCheckBox(this, -1, _("Common to Units"), pos);
+    Create(parent, id, caption, pos, size, style);
+	
 	if ( CurrentText )
 	{
+		msg = ReturnStringFromValue(g_UnitMetric, CurrentText->m_Size.x, m_Parent->m_InternalUnits);
+		m_Size->SetValue(msg);
+		m_NewText->SetValue(CurrentText->m_Text);
 		if ( CurrentText->m_Unit == 0 ) m_CommonUnit->SetValue(TRUE);
-	}
-	else if ( ! g_FlDrawSpecificUnit ) m_CommonUnit->SetValue(TRUE);
-
-	pos.y += 20;
-	m_CommonConvert = new wxCheckBox(this, -1, _("Common to convert"), pos);
-	if ( CurrentText )
-		{
 		if ( CurrentText->m_Convert == 0 ) m_CommonConvert->SetValue(TRUE);
-		}
-	else if ( !g_FlDrawSpecificConvert ) m_CommonConvert->SetValue(TRUE);
-
-	// Selection de l'orientation :
-	pos.y += 20;
-	m_Orient = new wxCheckBox(this, -1, _("Vertical"), pos);
-	if ( CurrentText )
-	{
 		if ( CurrentText->m_Horiz == TEXT_ORIENT_VERT ) m_Orient->SetValue(TRUE);
 	}
-	else if (g_LastTextOrient == TEXT_ORIENT_VERT ) m_Orient->SetValue(TRUE);
+	else
+	{
+		msg = ReturnStringFromValue(g_UnitMetric, g_LastTextSize, m_Parent->m_InternalUnits);
+		m_Size->SetValue(msg);
+		if ( ! g_FlDrawSpecificUnit ) m_CommonUnit->SetValue(TRUE);
+		if ( ! g_FlDrawSpecificConvert ) m_CommonConvert->SetValue(TRUE);
+		if ( g_LastTextOrient == TEXT_ORIENT_VERT ) m_Orient->SetValue(TRUE);
+	}
+	
+	msg = m_SizeText->GetLabel() + ReturnUnitSymbol(); 
+	m_SizeText->SetLabel(msg);
 }
 
+/*!
+ * WinEDA_bodytext_PropertiesFrame creator
+ */
 
-/************************************************************************/
-void  WinEDA_bodytext_PropertiesFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/************************************************************************/
+bool WinEDA_bodytext_PropertiesFrame::Create( wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style )
 {
-    // true is to force the frame to close
-    Close(true);
+////@begin WinEDA_bodytext_PropertiesFrame member initialisation
+    m_NewText = NULL;
+    m_SizeText = NULL;
+    m_Size = NULL;
+    m_CommonUnit = NULL;
+    m_CommonConvert = NULL;
+    m_Orient = NULL;
+////@end WinEDA_bodytext_PropertiesFrame member initialisation
+
+////@begin WinEDA_bodytext_PropertiesFrame creation
+    SetExtraStyle(GetExtraStyle()|wxWS_EX_BLOCK_EVENTS);
+    wxDialog::Create( parent, id, caption, pos, size, style );
+
+    CreateControls();
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
+    Centre();
+////@end WinEDA_bodytext_PropertiesFrame creation
+    return true;
 }
+
+/*!
+ * Control creation for WinEDA_bodytext_PropertiesFrame
+ */
+
+void WinEDA_bodytext_PropertiesFrame::CreateControls()
+{    
+	SetFont(*g_DialogFont);
+	
+////@begin WinEDA_bodytext_PropertiesFrame content construction
+    // Generated by DialogBlocks, 12/02/2006 15:02:01 (unregistered)
+
+    WinEDA_bodytext_PropertiesFrame* itemDialog1 = this;
+
+    wxBoxSizer* itemBoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
+    itemDialog1->SetSizer(itemBoxSizer2);
+
+    wxStaticBox* itemStaticBoxSizer3Static = new wxStaticBox(itemDialog1, wxID_ANY, _(" Text : "));
+    wxStaticBoxSizer* itemStaticBoxSizer3 = new wxStaticBoxSizer(itemStaticBoxSizer3Static, wxVERTICAL);
+    itemBoxSizer2->Add(itemStaticBoxSizer3, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxBoxSizer* itemBoxSizer4 = new wxBoxSizer(wxHORIZONTAL);
+    itemStaticBoxSizer3->Add(itemBoxSizer4, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+
+    wxBoxSizer* itemBoxSizer5 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer4->Add(itemBoxSizer5, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxStaticText* itemStaticText6 = new wxStaticText( itemDialog1, wxID_STATIC, _("Name:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer5->Add(itemStaticText6, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP|wxADJUST_MINSIZE, 5);
+
+    m_NewText = new wxTextCtrl( itemDialog1, ID_TEXTCTRL, _T(""), wxDefaultPosition, wxSize(250, -1), 0 );
+    itemBoxSizer5->Add(m_NewText, 0, wxALIGN_LEFT|wxALL, 5);
+
+    wxBoxSizer* itemBoxSizer8 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer4->Add(itemBoxSizer8, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    m_SizeText = new wxStaticText( itemDialog1, wxID_STATIC, _("Size:"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer8->Add(m_SizeText, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP|wxADJUST_MINSIZE, 5);
+
+    m_Size = new wxTextCtrl( itemDialog1, ID_TEXTCTRL1, _T(""), wxDefaultPosition, wxDefaultSize, 0 );
+    itemBoxSizer8->Add(m_Size, 0, wxALIGN_LEFT|wxALL, 5);
+
+    wxStaticBox* itemStaticBoxSizer11Static = new wxStaticBox(itemDialog1, wxID_ANY, _(" Text Options : "));
+    wxStaticBoxSizer* itemStaticBoxSizer11 = new wxStaticBoxSizer(itemStaticBoxSizer11Static, wxVERTICAL);
+    itemStaticBoxSizer3->Add(itemStaticBoxSizer11, 0, wxALIGN_LEFT|wxALL, 5);
+
+    m_CommonUnit = new wxCheckBox( itemDialog1, ID_CHECKBOX, _("Common to Units"), wxDefaultPosition, wxDefaultSize, wxCHK_2STATE );
+    m_CommonUnit->SetValue(false);
+    itemStaticBoxSizer11->Add(m_CommonUnit, 0, wxALIGN_LEFT|wxALL, 5);
+
+    m_CommonConvert = new wxCheckBox( itemDialog1, ID_CHECKBOX1, _("Common to convert"), wxDefaultPosition, wxDefaultSize, wxCHK_2STATE );
+    m_CommonConvert->SetValue(false);
+    itemStaticBoxSizer11->Add(m_CommonConvert, 0, wxALIGN_LEFT|wxALL, 5);
+
+    m_Orient = new wxCheckBox( itemDialog1, ID_CHECKBOX2, _("Vertical"), wxDefaultPosition, wxDefaultSize, wxCHK_2STATE );
+    m_Orient->SetValue(false);
+    itemStaticBoxSizer11->Add(m_Orient, 0, wxALIGN_LEFT|wxALL, 5);
+
+    wxBoxSizer* itemBoxSizer15 = new wxBoxSizer(wxVERTICAL);
+    itemBoxSizer2->Add(itemBoxSizer15, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
+
+    wxButton* itemButton16 = new wxButton( itemDialog1, wxID_OK, _("&OK"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemButton16->SetForegroundColour(wxColour(206, 0, 0));
+    itemBoxSizer15->Add(itemButton16, 0, wxGROW|wxALL, 5);
+
+    wxButton* itemButton17 = new wxButton( itemDialog1, wxID_CANCEL, _("&Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+    itemButton17->SetForegroundColour(wxColour(0, 0, 255));
+    itemBoxSizer15->Add(itemButton17, 0, wxGROW|wxALL, 5);
+
+////@end WinEDA_bodytext_PropertiesFrame content construction
+}
+
+/*!
+ * Should we show tooltips?
+ */
+
+bool WinEDA_bodytext_PropertiesFrame::ShowToolTips()
+{
+    return true;
+}
+
+/*!
+ * Get bitmap resources
+ */
+
+wxBitmap WinEDA_bodytext_PropertiesFrame::GetBitmapResource( const wxString& name )
+{
+    // Bitmap retrieval
+////@begin WinEDA_bodytext_PropertiesFrame bitmap retrieval
+    wxUnusedVar(name);
+    return wxNullBitmap;
+////@end WinEDA_bodytext_PropertiesFrame bitmap retrieval
+}
+
+/*!
+ * Get icon resources
+ */
+
+wxIcon WinEDA_bodytext_PropertiesFrame::GetIconResource( const wxString& name )
+{
+    // Icon retrieval
+////@begin WinEDA_bodytext_PropertiesFrame icon retrieval
+    wxUnusedVar(name);
+    return wxNullIcon;
+////@end WinEDA_bodytext_PropertiesFrame icon retrieval
+}
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_OK
+ */
+
+void WinEDA_bodytext_PropertiesFrame::OnOkClick( wxCommandEvent& event )
+{
+	bodytext_PropertiesAccept(event);
+	Close();
+}
+
+/*!
+ * wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL
+ */
+
+void WinEDA_bodytext_PropertiesFrame::OnCancelClick( wxCommandEvent& event )
+{
+////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_bodytext_PropertiesFrame.
+    // Before editing this code, remove the block markers.
+    event.Skip();
+////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_bodytext_PropertiesFrame. 
+}
+
 
 /***************************************************************************/
 void WinEDA_bodytext_PropertiesFrame::bodytext_PropertiesAccept(wxCommandEvent& event)
 /***************************************************************************/
-/* Met a jour les differents parametres pour le composant en cours d'édition
+/* Met a jour les differents parametres pour le composant en cours d'edition
 */
 {
 LibDrawText* Text = (LibDrawText*) CurrentDrawItem;
 wxString Line;
 
-	Line = NewText->GetData();
+	Line = m_NewText->GetValue();
 	g_LastTextOrient = m_Orient->GetValue() ? TEXT_ORIENT_VERT : TEXT_ORIENT_HORIZ;
-	g_LastTextSize = m_Size->GetValue();
+	wxString msg = m_Size->GetValue();
+	g_LastTextSize = ReturnValueFromString(g_UnitMetric, msg, m_Parent->m_InternalUnits);
 	g_FlDrawSpecificConvert = m_CommonConvert->GetValue() ? FALSE : TRUE;
 	g_FlDrawSpecificUnit = m_CommonUnit->GetValue() ? FALSE : TRUE;
 
@@ -201,7 +288,7 @@ int DrawMode = g_XorMode;
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 
 	WinEDA_bodytext_PropertiesFrame * frame =
-			new WinEDA_bodytext_PropertiesFrame(this, wxPoint(-1,-1));
+			new WinEDA_bodytext_PropertiesFrame(this);
 	frame->ShowModal(); frame->Destroy();
 
 	DrawPanel->MouseToCursorSchema();

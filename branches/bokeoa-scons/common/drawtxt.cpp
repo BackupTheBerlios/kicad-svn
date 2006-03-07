@@ -35,6 +35,7 @@ void DrawGraphicText(WinEDA_DrawPanel * panel, wxDC * DC,
 	h_justify = horizontal justification (Left, center, right)
 	v_justify = vertical justification (bottom, center, top)
 	width = line width (pen width) (default = 0)
+		if width < 0 : draw segments in sketch mode, width = abs(width)
 */
 {
 int ii, kk,nbchar, AsciiCode, endcar;
@@ -48,12 +49,18 @@ int ux0, uy0, dx, dy;	// Coord de trace des segments de texte & variables de cal
 int cX, cY;				// Centre du texte
 int ox, oy;				// coord de trace du caractere courant
 int coord[100];			// liste des coord des segments a tracer
-
+bool sketch_mode = FALSE;
+	
 	zoom = panel->GetZoom();
 
 	size_h = Size.x;
 	size_v = Size.y;
 
+	if ( width < 0 )
+	{
+		width = - width;
+		sketch_mode = TRUE;
+	}
 	kk = 0 ; ptr = 0;	/* ptr = text index */
 
 	/* calcul de la position du debut des textes: ox et oy */
@@ -205,6 +212,15 @@ return;
 							if ( width <= 1 )
 								GRPoly(&panel->m_ClipBox, DC, ii /2, coord, 0,
 									gcolor, gcolor);
+							else if ( sketch_mode )
+							{
+								int ik, * coordptr;
+								coordptr = coord;
+								for ( ik = 0; ik < (ii-2); ik += 2,  coordptr+= 2)
+									GRCSegm(&panel->m_ClipBox, DC, *coordptr, *(coordptr+1),
+											*(coordptr+2), *(coordptr+3), width, gcolor) ;
+							}
+								
 							else
 								GRPolyLines(&panel->m_ClipBox, DC, ii /2, coord,
 									gcolor, gcolor, width);

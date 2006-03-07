@@ -14,8 +14,10 @@ OBJECTS= \
 		drawtxt.o \
 		wxwineda.o \
 		string.o \
+		gr_basic.o\
 		gestfich.o\
 		trigo.o\
+		selcolor.o\
 		bitmaps.o\
 		common.o\
 		eda_doc.o\
@@ -27,10 +29,17 @@ OBJECTS= \
 		projet_config.o\
 		get_component_dialog.o\
 		eda_dde.o\
+		worksheet.o\
 		base_screen.o\
 		svg_print.o dcsvg.o
 
+gr_basic.o: gr_basic.cpp ../include/gr_basic.h $(DEPEND)
+
 confirm.o: confirm.cpp $(COMMON)
+
+worksheet.o: worksheet.cpp ../include/worksheet.h $(COMMON)
+
+selcolor.o: selcolor.cpp ../include/colors.h $(COMMON)
 
 get_component_dialog.o: get_component_dialog.cpp $(COMMON)
 

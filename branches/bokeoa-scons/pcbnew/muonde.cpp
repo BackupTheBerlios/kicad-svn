@@ -162,7 +162,7 @@ bool abort;
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 
 wxString value;	
-	if( UnitMetric)
+	if( g_UnitMetric)
 	{
 		fcoeff = 10000.0/25.4 ;
 		value.Printf( wxT("%2.4f"),gap_size / fcoeff);
@@ -328,9 +328,6 @@ WinEDA_SetParamShapeFrame::WinEDA_SetParamShapeFrame(WinEDA_PcbFrame *parent,
 		wxDialog(parent, -1, _("Complex shape"), framepos, wxSize(350, 280),
 		DIALOG_STYLE )
 {
-wxPoint pos;
-int ybottom;
-	
 	m_Parent = parent;
 	SetFont(*g_DialogFont);
 	
@@ -338,33 +335,37 @@ int ybottom;
 	PolyEdges = NULL;
 	PolyEdgesCount = 0;
 
+	wxBoxSizer * MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+	SetSizer(MainBoxSizer);
+	wxBoxSizer * LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer * RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+	MainBoxSizer->Add(LeftBoxSizer, 0, wxGROW|wxALL, 5);
+	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
-	pos.x = 200; pos.y = 20;
-	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Ok"), pos);
+	wxButton * Button = new wxButton(this, ID_ACCEPT_OPT, _("Ok"));
 	Button->SetForegroundColour(*wxRED);
-	pos.y += Button->GetSize().y  + 5;
-	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"), pos);
-	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
-	pos.y += Button->GetSize().y  + 25;
-	m_SizeCtrl = new WinEDA_SizeCtrl(this, _("Size"),
-						ShapeSize,
-						UnitMetric, pos, PCB_INTERNAL_UNIT) ;
-	ybottom = pos.y + m_SizeCtrl->GetDimension().y;
-	
-	pos.x = 5; pos.y = 5;
+	Button = new wxButton(this, ID_CANCEL_OPT, _("Cancel"));
+	Button->SetForegroundColour(*wxBLUE);
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
+	Button = new wxButton(this, ID_READ_SHAPE_FILE, _("Read Shape Descr File"));
+	Button->SetForegroundColour(wxColor(0,100,0) );
+	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+
 wxString shapelist[3] = { _("Normal"), _("Symmetrical"), _("mirrored") };
 	m_ShapeOptionCtrl = new wxRadioBox(this, -1, _("ShapeOption"),
-			pos, wxDefaultSize, 3, shapelist, 1, wxRA_SPECIFY_COLS);
+			wxDefaultPosition, wxDefaultSize, 3, shapelist, 1, wxRA_SPECIFY_COLS);
+	LeftBoxSizer->Add(m_ShapeOptionCtrl, 0, wxGROW|wxALL, 5);
 
-	pos.y += m_ShapeOptionCtrl->GetSize().y + 10;
-	Button = new wxButton(this, ID_READ_SHAPE_FILE, _("Read Shape Descr File"), pos);
-	Button->SetForegroundColour(wxColor(0,100,0) );
+	m_SizeCtrl = new WinEDA_SizeCtrl(this, _("Size"),
+						ShapeSize,
+						g_UnitMetric, LeftBoxSizer, PCB_INTERNAL_UNIT) ;
+	
 
-	pos.y += Button->GetSize().y ;
-
-	ybottom = MAX(ybottom, pos.y);
-	SetClientSize(wxSize(350, ybottom + 10) );
+	GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /**********************************************************************/
@@ -382,7 +383,7 @@ void  WinEDA_SetParamShapeFrame::OnCancel(wxCommandEvent& WXUNUSED(event))
 void WinEDA_SetParamShapeFrame::AcceptOptions(wxCommandEvent& event)
 /*******************************************************************/
 {
-	ShapeSize = m_SizeCtrl->GetCoord();
+	ShapeSize = m_SizeCtrl->GetValue();
 	PolyShapeType = m_ShapeOptionCtrl->GetSelection();
 	EndModal(1);
 }
@@ -669,7 +670,7 @@ wxString msg;
 	gap_size = next_pad->m_Pos0.x - pad->m_Pos0.x - pad->m_Size.x;
 
 	/* Entree de la longueur desiree du gap*/
-	if( UnitMetric)
+	if( g_UnitMetric)
 	{
 		fcoeff = 10000.0/25.4 ;
 		msg.Printf( wxT("%2.3f"),gap_size / fcoeff);

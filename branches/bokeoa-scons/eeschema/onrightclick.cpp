@@ -39,8 +39,6 @@
 #include "Edit_Component.xpm"
 #include "Break_Line.xpm"
 #include "Break_Bus.xpm"
-#include "Mirror_H.xpm"
-#include "Mirror_V.xpm"
 #include "Normal.xpm"
 #include "Edit_Comp_Ref.xpm"
 #include "Edit_Comp_Value.xpm"

@@ -1,6 +1,6 @@
-	/***********************************************/
-	/*	buildmnu.h: construction du menu principal */
-	/***********************************************/
+	/*****************************************************/
+	/*	toolsch.cpp; vreate toolbars for schematic frame */
+	/*****************************************************/
 
 #include "fctsys.h"
 #include "gr_basic.h"
@@ -286,12 +286,12 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_UNIT_MM:
-			UnitMetric = MILLIMETRE;
+			g_UnitMetric = MILLIMETRE;
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			break;
 
 		case ID_TB_OPTIONS_SELECT_UNIT_INCH:
-			UnitMetric = INCHES;
+			g_UnitMetric = INCHES;
 			Affiche_Status_Box();	 /* Reaffichage des coord curseur */
 			break;
 

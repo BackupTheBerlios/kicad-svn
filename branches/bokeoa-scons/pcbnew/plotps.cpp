@@ -416,7 +416,7 @@ TRACK * pts ;
 			/* calcul de la position des trous, selon echelle */
 			pos = PtPad->m_Pos;
 			diam.x = diam.y = (g_DrillShapeOpt == DRILL_MARK) ? SMALL_DRILL :
-					g_DesignSettings.m_ViaDrill;
+					PtPad->m_Drill;
 			trace_1_pastille_RONDE_POST(pos, diam.x, FILLED);
 		}
 	}

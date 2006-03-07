@@ -698,8 +698,8 @@ long b;
 	s1 = target_side;
 	r0 = c0 = s0 = ILLEGAL;
 
-	ptstartpiste = ptnewpiste = NULL;
-	nbptnewpiste = 0;
+	g_FirstTrackSegment = g_CurrentTrackSegment = NULL;
+	g_TrackSegmentCount = 0;
 
 	do {
 		/* find where we came from to get here */
@@ -821,103 +821,103 @@ TRACK * NewTrack, *OldTrack;
 	if(orient == HOLE)	/* Placement d'une VIA */
 		{
 		NewTrack = new SEGVIA(pcb);
-		nbptnewpiste++;
-		NewTrack->Pback = ptnewpiste;
-		if( ptnewpiste)	ptnewpiste->Pnext = NewTrack;
-		else ptstartpiste = NewTrack;
+		g_TrackSegmentCount++;
+		NewTrack->Pback = g_CurrentTrackSegment;
+		if( g_CurrentTrackSegment)	g_CurrentTrackSegment->Pnext = NewTrack;
+		else g_FirstTrackSegment = NewTrack;
 
-		ptnewpiste = NewTrack;
+		g_CurrentTrackSegment = NewTrack;
 
-		ptnewpiste->SetState(SEGM_AR, ON);
-		ptnewpiste->m_Layer = 0x0F;
-		ptnewpiste->m_Start.x = ptnewpiste->m_End.x =
+		g_CurrentTrackSegment->SetState(SEGM_AR, ON);
+		g_CurrentTrackSegment->m_Layer = 0x0F;
+		g_CurrentTrackSegment->m_Start.x = g_CurrentTrackSegment->m_End.x =
 				pcb->m_BoundaryBox.m_Pos.x + (pas_route * row);
-		ptnewpiste->m_Start.y = ptnewpiste->m_End.y =
+		g_CurrentTrackSegment->m_Start.y = g_CurrentTrackSegment->m_End.y =
 			pcb->m_BoundaryBox.m_Pos.y + (pas_route * col);
-		ptnewpiste->m_Width = g_DesignSettings.m_CurrentViaSize;
-		ptnewpiste->m_Shape = g_DesignSettings.m_CurrentViaType;
-		ptnewpiste->m_NetCode = current_net_code;
+		g_CurrentTrackSegment->m_Width = g_DesignSettings.m_CurrentViaSize;
+		g_CurrentTrackSegment->m_Shape = g_DesignSettings.m_CurrentViaType;
+		g_CurrentTrackSegment->m_NetCode = current_net_code;
 		}
 
 	else	/* Placement d'un segment standard */
 		{
 		NewTrack = new TRACK(pcb);
-		nbptnewpiste++;
-		NewTrack->Pback = ptnewpiste;
-		if( ptnewpiste)	ptnewpiste->Pnext = NewTrack;
-		else ptstartpiste = NewTrack;
+		g_TrackSegmentCount++;
+		NewTrack->Pback = g_CurrentTrackSegment;
+		if( g_CurrentTrackSegment)	g_CurrentTrackSegment->Pnext = NewTrack;
+		else g_FirstTrackSegment = NewTrack;
 
-		ptnewpiste = NewTrack;
+		g_CurrentTrackSegment = NewTrack;
 
-		ptnewpiste->m_Layer = Route_Layer_BOTTOM;
-		if (side == TOP) ptnewpiste->m_Layer = Route_Layer_TOP;
+		g_CurrentTrackSegment->m_Layer = Route_Layer_BOTTOM;
+		if (side == TOP) g_CurrentTrackSegment->m_Layer = Route_Layer_TOP;
 
-		ptnewpiste->SetState(SEGM_AR,ON) ;
-		ptnewpiste->m_End.x = pcb->m_BoundaryBox.m_Pos.x + (pas_route * row);
-		ptnewpiste->m_End.y = pcb->m_BoundaryBox.m_Pos.y + (pas_route * col);
-		ptnewpiste->m_NetCode = current_net_code;
+		g_CurrentTrackSegment->SetState(SEGM_AR,ON) ;
+		g_CurrentTrackSegment->m_End.x = pcb->m_BoundaryBox.m_Pos.x + (pas_route * row);
+		g_CurrentTrackSegment->m_End.y = pcb->m_BoundaryBox.m_Pos.y + (pas_route * col);
+		g_CurrentTrackSegment->m_NetCode = current_net_code;
 
-		if ( ptnewpiste->Pback == NULL ) /* Start Piste */
+		if ( g_CurrentTrackSegment->Pback == NULL ) /* Start Piste */
 			{
-			ptnewpiste->m_Start.x = segm_fX;
-			ptnewpiste->m_Start.y = segm_fY;
+			g_CurrentTrackSegment->m_Start.x = segm_fX;
+			g_CurrentTrackSegment->m_Start.y = segm_fY;
 
 			/* Replacement sur le centre du pad si hors grille */
-			dx1 = ptnewpiste->m_End.x - ptnewpiste->m_Start.x;
-			dy1 = ptnewpiste->m_End.y - ptnewpiste->m_Start.y;
-			dx0 = pt_cur_ch->pad_end->m_Pos.x - ptnewpiste->m_Start.x;
-			dy0 = pt_cur_ch->pad_end->m_Pos.y - ptnewpiste->m_Start.y;
+			dx1 = g_CurrentTrackSegment->m_End.x - g_CurrentTrackSegment->m_Start.x;
+			dy1 = g_CurrentTrackSegment->m_End.y - g_CurrentTrackSegment->m_Start.y;
+			dx0 = pt_cur_ch->pad_end->m_Pos.x - g_CurrentTrackSegment->m_Start.x;
+			dy0 = pt_cur_ch->pad_end->m_Pos.y - g_CurrentTrackSegment->m_Start.y;
 
 			/* si aligne: modif du point origine */
 			if(abs(dx0*dy1) == abs(dx1*dy0) ) /* Alignes ! */
 				{
-				ptnewpiste->m_Start.x = pt_cur_ch->pad_end->m_Pos.x;
-				ptnewpiste->m_Start.y = pt_cur_ch->pad_end->m_Pos.y;
+				g_CurrentTrackSegment->m_Start.x = pt_cur_ch->pad_end->m_Pos.x;
+				g_CurrentTrackSegment->m_Start.y = pt_cur_ch->pad_end->m_Pos.y;
 				}
 
 			else /* Creation d'un segment suppl raccord */
 				{
-				NewTrack = ptnewpiste->Copy();
-				nbptnewpiste++;
-				NewTrack->Insert(pcb, ptnewpiste);
+				NewTrack = g_CurrentTrackSegment->Copy();
+				g_TrackSegmentCount++;
+				NewTrack->Insert(pcb, g_CurrentTrackSegment);
 
-				ptnewpiste->m_Start.x = pt_cur_ch->pad_end->m_Pos.x;
-				ptnewpiste->m_Start.y = pt_cur_ch->pad_end->m_Pos.y;
-				NewTrack->m_Start.x = ptnewpiste->m_End.x;
-				NewTrack->m_Start.y = ptnewpiste->m_End.y;
+				g_CurrentTrackSegment->m_Start.x = pt_cur_ch->pad_end->m_Pos.x;
+				g_CurrentTrackSegment->m_Start.y = pt_cur_ch->pad_end->m_Pos.y;
+				NewTrack->m_Start.x = g_CurrentTrackSegment->m_End.x;
+				NewTrack->m_Start.y = g_CurrentTrackSegment->m_End.y;
 
-		 		ptnewpiste = NewTrack;
+		 		g_CurrentTrackSegment = NewTrack;
 				}
 			}
 		else
 			{
-			if ( ptnewpiste->Pback )
+			if ( g_CurrentTrackSegment->Pback )
 				{
-				ptnewpiste->m_Start.x = ((TRACK*)ptnewpiste->Pback)->m_End.x;
-				ptnewpiste->m_Start.y = ((TRACK*)ptnewpiste->Pback)->m_End.y;
+				g_CurrentTrackSegment->m_Start.x = ((TRACK*)g_CurrentTrackSegment->Pback)->m_End.x;
+				g_CurrentTrackSegment->m_Start.y = ((TRACK*)g_CurrentTrackSegment->Pback)->m_End.y;
 				}
 			}
-		ptnewpiste->m_Width = g_DesignSettings.m_CurrentTrackWidth;
+		g_CurrentTrackSegment->m_Width = g_DesignSettings.m_CurrentTrackWidth;
 
-		if ( (ptnewpiste->m_Start.x != ptnewpiste->m_End.x) ||
-			 (ptnewpiste->m_Start.y != ptnewpiste->m_End.y) )
+		if ( (g_CurrentTrackSegment->m_Start.x != g_CurrentTrackSegment->m_End.x) ||
+			 (g_CurrentTrackSegment->m_Start.y != g_CurrentTrackSegment->m_End.y) )
 			{
 			/* Reduction des segments alignes a 1 seul */
-			OldTrack = (TRACK*) ptnewpiste->Pback;
+			OldTrack = (TRACK*) g_CurrentTrackSegment->Pback;
 			if ( OldTrack && (OldTrack->m_StructType != TYPEVIA) )
 				{
-				dx1 = ptnewpiste->m_End.x - ptnewpiste->m_Start.x;
-				dy1 = ptnewpiste->m_End.y - ptnewpiste->m_Start.y;
+				dx1 = g_CurrentTrackSegment->m_End.x - g_CurrentTrackSegment->m_Start.x;
+				dy1 = g_CurrentTrackSegment->m_End.y - g_CurrentTrackSegment->m_Start.y;
 				dx0 = OldTrack->m_End.x - OldTrack->m_Start.x;
 				dy0 = OldTrack->m_End.y - OldTrack->m_Start.y;
 				if( abs(dx0*dy1) == abs(dx1*dy0) )/* le dernier segment est en ligne*/
 					{
-					OldTrack->m_End.x = ptnewpiste->m_End.x;
-					OldTrack->m_End.y = ptnewpiste->m_End.y;
-					delete ptnewpiste;
-					ptnewpiste = OldTrack;
-					ptnewpiste->Pnext = NULL;
-					nbptnewpiste--;
+					OldTrack->m_End.x = g_CurrentTrackSegment->m_End.x;
+					OldTrack->m_End.y = g_CurrentTrackSegment->m_End.y;
+					delete g_CurrentTrackSegment;
+					g_CurrentTrackSegment = OldTrack;
+					g_CurrentTrackSegment->Pnext = NULL;
+					g_TrackSegmentCount--;
 					}
 				}
 			}
@@ -944,53 +944,53 @@ WinEDA_DrawPanel * panel = pcbframe->DrawPanel;
 
 	/* tst point d'arrivee : doit etre sur pad start */
 
-	dx1 = ptnewpiste->m_End.x - ptnewpiste->m_Start.x;
-	dy1 = ptnewpiste->m_End.y - ptnewpiste->m_Start.y;
+	dx1 = g_CurrentTrackSegment->m_End.x - g_CurrentTrackSegment->m_Start.x;
+	dy1 = g_CurrentTrackSegment->m_End.y - g_CurrentTrackSegment->m_Start.y;
 	/* Replacement sur le centre du pad si hors grille */
 
-	dx0 = pt_cur_ch->pad_start->m_Pos.x - ptnewpiste->m_Start.x;
-	dy0 = pt_cur_ch->pad_start->m_Pos.y - ptnewpiste->m_Start.y;
+	dx0 = pt_cur_ch->pad_start->m_Pos.x - g_CurrentTrackSegment->m_Start.x;
+	dy0 = pt_cur_ch->pad_start->m_Pos.y - g_CurrentTrackSegment->m_Start.y;
 
 	/* si aligne: modif du point origine */
 	if(abs(dx0*dy1) == abs(dx1*dy0) ) /* Alignes ! */
 		{
-		ptnewpiste->m_End.x = pt_cur_ch->pad_start->m_Pos.x;
-		ptnewpiste->m_End.y = pt_cur_ch->pad_start->m_Pos.y;
+		g_CurrentTrackSegment->m_End.x = pt_cur_ch->pad_start->m_Pos.x;
+		g_CurrentTrackSegment->m_End.y = pt_cur_ch->pad_start->m_Pos.y;
 		}
 	else /* Creation d'un segment suppl raccord */
 		{
-		TRACK * NewTrack = ptnewpiste->Copy();
-		NewTrack->Insert(pcbframe->m_Pcb, ptnewpiste);
+		TRACK * NewTrack = g_CurrentTrackSegment->Copy();
+		NewTrack->Insert(pcbframe->m_Pcb, g_CurrentTrackSegment);
 
 		NewTrack->m_End.x = pt_cur_ch->pad_start->m_Pos.x;
 		NewTrack->m_End.y = pt_cur_ch->pad_start->m_Pos.y;
-		NewTrack->m_Start.x = ptnewpiste->m_End.x;
-		NewTrack->m_Start.y = ptnewpiste->m_End.y;
+		NewTrack->m_Start.x = g_CurrentTrackSegment->m_End.x;
+		NewTrack->m_Start.y = g_CurrentTrackSegment->m_End.y;
 
-		ptnewpiste = NewTrack; nbptnewpiste++;
+		g_CurrentTrackSegment = NewTrack; g_TrackSegmentCount++;
 		}
 
 
-	ptstartpiste->start = Locate_Pad_Connecte(pcbframe->m_Pcb, ptstartpiste,START);
-	if(ptstartpiste->start) ptstartpiste->SetState(BEGIN_ONPAD,ON);
+	g_FirstTrackSegment->start = Locate_Pad_Connecte(pcbframe->m_Pcb, g_FirstTrackSegment,START);
+	if(g_FirstTrackSegment->start) g_FirstTrackSegment->SetState(BEGIN_ONPAD,ON);
 
-	ptnewpiste->end = Locate_Pad_Connecte(pcbframe->m_Pcb, ptnewpiste,END);
-	if(ptnewpiste->end) ptnewpiste->SetState(END_ONPAD,ON);
+	g_CurrentTrackSegment->end = Locate_Pad_Connecte(pcbframe->m_Pcb, g_CurrentTrackSegment,END);
+	if(g_CurrentTrackSegment->end) g_CurrentTrackSegment->SetState(END_ONPAD,ON);
 
 	/* recherche de la zone de rangement et insertion de la nouvelle piste */
-	pt_track = ptstartpiste->GetBestInsertPoint(pcbframe->m_Pcb);
-	ptstartpiste->Insert(pcbframe->m_Pcb, pt_track);
+	pt_track = g_FirstTrackSegment->GetBestInsertPoint(pcbframe->m_Pcb);
+	g_FirstTrackSegment->Insert(pcbframe->m_Pcb, pt_track);
 
-	Trace_Une_Piste(panel, DC, ptstartpiste,nbptnewpiste,GR_OR) ;
+	Trace_Une_Piste(panel, DC, g_FirstTrackSegment,g_TrackSegmentCount,GR_OR) ;
 
-	pcbframe->test_1_net_connexion(DC, ptstartpiste->m_NetCode );
+	pcbframe->test_1_net_connexion(DC, g_FirstTrackSegment->m_NetCode );
 
 	/* Trace de la forme exacte de la piste en BOARD */
-	for ( pt_track = ptstartpiste; ; pt_track = (TRACK*)pt_track->Pnext)
+	for ( pt_track = g_FirstTrackSegment; ; pt_track = (TRACK*)pt_track->Pnext)
 		{
 		TraceSegmentPcb(pcbframe->m_Pcb,pt_track,HOLE,marge,WRITE_CELL);
 		TraceSegmentPcb(pcbframe->m_Pcb,pt_track,VIA_IMPOSSIBLE,via_marge,WRITE_OR_CELL);
-		if(pt_track == ptnewpiste ) break;
+		if(pt_track == g_CurrentTrackSegment ) break;
 		}
 
 	ActiveScreen->SetModify();

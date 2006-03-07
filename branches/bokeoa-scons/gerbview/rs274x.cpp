@@ -213,14 +213,14 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 					case 'Y':	// Valeurs transmises :2 (really xy_seq_len : FIX ME) digits
 						code = *(text ++); ctmp = *(text++) - '0';
 						if ( code == 'X' )
-							{
+						{
 							m_FmtScale.x = * text - '0'; // = nb chiffres apres la virgule
 							m_FmtLen.x = ctmp + m_FmtScale.x;  // = nb total de chiffres
-							}
+						}
 						else {
 							m_FmtScale.y = * text - '0';
 							m_FmtLen.y = ctmp + m_FmtScale.y;
-							}
+						}
 						text++;
 						break;
 
@@ -258,7 +258,7 @@ double conv_scale = m_GerbMetric ? PCB_INTERNAL_UNIT/25.4 : PCB_INTERNAL_UNIT;
 						fcoord = ReadDouble(text);
 						m_Offset.x = (int) round(fcoord * conv_scale);
 						break;
-
+					
 					case'B':	// B axis offset in current unit (inch ou mm)
 						text ++;
 						fcoord = ReadDouble(text);

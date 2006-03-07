@@ -81,8 +81,8 @@ int hotkey = 0;
 
 		case 'U' | GR_KB_CTRL :
 		case 'u' | GR_KB_CTRL :
-			if (UnitMetric == INCHES ) UnitMetric = MILLIMETRE ;
-			else 	UnitMetric = INCHES ;
+			if (g_UnitMetric == INCHES ) g_UnitMetric = MILLIMETRE ;
+			else 	g_UnitMetric = INCHES ;
 			break ;
 
 		case WXK_F1 :

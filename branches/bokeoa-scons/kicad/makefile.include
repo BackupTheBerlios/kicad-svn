@@ -1,5 +1,5 @@
 EXTRALIBS = ../common/common.a
-EXTRACPPFLAGS= -DKICAD -I./ -Ibitmaps -I../include -I../kicad -I../common
+EXTRACPPFLAGS= -DKICAD -I./ -Ibitmaps -I../include -I../kicad -I../share
 
 DEPEND =
 
@@ -25,11 +25,5 @@ mdiframe.o: mdiframe.cpp $(DEPEND) kicad.h
 
 buildmnu.o: buildmnu.cpp $(DEPEND) kicad.h
 
-gr_basic.o: ../common/gr_basic.cpp\
-			../common/gr_basic.h ../common/colors.h $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-common.o: ../common/common.cpp $(DEPEND)
-
-infospgm.o: ../common/infospgm.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+infospgm.o: ../share/infospgm.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp

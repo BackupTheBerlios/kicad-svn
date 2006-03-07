@@ -29,10 +29,10 @@ static PARAM_CFG_WXSTRING DrillExtBufCfg
 	&g_DrillFilenameExt	 /* Adresse du parametre */
 );
 
-static PARAM_CFG_BOOL UnitCfg	// Unites; 0 inche, 1 mm
+static PARAM_CFG_INT UnitCfg	// Unites; 0 inche, 1 mm
 (
 	wxT("Unite"),			/* identification */
-	&UnitMetric,		/* Adresse du parametre */
+	&g_UnitMetric,		/* Adresse du parametre */
 	FALSE				/* Valeur par defaut */
 );
 

@@ -94,14 +94,14 @@ bool err = FALSE;
 	if(GetScreen()->ManageCurseur == NULL)
 		{
 		err = TRUE;
-		DisplayError(this, wxT("HandleBlockPLace : ManageCurseur = NULL") );
+		DisplayError(this, wxT("HandleBlockPLace() : ManageCurseur = NULL") );
 		}
 
 	if(GetScreen()->BlockLocate.m_BlockDrawStruct == NULL)
 		{
 		wxString msg;
 		err = TRUE;
-		msg.Printf( wxT("HandleBlockPLace : m_BlockDrawStruct = NULL (cmd %d, state %d)"),
+		msg.Printf( wxT("HandleBlockPLace() : m_BlockDrawStruct = NULL (cmd %d, state %d)"),
 			GetScreen()->BlockLocate.m_Command, GetScreen()->BlockLocate.m_State);
 		DisplayError(this, msg );
 		}
@@ -164,7 +164,7 @@ bool err = FALSE;
 
 	if ( GetScreen()->BlockLocate.m_BlockDrawStruct )
 		{
-		DisplayError(this, wxT("HandleBlockPLace error: DrawStruct != Null") );
+		DisplayError(this, wxT("HandleBlockPLace() error: DrawStruct != Null") );
 		GetScreen()->BlockLocate.m_BlockDrawStruct = NULL;
 		}
 
@@ -204,7 +204,7 @@ bool zoom_command = FALSE;
 	  switch( GetScreen()->BlockLocate.m_Command )
 		{
 		case  BLOCK_IDLE:
-			DisplayError(this, wxT("Error in HandleBlockPLace") );
+			DisplayError(this, wxT("Error in HandleBlockPLace()") );
 			break;
 
 		case BLOCK_DRAG: /* Drag */

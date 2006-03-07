@@ -13,8 +13,6 @@
 
 #include "protos.h"
 
-static void Draw_Marqueur(WinEDA_DrawPanel * panel, wxDC * DC,
-			wxPoint pos, char* pt_bitmap, int DrawMode, int Color);
 
 char marq_bitmap[]=
 	{
@@ -285,6 +283,7 @@ int NbSegm, coord[12];
 		size.x = -size.x;
 		size.y = -size.y;
 		}
+		
 	coord[0] = posx; coord[1] = posy; size2 = size.x /2;
 	NbSegm = 0;
 	switch(Struct->m_Shape)
@@ -295,7 +294,8 @@ int NbSegm, coord[12];
 			coord[6] = posx + size.x; coord[7] = posy;
 			coord[8] = posx + size2; coord[9] = posy + size2;
 			coord[10] = posx ; coord[11] = posy + size2;
-			NbSegm = 6;
+			coord[12] = coord[0] ; coord[13] = coord[1];
+			NbSegm = 7;
 			break;
 
 		case 1:		/* output <| */
@@ -303,7 +303,8 @@ int NbSegm, coord[12];
 			coord[4] = posx + size.x; coord[5] = posy - size2;
 			coord[6] = posx + size.x; coord[7] = posy + size2;
 			coord[8] = posx + size2; coord[9] = posy + size2;
-			NbSegm = 5;
+			coord[10] = coord[0] ; coord[11] = coord[1];
+			NbSegm = 6;
 			break;
 
 		case 2:		/* bidi <> */
@@ -311,7 +312,8 @@ int NbSegm, coord[12];
 			coord[2] = posx + size2; coord[3] = posy - size2;
 			coord[4] = posx + size.x; coord[5] = posy;
 			coord[6] = posx + size2; coord[7] = posy +size2;
-			NbSegm = 4;
+			coord[8] = coord[0];  coord[9] = coord[1];
+			NbSegm = 5;
 			break;
 
 		default:	 /* unsp []*/
@@ -319,11 +321,12 @@ int NbSegm, coord[12];
 			coord[4] = posx + size.x; coord[5] = posy - size2;
 			coord[6] = posx + size.x; coord[7] = posy + size2;
 			coord[8] = posx ; coord[9] = posy + size2;
-			NbSegm = 5;
+			coord[10] = coord[0] ; coord[11] = coord[1];
+			NbSegm = 6;
 			break;
 		}
-	GRPoly(&panel->m_ClipBox, DC, NbSegm, coord, 1, txtcolor, txtcolor);	/* Poly rempli */
-//	GRPoly(&panel->m_ClipBox, DC, NbSegm, coord, 0, txtcolor, txtcolor);	/* Poly Non rempli */
+//	GRPoly(&panel->m_ClipBox, DC, NbSegm, coord, 1, txtcolor, txtcolor);	/* Poly rempli */
+	GRPoly(&panel->m_ClipBox, DC, NbSegm, coord, 0, txtcolor, txtcolor);	/* Poly Non rempli */
 }
 
 
@@ -791,7 +794,7 @@ int DrawMode = g_XorMode;
 
 
 /************************************************************/
-static void Draw_Marqueur(WinEDA_DrawPanel * panel, wxDC * DC,
+void Draw_Marqueur(WinEDA_DrawPanel * panel, wxDC * DC,
 			wxPoint pos, char* pt_bitmap, int DrawMode, int Color)
 /************************************************************/
 /*
@@ -806,6 +809,8 @@ static void Draw_Marqueur(WinEDA_DrawPanel * panel, wxDC * DC,
 {
 int px, py, color;
 char ii, ii_max, jj, jj_max;
+	
+	if ( pt_bitmap == NULL ) pt_bitmap = marq_bitmap;
 
 	px = GRMapX(pos.x); py = GRMapY(pos.y);
 

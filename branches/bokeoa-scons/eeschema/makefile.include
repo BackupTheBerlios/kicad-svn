@@ -18,14 +18,13 @@ OBJECTS = eeschema.o\
 		cmpclass.o\
 		component_class.o\
 		libclass.o\
-		options.o\
+		dialog_options.o\
 		tool_lib.o\
 		tool_sch.o\
 		tool_viewlib.o\
 		drawframe.o\
 		schframe.o\
 		viewlib_frame.o\
-		selcolor.o\
 		drawpanel.o\
 		wxprint.o\
 		lib_export.o \
@@ -35,7 +34,8 @@ OBJECTS = eeschema.o\
 		eeload.o\
 		block.o\
 		block_libedit.o\
-		eeredraw.o eestatus.o \
+		eeredraw.o\
+		dialog_eeschema_config.o\
 		eestring.o eelayer.o \
 		priorque.o eeconfig.o \
 		affiche.o \
@@ -43,8 +43,9 @@ OBJECTS = eeschema.o\
 		getpart.o\
 		netlist.o\
 		netlist_control.o\
-		editexte.o gr_basic.o \
-		editpart.o locate.o \
+		edit_label.o\
+		edit_component_in_schematic.o\
+		locate.o \
 		save_schemas.o sheet.o \
 		viewlibs.o \
 		libedit.o \
@@ -52,19 +53,20 @@ OBJECTS = eeschema.o\
 		symbedit.o \
 		pinedit.o \
 		libfield.o \
-		libedpart.o \
+		edit_component_in_lib.o \
 		menubar.o \
 		savelib.o symbtext.o \
 		symbdraw.o \
 		hierarch.o files-io.o \
 		annotate.o plothpgl.o \
-		worksheet.o \
 		plot.o libalias.o \
 		plotps.o netform.o \
 		delsheet.o \
 		infospgm.o \
 		delete.o dialog_build_BOM.o \
-		erc.o selpart.o \
+		erc.o\
+		dialog_erc.o\
+		selpart.o \
 		libarch.o \
 		cleanup.o\
 		sheetlab.o \
@@ -79,15 +81,28 @@ OBJECTS = eeschema.o\
 
 eeschema.o: eeschema.cpp program.h general.h $(DEPEND)
 
+edit_component_in_lib.o: edit_component_in_lib.cpp\
+	dialog_edit_component_in_lib.cpp dialog_edit_component_in_lib.h $(DEPEND)
+
+edit_component_in_schematic.o: edit_component_in_schematic.cpp\
+	dialog_edit_component_in_schematic.cpp dialog_edit_component_in_schematic.h $(DEPEND)
+
+edit_label.o: edit_label.cpp dialog_edit_label.cpp dialog_edit_label.h $(DEPEND)
+
 busentry.o: busentry.cpp $(DEPEND)
+
+symbdraw.o: symbdraw.cpp dialog_cmp_graphic_properties.cpp\
+	dialog_cmp_graphic_properties.h $(DEPEND)
 
 component_class.o: component_class.cpp component_class.h
 
 menubar.o: menubar.cpp $(DEPEND)
 
+find.o:find.cpp dialog_find.cpp dialog_find.h $(DEPEND)
+
 eeconfig.o: eeconfig.cpp eeconfig.h $(DEPEND)
 
-annotate.o: annotate.cpp $(DEPEND) netlist.h
+annotate.o: annotate.cpp annotate_dialog.cpp annotate_dialog.h $(DEPEND) netlist.h
 
 netlist.o: netlist.cpp $(DEPEND) netlist.h
 
@@ -97,46 +112,39 @@ netform.o: netform.cpp $(DEPEND) netlist.h
 
 erc.o: erc.cpp $(DEPEND) netlist.h
 
-selcolor.o: ../common/selcolor.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+dialog_erc.o: dialog_erc.cpp dialog_erc.h $(DEPEND)
 
-setpage.o: ../common/setpage.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+setpage.o: ../share/setpage.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-zoom.o: ../common/zoom.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+zoom.o: ../share/zoom.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-treeprj.o: ../common/treeprj.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+treeprj.o: ../share/treeprj.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-drawpanel.o: ../common/drawpanel.cpp  $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawpanel.o: ../share/drawpanel.cpp  $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-mdiframe.o: ../common/mdiframe.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+mdiframe.o: ../share/mdiframe.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-buildmnu.o: ../common/buildmnu.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+buildmnu.o: ../share/buildmnu.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
-worksheet.o: ../common/worksheet.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-pinedit.o: pinedit.cpp $(DEPEND)
+pinedit.o: pinedit.cpp pinedit-dialog.cpp pinedit-dialog.h $(DEPEND)
 
 tool_lib.o: tool_lib.cpp $(DEPEND)
 
 controle.o: controle.cpp $(DEPEND) ../include/eda_dde.h
 
-wxprint.o: ../common/wxprint.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+wxprint.o: ../share/wxprint.cpp  ../share/dialog_print.cpp ../share/dialog_print.h $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 bus-wire-junction.o: bus-wire-junction.cpp $(DEPEND)
 
-gr_basic.o: ../common/gr_basic.cpp ../include/gr_basic.h $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
-
-drawframe.o: ../common/drawframe.cpp
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+drawframe.o: ../share/drawframe.cpp
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 
 eelibs1.o: eelibs1.cpp $(DEPEND)
 
@@ -160,10 +168,10 @@ onleftclick.o: onleftclick.cpp $(DEPEND)
 
 eeredraw.o: eeredraw.cpp $(DEPEND)
 
-eestatus.o: eestatus.cpp $(DEPEND)
+dialog_eeschema_config.o: dialog_eeschema_config.cpp dialog_eeschema_config.h $(DEPEND)
 
 libedit.o: libedit.cpp $(DEPEND)
 
-infospgm.o: ../common/infospgm.cpp $(DEPEND)
-	$(CC) -c $(EDACPPFLAGS) -o $@ ../common/$*.cpp
+infospgm.o: ../share/infospgm.cpp $(DEPEND)
+	$(CC) -c $(EDACPPFLAGS) -o $@ ../share/$*.cpp
 

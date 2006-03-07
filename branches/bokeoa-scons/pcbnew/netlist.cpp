@@ -27,7 +27,6 @@ Remarque importante:
 
 #include "protos.h"
 
-
 #define TESTONLY 1			/* ctes utilisees lors de l'appel a */
 #define READMODULE 0		/*  ReadNetModuleORCADPCB */
 
@@ -59,170 +58,19 @@ static int DisplayWarningCount ;
 	/*****************************/
 	/* class WinEDA_NetlistFrame */
 	/*****************************/
-enum id_netlist_functions
-{
-	ID_READ_NETLIST_FILE = 1900,
-	ID_TEST_NETLIST,
-	ID_CLOSE_NETLIST,
-	ID_COMPILE_RATSNEST,
-	ID_OPEN_NELIST
-};
+#include "dialog_netlist.cpp"
 
-
-class WinEDA_NetlistFrame: public wxDialog
-{
-private:
-
-	WinEDA_PcbFrame * m_Parent;
-	wxDC * m_DC;
-	wxRadioBox * m_Select_By_Timestamp;
-	wxRadioBox * m_DeleteBadTracks;
-	wxRadioBox * m_ChangeExistantModuleCtrl;
-	wxCheckBox * m_DisplayWarningCtrl;
-	wxTextCtrl * m_MessageWindow;
-
-public:
-	// Constructor and destructor
-	WinEDA_NetlistFrame(WinEDA_PcbFrame *parent, wxDC * DC, const wxPoint & pos);
-	~WinEDA_NetlistFrame(void)
-		{
-		}
-
-private:
-	void OnQuit(wxCommandEvent& event);
-	void ReadPcbNetlist(wxCommandEvent& event);
-	void Set_NetlisteName(wxCommandEvent& event);
-	bool OpenNetlistFile(wxCommandEvent& event);
-	int BuildListeNetModules(wxCommandEvent& event, wxArrayString & BufName);
-	void ModulesControle(wxCommandEvent& event);
-	void RecompileRatsnest(wxCommandEvent& event);
-	int ReadListeModules(const wxString * RefCmp, long TimeStamp, wxString & NameModule);
-	int SetPadNetName( char * Line, MODULE * Module);
-	MODULE * ReadNetModule( char * Text,
-						int * UseFichCmp, int TstOnly);
-	void AddToList(const wxString & NameLibCmp, const wxString & NameCmp,int TimeStamp );
-	void LoadListeModules(wxDC *DC);
-
-	DECLARE_EVENT_TABLE()
-};
-
-BEGIN_EVENT_TABLE(WinEDA_NetlistFrame, wxDialog)
-	EVT_BUTTON(ID_READ_NETLIST_FILE, WinEDA_NetlistFrame::ReadPcbNetlist)
-	EVT_BUTTON(ID_CLOSE_NETLIST, WinEDA_NetlistFrame::OnQuit)
-	EVT_BUTTON(ID_OPEN_NELIST, WinEDA_NetlistFrame::Set_NetlisteName)
-	EVT_BUTTON(ID_TEST_NETLIST, WinEDA_NetlistFrame::ModulesControle)
-	EVT_BUTTON(ID_COMPILE_RATSNEST, WinEDA_NetlistFrame::RecompileRatsnest)
-END_EVENT_TABLE()
 
 
 /*************************************************************************/
 void WinEDA_PcbFrame::InstallNetlistFrame( wxDC * DC, const wxPoint & pos)
 /*************************************************************************/
 {
-	WinEDA_NetlistFrame * frame = new WinEDA_NetlistFrame(this, DC, pos);
+	WinEDA_NetlistFrame * frame = new WinEDA_NetlistFrame(this, DC);
 	frame->ShowModal(); frame->Destroy();
 }
 
-/******************************************************************/
-WinEDA_NetlistFrame::WinEDA_NetlistFrame(WinEDA_PcbFrame *parent,
-				wxDC * DC, const wxPoint & framepos):
-		wxDialog(parent, -1, wxEmptyString, framepos, wxSize(-1, -1),
-			DIALOG_STYLE)
-/******************************************************************/
-{
-wxPoint pos;
-wxString number;
-wxString title;
-wxButton * Button;
 
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-	m_DC = DC;
-	Centre();
-
-	/* Mise a jour du Nom du fichier NETLISTE correspondant */
-	NetNameBuffer = m_Parent->m_CurrentScreen->m_FileName;
-	ChangeFileNameExt(NetNameBuffer, NetExtBuffer);
-
-	title = _("Netlist: ") + NetNameBuffer;
-	SetTitle(title);
-
-	/* Creation des boutons de commande */
-	pos.x = 170; pos.y = 10;
-	Button = new wxButton(this, ID_OPEN_NELIST,
-						_("Select"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_READ_NETLIST_FILE,
-						_("Read"), pos);
-	Button->SetForegroundColour(wxColor(0,80,0) );
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_TEST_NETLIST,
-						_("Module Test"), pos);
-	Button->SetForegroundColour(wxColor(0,80,80) );
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_COMPILE_RATSNEST,
-						_("Compile"), pos);
-	Button->SetForegroundColour(wxColor(0,0,80) );
-
-	pos.y += Button->GetDefaultSize().y + 10;
-	Button = new wxButton(this, ID_CLOSE_NETLIST,
-						_("Close"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-	// Options:
-wxString opt_select[2] = { _("Reference"), _("Timestamp") };
-	pos.x = 15; pos.y = 10;
-	m_Select_By_Timestamp = new wxRadioBox( this, -1, _("Module Selection:"),
-			pos, wxDefaultSize, 2, opt_select, 1);
-
-wxString track_select[2] = { _("Keep"), _("Delete") };
-	int x, y;
-	m_Select_By_Timestamp->GetSize(&x, &y);
-	pos.y += 5 + y;
-	m_DeleteBadTracks = new wxRadioBox(this, -1, _("Bad Tracks Deletion:"),
-			pos, wxDefaultSize, 2, track_select, 1);
-
-	m_DeleteBadTracks->GetSize(&x, &y);
-	pos.y += 5 + y;
-wxString change_module_select[2] = { _("Keep"), _("Change") };
-	m_ChangeExistantModuleCtrl = new wxRadioBox(this, -1, _("Exchange Module:"),
-			pos, wxDefaultSize, 2, change_module_select, 1);
-
-	m_ChangeExistantModuleCtrl->GetSize(&x, &y);
-	pos.y += 15 + y;
-	m_DisplayWarningCtrl = new wxCheckBox(this, -1, _("Display Warnings"), pos);
-    m_DisplayWarningCtrl->SetValue(DisplayWarning);
-
-	m_DisplayWarningCtrl->GetSize(&x, &y);
-	pos.x = 5; pos.y += 10 + y;
-	m_MessageWindow = new wxTextCtrl(this, -1, wxEmptyString,
-			pos, wxSize(265, 120),wxTE_READONLY|wxTE_MULTILINE);
-
-	m_MessageWindow->GetSize(&x, &y);
-	pos.y += 10 + y;
-	SetClientSize(280, pos.y);
-}
-
-
-/**********************************************************************/
-void  WinEDA_NetlistFrame::OnQuit(wxCommandEvent& WXUNUSED(event))
-/**********************************************************************/
-{
-    // true is to force the frame to close
-    Close(true);
-}
-
-
-/*****************************************************************/
-void WinEDA_NetlistFrame::RecompileRatsnest(wxCommandEvent& event)
-/*****************************************************************/
-{
-	m_Parent->Compile_Ratsnest(m_DC, TRUE);
-}
 
 /***************************************************************/
 bool WinEDA_NetlistFrame::OpenNetlistFile(wxCommandEvent& event)
@@ -234,10 +82,10 @@ bool WinEDA_NetlistFrame::OpenNetlistFile(wxCommandEvent& event)
 wxString FullFileName;
 wxString msg;
 
-	if( NetNameBuffer == wxEmptyString )	/* Pas de nom specifie */
+	if( NetNameBuffer.IsEmpty() )	/* Pas de nom specifie */
 		Set_NetlisteName(event);
 
-	if( NetNameBuffer == wxEmptyString )  return(FALSE); /* toujours Pas de nom specifie */
+	if( NetNameBuffer.IsEmpty() )  return(FALSE); /* toujours Pas de nom specifie */
 
 	FullFileName = NetNameBuffer;
 
@@ -252,7 +100,7 @@ wxString msg;
 	msg = wxT("Netlist "); msg << FullFileName;
 	SetTitle(msg);
 
-		return TRUE;
+	return TRUE;
 }
 
 
@@ -459,7 +307,7 @@ bool Found;
 
 	if( Error ) return( NULL );
 
-	TextTimeStamp.ToLong( &TimeStamp);
+	TextTimeStamp.ToLong( &TimeStamp, 16);
 
 	/* Tst si composant deja charge */
 	Module = (MODULE*) m_Parent->m_Pcb->m_Modules;
@@ -601,8 +449,9 @@ wxString Msg;
 
 	if( !trouve && (DisplayWarningCount > 0) )
 	{
+		wxString pin_name = CONV_FROM_UTF8(TextPinName);
 		Msg.Printf( _("Module [%s]: Pad [%s] not found"),
-					Module->m_Reference->m_Text.GetData(), TextPinName);
+					Module->m_Reference->m_Text.GetData(), pin_name.GetData() );
 		DisplayError(this, Msg, 1);
 		DisplayWarningCount--;
 	}

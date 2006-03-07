@@ -80,21 +80,25 @@ enum textbox {
 EDA_BaseStruct::EDA_BaseStruct(EDA_BaseStruct * parent, int idType)
 /******************************************************************************/
 {
+	InitVars();
 	m_StructType = idType;
-	Pnext = NULL;		/* Chainage avant */
-	Pback = NULL;		/* Chainage arriere */
 	m_Parent = parent;	/* Chainage hierarchique sur struct racine */
-	m_Son = NULL;		/* Chainage hierarchique sur struct fille */
-	m_Flags = 0;		/* Indicateur utilise temporairement dans certaines routines */
-	m_TimeStamp = 0;	// signature temporelle (lien avec une entite..)
-	m_Status = 0;
 }
 
-/******************************************************************************/
+
+/********************************************/
 EDA_BaseStruct::EDA_BaseStruct(int idType)
-/******************************************************************************/
+/********************************************/
 {
+	InitVars();
 	m_StructType = idType;
+}
+
+/********************************************/
+void EDA_BaseStruct::InitVars(void)
+/********************************************/
+{
+	m_StructType = TYPE_NOT_INIT;
 	Pnext = NULL;		/* Chainage avant */
 	Pback = NULL;		/* Chainage arriere */
 	m_Parent = NULL;	/* Chainage hierarchique sur struct racine */
@@ -102,8 +106,9 @@ EDA_BaseStruct::EDA_BaseStruct(int idType)
 	m_Flags = 0;		/* Indicateur utilise temporairement dans certaines routines */
 	m_TimeStamp = 0;	// signature temporelle (lien avec une entite..)
 	m_Status = 0;
-	m_Selected = 0;				/* Used by block commands, and selective editing */
+	m_Selected = 0;		/* Used by block commands, and selective editing */
 }
+
 
 /* Gestion de l'etat (status) de la structure (active, deleted..) */
 int EDA_BaseStruct::GetState(int type)

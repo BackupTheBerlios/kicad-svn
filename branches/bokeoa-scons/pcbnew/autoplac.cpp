@@ -118,6 +118,14 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 
 	pas_route = m_CurrentScreen->GetGrid().x;
 
+	/* Compute module parmeters used in auto place */
+	Module = m_Pcb->m_Modules;
+	for( ; Module != NULL; Module = (MODULE*)Module->Pnext) // remise a jour du rect d'encadrement
+	{
+		Module->Set_Rectangle_Encadrement();
+		Module->SetRectangleExinscrit();
+	}
+	
 	/* Generation du plan de placement */
 	if( GenPlaceBoard() == 0) return;
 
@@ -126,12 +134,6 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 	MyFree(BaseListeModules);
 
 	/* Placement des modules fixes sur le plan de placement */
-	Module = m_Pcb->m_Modules;
-	for( ; Module != NULL; Module = (MODULE*)Module->Pnext) // remise a jour du rect d'encadrement
-	{
-		Module->Set_Rectangle_Encadrement();
-		Module->SetRectangleExinscrit();
-	}
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL; Module = (MODULE*)Module->Pnext )
 	{
@@ -263,8 +265,6 @@ int lay_tmp_TOP, lay_tmp_BOTTOM, OldPasRoute;
 
 end_of_tst:
 
-		Module->SetRectangleExinscrit();
-
 		if ( error == ESC ) break;
 
 		/* placement du module */
@@ -272,6 +272,9 @@ end_of_tst:
 		m_CurrentScreen->m_Curseur = PosOK;
 		Place_Module(Module, DC);
 		m_CurrentScreen->m_Curseur = CurrPosition;
+
+		Module->Set_Rectangle_Encadrement();
+		Module->SetRectangleExinscrit();
 
 		GenModuleOnBoard(Module);
 		Module->m_ModuleStatus |= MODULE_is_PLACED;
@@ -321,13 +324,16 @@ int ox, oy, top_state, bottom_state;
 			ox = m_Pcb->m_BoundaryBox.m_Pos.x + (jj * pas_route);
 			/* surface de placement : */
 			color = BLACK;
+
 			top_state = GetCell(ii, jj , TOP);
 			bottom_state = GetCell(ii, jj , BOTTOM);
 
-			if( top_state & CELL_is_ZONE ) color = BLUE;
+			if( (top_state & CELL_is_ZONE) ) color = BLUE;
 
 			/* obstacles */
-			if( top_state & (HOLE|CELL_is_MODULE) ) color = LIGHTRED;
+			if( (top_state & CELL_is_EDGE) || (bottom_state & CELL_is_EDGE)) color = WHITE;
+
+			else if( top_state & (HOLE|CELL_is_MODULE) ) color = LIGHTRED;
 			else if( bottom_state & (HOLE|CELL_is_MODULE) ) color = LIGHTGREEN;
 
 			else /* Affichage du remplissage: Penalites */
@@ -419,26 +425,25 @@ wxString msg;
 
 	/* Place the edge layer segments */
 	PtStruct = m_Pcb->m_Drawings;
+	TRACK TmpSegm(NULL);
+	TmpSegm.m_Layer = -1;
+	TmpSegm.m_NetCode = -1;
+	TmpSegm.m_Width = pas_route/2;
 	for( ; PtStruct != NULL; PtStruct = PtStruct->Pnext )
 	{
-		TRACK *TmpSegm;
 		DRAWSEGMENT * DrawSegm;
 		switch( PtStruct->m_StructType)
 		{
 			case TYPEDRAWSEGMENT:
 				DrawSegm = (DRAWSEGMENT *) PtStruct;
-				if(DrawSegm->m_Layer != EDGE_N) continue;
+				if(DrawSegm->m_Layer != EDGE_N) break;
 
-				TmpSegm = new TRACK(NULL);
-				TmpSegm->m_Layer = -1;
-				TmpSegm->m_Start = DrawSegm->m_Start;
-				TmpSegm->m_End = DrawSegm->m_End;
-				TmpSegm->m_Shape = DrawSegm->m_Shape;
-				TmpSegm->m_Width = DrawSegm->m_Width;
-				TmpSegm->m_NetCode = -1;
+				TmpSegm.m_Start = DrawSegm->m_Start;
+				TmpSegm.m_End = DrawSegm->m_End;
+				TmpSegm.m_Shape = DrawSegm->m_Shape;
+				TmpSegm.m_Param = DrawSegm->m_Angle;
 
-				TraceSegmentPcb(m_Pcb, TmpSegm, HOLE, BOTTOM,WRITE_CELL );
-				delete TmpSegm;
+				TraceSegmentPcb(m_Pcb, &TmpSegm, HOLE|CELL_is_EDGE, pas_route, WRITE_CELL );
 				break;
 
 			case TYPETEXTE:
@@ -451,7 +456,8 @@ wxString msg;
 	OrCell(Nrows/2, Ncols/2, BOTTOM, CELL_is_ZONE);
 
 	/* Remplissage des cellules de la couche BOTTOM */
-	ii = 1, jj = 1;
+	ii = 1; jj = 1;
+
 	while( ii )
 	{
 		msg.Printf( wxT("%d"), jj++ );

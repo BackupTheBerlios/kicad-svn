@@ -94,9 +94,9 @@ MODULE * Module = (MODULE*) Edge->m_Parent;
 	screen->Trace_Curseur(panel, DC);
 
 	if( erase )
-		{
+	{
 		Edge->Draw(panel, DC, MoveVector, GR_XOR);
-		}
+	}
 
 	MoveVector.x = -(screen->m_Curseur.x - CursorInitialPosition.x);
 	MoveVector.y = -(screen->m_Curseur.y - CursorInitialPosition.y);
@@ -156,14 +156,14 @@ MODULE* Module = m_Pcb->m_Modules;
 	SaveCopyInUndoList();
 
 	if ( Edge == NULL )
-		{
+	{
 		Edge = (EDGE_MODULE *) Module->m_Drawings;
 		for( ; Edge != NULL ; Edge = (EDGE_MODULE*)Edge->Pnext)
-			{
+		{
 			if(Edge->m_StructType != TYPEEDGEMODULE) continue;
 			Edge->m_Width = ModuleSegmentWidth;
-			}
 		}
+	}
 	else Edge->m_Width = ModuleSegmentWidth;
 
 	GetScreen()->SetModify();
@@ -188,14 +188,14 @@ int new_layer = SILKSCREEN_N_CMP;
 	SaveCopyInUndoList();
 
 	if ( Edge == NULL )
-		{
+	{
 		Edge = (EDGE_MODULE *) Module->m_Drawings;
 		for( ; Edge != NULL ; Edge = (EDGE_MODULE*)Edge->Pnext)
-			{
+		{
 			if(Edge->m_StructType != TYPEEDGEMODULE) continue;
 			Edge->m_Layer = new_layer;
-			}
 		}
+	}
 	else Edge->m_Layer = new_layer;
 
 	GetScreen()->SetModify();
@@ -306,7 +306,7 @@ int angle = 0;
 	if ( Module == NULL )  return NULL;
 
 	if(Edge == NULL )		/* debut reel du trace */
-		{
+	{
 		SaveCopyInUndoList();
 		Edge = new EDGE_MODULE( Module );
 		MoveVector.x = MoveVector.y = 0;
@@ -341,16 +341,16 @@ int angle = 0;
 
 		GetScreen()->ManageCurseur = ShowEdgeModule;
 		GetScreen()->ForceCloseManageCurseur = Exit_EditEdge_Module;
-		}
+	}
 
 	else	/* trace en cours : les coord du point d'arrivee ont ete mises
 				a jour par la routine Montre_Position_New_Edge_Module*/
-		{
+	{
 		if( type_edge == S_SEGMENT )
-			{
+		{
 			if( (Edge->m_Start0.x) != (Edge->m_End0.x) ||
 				(Edge->m_Start0.y) != (Edge->m_End0.y) )
-				{
+			{
 				GetScreen()->Trace_Curseur(DrawPanel, DC);
 				Edge->Draw(DrawPanel, DC, wxPoint(0, 0), GR_OR);
 				GetScreen()->Trace_Curseur(DrawPanel, DC);
@@ -375,11 +375,11 @@ int angle = 0;
 				Module->Set_Rectangle_Encadrement();
 				Module->m_LastEdit_Time = time(NULL);
 				GetScreen()->SetModify();
-				}
 			}
+		}
 		else
 			DisplayError(this, wxT("Begin_Edge() error"));
-		}
+	}
 	return Edge;
 }
 
@@ -392,13 +392,13 @@ MODULE* Module = m_Pcb->m_Modules;
 
 	/* test du dernier segment: si null: suppression */
 	if(Edge)
-		{
+	{
 		if( (Edge->m_Start.x == Edge->m_End.x)
 				&& (Edge->m_Start.y == Edge->m_End.y) )
-			{
+		{
 			DeleteStructure( Edge);
-			}
 		}
+	}
 	Edge->m_Flags = 0;
 	Module->Set_Rectangle_Encadrement();
 	Module->m_LastEdit_Time = time(NULL);

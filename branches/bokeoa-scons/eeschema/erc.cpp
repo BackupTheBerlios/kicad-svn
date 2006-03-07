@@ -17,6 +17,8 @@
 #include "../bitmaps/ercwarn.xpm"
 #include "../bitmaps/ercerr.xpm"
 
+#include "dialog_erc.h"
+
 /* On teste
 	1 - conflits entre pins connectees ( ex: 2 sorties connectees )
 	2 - les imperatifs minimaux ( 1 entree doit etre connectee a une sortie )
@@ -41,7 +43,7 @@ static void TestLabel(WinEDA_DrawPanel * panel, wxDC * DC,
 							ObjetNetListStruct * StartNet);
 
 /* Variable locales */
-static int WriteFichierERC = FALSE;
+int WriteFichierERC = FALSE;
 
 /* Tableau des types de conflit :
 	PIN_INPUT, PIN_OUTPUT, PIN_BIDI, PIN_TRISTATE, PIN_PASSIVE,
@@ -144,56 +146,6 @@ static int MinimalReq[PIN_NMAX][PIN_NMAX] =
 
 
 
-enum id_erc {
-	ID_ERC_CMP = 1400,
-	ID_ERASE_DRC_MARKERS,
-	ID_CLOSE_ERC,
-	ID_GENERE_RAPPORT,
-	ID_RAPPORT_BROWSE,
-	ID_RESET_MATRIX,
-	ID_ERC_NOTEBOOK,
-	ID_MATRIX_0
-};
-
-/* Dialog frame for E.R.C control and status */
-class WinEDA_ErcFrame: public wxDialog
-{
-public:
-	WinEDA_DrawFrame * m_Parent;
-	wxNotebook* NoteBook;
-	wxPanel * PanelERC;
-	wxPanel * PanelMatrice;
-	wxCheckBox * WriteResult;
-	wxStaticText * ErcTotalErrors;
-	wxStaticText * ErcErrors;
-	wxStaticText * WarnErcErrors;
-
-	// Constructor and destructor
-	WinEDA_ErcFrame(WinEDA_DrawFrame * parent, wxPoint& pos);
-	~WinEDA_ErcFrame(void) {};
-
-	void DelERCMarkers(wxCommandEvent& event);
-	void TestErc(wxCommandEvent& event);
-	void SelLocal(wxCommandEvent& event);
-	void SelNewCmp(wxCommandEvent& event);
-	void ResetDefaultERCDiag(wxCommandEvent& event);
-	void ChangeErrorLevel(wxCommandEvent& event);
-	void CloseFrame(wxCommandEvent& event);
-	void ReBuildMatrixPanel(int active);
-
-	DECLARE_EVENT_TABLE()
-};
-BEGIN_EVENT_TABLE(WinEDA_ErcFrame, wxDialog)
-	EVT_BUTTON(ID_CLOSE_ERC, WinEDA_ErcFrame::CloseFrame)
-	EVT_BUTTON(ID_ERC_CMP, WinEDA_ErcFrame::TestErc)
-	EVT_BUTTON(ID_ERASE_DRC_MARKERS, WinEDA_ErcFrame::DelERCMarkers)
-	EVT_BUTTON(ID_RESET_MATRIX, WinEDA_ErcFrame::ResetDefaultERCDiag)
-	EVT_COMMAND_RANGE(ID_MATRIX_0,
-					ID_MATRIX_0 + (PIN_NMAX * PIN_NMAX) - 1,
-					wxEVT_COMMAND_BUTTON_CLICKED,
-					WinEDA_ErcFrame::ChangeErrorLevel)
-END_EVENT_TABLE()
-
 
 /*************************************************************/
 void InstallErcFrame(WinEDA_DrawFrame *parent, wxPoint & pos)
@@ -201,167 +153,111 @@ void InstallErcFrame(WinEDA_DrawFrame *parent, wxPoint & pos)
 /* Install function  for the ERC dialog frame
 */
 {
-	WinEDA_ErcFrame * frame = new WinEDA_ErcFrame(parent, pos);
+	WinEDA_ErcFrame * frame = new WinEDA_ErcFrame(parent);
 	frame->ShowModal(); frame->Destroy();
 }
 
 
-#define H_SIZE 430
-#define V_SIZE 335
-/*******************************************************************************/
-WinEDA_ErcFrame::WinEDA_ErcFrame(WinEDA_DrawFrame *parent, wxPoint& framepos):
-		wxDialog(parent, -1, _("EESchema Erc"), framepos, wxSize(H_SIZE, V_SIZE),
-				 DIALOG_STYLE)
-/*******************************************************************************/
-{
-wxPoint pos;
-
-	m_Parent = parent;
-	SetFont(*g_DialogFont);
-
-	if ( (framepos.x == -1) && (framepos.x == -1) ) Centre();
-
-	NoteBook = new wxNotebook(this, ID_ERC_NOTEBOOK,
-   		wxDefaultPosition,wxSize(H_SIZE - 6, V_SIZE - 28) );
-	NoteBook->SetFont(*g_DialogFont);
-	PanelMatrice = NULL;
-
-	wxLayoutConstraints* c = new wxLayoutConstraints;
-	c->left.SameAs(this, wxLeft, 4);
-	c->right.SameAs(this, wxRight, 4);
-	c->top.SameAs(this, wxTop, 4);
-    c->bottom.SameAs(this, wxBottom, 10);
-
-	NoteBook->SetConstraints(c);
-
-	// Add panels
-	PanelERC = new wxPanel(NoteBook, -1);
-	PanelERC->SetFont(*g_DialogFont);
-	NoteBook->AddPage(PanelERC, _("Erc"), TRUE);
-
-	// Init Panel ERC
-	pos.x = 5; pos.y = 15;
-	new wxStaticBox(PanelERC,-1, _("Erc Diags:"), pos, wxSize(210,95) );
-	pos.x = 10; pos.y += 22;
-	ErcTotalErrors = new wxStaticText(PanelERC, -1, _("-> Total Errors:  "), pos);
-	ErcTotalErrors->SetFont(*g_FixedFont);
-	ErcTotalErrors->SetLabel(ErcTotalErrors->GetLabel() << g_EESchemaVar.NbErrorErc);
-
-	pos.x = 10; pos.y += 18;
-	ErcErrors = new wxStaticText(PanelERC, -1, _("-> Last Errors:   "), pos);
-	ErcErrors->SetFont(*g_FixedFont);
-	ErcErrors->SetLabel(ErcErrors->GetLabel() << (g_EESchemaVar.NbErrorErc-g_EESchemaVar.NbWarningErc));
-	ErcErrors->SetForegroundColour(*wxRED);
-
-	pos.y += 15;
-	WarnErcErrors = new wxStaticText(PanelERC, -1, _("-> Last Warnings: "), pos);
-	WarnErcErrors->SetFont(*g_FixedFont);
-	WarnErcErrors->SetLabel(WarnErcErrors->GetLabel() << g_EESchemaVar.NbWarningErc);
-	WarnErcErrors->SetForegroundColour(*wxBLUE);
-
-	pos.x = 5; pos.y = 165;
-	new wxStaticBox(PanelERC,-1, _("Erc File Report:"), pos, wxSize(310,50) );
-
-	pos.x = 15; pos.y += 20;
-	WriteResult = new wxCheckBox(PanelERC, -1,
-						_("Write erc report"),
-						pos);
-	WriteResult->SetValue(WriteFichierERC);
-
-	/* Create command buttons */
-	pos.x = 230; pos.y = 15;
-	wxButton * Button = new wxButton(PanelERC, ID_ERC_CMP,
-						_("&Test Erc"), pos);
-	Button->SetForegroundColour(*wxRED);
-
-	pos.y += Button->GetSize().y + 10;
-	Button = new wxButton(PanelERC,	ID_ERASE_DRC_MARKERS,
-						_("&Del Markers"), pos);
-	Button->SetForegroundColour(*wxBLACK);
-
-	pos.y += Button->GetSize().y + 10;
-	Button = new wxButton(PanelERC,	ID_CLOSE_ERC,
-						_("&Exit"), pos);
-	Button->SetForegroundColour(*wxBLUE);
-
-
-	// Init Panel Matrix
-	ReBuildMatrixPanel(FALSE);
-}
-
-/******************************************************/
-void WinEDA_ErcFrame::CloseFrame(wxCommandEvent& event)
-/******************************************************/
-{
-	EndModal(0);
-}
-
-/****************************************************/
-void WinEDA_ErcFrame::ReBuildMatrixPanel(int active)
-/****************************************************/
+/*********************************************/
+void WinEDA_ErcFrame::ReBuildMatrixPanel(void)
+/*********************************************/
 /* construit ou reconstruit le panel d'affichage de la matrice de
 controle ERC
 */
 {
-int ii, jj;
+int ii, jj, event_id, text_height;
 wxPoint pos;
+#define BITMAP_SIZE 19
+int bitmap_size = BITMAP_SIZE;
+wxStaticText * text;
+int x, y;
+wxSize boxminsize;
 
-	if ( PanelMatrice != NULL ) NoteBook->DeletePage(1);
-		
 	if ( ! DiagErcTableInit )
 	{
 		memcpy(DiagErc, DefaultDiagErc, sizeof (DefaultDiagErc));
 		DiagErcTableInit = TRUE;
 	}
 
-	PanelMatrice = new wxPanel(NoteBook, -1);
-	PanelMatrice->SetFont(*g_FixedFont);
+	// Get the current text size :
+	text = new wxStaticText( PanelMatrice,-1,wxT("W"), pos);	// this is a dummy text
+	text_height = text->GetRect().GetHeight();
+	bitmap_size = MAX(bitmap_size, text_height);
+	delete text;
+	// compute the Y pos interval:
+	boxminsize.y = (bitmap_size*(PIN_NMAX+1)) + 5;
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
+#ifdef __WXGTK__	// Size computation is not made in constructor, under GTK,
+					// and m_BoxSizerForERC_Opt position is always 0,0. and we can't use it
+	pos.x = 5; pos.y = m_ResetOptButton->GetRect().GetHeight() + 30;
+#else
+	pos = m_BoxSizerForERC_Opt->GetPosition();
+#endif
+	pos.y += text_height;
 
-	NoteBook->AddPage(PanelMatrice, _("Options"), active);
+	if ( m_Initialized == FALSE )
+	{
+		for ( ii = 0; ii < PIN_NMAX; ii++ )
+		{
+			y = pos.y + (ii * bitmap_size);
+			text = new wxStaticText( PanelMatrice,-1,CommentERC_H[ii], wxPoint(5,y));
+			x = text->GetRect().GetRight();
+			pos.x = MAX(pos.x, x);
+		}
+		pos.x += 5;
+	}
+	else pos = m_ButtonList[0][0]->GetPosition();
 
-	/* Creation des boutons de commande */
-	pos.x = 5; pos.y = 5;
-	new wxButton(PanelMatrice, ID_RESET_MATRIX,
-						_("Reset"), pos);
-	ii = jj = 0;
-	pos.x = 100; pos.y = 50;
-	#define BITMAP_SIZE 19
 	for ( ii = 0; ii < PIN_NMAX; ii++ )
 	{
-		int x, y;
-		y = pos.y + (ii * BITMAP_SIZE);
-		new wxStaticText( PanelMatrice,-1,CommentERC_H[ii], wxPoint(5,y));
+		y = pos.y + (ii * bitmap_size);
 		for ( jj = 0; jj <= ii; jj++ )
 		{
 			int diag = DiagErc[ii][jj];
-			x = pos.x + (jj * BITMAP_SIZE);
-			if( ii == jj )
-				new wxStaticText( PanelMatrice,-1,CommentERC_V[ii], wxPoint(x+4,y-15));
+			x = pos.x + (jj * bitmap_size);
+			if( (ii == jj) && ! m_Initialized )
+			{
+				wxPoint txtpos;
+				txtpos.x = x + 4; txtpos.y = y - bitmap_size;
+				text = new wxStaticText( PanelMatrice,-1,CommentERC_V[ii], txtpos);
+				boxminsize.x = MAX( boxminsize.x, text->GetRect().GetRight());
+			}
+			event_id = ID_MATRIX_0 + ii + (jj * PIN_NMAX);
+			delete m_ButtonList[ii][jj];
 			switch ( diag )
 			{
 				case OK:
-					new wxBitmapButton(PanelMatrice,
-						ID_MATRIX_0 + ii + (jj * PIN_NMAX),
+					m_ButtonList[ii][jj] = new wxBitmapButton(PanelMatrice,
+						event_id,
 						wxBitmap(green_xpm),
 						wxPoint(x,y) );
 					break;
 
 				case WAR:
-					new wxBitmapButton(PanelMatrice,
-						ID_MATRIX_0 + ii + (jj * PIN_NMAX),
+					m_ButtonList[ii][jj] = new wxBitmapButton(PanelMatrice,
+						event_id,
 						wxBitmap(warning_xpm),
 						wxPoint(x,y) );
 					break;
 
 				case ERR:
-					new wxBitmapButton(PanelMatrice,
-						ID_MATRIX_0 + ii + (jj * PIN_NMAX),
+					m_ButtonList[ii][jj] = new wxBitmapButton(PanelMatrice,
+						event_id,
 						wxBitmap(error_xpm),
 						wxPoint(x,y) );
 					break;
 			}
 		}
 	}
+
+	if ( !m_Initialized )
+	{
+		pos = m_BoxSizerForERC_Opt->GetPosition();
+		boxminsize.x += 5;
+		m_BoxSizerForERC_Opt->SetMinSize(boxminsize);
+	}
+	m_Initialized = TRUE;
 }
 
 
@@ -378,7 +274,7 @@ int NetNbItems, MinConn;
 		DiagErcTableInit = TRUE;
 	}
 
-	WriteFichierERC = WriteResult->GetValue();
+	WriteFichierERC = m_WriteResultOpt->GetValue();
 
 	if( CheckAnnotate(m_Parent, 0) )
 	{
@@ -436,7 +332,7 @@ wxClientDC dc(m_Parent->DrawPanel);
 
 			case NET_NOCONNECT:
 				MinConn = NET_NC;
-				if( NetNbItems != 0 ) 
+				if( NetNbItems != 0 )
 					  Diagnose(m_Parent->DrawPanel, &dc, NetItemRef, NULL, MinConn, UNC);
 				break;
 
@@ -444,17 +340,21 @@ wxClientDC dc(m_Parent->DrawPanel);
 				TestOthersItems(m_Parent->DrawPanel, &dc,
 						NetItemRef, StartNet, &NetNbItems , &MinConn);
 				break;
-		} 
+		}
 		OldItem = NetItemRef;
 	}
 
 	FreeTabNetList(g_TabObjNet, g_NbrObjNet );
 
-	ErcTotalErrors->SetLabel(wxString(_("-> Total Errors: ")) << g_EESchemaVar.NbErrorErc);
+	wxString num;
+	num.Printf(wxT("%d"), g_EESchemaVar.NbErrorErc);
+	m_TotalErrCount->SetLabel(num);
 
-	ErcErrors->SetLabel(wxString(_("-> Errors ERC:   ")) << (g_EESchemaVar.NbErrorErc-g_EESchemaVar.NbWarningErc) );
+	num.Printf(wxT("%d"), g_EESchemaVar.NbErrorErc-g_EESchemaVar.NbWarningErc);
+	m_LastErrCount->SetLabel(num);
 
-	WarnErcErrors->SetLabel(wxString(_("-> Warnings ERC: ")) << g_EESchemaVar.NbWarningErc);
+	num.Printf(wxT("%d"), g_EESchemaVar.NbWarningErc);
+	m_LastWarningCount->SetLabel(num);
 
 	/* Generation ouverture fichier diag */
 	if( WriteFichierERC == TRUE )
@@ -477,6 +377,7 @@ wxClientDC dc(m_Parent->DrawPanel);
 		{
 			Close(TRUE);
 			wxString editorname = GetEditorName();
+			AddDelimiterString(ErcFullFileName);
 			ExecuteFile(this, editorname, ErcFullFileName);
 		}
 	}
@@ -517,7 +418,7 @@ void WinEDA_ErcFrame::ResetDefaultERCDiag(wxCommandEvent& event)
 */
 {
 	memcpy(DiagErc,DefaultDiagErc, sizeof(DiagErc) );
-	ReBuildMatrixPanel(TRUE);
+	ReBuildMatrixPanel();
 }
 
 /************************************************************/
@@ -528,6 +429,7 @@ void WinEDA_ErcFrame::ChangeErrorLevel(wxCommandEvent& event)
 {
 int id, level, ii, x, y;
 wxBitmapButton * Butt;
+char ** new_bitmap_xpm = NULL;
 wxPoint pos;
 
 	id = event.GetId();
@@ -539,37 +441,32 @@ wxPoint pos;
 
 	level = DiagErc[y][x];
 	switch (level )
-		{
+	{
 		case OK:
 			level = WAR;
-			delete Butt;
-			new wxBitmapButton(PanelMatrice,
-						id,
-						wxBitmap(warning_xpm),
-						pos );
+			new_bitmap_xpm = warning_xpm;
 			break;
 
 		case WAR :
 			level = ERR;
-			delete Butt;
-			new wxBitmapButton(PanelMatrice,
-						id,
-						wxBitmap(error_xpm),
-						pos );
+			new_bitmap_xpm = error_xpm;
 			break;
 
 		case ERR:
 			level = OK;
-			delete Butt;
-			new wxBitmapButton(PanelMatrice,
-						id,
-						wxBitmap(green_xpm),
-						pos );
+			new_bitmap_xpm = green_xpm;
 			break;
 
-		}
+	}
 
-	DiagErc[y][x] = DiagErc[x][y] = level;
+	if ( new_bitmap_xpm )
+	{
+		delete Butt;
+		Butt = new wxBitmapButton(PanelMatrice, id,
+							wxBitmap(new_bitmap_xpm), pos);
+		m_ButtonList[y][x] = Butt;
+		DiagErc[y][x] = DiagErc[x][y] = level;
+	}
 }
 
 
@@ -607,10 +504,10 @@ int ii, jj;
 			(NetItemRef->m_Type == NET_GLOBBUSLABELMEMBER) )
 			{
 			Marker->m_Comment.Printf( _("Warning GLabel %s not connected to SheetLabel"),
-					NetItemRef->m_Label);
+					NetItemRef->m_Label->GetData());
 			}
 		else Marker->m_Comment.Printf( _("Warning SheetLabel %s not connected to GLabel"),
-					NetItemRef->m_Label);
+					NetItemRef->m_Label->GetData());
 
 		if( screen == panel->GetScreen() ) RedrawOneStruct(panel, DC, Marker, GR_COPY);
 		return;
@@ -640,7 +537,7 @@ int ii, jj;
 
 		if( Diag == UNC )
 			{
-			Marker->m_Comment.Printf( 
+			Marker->m_Comment.Printf(
                 _("Warning More than 1 Pin connected to UnConnect symbol") );
 			if( screen == panel->GetScreen() )
 				RedrawOneStruct(panel, DC, Marker, GR_COPY);
@@ -765,7 +662,7 @@ char Line[256];
 static FILE * OutErc;
 DrawSheetStruct * Sheet;
 wxString msg;
-	
+
 	if( (OutErc = wxFopen( FullFileName, wxT("wt"))) == NULL ) return FALSE;
 
 	DateAndTime(Line);
@@ -863,8 +760,8 @@ int erc = 1;
 						erc = 0;
 						}
 					break;
-				} 
-			} 
+				}
+			}
 
 		else
 			{
@@ -890,7 +787,7 @@ int erc = 1;
 						erc = 0;
 						}
 					break;
-				} 
+				}
 			}
 		}
 }

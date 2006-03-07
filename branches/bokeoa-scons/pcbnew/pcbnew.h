@@ -67,7 +67,6 @@ eda_global wxSize g_GridList[]
 eda_global EDA_BaseStruct * g_UnDeleteStack[UNDELETE_STACK_SIZE]; //Liste des elements supprimes
 eda_global int  g_UnDeleteStackPtr;
 
-eda_global bool UnitMetric;
 eda_global bool g_ShowGrid
 #ifdef MAIN
 = TRUE
@@ -232,7 +231,11 @@ eda_global int Route_Layer_BOTTOM;		/* couches de routage actif */
 
 eda_global int g_MaxLinksShowed;		// determine le nombre max de links affichés
 									//		en routage manuel
-
+eda_global bool g_TwoSegmentTrackBuild	// FALSE = 1 segment build, TRUE = 2 45 deg segm build
+#ifdef MAIN
+= TRUE
+#endif
+;
 eda_global bool g_HightLigt_Status;
 eda_global int g_HightLigth_NetCode		/* pour mise en surbrillance des pistes */
 #ifdef MAIN
@@ -240,9 +243,9 @@ eda_global int g_HightLigth_NetCode		/* pour mise en surbrillance des pistes */
 #endif
 ;	/* net_code du net a mettre en surbrillance */
 
-eda_global TRACK * ptnewpiste ;		// pointeur sur le segment en cours de trace
-eda_global TRACK * ptstartpiste ;	// pointeur sur le debut de la piste en cours
-eda_global int nbptnewpiste ;		// nombre de points deja traces
+eda_global TRACK * g_CurrentTrackSegment ;		// pointeur sur le segment en cours de trace
+eda_global TRACK * g_FirstTrackSegment ;	// pointeur sur le debut de la piste en cours
+eda_global int g_TrackSegmentCount ;		// nombre de points deja traces
 
 
 eda_global wxString g_ViaType_Name[4]

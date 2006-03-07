@@ -695,13 +695,13 @@ int angle;
 	if(nb_segm < 5) nb_segm = 5;
 	if(nb_segm > 100) nb_segm = 100;
 	for( ii = 1 ; ii < nb_segm ; ii++)
-		{
+	{
 		angle = (3600 * ii) / nb_segm;
 		x1 = (int)(rayon * fcosinus[angle]);
 		y1 = (int)(rayon * fsinus[angle]);
 		DrawSegmentQcq(x0+ux0,y0+uy0, x1+ux0,y1+uy0,lg,layer, color, op_logique);
 		x0 = x1; y0 = y1;
-		}
+	}
 
 	DrawSegmentQcq(x1+ux0,y1+uy0, ux0+rayon, uy0,lg,layer, color, op_logique);
 }

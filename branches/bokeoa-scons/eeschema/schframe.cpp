@@ -149,6 +149,11 @@ void WinEDA_SchematicFrame::OnCloseWindow(wxCloseEvent & Event)
 {
 SCH_SCREEN * screen;
 
+	if ( m_Parent->LibeditFrame )	// Can close component editor ?
+	{
+		if ( ! m_Parent->LibeditFrame->Close() ) return;
+	}
+		
 	screen = ScreenSch ;
 	while( screen )
 	{
@@ -196,14 +201,6 @@ SCH_SCREEN * screen;
 
 	SaveSettings();
 
-	/* Delete libraries: */
-LibraryStruct *nextlib, *lib = g_LibraryList;
-	for (; lib != NULL; lib = nextlib )
-	{
-		nextlib = lib->m_Pnext;
-		delete lib;
-	}
-
 	Destroy();
 }
 
@@ -246,9 +243,9 @@ en cours
 			m_Draw_Grid ? _("Grid not show") : _("Show Grid"));
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_MM,
-			UnitMetric == MILLIMETRE ? TRUE : FALSE);
+			g_UnitMetric == MILLIMETRE ? TRUE : FALSE);
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_UNIT_INCH,
-			UnitMetric == INCHES ? TRUE : FALSE);
+			g_UnitMetric == INCHES ? TRUE : FALSE);
 
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_SELECT_CURSOR,g_CursorShape);
 		m_OptionsToolBar->ToggleTool(ID_TB_OPTIONS_HIDDEN_PINS,g_ShowAllPins);

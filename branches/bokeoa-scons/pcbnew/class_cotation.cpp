@@ -106,7 +106,7 @@ char  Line[2048], Text[2048];
 		}
 
 		if(Line[0] == 'G')
-			{
+		{
 			sscanf( Line+2," %d %d %lX",&m_Shape, &m_Layer, &m_TimeStamp);
 
 			/* Mise a jour des param .layer des sous structures */
@@ -117,7 +117,7 @@ char  Line[2048], Text[2048];
 
 			m_Text->m_Layer = m_Layer;
 			continue;
-			}
+		}
 
 		if(Line[0] == 'T')
 		{
@@ -143,7 +143,7 @@ char  Line[2048], Text[2048];
 			switch( Line[1] )
 				{
 				int Dummy;
-				 case 'b' :
+				case 'b' :
 					sscanf( Line+2," %d %d %d %d %d %d",
 							&Dummy,
 							&Barre_ox, &Barre_oy,

@@ -211,19 +211,21 @@ MODULE * Module = (MODULE *) m_Parent;
 	width = m_Width;
 	if( (frame->m_DisplayModText == FILAIRE) || ( (width/zoom) < L_MIN_DESSIN) )
 		width = 0;
+	else if ( frame->m_DisplayModText == SKETCH ) width = -width;
 
 	GRSetDrawMode(DC, draw_mode);
 
 	/* trace du centre du texte */
 	if((g_AnchorColor & ITEM_NOT_SHOW) == 0 )
-		{
+	{
+		int anchor_size = 2*zoom;
 		GRLine(&panel->m_ClipBox, DC,
-				pos.x - (2*zoom), pos.y,
-				pos.x + (2*zoom), pos.y, g_AnchorColor);
+				pos.x - anchor_size, pos.y,
+				pos.x + anchor_size, pos.y, g_AnchorColor);
 		GRLine(&panel->m_ClipBox, DC,
-				pos.x, pos.y - (2*zoom),
-				pos.x, pos.y + (2*zoom), g_AnchorColor);
-		}
+				pos.x, pos.y - anchor_size,
+				pos.x, pos.y + anchor_size, g_AnchorColor);
+	}
 
 	color = g_DesignSettings.m_LayerColor[Module->m_Layer];
 
@@ -236,7 +238,6 @@ MODULE * Module = (MODULE *) m_Parent;
 	if( miroir == 0 ) size.x = - size.x;
 
 	/* Trace du texte */
-	
 	DrawGraphicText(panel, DC, pos , color, m_Text,
 			orient, size, GR_TEXT_HJUSTIFY_CENTER, GR_TEXT_VJUSTIFY_CENTER, width);
 }

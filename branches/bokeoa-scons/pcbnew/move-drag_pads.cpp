@@ -255,7 +255,7 @@ wxString line;
 
 	if ( DC ) Pad->Draw(DrawPanel, DC, wxPoint(0,0),GR_XOR);
 
-	DeleteStructure( Pad);
+	DeleteStructure(Pad);
 
 	/* Redessin du module */
 	if ( DC ) Module->Draw(DrawPanel, DC, wxPoint(0,0),GR_OR);
