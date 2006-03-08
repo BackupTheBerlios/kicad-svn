@@ -17,7 +17,7 @@ sources = Split("""
 	loadcmp.cpp
 	memoire.cpp
 	menucfg.cpp
-	options.cpp
+	dialog_display_options.cpp
 	rdorcad.cpp
 	rdpcad.cpp
 	savecmp.cpp
@@ -28,11 +28,10 @@ sources = Split("""
 	visumod.cpp""")
 
 ext_sources = Split("""
-	../common/drawframe.cpp
-	../common/drawpanel.cpp
-	../common/gr_basic.cpp
-	../common/infospgm.cpp
-	../common/zoom.cpp
+	../share/drawframe.cpp
+	../share/drawpanel.cpp
+	../share/infospgm.cpp
+	../share/zoom.cpp
 	../pcbnew/basepcbframe.cpp
 	../pcbnew/class_board.cpp
 	../pcbnew/class_cotation.cpp

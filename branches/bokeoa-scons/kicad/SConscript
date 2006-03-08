@@ -11,7 +11,7 @@ sources = Split("""
 	prjconfig.cpp
 	treeprj.cpp""")
 
-ext_sources = ['../common/infospgm.cpp']
+ext_sources = ['../share/infospgm.cpp']
 
 obj=env.genobj('program',env)
 obj.target='kicad'

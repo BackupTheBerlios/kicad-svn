@@ -20,12 +20,15 @@ sources = Split("""
 	edaappl.cpp
 	gestfich.cpp
 	get_component_dialog.cpp
+	gr_basic.cpp
 	msgpanel.cpp
 	projet_config.cpp
+	selcolor.cpp
 	string.cpp
 	svg_print.cpp
 	toolbars.cpp
 	trigo.cpp
+	worksheet.cpp
 	wx/dcsvg.cpp
 	wxwineda.cpp""")
 

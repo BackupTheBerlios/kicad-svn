@@ -10,6 +10,7 @@ sources = Split("""
 	autorout.cpp
 	basepcbframe.cpp
 	block.cpp
+	block_module_editor.cpp
 	board.cpp
 	class_board.cpp
 	class_cotation.cpp
@@ -28,6 +29,8 @@ sources = Split("""
 	cotation.cpp
 	cursors.cpp
 	deltrack.cpp
+	dialog_edit_mod_text.cpp
+	dialog_general_options.cpp
 	dialog_setup_libs.cpp
 	dist.cpp
 	dragsegm.cpp
@@ -38,6 +41,7 @@ sources = Split("""
 	editmod.cpp
 	editpads.cpp
 	editrack.cpp
+	editrack-part2.cpp
 	edit_track_width.cpp
 	edtxtmod.cpp
 	export_gencad.cpp
@@ -69,7 +73,6 @@ sources = Split("""
 	muwave_command.cpp
 	netlist.cpp
 	onrightclick.cpp
-	options.cpp
 	pcbcfg.cpp
 	pcbframe.cpp
 	pcbnew.cpp
@@ -103,22 +106,19 @@ sources = Split("""
 	xchgmod.cpp
 	zones.cpp""")
 
-ext_sources = Split("""../common/drawframe.cpp
-	../common/drawpanel.cpp
-	../common/gr_basic.cpp
-	../common/infospgm.cpp
-	../common/selcolor.cpp
-	../common/setpage.cpp
-	../common/worksheet.cpp
-	../common/wxprint.cpp
-	../common/zoom.cpp""")
+ext_sources = Split("""../share/drawframe.cpp
+	../share/drawpanel.cpp
+	../share/infospgm.cpp
+	../share/setpage.cpp
+	../share/wxprint.cpp
+	../share/zoom.cpp""")
 
 obj=env.genobj('program',env)
 obj.target='pcbnew'
 obj.ccflags='-DPCBNEW'
 obj.source=sources
 obj.extsource=ext_sources
-obj.includes='#include #common #3d-viewer #pcbnew/bitmaps'
+obj.includes='#include #share #3d-viewer #pcbnew/bitmaps'
 obj.libs='common 3dviewer'
 obj.libpaths='../common ../3d-viewer'
 obj.execute()

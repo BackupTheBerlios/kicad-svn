@@ -30,15 +30,12 @@ sources = Split("""
 	trpiste.cpp
 	undelete.cpp""")
 
-ext_sources = Split("""../common/drawframe.cpp
-	../common/drawpanel.cpp
-	../common/gr_basic.cpp
-	../common/infospgm.cpp
-	../common/selcolor.cpp
-	../common/setpage.cpp
-	../common/worksheet.cpp
-	../common/wxprint.cpp
-	../common/zoom.cpp
+ext_sources = Split("""../share/drawframe.cpp
+	../share/drawpanel.cpp
+	../share/infospgm.cpp
+	../share/setpage.cpp
+	../share/wxprint.cpp
+	../share/zoom.cpp
 	../pcbnew/basepcbframe.cpp
 	../pcbnew/class_board.cpp
 	../pcbnew/class_pcb_text.cpp

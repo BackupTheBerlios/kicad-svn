@@ -24,9 +24,13 @@ sources = Split("""
 	delete.cpp
 	delsheet.cpp
 	dialog_create_component.cpp
+	dialog_eeschema_config.cpp
+	dialog_erc.cpp
+	dialog_options.cpp
 	divers.cpp
-	editexte.cpp
-	editpart.cpp
+	edit_component_in_lib.cpp
+	edit_component_in_schematic.cpp
+	edit_label.cpp
 	eeclass.cpp
 	eeconfig.cpp
 	eelayer.cpp
@@ -35,12 +39,10 @@ sources = Split("""
 	eeload.cpp
 	eeredraw.cpp
 	eeschema.cpp
-	eestatus.cpp
 	eestring.cpp
 	erc.cpp
 	files-io.cpp
 	find.cpp
-	genliste.cpp
 	getpart.cpp
 	hierarch.cpp
 	hotkeys.cpp
@@ -51,7 +53,6 @@ sources = Split("""
 	libedit_onleftclick.cpp
 	libedit_onrightclick.cpp
 	libedit_undo_redo.cpp
-	libedpart.cpp
 	lib_export.cpp
 	libfield.cpp
 	libframe.cpp
@@ -62,7 +63,6 @@ sources = Split("""
 	netlist.cpp
 	onleftclick.cpp
 	onrightclick.cpp
-	options.cpp
 	pinedit.cpp
 	plot.cpp
 	plothpgl.cpp
@@ -84,15 +84,12 @@ sources = Split("""
 	viewlib_frame.cpp
 	viewlibs.cpp""")
 
-ext_sources = Split("""../common/drawframe.cpp
-	../common/drawpanel.cpp
-	../common/gr_basic.cpp
-	../common/infospgm.cpp
-	../common/selcolor.cpp
-	../common/setpage.cpp
-	../common/worksheet.cpp
-	../common/wxprint.cpp
-	../common/zoom.cpp""")
+ext_sources = Split("""../share/drawframe.cpp
+	../share/drawpanel.cpp
+	../share/infospgm.cpp
+	../share/setpage.cpp
+	../share/wxprint.cpp
+	../share/zoom.cpp""")
 
 obj=env.genobj('program',env)
 obj.target='eeschema'

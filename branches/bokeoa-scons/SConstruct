@@ -99,6 +99,7 @@ dirs = env.Split("""
 	gerbview
 	kicad
 	pcbnew
+	share
 """)
 
 bdirs=[]
