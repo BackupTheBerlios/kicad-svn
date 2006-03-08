@@ -23,6 +23,7 @@ sources = Split("""
 	database.cpp
 	delete.cpp
 	delsheet.cpp
+	dialog_build_BOM.cpp
 	dialog_create_component.cpp
 	dialog_eeschema_config.cpp
 	dialog_erc.cpp
