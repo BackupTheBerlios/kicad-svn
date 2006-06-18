@@ -626,9 +626,7 @@ wxPoint newpos;
 	/* Demande du nom du nouveau module */
 	if ( module_name.IsEmpty() )
 	{
-		DrawPanel->m_IgnoreMouseEvents = TRUE;
 		if ( Get_Message( _("Module Reference:"), Line, this ) != 0 ) return NULL;
-		DrawPanel->m_IgnoreMouseEvents = FALSE;
 	}
 	
 	else Line = module_name;

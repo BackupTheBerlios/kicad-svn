@@ -32,7 +32,8 @@ int LineNum = 0;
 		return 1;
 	}
 
-	fullfilename =  g_RealLibDirBuffer + LIB3D_PATH;
+	if ( wxIsAbsolutePath(m_Shape3DName) ) fullfilename.Empty();
+	else fullfilename =  g_RealLibDirBuffer + LIB3D_PATH;
 	fullfilename += m_Shape3DName;
 #if defined (__WINDOWS__)
 	fullfilename.Replace(UNIX_STRING_DIR_SEP,WIN_STRING_DIR_SEP);

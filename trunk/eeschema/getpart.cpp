@@ -53,10 +53,12 @@ EDA_SchComponentStruct * WinEDA_SchematicFrame::Load_Component(wxDC * DC,
 					const wxString & libname, wxArrayString & HistoryList,
 					bool UseLibBrowser)
 /**************************************************************************/
-/* Fonction de chargement et placement d'un composant
+/* load from a library and place a component
+	if libname != "", search in lib "libname"
+	else search in all loaded libs
 */
 {
-int ii;
+int ii, CmpCount = 0;
 LibDrawField * Field;
 EDA_LibComponentStruct *Entry = NULL;
 EDA_SchComponentStruct * DrawLibItem = NULL;
@@ -67,8 +69,33 @@ bool AllowWildSeach = TRUE;
 	g_ItemToRepeat = NULL;
 	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	
+	if ( ! libname.IsEmpty()  )
+	{
+		Library = g_LibraryList;
+		while (Library)
+		{
+			if( Library->m_Name == libname )
+			{
+				CmpCount = Library->m_NumOfParts;
+				break;
+			}
+			Library = Library->m_Pnext; 
+		}
+	}
+	else
+	{
+		LibraryStruct * lib = g_LibraryList;
+		while (lib)
+		{
+			CmpCount += lib->m_NumOfParts;
+			lib = lib->m_Pnext; 
+		}
+	}
+
 	/* Ask for a component name or key words */
-	Name = GetComponentName(this, HistoryList, _("Component selection:"),
+	msg.Printf (_("component selection (%d items loaded):"), CmpCount);
+ 
+	Name = GetComponentName(this, HistoryList, msg,
 			UseLibBrowser ? SelectFromLibBrowser : NULL);
 	Name.MakeUpper();
 	if( Name.IsEmpty() )
@@ -76,16 +103,6 @@ bool AllowWildSeach = TRUE;
 		DrawPanel->m_IgnoreMouseEvents = FALSE;
 		DrawPanel->MouseToCursorSchema();
 		return NULL;	/* annulation de commande */
-	}
-
-	if ( ! libname.IsEmpty()  )
-	{
-		Library = g_LibraryList;
-		while (Library)
-		{
-			if( Library->m_Name == libname ) break;
-			Library = Library->m_Pnext; 
-		}
 	}
 	
 	if( Name.GetChar(0) == '=' )
@@ -248,7 +265,7 @@ void WinEDA_SchematicFrame::CmpRotationMiroir(
 	/* Efface le trace precedent */
 	if ( DC )
 		{
-		m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+		m_CurrentScreen->CursorOff(DrawPanel, DC);
 		if ( DrawComponent->m_Flags )
 			DrawStructsInGhost(DrawPanel, DC, DrawComponent, 0, 0 );
 		else DrawLibPart(DrawPanel, DC, DrawComponent, g_XorMode);
@@ -262,7 +279,7 @@ void WinEDA_SchematicFrame::CmpRotationMiroir(
 		if( DrawComponent->m_Flags )
 			DrawStructsInGhost(DrawPanel, DC, DrawComponent, 0, 0 );
 		else DrawLibPart(DrawPanel, DC, DrawComponent, GR_DEFAULT_DRAWMODE);
-		m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+		m_CurrentScreen->CursorOn(DrawPanel, DC);
 		}
 
 	TestDanglingEnds(m_CurrentScreen->EEDrawList, DC);
@@ -417,6 +434,10 @@ void WinEDA_SchematicFrame::StartMovePart(EDA_SchComponentStruct * DrawLibItem,
 	if( DrawLibItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE)
 		return;
 
+ 	m_CurrentScreen->CursorOff(DrawPanel, DC);
+ 	m_CurrentScreen->m_Curseur = DrawLibItem->m_Pos;
+ 	DrawPanel->MouseToCursorSchema();
+ 
 	m_CurrentScreen->ManageCurseur = ShowWhileMoving ;
 	m_CurrentScreen->ForceCloseManageCurseur = ExitPlaceCmp;
 	m_CurrentScreen->m_CurrentItem = DrawLibItem;
@@ -427,6 +448,8 @@ void WinEDA_SchematicFrame::StartMovePart(EDA_SchComponentStruct * DrawLibItem,
 	DrawLibItem->m_Flags |= IS_MOVED;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC,FALSE);
 	DrawPanel->m_AutoPAN_Request = TRUE;
+ 
+ 	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 

@@ -666,7 +666,8 @@ char Line[256];
 	if (!Minimal)
 	{
 		DateAndTime(Line);
-		fprintf(dest,";DRILL file {%s} date %s\n",CONV_TO_UTF8(Main_Title),Line);
+		wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+		fprintf(dest,";DRILL file {%s} date %s\n",CONV_TO_UTF8(Title),Line);
 		fputs(";FORMAT={",dest);
 		fprintf(dest,"%s / absolute / ",
 			CONV_TO_UTF8(m_Choice_Precision->GetStringSelection()));

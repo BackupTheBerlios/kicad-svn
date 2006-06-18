@@ -408,14 +408,12 @@ int hjustify, vjustify;
 	return(Failed);
 }
 
-	/*******************************************************************/
-	/* static int SaveSheetDescr( FILE *f, DrawSheetStruct * SheetStruct) */
-	/*******************************************************************/
-
+/*******************************************************************/
+static int SaveSheetDescr( FILE *f, DrawSheetStruct * SheetStruct)
+/*******************************************************************/
 /* Routine utilisee dans la routine precedente.
 	Assure la sauvegarde de la structure LibItemStruct
 */
-static int SaveSheetDescr( FILE *f, DrawSheetStruct * SheetStruct)
 {
 int ii;
 int Failed = FALSE;
@@ -484,11 +482,12 @@ DrawSheetLabelStruct * SheetLabel;
 	return(Failed);
 }
 
-	/****************************/
-	/* void SaveLayers(FILE *f)	*/
-	/****************************/
-/* Save a Layer Structure to a file */
+/****************************/
 static void SaveLayers(FILE *f)
+/****************************/
+/* Save a Layer Structure to a file
+theses infos are not used in eeschema
+*/
 {
 	fprintf(f,"EELAYER %2d %2d\n", g_LayerDescr.NumberOfLayers,g_LayerDescr.CurrentLayer);
 	fprintf(f,"EELAYER END\n");

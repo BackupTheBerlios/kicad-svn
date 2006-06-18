@@ -29,6 +29,9 @@ void WinEDA_PcbFrame::OnLeftClick(wxDC * DC, const wxPoint& MousePos)
 {
 EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
+	GetScreen()->CursorOff(DrawPanel, DC);
+
 	if ( (m_ID_current_state == 0) || ( DrawStruct && DrawStruct->m_Flags ))
 		{
 		DrawPanel->m_AutoPAN_Request = FALSE;
@@ -41,40 +44,40 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 					if ( CURRENT_ITEM->m_Flags & IS_DRAGGED )
 					{
 						PlaceDraggedTrackSegment((TRACK *)DrawStruct, DC);
-						return;
+						goto out;
 					}
 					break;
 
 				case TYPETEXTE:
 					Place_Texte_Pcb((TEXTE_PCB *)DrawStruct, DC);
-					return;
+					goto out;
 					break;
 
 				case TYPETEXTEMODULE:
 					PlaceTexteModule( (TEXTE_MODULE *) DrawStruct, DC);
-					return;
+					goto out;
 					break;
 
 				case TYPEPAD:
 					PlacePad((D_PAD *)DrawStruct, DC);
-					return;
+					goto out;
 					break;
 
 				case TYPEMODULE:
 					Place_Module((MODULE *)DrawStruct, DC);
-					return;
+					goto out;
 					break;
 
 				case TYPEMIRE:
 					Place_Mire((MIREPCB *)DrawStruct, DC);
-					return;
+					goto out;
 					break;
 
 				case TYPEDRAWSEGMENT:
 					if (m_ID_current_state == 0)
 					{
 						Place_DrawItem( (DRAWSEGMENT * )DrawStruct, DC);
-						return;
+						goto out;
 					}
 					break;
 
@@ -83,7 +86,7 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 					{
 						DisplayError(this,
 						wxT("WinEDA_PcbFrame::OnLeftClick() err: m_Flags != 0") );
-						return;
+						goto out;
 					}
 				}
 			}
@@ -277,11 +280,9 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 			break;
 
 		case ID_PCB_PLACE_OFFSET_COORD_BUTT:
-			GetScreen()->Trace_Curseur(DrawPanel, DC);
 			DrawPanel->m_Draw_Auxiliary_Axe(DC, GR_XOR);
 			m_Auxiliary_Axe_Position = GetScreen()->m_Curseur;
 			DrawPanel->m_Draw_Auxiliary_Axe( DC, GR_COPY);
-			GetScreen()->Trace_Curseur(DrawPanel, DC);
 			break;
 
 		default :
@@ -290,6 +291,9 @@ EDA_BaseStruct * DrawStruct = CURRENT_ITEM;
 			SetToolID(0, wxCURSOR_ARROW,wxEmptyString);
 			break;
 		}
+  out:
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
+	GetScreen()->CursorOn(DrawPanel, DC);
 }
 
 
@@ -304,6 +308,7 @@ wxPoint pos;
 wxClientDC dc(DrawPanel);
 int itmp;
 
+	GetScreen()->CursorOff(DrawPanel, &dc);
 	DrawPanel->PrepareGraphicContext(&dc);
 
 	wxGetMousePosition(&pos.x, &pos.y);
@@ -1094,6 +1099,8 @@ int itmp;
 	}
 
 	SetToolbars();
+	GetScreen()->CursorOn(DrawPanel, &dc);
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
 

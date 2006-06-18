@@ -6,17 +6,15 @@ TARGET=cvpcb
 WXDIR = $(WXWIN)
 
 all: $(TARGET).exe
-include ../libs.win
-include ../makeg95.env
 
 include makefile.include
+include ../libs.win
 
 
-$(TARGET).exe: $(OBJECTS) $(TARGET)_resources.$(OBJSUFF)\
+$(TARGET).exe: $(OBJECTS) $(TARGET)_resources.o\
 		$(EDALIBS) $(LIBVIEWER3D) makefile.g95
 	$(CXX) $(ALL_LDFLAGS) -o $(TARGET).exe\
-		$(OBJECTS) $(LIBVIEWER3D) $(TARGET)_resources.$(OBJSUFF)\
-		$(EDALIBS) $(SYSWXLIB) $(LIBS3D)
+		$(OBJECTS) $(LIBVIEWER3D) $(TARGET)_resources.o $(EDALIBS) $(SYSWXLIB)
 		
 
 install:$(KICAD_BIN)/$(TARGET).exe

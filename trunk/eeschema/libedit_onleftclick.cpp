@@ -81,11 +81,7 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 			case ID_LIBEDIT_PIN_BUTT :
 				if( CurrentDrawItem == NULL )
 				{
-					DrawPanel->m_IgnoreMouseEvents = TRUE;
 					CreatePin(DC);
-					InstallPineditFrame(this, wxPoint(-1,-1) );
-					DrawPanel->MouseToCursorSchema();
-					DrawPanel->m_IgnoreMouseEvents = FALSE;
 				}
 				else
 				{
@@ -213,10 +209,7 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 		case  COMPONENT_PIN_DRAW_TYPE:
 			if( DrawEntry->m_Flags == 0 )	// Item localisé et non en edition: placement commande move
 			{
-				DrawPanel->m_IgnoreMouseEvents = TRUE;
-				InstallPineditFrame(this, pos);
-				DrawPanel->MouseToCursorSchema();
-				DrawPanel->m_IgnoreMouseEvents = FALSE;
+				InstallPineditFrame(this, DC, pos);
 			}
 			break;
 
@@ -225,10 +218,7 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 		case COMPONENT_RECT_DRAW_TYPE:
 			if( DrawEntry->m_Flags == 0 )
 			{
-				DrawPanel->m_IgnoreMouseEvents = TRUE;
 				EditGraphicSymbol(DC, DrawEntry);
-				DrawPanel->MouseToCursorSchema();
-				DrawPanel->m_IgnoreMouseEvents = FALSE;
 			}
 			break;
 
@@ -237,7 +227,6 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 			if( DrawEntry->m_Flags == 0 )
 			{
 				EditGraphicSymbol(DC, DrawEntry);
-				DrawPanel->MouseToCursorSchema();
 			}
 			else if( DrawEntry->m_Flags & IS_NEW )
 			{
@@ -249,7 +238,6 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 			if( DrawEntry->m_Flags == 0 )
 			{
 				EditSymbolText(DC, DrawEntry);
-				DrawPanel->MouseToCursorSchema();
 			}
 			break;
 
@@ -268,6 +256,7 @@ LibEDA_BaseStruct* DrawEntry = CurrentDrawItem;
 			DisplayError(this, msg );
 			break;
 	}
+	DrawPanel->MouseToCursorSchema();
 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 

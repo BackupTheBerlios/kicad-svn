@@ -18,7 +18,7 @@
 /* Fonctions exportees */
 
 /* Fonctions Locales */
-static EDA_BaseStruct * CopyStructLocal(EDA_BaseStruct *DrawStruct);
+static EDA_BaseStruct * DuplicateStruct(EDA_BaseStruct *DrawStruct);
 static bool CopyStruct(WinEDA_DrawPanel * panel, wxDC * DC, BASE_SCREEN * screen,
 			EDA_BaseStruct *DrawStruct);
 static void CollectStructsToDrag(BASE_SCREEN * screen);
@@ -520,7 +520,7 @@ DrawPickedStruct *PickedItem, *PickedList = NULL;
 
 	if ( !DrawStruct ) return FALSE;
 
-	NewDrawStruct = CopyStructLocal(DrawStruct);
+	NewDrawStruct = DuplicateStruct(DrawStruct);
 	if ( NewDrawStruct == NULL ) return FALSE;
 
 	if ( (RetVal = PlaceStruct( screen, NewDrawStruct)) == TRUE)
@@ -673,7 +673,7 @@ DrawPickedStruct *PickedList = NULL;
 	if (DrawStruct->m_StructType == DRAW_SHEET_STRUCT_TYPE)
 	{
 		DrawSheetStruct * Sheet = (DrawSheetStruct *) DrawStruct;
-		DrawStruct = CopyStructLocal(Sheet);	/* Pour Undelete */
+		DrawStruct = DuplicateStruct(Sheet);	/* Pour Undelete */
 		DeleteSubHierarchy(Sheet);
 	}
 
@@ -713,7 +713,7 @@ EDA_BaseStruct *DrawStructCopy;
 	if ( !DrawStruct ) return NULL;
 
 	/* Make a copy of the original picked item. */
-	DrawStructCopy = CopyStructLocal(DrawStruct);
+	DrawStructCopy = DuplicateStruct(DrawStruct);
 
 	if (DrawStruct->m_StructType == DRAW_PICK_ITEM_STRUCT_TYPE)
 	{
@@ -797,7 +797,7 @@ DrawPickedStruct  *PickedItem, *PickedList = NULL;
 		return;
 	}
 
-	DrawStruct = CopyStructLocal(g_BlockSaveDataList);
+	DrawStruct = DuplicateStruct(g_BlockSaveDataList);
 
 	PlaceStruct( GetScreen(), DrawStruct);
 	RedrawStructList(DrawPanel, DC, DrawStruct, GR_DEFAULT_DRAWMODE);
@@ -1013,25 +1013,23 @@ DrawNoConnectStruct * DrawNoConnect;
 }
 
 
-	/*************************************************/
-	/* Routine to create a new copy of given struct. */
-	/*************************************************/
-
-/* La structure est dupliquee, et n' est pas mise en draw liste
-	Retourne un pointeur sur la nouvelle structure creee
+/******************************************************************/
+static EDA_BaseStruct * DuplicateStruct(EDA_BaseStruct *DrawStruct)
+/******************************************************************/
+/* Routine to create a new copy of given struct.
+	The new object is not put in draw list (not linked)
 */
-static EDA_BaseStruct * CopyStructLocal(EDA_BaseStruct *DrawStruct)
 {
 EDA_BaseStruct *NewDrawStruct = NULL;
 
 	if ( DrawStruct == NULL )
-		{
-		DisplayError(NULL, wxT("CopyStructLocal error: NULL struct") );
+	{
+		DisplayError(NULL, wxT("DuplicateStruct error: NULL struct") );
 		return NULL;
-		}
+	}
 
 	switch (DrawStruct->m_StructType)
-		{
+	{
 		case DRAW_POLYLINE_STRUCT_TYPE:
 			NewDrawStruct = ((DrawPolylineStruct*)DrawStruct)->GenCopy();
 			break;
@@ -1078,24 +1076,24 @@ EDA_BaseStruct *NewDrawStruct = NULL;
 				if (LastPickedItem ) LastPickedItem->Pnext = NewPickedItem;
 				LastPickedItem = NewPickedItem;
 				NewPickedItem->m_PickedStruct =
-					CopyStructLocal(PickedList->m_PickedStruct);
+					DuplicateStruct(PickedList->m_PickedStruct);
 				PickedList = (DrawPickedStruct *)PickedList->Pnext;
 			}
 			 break;
 		}
 
-		default:
 		case DRAW_SHEETLABEL_STRUCT_TYPE:
 		case DRAW_PART_TEXT_STRUCT_TYPE:
 		case SCREEN_STRUCT_TYPE:
-			{
+		default:
+		{
 			wxString msg;
-			msg << wxT("CopyStructLocal error: unexpected StructType ") <<
+			msg << wxT("DuplicateStruct error: unexpected StructType ") <<
 				DrawStruct->m_StructType << wxT(" ") << DrawStruct->ReturnClassName();
 			DisplayError(NULL, msg);
-			}
-			break;
 		}
+			break;
+	}
 
 	return NewDrawStruct;
 }

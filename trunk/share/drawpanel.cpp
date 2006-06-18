@@ -13,7 +13,6 @@
 #include "id.h"
 
 /* Variables locales */
-static wxPoint MouseBoardPos;	// position du cureur souris en coord PCB
 
 /* table des evenements captes par un WinEDA_DrawPanel */
 BEGIN_EVENT_TABLE(WinEDA_DrawPanel, EDA_DRAW_PANEL)
@@ -65,6 +64,7 @@ WinEDA_DrawPanel::WinEDA_DrawPanel(WinEDA_DrawFrame *parent, int id,
 	m_AutoPAN_Request = FALSE;
 	m_Block_Enable = FALSE;
 	m_PanelDefaultCursor = m_PanelCursor = wxCURSOR_ARROW;
+	m_CursorLevel = 0;
 }
 
 
@@ -574,7 +574,10 @@ wxMenu MasterMenu;
 	pos.x = event.GetX(); pos.y = event.GetY();
 	m_Parent->OnRightClick(pos, &MasterMenu);
 	AddMenuZoom(&MasterMenu);
+	m_IgnoreMouseEvents = TRUE;
 	PopupMenu( &MasterMenu, pos);
+	MouseToCursorSchema();
+	m_IgnoreMouseEvents = FALSE;
 }
 
 
@@ -588,7 +591,7 @@ void WinEDA_DrawPanel::OnMouseLeaving(wxMouseEvent& event)
 
 	if ( ! m_AutoPAN_Enable || ! m_AutoPAN_Request || m_IgnoreMouseEvents)
 		return;
-	// Auto pa if mouse is leave working aera:
+	// Auto pan if mouse is leave working aera:
 	wxSize size = GetClientSize();
 	if ( (size.x < event.GetX() ) ||
 		 (size.y < event.GetY() ) ||
@@ -603,7 +606,7 @@ void WinEDA_DrawPanel::OnMouseEvent(wxMouseEvent& event)
 // Called when the canvas receives a mouse event. //
 {
 int localrealbutt = 0, localbutt = 0, localkey = 0;
-BASE_SCREEN * screen;
+BASE_SCREEN * screen = GetScreen();
 static WinEDA_DrawPanel * LastPanel;
 	
 	if ( event.Leaving() || event.Entering() )
@@ -613,8 +616,6 @@ static WinEDA_DrawPanel * LastPanel;
 
 	if (GetScreen()->ManageCurseur == NULL ) // Pas de commande en cours
 		m_AutoPAN_Request = FALSE;
-
-	if ( m_IgnoreMouseEvents ) return;
 
 	if ( m_Parent->m_FrameIsActive ) SetFocus();
 	else return;
@@ -638,6 +639,8 @@ static WinEDA_DrawPanel * LastPanel;
 		OnRightClick(event); return;
 	}
 
+	if ( m_IgnoreMouseEvents ) return;
+
 	if( event.LeftIsDown() ) localrealbutt |= GR_M_LEFT_DOWN;
 	if( event.MiddleIsDown() ) localrealbutt |= GR_M_MIDDLE_DOWN;
 
@@ -650,12 +653,10 @@ static WinEDA_DrawPanel * LastPanel;
 
 	localrealbutt |= localbutt;		/* compensation defaut wxGTK */
 
-	MouseBoardPos = CalcAbsolutePosition(wxPoint(event.GetX(), event.GetY()));
+	screen->m_MousePosition = CalcAbsolutePosition(wxPoint(event.GetX(), event.GetY()));
 
 wxClientDC DC(this);
 int kbstat = 0;
-
-	screen = GetScreen();
 
 	DC.SetBackground(*wxBLACK_BRUSH );
 	PrepareGraphicContext(&DC);
@@ -670,10 +671,10 @@ int kbstat = 0;
 
 	// Appel des fonctions liées au Double Click ou au Click
 	if( localbutt == (int)(GR_M_LEFT_DOWN|GR_M_DCLICK) )
-		m_Parent->OnLeftDClick(&DC, wxPoint(MouseBoardPos));
+		m_Parent->OnLeftDClick(&DC, screen->m_MousePosition);
 
 	else if ( event.LeftDown() )
-		m_Parent->OnLeftClick(&DC, wxPoint(MouseBoardPos));
+		m_Parent->OnLeftClick(&DC, screen->m_MousePosition);
 
 	if( event.ButtonUp(2) && (screen->BlockLocate.m_State == STATE_NO_BLOCK) )
 	{	// The middle button has been relached, with no block command:
@@ -684,7 +685,7 @@ int kbstat = 0;
 
 	/* Appel de la fonction generale de gestion des mouvements souris
 	et commandes clavier */
-	m_Parent->GeneralControle(&DC, MouseBoardPos);
+	m_Parent->GeneralControle(&DC, screen->m_MousePosition);
 
 
 	/*******************************/
@@ -849,7 +850,7 @@ BASE_SCREEN * Screen = GetScreen();
 		else m_Parent->SetToolID(0, m_PanelCursor = m_PanelDefaultCursor = wxCURSOR_ARROW, wxEmptyString);
 	}
 
-	m_Parent->GeneralControle(&DC, MouseBoardPos);
+	m_Parent->GeneralControle(&DC, Screen->m_MousePosition);
 }
 
 

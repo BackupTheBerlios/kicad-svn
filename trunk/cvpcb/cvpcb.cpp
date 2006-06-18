@@ -17,7 +17,7 @@
 
 #include "id.h"
 
-wxString Main_Title = wxT("Cvpcb 26-jan-06");
+wxString g_Main_Title = wxT("Cvpcb");
 
 // Create a new application object
 IMPLEMENT_APP(WinEDA_App)
@@ -59,7 +59,8 @@ wxString currCWD = wxGetCwd();
 
 	Read_Config(NetInNameBuffer);
 
-	m_CvpcbFrame = new WinEDA_CvpcbFrame(this, Main_Title);
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	m_CvpcbFrame = new WinEDA_CvpcbFrame(this, Title);
 
 	msg.Printf( wxT("Modules: %d"), nblib);
 	m_CvpcbFrame->SetStatusText(msg,2);
@@ -81,8 +82,9 @@ wxString currCWD = wxGetCwd();
 		}
 	else		/* Mise a jour du titre de la fenetre principale */
 		{
+		wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
  		msg.Printf( wxT("%s {%s%c} [no file]"),
-			Main_Title.GetData(), wxGetCwd().GetData(), DIR_SEP);
+			Title.GetData(), wxGetCwd().GetData(), DIR_SEP);
 		m_CvpcbFrame->SetTitle(msg);
 		}
 

@@ -287,9 +287,7 @@ DRAWSEGMENT * DrawItem;
 				GetScreen()->SetModify();
 				Segment->m_Flags = 0;
 
-				GetScreen()->Trace_Curseur(DrawPanel, DC);
 				Trace_DrawSegmentPcb(DrawPanel, DC, Segment,GR_OR);
-				GetScreen()->Trace_Curseur(DrawPanel, DC);
 
 				DrawItem = Segment;
 
@@ -321,9 +319,7 @@ void WinEDA_PcbFrame::End_Edge(DRAWSEGMENT * Segment, wxDC * DC)
 {
 
 	if( Segment == NULL ) return ;
-	GetScreen()->Trace_Curseur(DrawPanel, DC);
 	Trace_DrawSegmentPcb(DrawPanel, DC, (DRAWSEGMENT *)Segment,GR_OR);
-	GetScreen()->Trace_Curseur(DrawPanel,DC);
 
 	/* Effacement si Longueur nulle */
 	if( (Segment->m_Start.x == Segment->m_End.x) &&

@@ -113,7 +113,7 @@ void WinEDA_ViewlibFrame::DisplayLibInfos(void)
 wxString msg;
 LibraryStruct * Lib;
 
-	Lib = FindLibrary(g_CurrentViewLibraryName.GetData());
+	Lib = FindLibrary(g_CurrentViewLibraryName);
 	msg = _("Browse library: ");
 	if ( Lib ) msg += g_CurrentViewLibraryName;
 	else msg += _("None");
@@ -156,7 +156,7 @@ LibraryStruct * Lib;
 	if(g_CurrentViewLibraryName.IsEmpty() ) SelectCurrentLibrary();
 	if(g_CurrentViewLibraryName.IsEmpty() ) return;
 
-	Lib = FindLibrary(g_CurrentViewLibraryName.GetData());
+	Lib = FindLibrary(g_CurrentViewLibraryName);
 	if ( Lib == NULL ) return;
 
 	if ( (g_CurrentViewComponentName.IsEmpty()) || ( option == NEW_PART ) )

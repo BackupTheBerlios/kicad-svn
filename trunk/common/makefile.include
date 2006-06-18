@@ -78,7 +78,9 @@ trigo.o: trigo.cpp ../include/trigo.h
 
 bitmaps.o: bitmaps.cpp ../include/bitmaps.h
 
-edaappl.o: edaappl.cpp $(COMMON) ../include/worksheet.h ../include/common.h ../include/gr_basic.h
+edaappl.o: edaappl.cpp $(COMMON) ../include/worksheet.h\
+	../include/common.h ../include/gr_basic.h\
+	../include/build_version.h 
 
 eda_dde.o: eda_dde.cpp $(COMMON) ../include/eda_dde.h
 

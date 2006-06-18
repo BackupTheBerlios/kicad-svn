@@ -60,9 +60,9 @@ void EDA_BaseStruct::Place(WinEDA_DrawFrame * frame, wxDC * DC)
 	frame->GetScreen()->ManageCurseur = NULL;
 	frame->GetScreen()->ForceCloseManageCurseur = NULL;
 
-	frame->GetScreen()->Trace_Curseur(frame->DrawPanel, DC);	// Erase schematic cursor
+	frame->GetScreen()->CursorOff(frame->DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(frame->DrawPanel, DC, this, GR_DEFAULT_DRAWMODE);
-	frame->GetScreen()->Trace_Curseur(frame->DrawPanel, DC);	// Display schematic cursor
+	frame->GetScreen()->CursorOn(frame->DrawPanel, DC);	// Display schematic cursor
 }
 
 

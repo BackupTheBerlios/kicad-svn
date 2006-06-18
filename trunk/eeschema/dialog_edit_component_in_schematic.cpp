@@ -144,9 +144,19 @@ void WinEDA_ComponentPropertiesFrame::CreateControls()
         _("Unit 13"),
         _("Unit 14"),
         _("Unit 15"),
-        _("Unit 16")
-    };
-    m_SelectUnit = new wxRadioBox( m_PanelBasic, ID_RADIOBOX_UNIT, _("Unit:"), wxDefaultPosition, wxDefaultSize, 16, m_SelectUnitStrings, 2, wxRA_SPECIFY_COLS );
+        _("Unit 16"),
+		_("Unit 17"),
+        _("Unit 18"),
+        _("Unit 19"),
+        _("Unit 20"),
+        _("Unit 21"),
+        _("Unit 22"),
+        _("Unit 23"),
+        _("Unit 24"),
+        _("Unit 25"),
+        _("Unit 26")
+   };
+    m_SelectUnit = new wxRadioBox( m_PanelBasic, ID_RADIOBOX_UNIT, _("Unit:"), wxDefaultPosition, wxDefaultSize, 26, m_SelectUnitStrings, 3, wxRA_SPECIFY_COLS );
     itemBoxSizer5->Add(m_SelectUnit, 0, wxGROW|wxALL, 5);
 
     wxBoxSizer* itemBoxSizer7 = new wxBoxSizer(wxVERTICAL);

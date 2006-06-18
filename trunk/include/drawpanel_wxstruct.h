@@ -44,6 +44,7 @@ public:
 								// (filtrage des commandes de debut de bloc )
 	int m_PanelDefaultCursor;	// Current mouse cursor default shape id for this window
 	int m_PanelCursor;			// Current mouse cursor shape id for this window
+    int m_CursorLevel;			// Index for cursor redraw in XOR mode
 
 public:
 	// Constructor and destructor
@@ -264,8 +265,13 @@ public:
 	void SetFirstGrid(void);			/* ajuste la grille au mini*/
 	void SetLastGrid(void);				/* ajuste la grille au max */
 
+	bool m_IgnoreMouse;
+
 	/* fonctions relatives au curseur*/
 	void Trace_Curseur(WinEDA_DrawPanel * panel, wxDC * DC);	// trace du curseur sur grille
+
+	void CursorOff(WinEDA_DrawPanel * panel, wxDC * DC);	// remove the grid cursor from the display
+	void CursorOn(WinEDA_DrawPanel * panel, wxDC * DC);	// display the grid cursor
 };
 
 

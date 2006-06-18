@@ -1,3 +1,4 @@
+
 #Configuration for build kicad
 KICAD_BIN = /usr/local/kicad/linux
 
@@ -33,7 +34,13 @@ LIBVERSION=`wx-config --release`
 
 # use link static for wxWidgets
 ifdef KICAD_STATIC_LINK
+LIBS3D = $(WXPATH)/$(PREFIX_WX_LIBS)$(SUFFIX_WX_LIBGL)\
+	 $(MESALIBSPATH)/libGL.a $(MESALIBSPATH)/libGLU.a
+	
 WXSYSLIB= $(WXPATH)/$(PREFIX_WX_LIBS)-$(LIBVERSION).a \
+	$(WXPATH)/libwxpng-$(LIBVERSION).a\
+	$(WXPATH)/libwxjpeg-$(LIBVERSION).a\
+	$(WXPATH)/libwxzlib-$(LIBVERSION).a\
         /usr/X11R6/lib/libXinerama.a \
         /usr/X11R6/lib/libXxf86vm.a \
 		-lgtk-x11-2.0 -lgdk-x11-2.0 \
@@ -42,22 +49,31 @@ WXSYSLIB= $(WXPATH)/$(PREFIX_WX_LIBS)-$(LIBVERSION).a \
         -lglib-2.0 -lpangoft2-1.0 \
         -L/usr/lib
 
+	
+WXSYSLIB_WITH_GL= $(WXPATH)/$(PREFIX_WX_LIBS)-$(LIBVERSION).a \
+	$(WXPATH)/libwxpng-$(LIBVERSION).a\
+	$(WXPATH)/libwxjpeg-$(LIBVERSION).a\
+	$(WXPATH)/libwxzlib-$(LIBVERSION).a\
+	$(LIBS3D)\
+        /usr/X11R6/lib/libXinerama.a \
+        /usr/X11R6/lib/libXxf86vm.a \
+		-lgtk-x11-2.0 -lgdk-x11-2.0 \
+        -latk-1.0 -lgdk_pixbuf-2.0 -lm -lpangoxft-1.0 -lpangox-1.0 -lgthread-2.0\
+        -lpango-1.0 -lgobject-2.0 -lgmodule-2.0 -ldl\
+        -lglib-2.0 -lpangoft2-1.0 \
+        -L/usr/lib
 else
 #or use "standard command" for wxWidgets
 WXSYSLIB= `wx-config --libs`
+WXSYSLIB_WITH_GL= `wx-config --libs std,gl`
 endif
 
 
 # attention à l'ordre des libairies
 LIBS = -L/usr/local/lib -L/usr/X11R6/lib\
 	$(EXTRALIBS) $(WXSYSLIB)\
-	$(WXPATH)/libwxpng-$(LIBVERSION).a\
-	$(WXPATH)/libwxjpeg-$(LIBVERSION).a\
-	$(WXPATH)/libwxzlib-$(LIBVERSION).a\
 	$(LIBSTDC)
 
-ifdef KICAD_STATIC_LINK
-LIBS3D = $(WXPATH)/$(PREFIX_WX_LIBS)$(SUFFIX_WX_LIBGL) $(MESALIBSPATH)/libGL.a $(MESALIBSPATH)/libGLU.a
-else
-LIBS3D = $(WXPATH)/$(PREFIX_WX_LIBS)$(SUFFIX_WX_LIBGL) -lGL -lGLU
-endif
+LIBS_WITH_GL = -L/usr/local/lib -L/usr/X11R6/lib\
+	$(EXTRALIBS) $(WXSYSLIB_WITH_GL)\
+	$(LIBSTDC)

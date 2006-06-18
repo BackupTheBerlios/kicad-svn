@@ -80,6 +80,16 @@ wxPoint defaultpos(-1,-1);
 		case ID_POPUP_SCH_SELECT_UNIT14:
 		case ID_POPUP_SCH_SELECT_UNIT15:
 		case ID_POPUP_SCH_SELECT_UNIT16:
+		case ID_POPUP_SCH_SELECT_UNIT17:
+		case ID_POPUP_SCH_SELECT_UNIT18:
+		case ID_POPUP_SCH_SELECT_UNIT19:
+		case ID_POPUP_SCH_SELECT_UNIT20:
+		case ID_POPUP_SCH_SELECT_UNIT21:
+		case ID_POPUP_SCH_SELECT_UNIT22:
+		case ID_POPUP_SCH_SELECT_UNIT23:
+		case ID_POPUP_SCH_SELECT_UNIT24:
+		case ID_POPUP_SCH_SELECT_UNIT25:
+		case ID_POPUP_SCH_SELECT_UNIT26:
 		case ID_POPUP_SCH_ROTATE_FIELD:
 		case ID_POPUP_SCH_EDIT_FIELD:
 		case ID_POPUP_DELETE_BLOCK:
@@ -396,10 +406,7 @@ wxPoint defaultpos(-1,-1);
 			break;
 
 		case ID_POPUP_SCH_EDIT_FIELD:
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
 			EditCmpFieldText( (PartTextStruct *)m_CurrentScreen->m_CurrentItem, &dc);
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			break;
 
 		case ID_POPUP_SCH_DELETE_NODE:
@@ -486,11 +493,8 @@ wxPoint defaultpos(-1,-1);
 			if ( m_CurrentScreen->m_CurrentItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 				m_CurrentScreen->m_CurrentItem = LocateSmallestComponent( GetScreen() );
 			if ( m_CurrentScreen->m_CurrentItem == NULL ) break;
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
 			InstallCmpeditFrame(this, pos,
 					(EDA_SchComponentStruct *) m_CurrentScreen->m_CurrentItem);
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			break;
 
 		case ID_POPUP_SCH_MIROR_X_CMP:
@@ -538,11 +542,8 @@ wxPoint defaultpos(-1,-1);
 			if ( m_CurrentScreen->m_CurrentItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 				m_CurrentScreen->m_CurrentItem = LocateSmallestComponent( GetScreen() );
 			if ( m_CurrentScreen->m_CurrentItem == NULL ) break;
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
 			EditComponentValue(
 				(EDA_SchComponentStruct *) m_CurrentScreen->m_CurrentItem, &dc);
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			break;
 
 		case ID_POPUP_SCH_EDIT_REF_CMP:
@@ -550,11 +551,8 @@ wxPoint defaultpos(-1,-1);
 			if ( m_CurrentScreen->m_CurrentItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 				m_CurrentScreen->m_CurrentItem = LocateSmallestComponent( GetScreen() );
 			if ( m_CurrentScreen->m_CurrentItem == NULL ) break;
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
 			EditComponentReference(
 				(EDA_SchComponentStruct *) m_CurrentScreen->m_CurrentItem, &dc);
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			break;
 
 		case ID_POPUP_SCH_EDIT_CONVERT_CMP:
@@ -602,6 +600,16 @@ wxPoint defaultpos(-1,-1);
 		case ID_POPUP_SCH_SELECT_UNIT14:
 		case ID_POPUP_SCH_SELECT_UNIT15:
 		case ID_POPUP_SCH_SELECT_UNIT16:
+		case ID_POPUP_SCH_SELECT_UNIT17:
+		case ID_POPUP_SCH_SELECT_UNIT18:
+		case ID_POPUP_SCH_SELECT_UNIT19:
+		case ID_POPUP_SCH_SELECT_UNIT20:
+		case ID_POPUP_SCH_SELECT_UNIT21:
+		case ID_POPUP_SCH_SELECT_UNIT22:
+		case ID_POPUP_SCH_SELECT_UNIT23:
+		case ID_POPUP_SCH_SELECT_UNIT24:
+		case ID_POPUP_SCH_SELECT_UNIT25:
+		case ID_POPUP_SCH_SELECT_UNIT26:
 			// Ensure the struct is a component (could be a struct of a component, like Field, text..)
 			if ( m_CurrentScreen->m_CurrentItem->m_StructType != DRAW_LIB_ITEM_STRUCT_TYPE )
 				m_CurrentScreen->m_CurrentItem = LocateSmallestComponent( GetScreen() );

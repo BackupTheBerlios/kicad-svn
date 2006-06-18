@@ -124,12 +124,13 @@ int zoom;
 	ox = m_Pos.x + offset.x;
 	oy = m_Pos.y + offset.y;
 
-	GRSetDrawMode(DC, mode_color);
 	gcolor = g_DesignSettings.m_LayerColor[m_Layer];
+	if ( (gcolor & ITEM_NOT_SHOW) != 0 ) return;
 
 	zoom = panel->GetZoom();
 
-	typeaff = DisplayOpt.DisplayPcbTrackFill;
+	GRSetDrawMode(DC, mode_color);
+	typeaff = DisplayOpt.DisplayDrawItems;
 	width = m_Width;
 	if( width/zoom < 2 ) typeaff = FILAIRE;
 

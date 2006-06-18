@@ -11,7 +11,7 @@
 #include "worksheet.h"
 
 /* Must be defined in main applications: */
-extern const wxString Main_Title;
+extern const wxString g_Main_Title;
 
 /*********************************************************************/
 void WinEDA_DrawFrame::TraceWorkSheet(wxDC * DC, BASE_SCREEN * screen)
@@ -160,7 +160,8 @@ int UpperLimit = VARIABLE_BLOCK_START_POSITION;
 
 			case WS_LICENCE:
 				if(WsItem->m_Legende) msg = WsItem->m_Legende;
-				msg += g_ProductName + Main_Title;
+				msg += g_ProductName + g_Main_Title;
+				msg += wxT(" ") + GetBuildVersion();
 				DrawGraphicText(DrawPanel, DC, pos, Color,
 					msg, TEXT_ORIENT_HORIZ, size,
 					GR_TEXT_HJUSTIFY_LEFT, GR_TEXT_VJUSTIFY_CENTER);

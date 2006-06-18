@@ -76,7 +76,6 @@ wxString msg;
 
 		default:
 			SetTitle(_("Text properties"));
-            m_TextShape->Show(FALSE);
 			break;
 	}
 	
@@ -190,8 +189,6 @@ void WinEDA_LabelPropertiesFrame::CreateControls()
 
     if (m_CurrentText->m_StructType == DRAW_GLOBAL_LABEL_STRUCT_TYPE )
         m_TextShape->Show(true);
-
-	
 }
 
 /*!

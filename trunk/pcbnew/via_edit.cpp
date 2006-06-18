@@ -38,9 +38,7 @@ TRACK * via_struct ;
 			break;
 		
 		case ID_POPUP_PCB_VIA_HOLE_ENTER_VALUE:	// Enter a new alternate value for drill via
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
 			InstallPcbOptionsFrame(wxDefaultPosition, DC, ID_PCB_TRACK_SIZE_SETUP);
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			DrawPanel->MouseToCursorSchema();
 		case ID_POPUP_PCB_VIA_HOLE_TO_VALUE:	// Set the drill via to custom
 			if ( (g_ViaHoleLastValue > 0) && (g_ViaHoleLastValue < via->m_Width) )

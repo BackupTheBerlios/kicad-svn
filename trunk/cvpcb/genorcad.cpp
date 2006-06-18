@@ -30,10 +30,11 @@ int genorcad(void)
 char Line[1024];
 STOREPIN * Pin;
 STORECMP * CurrentCmp;
+wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
 
 	NetNumCode = 1; DateAndTime(Line);
 	fprintf(dest,"( { Netlist by %s, date = %s }\n",
-		CONV_TO_UTF8(Main_Title), Line ) ;
+		CONV_TO_UTF8(Title), Line ) ;
 
 	  /***********************/
 	  /* Lecture de la liste */

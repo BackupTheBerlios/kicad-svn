@@ -24,12 +24,16 @@ void WinEDA_GerberFrame::Files_io(wxCommandEvent& event)
 int id = event.GetId();
 wxClientDC dc(DrawPanel);
 
+	GetScreen()->CursorOff(DrawPanel, &dc);
+
 	switch (id)
 		{
 		case ID_MENU_LOAD_FILE:
 		case ID_LOAD_FILE:
-			if ( ! Clear_Pcb(&dc, TRUE) ) return;
-			LoadOneGerberFile(wxEmptyString, &dc, 0);
+			if ( Clear_Pcb(&dc, TRUE) )
+				{
+				LoadOneGerberFile(wxEmptyString, &dc, 0);
+				}
 			break;
 
 		case ID_MENU_INC_LAYER_AND_APPEND_FILE:
@@ -51,6 +55,8 @@ wxClientDC dc(DrawPanel);
 		case ID_MENU_NEW_BOARD:
 		case ID_NEW_BOARD:
 			Clear_Pcb(&dc, TRUE);
+			Zoom_Automatique(FALSE);
+			GetScreen()->SetRefreshReq();
 			break;
 
 		case ID_LOAD_FILE_1:
@@ -63,10 +69,12 @@ wxClientDC dc(DrawPanel);
 		case ID_LOAD_FILE_8:
 		case ID_LOAD_FILE_9:
 		case ID_LOAD_FILE_10:
-			if ( ! Clear_Pcb(&dc, TRUE) ) return;
-			LoadOneGerberFile(
-				GetLastProject(id - ID_LOAD_FILE_1).GetData(),
-				&dc, FALSE);
+			if ( Clear_Pcb(&dc, TRUE) )
+				{
+				LoadOneGerberFile(
+					GetLastProject(id - ID_LOAD_FILE_1).GetData(),
+					&dc, FALSE);
+				}
 			break;
 
 		case ID_GERBVIEW_LOAD_DRILL_FILE:
@@ -76,7 +84,6 @@ wxClientDC dc(DrawPanel);
 		case ID_GERBVIEW_LOAD_DCODE_FILE:
 			LoadDCodeFile(this, wxEmptyString, &dc);
 			break;
-
 
 		case ID_SAVE_BOARD:
 		case ID_MENU_SAVE_BOARD:
@@ -91,6 +98,9 @@ wxClientDC dc(DrawPanel);
 			DisplayError(this, wxT("File_io Internal Error") );
 			break;
 		}
+
+	DrawPanel->MouseToCursorSchema();
+	GetScreen()->CursorOn(DrawPanel, &dc);
 }
 
 

@@ -56,9 +56,9 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_CURSOR:
-			GetScreen()->Trace_Curseur(DrawPanel, &dc);
+			GetScreen()->CursorOff(DrawPanel, &dc);
 			g_CursorShape = m_OptionsToolBar->GetToolState(id);
-			GetScreen()->Trace_Curseur(DrawPanel, &dc);
+			GetScreen()->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_TB_OPTIONS_SHOW_PADS_SKETCH:
@@ -177,7 +177,9 @@ WinEDA_GerberGeneralOptionsFrame::WinEDA_GerberGeneralOptionsFrame(WinEDA_BasePc
 	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 	/* Display Selection affichage des coordonnées polaires */
-wxString list_coord[2] = { _("No Display"), _("Display") };
+wxString list_coord[2] =
+	{ _("No Display"),
+	_("Display") };
 	m_PolarDisplay = new wxRadioBox(this, -1, _("Display Polar Coord"),
 					wxDefaultPosition, wxDefaultSize,
 					2, list_coord, 1);
@@ -185,7 +187,9 @@ wxString list_coord[2] = { _("No Display"), _("Display") };
 	LeftBoxSizer->Add(m_PolarDisplay, 0, wxGROW|wxALL, 5);
 
 	/* Selection choix des unités d'affichage */
-wxString list_units[2] = { _("Inches"), _("millimeters") };
+wxString list_units[2] = {
+	_("Inches"),
+	_("millimeters") };
 	m_BoxUnits = new wxRadioBox(this, -1, _("Units"), wxDefaultPosition, wxDefaultSize,
 					2, list_units, 1);
 	m_BoxUnits->SetSelection( g_UnitMetric ? 1 : 0);

@@ -28,7 +28,6 @@ enum id_libedit {
 /* Routines locales */
 
 /* Variables locales */
-
 extern int CurrentUnit;
 
 /* Classe de la frame des propriétés d'un composant en librairie */
@@ -58,6 +57,67 @@ wxPoint fpos = pos;
 
 }
 
+/***************************************************************************/
+void WinEDA_PartPropertiesFrame::CopyFieldDataToBuffer(LibDrawField * Field)
+/***************************************************************************/
+/* copy the field data (name, attributes, size, position... to corresponding buffers
+for editing
+*/
+{
+int id = Field->m_FieldId;
+
+	m_FieldFlags[id] = (Field->m_Attributs & TEXT_NO_VISIBLE) ? 0 : 1;
+	m_FieldOrient[id] = Field->m_Orient;
+
+	if ( Field->m_HJustify == GR_TEXT_HJUSTIFY_LEFT)
+		m_FieldHJustify[id] = 0;
+	else if ( Field->m_HJustify == GR_TEXT_HJUSTIFY_RIGHT)
+		m_FieldHJustify[id] = 2;
+	else 
+		m_FieldHJustify[id] = 1;
+
+	if ( Field->m_VJustify == GR_TEXT_VJUSTIFY_BOTTOM)
+		m_FieldVJustify[id] = 0;
+	else if ( Field->m_VJustify == GR_TEXT_VJUSTIFY_TOP)
+		m_FieldVJustify[id] = 2;
+	else m_FieldVJustify[id] = 1;
+
+	m_FieldText[id] = Field->m_Text;
+	m_FieldPosition[id] = Field->m_Pos;
+	// Note: the Y axis for components in lib is from bottom to top
+	// and the screen axis is top to bottom: we must change the y coord sign for editing
+	m_FieldPosition[id].y = - m_FieldPosition[id].y;
+	m_FieldSize[id] = Field->m_Size.x;
+}
+
+
+/***************************************************************************/
+void WinEDA_PartPropertiesFrame::CopyBufferToFieldData(LibDrawField * Field)
+/***************************************************************************/
+/* Copy data from buffers(name, attributes, size, position... )to the
+field "Field"
+*/
+{
+int hjustify[3] = {	GR_TEXT_HJUSTIFY_LEFT , GR_TEXT_HJUSTIFY_CENTER,
+	GR_TEXT_HJUSTIFY_RIGHT };
+int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
+	GR_TEXT_VJUSTIFY_TOP };
+int ii = Field->m_FieldId;
+
+	Field->m_Text = m_FieldText[ii];
+	Field->m_Size.x = Field->m_Size.y = m_FieldSize[ii];
+	Field->m_HJustify = hjustify[m_FieldHJustify[ii]];
+	Field->m_VJustify = vjustify[m_FieldVJustify[ii]];
+	if ( m_FieldFlags[ii] )
+		Field->m_Attributs &= ~TEXT_NO_VISIBLE;
+	else
+		Field->m_Attributs |= TEXT_NO_VISIBLE;
+	Field->m_Orient = m_FieldOrient[ii] ? 1 : 0;
+	Field->m_Pos = m_FieldPosition[ii];
+	// Note: the Y axis for components in lib is from bottom to top
+	// and the screen axis is top to bottom: we must change the y coord sign after editing
+	Field->m_Pos.y = - Field->m_Pos.y;
+}
 
 /*****************************************************/
 void WinEDA_PartPropertiesFrame::InitBuffers(void)
@@ -101,40 +161,13 @@ int ii;
 		CurrentAliasName.Empty();
 	}
 
-	m_FieldFlags[REFERENCE] =
-		(CurrentLibEntry->m_Prefix.m_Attributs & TEXT_NO_VISIBLE) ? 0 : 1;
-	m_FieldOrient[REFERENCE] = CurrentLibEntry->m_Prefix.m_Orient;
-	m_FieldText[REFERENCE] = CurrentLibEntry->m_Prefix.m_Text;
-	m_FieldPosition[REFERENCE] = CurrentLibEntry->m_Prefix.m_Pos;
-	m_FieldSize[REFERENCE] = CurrentLibEntry->m_Prefix.m_Size.x;
-	
-	m_FieldFlags[VALUE] =
-		(CurrentLibEntry->m_Name.m_Attributs & TEXT_NO_VISIBLE) ? 0 : 1;
-	m_FieldOrient[VALUE] = CurrentLibEntry->m_Name.m_Orient;
-	m_FieldText[VALUE] = CurrentLibEntry->m_Name.m_Text;
-	m_FieldPosition[VALUE] = CurrentLibEntry->m_Name.m_Pos;
-	m_FieldSize[VALUE] = CurrentLibEntry->m_Name.m_Size.x;
+	CopyFieldDataToBuffer(& CurrentLibEntry->m_Prefix);
+	CopyFieldDataToBuffer(& CurrentLibEntry->m_Name);
 
 	LibDrawField * Field = CurrentLibEntry->Fields;
 	while ( Field )
 	{
-		int id = Field->m_FieldId;
-		m_FieldFlags[id] = (Field->m_Attributs & TEXT_NO_VISIBLE) ? 0 : 1;
-		m_FieldOrient[id] = Field->m_Orient;
-		if ( Field->m_HJustify == GR_TEXT_HJUSTIFY_LEFT)
-			m_FieldHJustify[id] = 0;
-		else if ( Field->m_HJustify == GR_TEXT_HJUSTIFY_RIGHT)
-			m_FieldHJustify[id] = 2;
-		else 
-			m_FieldHJustify[id] = 1;
-		if ( Field->m_VJustify == GR_TEXT_VJUSTIFY_BOTTOM)
-			m_FieldVJustify[id] = 0;
-		else if ( Field->m_VJustify == GR_TEXT_VJUSTIFY_TOP)
-			m_FieldVJustify[id] = 2;
-		else m_FieldVJustify[id] = 1;
-		m_FieldText[id] = Field->m_Text;
-		m_FieldPosition[id] = Field->m_Pos;
-		m_FieldSize[id] = Field->m_Size.x;
+		CopyFieldDataToBuffer(Field);
 		Field = (LibDrawField*)Field->Pnext;
 	}
 }
@@ -430,10 +463,6 @@ void WinEDA_PartPropertiesFrame::PartPropertiesAccept(wxCommandEvent& event)
 */
 {
 int ii, jj;
-int hjustify[3] = {	GR_TEXT_HJUSTIFY_LEFT , GR_TEXT_HJUSTIFY_CENTER,
-	GR_TEXT_HJUSTIFY_RIGHT };
-int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
-	GR_TEXT_VJUSTIFY_TOP };
 	
 	if( CurrentLibEntry == NULL )
 	{
@@ -513,45 +542,25 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 	}
 	
 
-	if ( ! m_FieldText[REFERENCE].IsEmpty() )
+	// Void fields for REFERENCE and VALUE are not allowed
+	if ( m_FieldText[REFERENCE].IsEmpty() )
 	{
-		CurrentLibEntry->m_Prefix.m_Text = m_FieldText[REFERENCE];
+		m_FieldText[REFERENCE] = CurrentLibEntry->m_Prefix.m_Text;
 	}
 
-	if ( ! m_FieldText[VALUE].IsEmpty() )
+	if ( m_FieldText[VALUE].IsEmpty() )
+	{
+		m_FieldText[VALUE] = CurrentLibEntry->m_Name.m_Text;
+	}
+	else
 	{
 		if ( CurrentLibEntry->m_Name.m_Text != m_FieldText[VALUE] )
-		{
 			m_RecreateToolbar = TRUE;
-			CurrentLibEntry->m_Name.m_Text = m_FieldText[VALUE];
-		}
 	}
 
-	CurrentLibEntry->m_Prefix.m_Size.x = 
-		CurrentLibEntry->m_Prefix.m_Size.y = m_FieldSize[REFERENCE];
-	CurrentLibEntry->m_Name.m_Size.x =
-		CurrentLibEntry->m_Name.m_Size.y = m_FieldSize[VALUE];
 
-	CurrentLibEntry->m_Prefix.m_Pos = m_FieldPosition[REFERENCE];
-	CurrentLibEntry->m_Name.m_Pos = m_FieldPosition[VALUE];
-
-	CurrentLibEntry->m_Prefix.m_Orient = m_FieldOrient[REFERENCE] ? 1 : 0;
-	CurrentLibEntry->m_Name.m_Orient = m_FieldOrient[VALUE] ? 1 : 0;
-
-	CurrentLibEntry->m_Prefix.m_HJustify = hjustify[m_FieldHJustify[REFERENCE]];
-	CurrentLibEntry->m_Prefix.m_VJustify = vjustify[m_FieldVJustify[REFERENCE]];
-	CurrentLibEntry->m_Name.m_HJustify = hjustify[m_FieldHJustify[VALUE]];
-	CurrentLibEntry->m_Name.m_VJustify = vjustify[m_FieldVJustify[VALUE]];
-
-	if ( m_FieldFlags[REFERENCE] )
-		CurrentLibEntry->m_Prefix.m_Attributs &= ~TEXT_NO_VISIBLE;
-	else
-		CurrentLibEntry->m_Prefix.m_Attributs |= TEXT_NO_VISIBLE;
-
-	if ( m_FieldFlags[VALUE] )
-		CurrentLibEntry->m_Name.m_Attributs &= ~TEXT_NO_VISIBLE;
-	else
-		CurrentLibEntry->m_Name.m_Attributs |= TEXT_NO_VISIBLE;
+	CopyBufferToFieldData(& CurrentLibEntry->m_Prefix);
+	CopyBufferToFieldData(& CurrentLibEntry->m_Name);
 
 	for ( ii = FOOTPRINT; ii < NUMBER_OF_FIELDS; ii++ )
 	{
@@ -562,16 +571,7 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 			NextField = (LibDrawField*)Field->Pnext;
 			if( Field->m_FieldId == ii )
 			{
-				Field->m_Text = m_FieldText[ii];
-				Field->m_Size.x = Field->m_Size.y = m_FieldSize[ii];
-				Field->m_HJustify = hjustify[m_FieldHJustify[ii]];
-				Field->m_VJustify = vjustify[m_FieldVJustify[ii]];
-				if ( m_FieldFlags[ii] )
-					Field->m_Attributs &= ~TEXT_NO_VISIBLE;
-				else
-					Field->m_Attributs |= TEXT_NO_VISIBLE;
-				Field->m_Orient = m_FieldOrient[ii] ? 1 : 0;
-				Field->m_Pos = m_FieldPosition[ii];
+				CopyBufferToFieldData(Field);
 				if( Field->m_Text.IsEmpty() )	// An old field exists; new is void, delete it
 				{
 					delete Field;
@@ -588,16 +588,7 @@ int vjustify[3] = {	GR_TEXT_VJUSTIFY_BOTTOM , GR_TEXT_VJUSTIFY_CENTER,
 		if ( (Field == NULL) &&	( ! m_FieldText[ii].IsEmpty() ) )
 		{	// Do not exists: must be created
 			Field = new LibDrawField(ii);
-			Field->m_Text = m_FieldText[ii];
-			Field->m_Size.x = Field->m_Size.y = m_FieldSize[ii];
-			if ( m_FieldFlags[Field->m_FieldId] )
-				Field->m_Attributs &= ~TEXT_NO_VISIBLE;
-			else
-				Field->m_Attributs |= TEXT_NO_VISIBLE;
-			Field->m_Orient = m_FieldOrient[Field->m_FieldId] ?1 : 0;
-			Field->m_Pos = m_FieldPosition[Field->m_FieldId];
-			Field->m_HJustify = hjustify[m_FieldHJustify[Field->m_FieldId]];
-			Field->m_VJustify = vjustify[m_FieldVJustify[Field->m_FieldId]];
+			CopyBufferToFieldData(Field);
 			Field->Pnext = CurrentLibEntry->Fields;
 			CurrentLibEntry->Fields = Field;
 		}

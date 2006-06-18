@@ -8,9 +8,9 @@
 #include <wx/treectrl.h>
 
 /* Message de presentation */
-eda_global wxString Main_Title
+eda_global wxString g_Main_Title
 #ifdef MAIN
- = wxT("KiCad (07-jan-2006)")
+ = wxT("KiCad")
 #endif
 ;
 

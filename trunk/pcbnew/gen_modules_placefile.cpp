@@ -133,7 +133,8 @@ FILE * LayerCu = NULL, *LayerCmp = NULL;
 	fputs(Line,LayerCmp);
 	if( GenCu ) fputs(Line,LayerCu);
 
-	sprintf(Line,"### Printed by PcbNew version %s\n", CONV_TO_UTF8(Main_Title) );
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	sprintf(Line,"### Printed by PcbNew version %s\n", CONV_TO_UTF8(Title) );
 	fputs(Line,LayerCmp);
 	if( GenCu ) fputs(Line,LayerCu);
 
@@ -241,7 +242,8 @@ wxPoint module_pos;
 	sprintf(Line,"## Module report - date %s\n", DateAndTime(Buff) );
 	fputs(Line,rptfile);
 
-	sprintf(Line,"## Created by PcbNew version %s\n", CONV_TO_UTF8(Main_Title) );
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	sprintf(Line,"## Created by PcbNew version %s\n", CONV_TO_UTF8(Title) );
 	fputs(Line,rptfile);
 	fputs("## Unit = inches, Angle = deg.\n",rptfile);
 

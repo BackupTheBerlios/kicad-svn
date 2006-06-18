@@ -25,6 +25,7 @@ int WinEDA_CvpcbFrame::SaveComponentList(const wxString & NetlistFullFileName)
 STORECMP * Cmp;
 wxString FullFileName;
 char Line[1024];
+wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
 
 	/* calcul du nom du fichier */
 	FullFileName = NetlistFullFileName;
@@ -34,8 +35,8 @@ char Line[1024];
 	if( dest == NULL ) return(0);	/* Erreur ecriture */
 
 	fprintf(dest,"%s", EnteteCmpMod);
-	fprintf(dest," Genere par %12.12s", CONV_TO_UTF8(Main_Title));
-	fprintf(dest," le %s\n", DateAndTime(Line));
+	fprintf(dest," Created by %s", CONV_TO_UTF8(Title));
+	fprintf(dest," date = %s\n", DateAndTime(Line));
 
 	for ( Cmp = BaseListeCmp ; Cmp != NULL ; Cmp = Cmp->Pnext )
 		{

@@ -285,15 +285,11 @@ int DrawMode = g_XorMode;
 		DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry, 0 , 0,
 			DrawItem, CurrentUnit, DrawMode);
 
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 
 	WinEDA_bodytext_PropertiesFrame * frame =
 			new WinEDA_bodytext_PropertiesFrame(this);
 	frame->ShowModal(); frame->Destroy();
 
-	DrawPanel->MouseToCursorSchema();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
-	
 	m_CurrentScreen->SetModify();
 
 	/* Affichage nouveau texte */

@@ -21,6 +21,33 @@
 #include "wxstruct.h"
 #include "common.h"
 
+/*****************************************/
+void WinEDA_App::ReadPdfBrowserInfos(void)
+/*****************************************/
+/* Read from Common config the Pdf browser choice
+*/
+{
+	if ( m_EDA_CommonConfig )
+	{
+		m_PdfBrowserIsDefault = m_EDA_CommonConfig->Read(wxT("PdfBrowserIsDefault"), TRUE);
+		m_PdfBrowser = m_EDA_CommonConfig->Read(wxT("PdfBrowserName"), wxEmptyString);
+	}
+	if ( m_PdfBrowser.IsEmpty() ) m_PdfBrowserIsDefault = TRUE;
+}
+
+/*****************************************/
+void WinEDA_App::WritePdfBrowserInfos(void)
+/*****************************************/
+/* Write into Common config the Pdf browser choice
+*/
+{
+	if ( ! m_EDA_CommonConfig ) return;
+	if ( m_PdfBrowser.IsEmpty() ) m_PdfBrowserIsDefault = TRUE;
+	m_EDA_CommonConfig->Write(wxT("PdfBrowserIsDefault"), m_PdfBrowserIsDefault);
+	m_EDA_CommonConfig->Write(wxT("PdfBrowserName"), m_PdfBrowser);
+}
+
+
 //  Mime type extensions
 static wxMimeTypesManager * mimeDatabase;
 static const wxFileTypeInfo EDAfallbacks[] =
@@ -60,6 +87,7 @@ bool GetAssociatedDocument(wxFrame * frame, const wxString & LibPath,
 {
 wxString docpath, fullfilename;
 wxString Line;
+wxString command;
 bool success = FALSE;
 
 	/* Compute the full file name */
@@ -100,54 +128,76 @@ bool success = FALSE;
 	}
 		
 	/* Try to launch some browser (usefull under linux) */
-wxFileType * filetype;
-wxFileName CurrentFileName(fullfilename);
-wxString ext, command, type;
-	ext = CurrentFileName.GetExt();
-	filetype = wxTheMimeTypesManager->GetFileTypeFromExtension(ext);
-
-	if ( ! filetype )	// 2ieme tentative
+	EDA_Appl->ReadPdfBrowserInfos();
+	if ( EDA_Appl->m_PdfBrowserIsDefault )
 	{
-        mimeDatabase = new wxMimeTypesManager;
-        mimeDatabase->AddFallbacks(EDAfallbacks);
-		filetype = mimeDatabase->GetFileTypeFromExtension(ext);
-		delete mimeDatabase;
-		mimeDatabase = NULL;
-	}
-
-	if ( filetype )
-	{
-		wxFileType::MessageParameters params(fullfilename, type);
-		success = filetype->GetOpenCommand( &command, params);
-		delete filetype;
-		if ( success ) wxExecute(command);
-	}
-
-	if ( ! success)
-	{
-#ifdef __LINUX__
-		if ( ext == wxT("pdf") )
+	wxFileType * filetype;
+	wxFileName CurrentFileName(fullfilename);
+	wxString ext, type;
+		ext = CurrentFileName.GetExt();
+		filetype = wxTheMimeTypesManager->GetFileTypeFromExtension(ext);
+	
+		if ( ! filetype )	// 2ieme tentative
 		{
-			success = TRUE; command.Empty();
-			if ( wxFileExists( wxT("/usr/bin/xpdf")) )
-				command = wxT("xpdf ") + fullfilename;
-			else if ( wxFileExists( wxT("/usr/bin/konqueror") ))
-				command = wxT("konqueror ") + fullfilename;
-			else if ( wxFileExists( wxT("/usr/bin/gpdf") ))
-				command = wxT("gpdf ") + fullfilename;
-			if ( command.IsEmpty() ) // not started
-			{
-				DisplayError(frame,
-					_(" Cannot find the PDF viewer (xpdf, gpdf or konqueror) in /usr/bin/") );
-				success = FALSE;
-			}
-			else wxExecute(command);
+			mimeDatabase = new wxMimeTypesManager;
+			mimeDatabase->AddFallbacks(EDAfallbacks);
+			filetype = mimeDatabase->GetFileTypeFromExtension(ext);
+			delete mimeDatabase;
+			mimeDatabase = NULL;
 		}
-		else
-#endif
+	
+		if ( filetype )
 		{
-			Line.Printf( _("Unknown MIME type for Doc File [%s] (%s)"),
-				fullfilename.GetData(), ext.GetData());
+			wxFileType::MessageParameters params(fullfilename, type);
+			success = filetype->GetOpenCommand( &command, params);
+			delete filetype;
+			if ( success ) wxExecute(command);
+		}
+	
+		if ( ! success)
+		{
+	#ifdef __LINUX__
+			if ( ext == wxT("pdf") )
+			{
+				success = TRUE; command.Empty();
+				if ( wxFileExists( wxT("/usr/bin/xpdf")) )
+					command = wxT("xpdf ") + fullfilename;
+				else if ( wxFileExists( wxT("/usr/bin/konqueror") ))
+					command = wxT("konqueror ") + fullfilename;
+				else if ( wxFileExists( wxT("/usr/bin/gpdf") ))
+					command = wxT("gpdf ") + fullfilename;
+				if ( command.IsEmpty() ) // not started
+				{
+					DisplayError(frame,
+						_(" Cannot find the PDF viewer (xpdf, gpdf or konqueror) in /usr/bin/") );
+					success = FALSE;
+				}
+				else wxExecute(command);
+			}
+			else
+	#endif
+			{
+				Line.Printf( _("Unknown MIME type for Doc File [%s] (%s)"),
+					fullfilename.GetData(), ext.GetData());
+				DisplayError(frame, Line);
+			}
+		}
+	}
+	
+	else
+	{
+		command = EDA_Appl->m_PdfBrowser;
+		if ( wxFileExists(command) )
+		{
+			success = TRUE;
+			AddDelimiterString(fullfilename);
+			command += wxT(" ") + fullfilename;
+			wxExecute(command);
+		}
+		
+		else
+		{
+			Line.Printf( _("Cannot find Pdf viewer %s"), command.GetData());
 			DisplayError(frame, Line);
 		}
 	}

@@ -1,8 +1,6 @@
 #Configuration for build kicad
 KICAD_BIN = /usr/local/kicad/macosx
 
-
-
 RESCOMP = /Developer/Tools/Rez -d __DARWIN__ -t APPL -d __WXMAC__ -i .
 SETFILE = /Developer/Tools/SetFile
 
@@ -10,25 +8,6 @@ SRCSUFF = .cpp
 OBJSUFF = .o
 FINAL = 1
 
-EXTRALIBS = -framework QuickTime -framework IOKit -framework Carbon\
-	-framework Cocoa -framework System  -lpthread -liconv 
-EXTRALIBS_GUI = -framework WebKit
+LIBS =	../common/common.a `wx-config --libs`
+LIBS3D = ../common/common.a `wx-config --libs std,gl`
 
-# path and version definition for wxWidgets
-OPENGL = -framework OpenGL -framework AGL
-WXPATH = `wx-config --prefix`/lib
-PREFIX_WX_LIBS = lib`wx-config --basename`
-SUFFIX_WX_LIBSTD = `wx-config --utility=`
-SUFFIX_WX_LIBGL = _gl-$(LIBVERSION).a
-
-LIBVERSION=`wx-config --release`
-WXSYSLIB= `wx-config --libs`
-
-
-# attention à l'ordre des librairies
-LIBS =	$(EXTRALIBS) $(EXTRALIBS_GUI) $(WXSYSLIB)\
-	$(WXPATH)/libwxpng-$(LIBVERSION).a\
-	$(WXPATH)/libwxjpeg-$(LIBVERSION).a\
-	$(WXPATH)/libwxzlib-$(LIBVERSION).a
-	
-LIBS3D = $(WXPATH)/$(PREFIX_WX_LIBS)$(SUFFIX_WX_LIBGL) $(OPENGL)

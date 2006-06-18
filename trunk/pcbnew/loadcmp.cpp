@@ -90,14 +90,11 @@ wxString ModuleName, keys;
 static wxArrayString HistoryList;
 bool AllowWildSeach = TRUE;
 
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
-	
 	/* Ask for a component name or key words */
 	ModuleName = GetComponentName(this, HistoryList, _("Module name:"), NULL);
 	ModuleName.MakeUpper();
 	if( ModuleName.IsEmpty() )	/* Cancel command */
 	{
-		DrawPanel->m_IgnoreMouseEvents = FALSE;
 		DrawPanel->MouseToCursorSchema();
 		return NULL;
 	}
@@ -110,7 +107,6 @@ bool AllowWildSeach = TRUE;
 		ModuleName = Select_1_Module_From_List(this, library, wxEmptyString, keys);
 		if( ModuleName.IsEmpty() )	/* Cancel command */
 		{
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			DrawPanel->MouseToCursorSchema();
 			return NULL;
 		}
@@ -122,7 +118,6 @@ bool AllowWildSeach = TRUE;
 		ModuleName = Select_1_Module_From_List(this, library, ModuleName, wxEmptyString);
 		if( ModuleName.IsEmpty() )
 		{
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			DrawPanel->MouseToCursorSchema();
 			return NULL;	/* annulation de commande */
 		}
@@ -138,7 +133,6 @@ bool AllowWildSeach = TRUE;
 		ModuleName = Select_1_Module_From_List(this, library, ModuleName, wxEmptyString);
 		if( ModuleName.IsEmpty() )
 		{
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
 			DrawPanel->MouseToCursorSchema();
 			return NULL;	/* annulation de commande */
 		}
@@ -146,7 +140,6 @@ bool AllowWildSeach = TRUE;
 	}
 
 	m_CurrentScreen->m_Curseur = curspos;
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	DrawPanel->MouseToCursorSchema();
 
 	if( module )

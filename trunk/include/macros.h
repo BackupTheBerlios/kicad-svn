@@ -83,5 +83,11 @@
 		menu->Append(l_item);}
 #endif
 
+#ifdef __WINDOWS__
+#define SETBITMAPS(icon) item->SetBitmaps(apply_xpm, (icon))
+#else
+#define SETBITMAPS(icon)
+#endif
+
 #endif /* ifdef MACRO_H */
 

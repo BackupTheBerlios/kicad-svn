@@ -7,9 +7,8 @@
 #include "gr_basic.h"
 #include "common.h"
 
-
 // Import:
-extern wxString Main_Title;
+extern wxString g_Main_Title;
 
 wxString MsgInfos(
 #ifdef GERBVIEW
@@ -42,11 +41,11 @@ void Affiche_InfosLicence(wxWindow * frame)
 wxString Msg = MsgInfos;
 	Msg << wxT("\n\n") << _("Build Version:") << wxT("\n") ;
 
-	Msg << Main_Title
+	Msg << g_Main_Title << wxT(" ") << GetBuildVersion();
 #if wxUSE_UNICODE
-	<< wxT(" - Unicode version")
+	Msg << wxT(" - Unicode version");
 #endif
-	<< wxT("\n\n") << _("Author:");
+	Msg << wxT("\n\n") << _("Author:");
 	Msg << wxT("JP CHARRAS\n\n") << _("Based on wxWidgets");
 	Msg << _("\n\nGPL License");
 	Msg << _("\n\nWeb sites:\n");

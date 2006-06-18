@@ -50,7 +50,7 @@
 
 
 /* Message de presentation */
-extern wxString Main_Title;
+extern wxString g_Main_Title;
 eda_global wxString g_DefaultSchematicFileName
 #ifdef MAIN
  (wxT("noname.sch"))

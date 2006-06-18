@@ -149,7 +149,7 @@ wxString msg;
 
 		masklayer = PtSegm->ReturnMaskLayer();
 
-		ptr_pad = Fast_Locate_Pad_Connecte(frame->m_Pcb, PtSegm->m_Start.x,PtSegm->m_Start.y, masklayer);
+		ptr_pad = Fast_Locate_Pad_Connecte(frame->m_Pcb, PtSegm->m_Start, masklayer);
 
 		if( ptr_pad != NULL)
 			{
@@ -157,7 +157,7 @@ wxString msg;
 			type_end |= START_SUR_PAD;
 			}
 
-		ptr_pad = Fast_Locate_Pad_Connecte(frame->m_Pcb, PtSegm->m_End.x,PtSegm->m_End.y, masklayer);
+		ptr_pad = Fast_Locate_Pad_Connecte(frame->m_Pcb, PtSegm->m_End, masklayer);
 
 		if( ptr_pad != NULL)
 			{
@@ -489,7 +489,7 @@ int flag = 0;
 	if (extremite == START)
 		{
 		/* Ce ne doit pas etre sur un pad */
-		if(Fast_Locate_Pad_Connecte(Pcb, pt_ref->m_Start.x, pt_ref->m_Start.y,
+		if(Fast_Locate_Pad_Connecte(Pcb, pt_ref->m_Start,
 									g_TabOneLayerMask[pt_ref->m_Layer]))
 			return(NULL);
 
@@ -507,17 +507,17 @@ int flag = 0;
 	else	/* extremite == END */
 		{
 		/* Ce ne doit pas etre sur un pad */
-		if(Fast_Locate_Pad_Connecte(Pcb, pt_ref->m_End.x, pt_ref->m_End.y, g_TabOneLayerMask[pt_ref->m_Layer]))
+		if(Fast_Locate_Pad_Connecte(Pcb, pt_ref->m_End, g_TabOneLayerMask[pt_ref->m_Layer]))
 			return(NULL);
 
-		if( (pt_ref->m_End.x == pt_segm->m_Start.x) && (pt_ref->m_End.y == pt_segm->m_Start.y) )
+		if( pt_ref->m_End == pt_segm->m_Start )
 			{
-			pt_ref->m_End.x = pt_segm->m_End.x; pt_ref->m_End.y = pt_segm->m_End.y;
+			pt_ref->m_End = pt_segm->m_End;
 			return(pt_segm);
 			}
 		else		/* connexion par la fin de pt_segm */
 			{
-			pt_ref->m_End.x = pt_segm->m_Start.x; pt_ref->m_End.y = pt_segm->m_Start.y;
+			pt_ref->m_End = pt_segm->m_Start;
 			return(pt_segm);
 			}
 		}
@@ -680,16 +680,16 @@ wxString msg;
 		for(pt_aux = frame->m_Pcb->m_Track; ; pt_aux = (TRACK*) pt_aux->Pnext)
 			{
 			if (pt_aux == NULL) break;
-			pt_aux = Locate_Pistes(pt_aux,PtSegm->m_Start.x,PtSegm->m_Start.y,masquelayer);
+			pt_aux = Locate_Pistes(pt_aux, PtSegm->m_Start, masquelayer);
 			if (pt_aux == NULL) break;
 			if(pt_aux == PtSegm) continue;
 			if(pt_aux->m_StructType == TYPEVIA) continue;
-			if( (PtSegm->m_Start.x == pt_aux->m_Start.x) && (PtSegm->m_Start.y == pt_aux->m_Start.y)) continue;
-			if( (PtSegm->m_Start.x == pt_aux->m_End.x) && (PtSegm->m_Start.y == pt_aux->m_End.y)) continue;
+			if( PtSegm->m_Start == pt_aux->m_Start ) continue;
+			if( PtSegm->m_Start == pt_aux->m_End ) continue;
 
 			// Test si autre extremite du segment ne serait pas deja connectee
-			if( (PtSegm->m_End.x == pt_aux->m_Start.x) && (PtSegm->m_End.y == pt_aux->m_Start.y)) continue;
-			if( (PtSegm->m_End.x == pt_aux->m_End.x) && (PtSegm->m_End.y == pt_aux->m_End.y)) continue;
+			if( PtSegm->m_End == pt_aux->m_Start ) continue;
+			if( PtSegm->m_End == pt_aux->m_End ) continue;
 
 			pt_aux->Draw(frame->DrawPanel, DC, GR_XOR);
 			NewTrack = pt_aux->Copy();
@@ -698,8 +698,8 @@ wxString msg;
 			frame->m_Pcb->m_NbSegmTrack++;
 			msg.Printf( wxT("%d"),nn);
 			Affiche_1_Parametre(frame,POS_AFF_VAR, wxT("New <"),msg,YELLOW);
-			pt_aux->m_End.x = PtSegm->m_Start.x; pt_aux->m_End.y = PtSegm->m_Start.y;
-			NewTrack->m_Start.x = PtSegm->m_Start.x; NewTrack->m_Start.y = PtSegm->m_Start.y;
+			pt_aux->m_End = PtSegm->m_Start;
+			NewTrack->m_Start = PtSegm->m_Start;
 			Trace_Une_Piste(frame->DrawPanel, DC, pt_aux, 2, GR_OR);
 			pt_aux = NewTrack;
 			}
@@ -707,7 +707,7 @@ wxString msg;
 		/* examen du point de fin du segment de reference */
 		for(pt_aux = frame->m_Pcb->m_Track; pt_aux != NULL; pt_aux = (TRACK*) pt_aux->Pnext)
 			{
-			pt_aux = Locate_Pistes(pt_aux,PtSegm->m_End.x,PtSegm->m_End.y,masquelayer);
+			pt_aux = Locate_Pistes(pt_aux, PtSegm->m_End, masquelayer);
 			if(pt_aux == NULL) break;
 			if(pt_aux == PtSegm) continue;
 			if(pt_aux->m_StructType == TYPEVIA) continue;

@@ -131,7 +131,7 @@ void TEXTE_PCB::Draw(WinEDA_DrawPanel * panel, wxDC * DC,
 {
 int color = g_DesignSettings.m_LayerColor[m_Layer];
 	if(color & ITEM_NOT_SHOW ) return ;
-		
+
 	EDA_TextStruct::Draw(panel, DC, offset, color,
 				DrawMode, DisplayOpt.DisplayDrawItems,
 				(g_AnchorColor & ITEM_NOT_SHOW) ? -1 : (g_AnchorColor & MASKCOLOR));

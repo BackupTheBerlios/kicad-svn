@@ -70,17 +70,13 @@ WinEDA_SelectCmp::WinEDA_SelectCmp(WinEDA_DrawFrame *parent, const wxPoint& fram
 			wxArrayString & HistoryList, const wxString & Title,
 			bool show_extra_tool ):
 		wxDialog(parent, -1, Title, framepos,
-			wxSize(350, 330), DIALOG_STYLE)
+			wxDefaultSize, DIALOG_STYLE)
 /****************************************************************************/
 /* Dialog frame to choose a component or a footprint
 	This dialog shows an history of last selected items
 */
 {
-#define START_Y 10
 wxButton * Button;
-wxPoint pos;
-wxSize size(220, -1);
-wxSize WinSize;
 wxStaticText * Text;
 	
 	m_Parent = parent;
@@ -90,56 +86,58 @@ wxStaticText * Text;
 	SetFont(*g_DialogFont);
 	s_ItemName.Empty();
 	m_Text =  & s_ItemName;
-	pos.x = 5; pos.y = START_Y;
 	
-	Text = new wxStaticText(this, -1, _("Name:"), pos);
-	pos.y = Text->GetRect().GetBottom() + 3;
-	m_TextCtrl = new wxTextCtrl(this, ID_ENTER_NAME, *m_Text, pos, size);
+    wxBoxSizer* MainBoxSizer = new wxBoxSizer(wxHORIZONTAL);
+    SetSizer(MainBoxSizer);
+
+    wxBoxSizer* LeftBoxSizer = new wxBoxSizer(wxVERTICAL);
+    MainBoxSizer->Add(LeftBoxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL|wxADJUST_MINSIZE, 5);
+    wxBoxSizer* RightBoxSizer = new wxBoxSizer(wxVERTICAL);
+    MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+	
+	Text = new wxStaticText(this, -1, _("Name:"));
+    LeftBoxSizer->Add(Text, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
+	
+	m_TextCtrl = new wxTextCtrl(this, ID_ENTER_NAME, *m_Text);
 	m_TextCtrl->SetInsertionPoint(1);
+    LeftBoxSizer->Add(m_TextCtrl, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM|wxADJUST_MINSIZE, 5);
 	
-	pos.y = m_TextCtrl->GetRect().GetBottom() + 10;
-	Text = new wxStaticText(this, -1, _("History list:"), pos);
-	pos.y = Text->GetRect().GetBottom() + 3;
-	m_List = new wxListBox(this, ID_SEL_BY_LISTBOX, pos, 
-		size, HistoryList, wxLB_SINGLE );
+	Text = new wxStaticText(this, -1, _("History list:"));
+    LeftBoxSizer->Add(Text, 0, wxALIGN_LEFT|wxLEFT|wxRIGHT|wxTOP, 5);
+
+	m_List = new wxListBox(this, ID_SEL_BY_LISTBOX, wxDefaultPosition, 
+		wxSize(220, -1), HistoryList, wxLB_SINGLE );
+    LeftBoxSizer->Add(m_List, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM|wxADJUST_MINSIZE, 5);
 	
-	pos.x += size.x + 15; pos.y = START_Y;
-	Button = new wxButton(this, ID_ACCEPT_NAME, _("OK"), pos);
+	Button = new wxButton(this, ID_ACCEPT_NAME, _("OK"));
 	Button->SetForegroundColour(*wxRED);
 	Button->SetDefault();
-	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
+    RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP|wxBOTTOM, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this, ID_ACCEPT_KEYWORD, _("Search KeyWord"), pos);
+	Button = new wxButton(this, ID_ACCEPT_KEYWORD, _("Search KeyWord"));
 	Button->SetForegroundColour(*wxRED);
-	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
+    RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this, ID_CANCEL, _("Cancel"), pos);
+	Button = new wxButton(this, ID_CANCEL, _("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
-	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
+    RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
-	pos.y += Button->GetSize().y + 5;
-	Button = new wxButton(this, ID_LIST_ALL, _("List All"), pos);
+	Button = new wxButton(this, ID_LIST_ALL, _("List All"));
 	Button->SetForegroundColour(wxColor(0, 80, 0));
+	RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
 #ifndef __WXMAC__
 	if ( m_AuxTool )	/* The selection can be done by an extra function */
 	{
-		pos.y += Button->GetSize().y + 5;
-		Button = new wxButton(this, ID_EXTRA_TOOL, _("By Lib Browser"), pos);
+		
+		Button = new wxButton(this, ID_EXTRA_TOOL, _("By Lib Browser"));
 		Button->SetForegroundColour(wxColor(80, 0, 80));
+		RightBoxSizer->Add(Button, 0, wxGROW|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 	}
 #endif	
-	
-	WinSize.x = MAX(WinSize.x, Button->GetRect().GetRight());
-	WinSize.y = MAX(WinSize.y, Button->GetRect().GetBottom());
 
-	WinSize.x += 5;
-	WinSize.y = MAX(WinSize.y, m_List->GetRect().GetBottom()) + 10;
-	
-	SetClientSize(WinSize);
-	
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
 }
 
 /*********************************************************/

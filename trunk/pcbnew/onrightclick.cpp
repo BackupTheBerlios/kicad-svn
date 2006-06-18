@@ -139,7 +139,9 @@ wxString msg;
 int flags = 0;
 bool locate_track = FALSE;
 bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
+wxClientDC dc(DrawPanel);
 
+	GetScreen()->CursorOff(DrawPanel, &dc);
 	DrawPanel->m_CanStartBlock = -1;	// Ne pas engager un debut de bloc sur validation menu
 
 	 // Simple localisation des elements si possible
@@ -201,7 +203,7 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 		}
 	}
 
-	if ( BlockActive ) return;
+	if ( BlockActive ) goto out;
 
 	m_CurrentScreen->m_CurrentItem = DrawStruct;
 
@@ -511,6 +513,8 @@ bool BlockActive = (m_CurrentScreen->BlockLocate.m_Command !=  BLOCK_IDLE);
 			break;
 
 		}
+  out:
+	GetScreen()->CursorOn(DrawPanel, &dc);
 }
 
 

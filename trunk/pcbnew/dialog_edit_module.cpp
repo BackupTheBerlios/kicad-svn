@@ -466,6 +466,8 @@ void WinEDA_ModulePropertiesFrame::ModulePropertiesAccept(wxCommandEvent& event)
 {
 bool change_layer = FALSE;
 
+	if ( m_DC ) m_Parent->GetScreen()->CursorOff(m_Parent->DrawPanel, m_DC);
+
 	if ( m_DC )
 		m_CurrentModule->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_XOR);
 
@@ -554,6 +556,7 @@ bool change_layer = FALSE;
 
 	if ( m_DC )
 		m_CurrentModule->Draw(m_Parent->DrawPanel, m_DC, wxPoint(0,0), GR_OR);
+	if ( m_DC ) m_Parent->GetScreen()->CursorOn(m_Parent->DrawPanel, m_DC);
 }
 
 
@@ -674,7 +677,9 @@ void WinEDA_ModulePropertiesFrame::EditOrDelTextModule(wxCommandEvent& event)
 int ii = m_TextListBox->GetChoice();
 TEXTE_MODULE * Text = NULL;
 
-	if ( ii < 0 ) return;
+	if ( m_DC ) m_Parent->GetScreen()->CursorOff(m_Parent->DrawPanel, m_DC);
+
+	if ( ii < 0 ) goto out;
 
 	if ( ii == 0 ) Text = m_CurrentModule->m_Reference;
 	else if ( ii == 1 ) Text = m_CurrentModule->m_Value;
@@ -702,8 +707,8 @@ TEXTE_MODULE * Text = NULL;
 		{
 			wxString Line;
 			Line.Printf( _("Delete [%s]"), Text->m_Text.GetData() );
-			if ( ii < 2 ) { wxBell(); return; }		// Ref ou Value non effacables
-			if ( !IsOK(this, Line ) ) return;
+			if ( ii < 2 ) { wxBell(); goto out; }		// Ref ou Value non effacables
+			if ( !IsOK(this, Line ) ) goto out;
 			m_Parent->DeleteTextModule(Text, m_DC);
 			ReCreateFieldListBox();
 			m_TextListBox->SetSelection(0);
@@ -715,4 +720,7 @@ TEXTE_MODULE * Text = NULL;
 			m_TextListBox->SetSelection(ii);
 			}
 		}
+
+  out:
+	if ( m_DC ) m_Parent->GetScreen()->CursorOn(m_Parent->DrawPanel, m_DC);
 }

@@ -45,8 +45,8 @@ static void DeplaceSheet(WinEDA_DrawPanel * panel, wxDC * DC, bool erase);
 /* Variables locales, communes a sheetlab.cpp */
 
 /* Variables locales */
-static int SheetMindx, SheetMindy;
-static wxPoint OldPos;	/* Ancienne pos pour annulation ReSize ou move */
+static int s_SheetMindx, s_SheetMindy;
+static wxPoint s_OldPos;	/* Ancienne pos pour annulation ReSize ou move */
 
 
 #include "sheet.h"
@@ -290,11 +290,12 @@ bool edit = TRUE;
 	/* Demande du nouveau texte */
 	RedrawOneStruct(DrawPanel, DC, Sheet, g_XorMode);
 
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
+    DrawPanel->m_IgnoreMouseEvents = TRUE;
 	frame = new WinEDA_SheetPropertiesFrame(this, Sheet);
 	edit = frame->ShowModal(); frame->Destroy();
-	DrawPanel->MouseToCursorSchema();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
+    DrawPanel->MouseToCursorSchema();
+    DrawPanel->m_IgnoreMouseEvents = FALSE;
+	
 	if ( edit )
 		{
 		/* Correction du nom fichier dans la structure SCREEN correspondante */
@@ -310,6 +311,8 @@ bool edit = TRUE;
 }
 
 
+#define SHEET_MIN_WIDTH  500
+#define SHEET_MIN_HEIGHT 150
 /****************************************************************/
 DrawSheetStruct * WinEDA_SchematicFrame::CreateSheet(wxDC * DC)
 /****************************************************************/
@@ -322,7 +325,8 @@ DrawSheetStruct * WinEDA_SchematicFrame::CreateSheet(wxDC * DC)
 	Sheet->m_Flags = IS_NEW | IS_RESIZED;
 	Sheet->m_TimeStamp = GetTimeStamp();
 	Sheet->m_Parent = m_CurrentScreen;
-	SheetMindx = SheetMindy = 0;
+	s_SheetMindx =  SHEET_MIN_WIDTH;
+	s_SheetMindy = SHEET_MIN_HEIGHT;
 
 	m_CurrentScreen->m_CurrentItem = Sheet;
 
@@ -354,19 +358,20 @@ DrawSheetLabelStruct* sheetlabel;
 	Sheet->m_Flags |= IS_RESIZED;
 
 	/* sauvegarde des anciennes valeurs */
-	OldPos.x = Sheet->m_End.x;
-	OldPos.y = Sheet->m_End.y;
+	s_OldPos.x = Sheet->m_End.x;
+	s_OldPos.y = Sheet->m_End.y;
 
 	/* Recalcul des dims min de la sheet */
-	SheetMindx = SheetMindy = 0;
+	s_SheetMindx =  SHEET_MIN_WIDTH;
+	s_SheetMindy = SHEET_MIN_HEIGHT;
 	sheetlabel = Sheet->m_Label;
 	while(sheetlabel)
-		{
-		SheetMindx = MAX(SheetMindx,
+	{
+		s_SheetMindx = MAX(s_SheetMindx,
 					(int)((sheetlabel->GetLength()+1) * sheetlabel->m_Size.x) );
-		SheetMindy = MAX(SheetMindy,sheetlabel->m_Pos.y - Sheet->m_Pos.y);
+		s_SheetMindy = MAX(s_SheetMindy,sheetlabel->m_Pos.y - Sheet->m_Pos.y);
 		sheetlabel = (DrawSheetLabelStruct *) sheetlabel->Pnext;
-		}
+	}
 	m_CurrentScreen->ManageCurseur = DeplaceSheet ;
 	m_CurrentScreen->ForceCloseManageCurseur = ExitSheet;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC, TRUE);
@@ -380,11 +385,17 @@ void WinEDA_SchematicFrame::StartMoveSheet(DrawSheetStruct* Sheet, wxDC * DC)
 	if ( (Sheet == NULL) || ( Sheet->m_StructType != DRAW_SHEET_STRUCT_TYPE)  )
 		return;
 
-	OldPos = Sheet->m_Pos;
+ 	m_CurrentScreen->CursorOff(DrawPanel, DC);
+ 	m_CurrentScreen->m_Curseur = Sheet->m_Pos;
+ 	DrawPanel->MouseToCursorSchema();
+ 
+	s_OldPos = Sheet->m_Pos;
 	Sheet->m_Flags |= IS_MOVED;
 	m_CurrentScreen->ManageCurseur = DeplaceSheet ;
 	m_CurrentScreen->ForceCloseManageCurseur = ExitSheet;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC, TRUE);
+ 
+ 	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 /********************************************************/
@@ -406,9 +417,9 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 
 	if( Sheet->m_Flags & IS_RESIZED)
 		{
-		Sheet->m_End.x = MAX(SheetMindx,
+		Sheet->m_End.x = MAX(s_SheetMindx,
 							screen->m_Curseur.x	- Sheet->m_Pos.x);
-		Sheet->m_End.y = MAX(SheetMindy,
+		Sheet->m_End.y = MAX(s_SheetMindy,
 							screen->m_Curseur.y	- Sheet->m_Pos.y);
 		SheetLabel = Sheet->m_Label;
 		while(SheetLabel)
@@ -488,7 +499,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 	else if ( Sheet->m_Flags & IS_RESIZED )/* resize en cours: on l'annule */
 		{
 		RedrawOneStruct(frame->DrawPanel, DC, Sheet, g_XorMode);
-		Sheet->m_End = OldPos;
+		Sheet->m_End = s_OldPos;
 		RedrawOneStruct(frame->DrawPanel, DC, Sheet, GR_DEFAULT_DRAWMODE);
 		Sheet->m_Flags = 0;
 		}
@@ -496,7 +507,7 @@ DrawSheetStruct * Sheet = (DrawSheetStruct *)
 	else if ( Sheet->m_Flags & IS_MOVED )/* move en cours: on l'annule */
 		{
 		wxPoint curspos = frame->m_CurrentScreen->m_Curseur;
-		frame->m_CurrentScreen->m_Curseur = OldPos;
+		frame->m_CurrentScreen->m_Curseur = s_OldPos;
 		DeplaceSheet(frame->DrawPanel, DC, TRUE);
 		RedrawOneStruct(frame->DrawPanel, DC, Sheet, GR_DEFAULT_DRAWMODE);
 		Sheet->m_Flags = 0;

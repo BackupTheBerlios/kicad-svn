@@ -28,7 +28,7 @@ EDACPPFLAGS = $(CPPFLAGS)
 
 
 $(TARGET): $(OBJECTS) $(TARGET).r makefile.macosx makefile.include $(EXTRALIBS) ../libs.macosx $(LIBVIEWER3D)
-	$(LD) $(OBJECTS) $(LDFLAGS)  $(LIBS)  $(LIBVIEWER3D)  $(LIBS3D) -o $(TARGET)
+	$(LD) $(OBJECTS) $(LDFLAGS)  $(LIBVIEWER3D) $(LIBS3D) -o $(TARGET)
 	$(RESCOMP) -o $(TARGET) Carbon.r $(TARGET).r
 	$(SETFILE) -a C $(TARGET)
 

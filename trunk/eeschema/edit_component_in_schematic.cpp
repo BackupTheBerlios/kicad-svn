@@ -54,6 +54,8 @@ void InstallCmpeditFrame(WinEDA_SchematicFrame * parent, wxPoint & pos,
 			new WinEDA_ComponentPropertiesFrame(parent, cmp);
 		frame->ShowModal(); frame->Destroy();
 	}
+	
+	parent->DrawPanel->MouseToCursorSchema();
 	parent->DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
@@ -85,6 +87,9 @@ int ii;
 		m_FieldFlags[ii] =
 			(m_Cmp->m_Field[ii].m_Attributs & TEXT_NO_VISIBLE) ? 0 : 1;
 		m_FieldOrient[ii] = m_Cmp->m_Field[ii].m_Orient;
+
+		if ( m_Cmp->m_Field[ii].m_Text.IsEmpty() ) continue;
+		// These values have meaning only if this field is not void:
 		m_FieldPosition[ii] = m_Cmp->m_Field[ii].m_Pos;
 		m_FieldPosition[ii].x -= m_Cmp->m_Pos.x;
 		m_FieldPosition[ii].y -= m_Cmp->m_Pos.y;
@@ -104,16 +109,25 @@ int fieldId = m_CurrentFieldId;
 	if ( fieldId == VALUE && m_LibEntry && m_LibEntry->m_Options == ENTRY_POWER )
 		m_FieldTextCtrl->Enable(FALSE);
 
-	if ( m_FieldFlags[fieldId] )
-		m_ShowFieldTextCtrl->SetValue(TRUE);
+	if ( m_FieldFlags[fieldId] ) 
+		
+	m_ShowFieldTextCtrl->SetValue(TRUE);
 	else m_ShowFieldTextCtrl->SetValue(FALSE);
 
-	if ( m_FieldOrient[fieldId] ) m_VorientFieldText->SetValue(TRUE);
-	else  m_VorientFieldText->SetValue(FALSE);
-		
-	DrawPartStruct::ReturnFieldName(fieldId);
-
-	m_FieldPositionCtrl->SetValue(m_FieldPosition[fieldId].x, m_FieldPosition[fieldId].y );
+	// If the field value is empty and the position is zero, we set the
+	// initial position as a small offset from the ref field, and orient
+	// it the same as the ref field.  That is likely to put it at least
+	// close to the desired position.
+	if ( (m_FieldPosition[fieldId] == wxPoint(0,0)) &&
+         m_FieldText[fieldId].IsEmpty()) {
+         m_VorientFieldText->SetValue(m_FieldOrient[REFERENCE] != 0);
+         m_FieldPositionCtrl->SetValue(m_FieldPosition[REFERENCE].x + 100,
+						m_FieldPosition[REFERENCE].y + 100 );
+	}
+	else {
+         m_FieldPositionCtrl->SetValue(m_FieldPosition[fieldId].x, m_FieldPosition[fieldId].y );
+         m_VorientFieldText->SetValue(m_FieldOrient[fieldId] != 0);
+	}
 
 	wxString msg = _("Current field: ") + DrawPartStruct::ReturnFieldName(fieldId);
 	m_FieldTextCtrl->SetTitle( msg );
@@ -181,15 +195,18 @@ void WinEDA_ComponentPropertiesFrame::BuildPanelBasic(void)
 /* create the basic panel for component properties editing
 */
 {
-#define NB_MAX_UNIT 16
+int Nb_Max_Unit = m_SelectUnit->GetCount();
 int ii;
 	
 int nb_units = m_LibEntry ? MAX(m_LibEntry->m_UnitCount, 1) : 0;
-	for ( ii = nb_units; ii < NB_MAX_UNIT; ii++ )
+	
+	// Disable non existant units selection buttons
+	for ( ii = nb_units; ii < Nb_Max_Unit; ii++ )
 	{
-		m_SelectUnit->Enable(ii, FALSE);	// Disable non existant units
+		m_SelectUnit->Enable(ii, FALSE);
 	}
-	m_SelectUnit->SetSelection(m_Cmp->m_Multi -1);
+	if ( m_Cmp->m_Multi <= Nb_Max_Unit )
+		m_SelectUnit->SetSelection(m_Cmp->m_Multi -1);
 
 	ii = m_Cmp->GetRotationMiroir()  & ~(CMP_MIROIR_X|CMP_MIROIR_Y);
 
@@ -364,6 +381,30 @@ EDA_LibComponentStruct *Entry;
 		return;
 		}
 
+#define TRF ((EDA_SchComponentStruct*)CurrentField->m_Parent)->m_Transform
+ wxPoint pos, newpos;
+ int x1, y1;
+ 
+	pos = ((EDA_SchComponentStruct*)CurrentField->m_Parent)->m_Pos;
+ 
+ 	/* Les positions sont caculees par la matrice TRANSPOSEE de la matrice
+ 		de rotation-miroir */
+ 	x1 = Field->m_Pos.x - pos.x;
+ 	y1 = Field->m_Pos.y - pos.y;
+         // Empirically this is necessary.  The Y coordinate appears to be inverted
+         // under some circumstances, but that inversion is not preserved by all
+         // combinations of mirroring and rotation.  The following clause is true
+         // when the number of rotations and the number of mirrorings are both odd.
+         if (TRF[1][0] * TRF[0][1] < 0) {
+ 		y1 = -y1;
+ 	}
+ 	newpos.x = pos.x + TRF[0][0] * x1 + TRF[1][0] * y1;
+ 	newpos.y = pos.y + TRF[0][1] * x1 + TRF[1][1] * y1;
+ 
+ 	m_CurrentScreen->CursorOff(DrawPanel, DC);
+ 	m_CurrentScreen->m_Curseur = newpos;
+ 	DrawPanel->MouseToCursorSchema();
+ 
 	OldPos = Field->m_Pos;
 	Multiflag = 0;
 	if( Field->m_FieldId == REFERENCE )
@@ -379,13 +420,15 @@ EDA_LibComponentStruct *Entry;
 	m_CurrentScreen->ForceCloseManageCurseur = AbortMoveCmpField;
 	m_CurrentScreen->ManageCurseur = MoveCmpField;
 	Field->m_Flags = IS_MOVED;
+ 
+ 	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 
 /**********************************************************************************/
 void WinEDA_SchematicFrame::EditCmpFieldText(PartTextStruct * Field, wxDC *DC)
 /**********************************************************************************/
-/* Routine de changement du texte selectionne */
+/* Edit the field Field (text, size)  */
 {
 int FieldNumber, flag;
 EDA_LibComponentStruct *Entry;
@@ -422,7 +465,10 @@ EDA_LibComponentStruct *Entry;
 
 
 	wxString newtext = Field->m_Text;
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	Get_Message(DrawPartStruct::ReturnFieldName(FieldNumber), newtext, this);
+	DrawPanel->MouseToCursorSchema();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 
 	DrawTextField(DrawPanel, DC, Field, flag, g_XorMode);
 
@@ -465,7 +511,7 @@ static void MoveCmpField(WinEDA_DrawPanel * panel, wxDC * DC, bool erase)
 	Celle routine est normalement attachee au deplacement du curseur
 */
 {
-#define TRF ((EDA_SchComponentStruct*)CurrentField->m_Parent)->m_Transform
+//#define TRF ((EDA_SchComponentStruct*)CurrentField->m_Parent)->m_Transform
 wxPoint pos;
 int x1, y1;
 int FieldNumber;

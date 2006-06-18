@@ -111,6 +111,8 @@ int ii;
 		return(DrawStruct);
 	}
 
+	// Cross probing: Send a command to pcbnew via a socket link, service 4242
+	// Cross probing:1- look for a component, and send a locate footprint command to pcbnew
 	DrawStruct = PickStruct(GetScreen()->m_Curseur, GetScreen()->EEDrawList,
 			FIELDCMPITEM);
 	if( DrawStruct )
@@ -125,7 +127,7 @@ int ii;
 		return(DrawStruct);
 		}
 
-	/* Recherche d'une pin */
+	/* search for a pin */
 	Pin = LocateAnyPin(m_CurrentScreen->EEDrawList,m_CurrentScreen->m_Curseur, &LibItem);
 	if( Pin )
 	{
@@ -136,7 +138,7 @@ int ii;
 					LibItem->m_Field[VALUE].m_Text,
 					CYAN);
 
-		/* envoi id pin a pcbnew */
+		// Cross probing:2 - pin found, and send a locate pin command to pcbnew (hightlight net)
 		if(Pin->m_PinNum)
 		{
 			wxString pinnum;
@@ -228,6 +230,10 @@ int hotkey = 0;
 			m_CurrentScreen->m_O_Curseur = m_CurrentScreen->m_Curseur;
 			break;
 
+		case '\t':    // Switch to drag mode, when block moving
+			((WinEDA_SchematicFrame*)this)->HandleBlockEndByPopUp(BLOCK_DRAG, DC);
+			break;
+
 		case WXK_NUMPAD8  :	/* Deplacement curseur vers le haut */
 		case WXK_UP	:
 			Mouse.y -= delta.y;
@@ -299,9 +305,9 @@ int hotkey = 0;
 	{
 		curpos = m_CurrentScreen->m_Curseur;
 		m_CurrentScreen->m_Curseur = oldpos;
-		m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+		m_CurrentScreen->CursorOff(DrawPanel, DC);
 		m_CurrentScreen->m_Curseur = curpos;
-		m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+		m_CurrentScreen->CursorOn(DrawPanel, DC);
 
 		if(m_CurrentScreen->ManageCurseur)
 		{

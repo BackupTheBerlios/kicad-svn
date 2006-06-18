@@ -249,10 +249,10 @@ wxPoint curpos, oldpos;
 			{
 			curpos = m_CurrentScreen->m_Curseur;
 			m_CurrentScreen->m_Curseur = oldpos;
-			m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+			m_CurrentScreen->CursorOff(DrawPanel, DC);
 
 			m_CurrentScreen->m_Curseur = curpos;
-			m_CurrentScreen->Trace_Curseur(DrawPanel, DC);
+			m_CurrentScreen->CursorOn(DrawPanel, DC);
 			}
 
 		if(m_CurrentScreen->ManageCurseur)

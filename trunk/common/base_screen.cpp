@@ -9,22 +9,6 @@
 #include "fctsys.h"
 #include "common.h"
 
-#ifdef PCBNEW
-#include "pcbnew.h"
-#endif
-
-#ifdef EESCHEMA
-#include "program.h"
-#include "libcmp.h"
-#include "general.h"
-#endif
-
-#ifdef CVPCB
-#include "pcbnew.h"
-#include "cvpcb.h"
-#endif
-
-#include "id.h"
 
 /* defines locaux */
 #define CURSOR_SIZE 12	/* taille de la croix du curseur PCB */
@@ -416,6 +400,10 @@ void BASE_SCREEN::Trace_Curseur(WinEDA_DrawPanel * panel, wxDC * DC)
 */
 {
 int color = WHITE;
+
+	if (panel->m_CursorLevel != 0) {
+		return;
+	}
 	
 	GRSetDrawMode(DC, GR_XOR);
 	if( g_CursorShape == 1 )	/* Trace d'un reticule */
@@ -437,6 +425,32 @@ int color = WHITE;
 				m_Curseur.x, m_Curseur.y + len, color);
 		}
 }
+
+/*******************************************************************/
+void BASE_SCREEN::CursorOff(WinEDA_DrawPanel * panel, wxDC * DC)
+/*******************************************************************/
+/*
+ Remove the grid cursor from the display in preparation for other drawing operations
+*/
+{
+	Trace_Curseur(panel, DC);
+	--panel->m_CursorLevel;
+}
+
+/*******************************************************************/
+void BASE_SCREEN::CursorOn(WinEDA_DrawPanel * panel, wxDC * DC)
+/*******************************************************************/
+/*
+ Display the grid cursor
+*/
+{
+	++panel->m_CursorLevel;
+	Trace_Curseur(panel, DC);
+
+	if (panel->m_CursorLevel > 0)     // Shouldn't happen, but just in case ..
+		panel->m_CursorLevel = 0;
+}
+
 
 
 /*****************************************/

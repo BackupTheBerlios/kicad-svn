@@ -102,7 +102,7 @@ eda_global int g_TabAllCopperLayerMask[NB_COPPER_LAYERS]
 
 /* variables */
 
-extern wxString Main_Title;
+extern wxString g_Main_Title;
 
 eda_global bool Drc_On
 #ifdef MAIN
@@ -234,6 +234,18 @@ eda_global int g_MaxLinksShowed;		// determine le nombre max de links affichés
 eda_global bool g_TwoSegmentTrackBuild	// FALSE = 1 segment build, TRUE = 2 45 deg segm build
 #ifdef MAIN
 = TRUE
+#endif
+;
+
+/* How to handle magentic pad: feature to move the pcb cursor on a pad center */
+enum MagneticPadOptionValues {
+	no_effect,
+	capture_cursor_in_track_tool,
+	capture_always
+};
+eda_global int g_MagneticPadOption
+#ifdef MAIN
+= capture_cursor_in_track_tool
 #endif
 ;
 eda_global bool g_HightLigt_Status;

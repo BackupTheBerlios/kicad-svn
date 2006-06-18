@@ -25,7 +25,7 @@ void WinEDA_MainFrame::Load_Prj_Config(void)
 	}
 
 	wxSetWorkingDirectory(wxPathOnly(m_PrjFileName) );
-	SetTitle(Main_Title + wxT(" ") + m_PrjFileName);
+	SetTitle(g_Main_Title + wxT(" ") + GetBuildVersion() + wxT(" ") + m_PrjFileName);
 	ReCreateMenuBar();
 	m_LeftWin->ReCreateTreePrj();
 

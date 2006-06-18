@@ -23,6 +23,9 @@
 /**********************************/
 void RemoteCommand(char * cmdline)
 /**********************************/
+/* Read a remote command send by eeschema via a socket,
+	port KICAD_PCB_PORT_SERVICE_NUMBER (currently 4242)
+*/
 {
 char Line[1024];
 wxString msg;
@@ -34,7 +37,9 @@ WinEDA_PcbFrame * frame = EDA_Appl->m_PcbFrame;
 
 	idcmd = strtok(Line," \n\r");
 	text = strtok(NULL," \n\r");
-	if( strcmp(idcmd,"$PART:") == 0)
+	if ( (idcmd == NULL) || (text == NULL) ) return;
+
+	if( strcmp(idcmd,"$PART:") == 0 )
 	{
 		MODULE * Module;
 		msg = CONV_FROM_UTF8(text);
@@ -45,13 +50,13 @@ WinEDA_PcbFrame * frame = EDA_Appl->m_PcbFrame;
 		{
 	wxClientDC dc(frame->DrawPanel);
 			frame->DrawPanel->PrepareGraphicContext(&dc);
-			frame->GetScreen()->Trace_Curseur(frame->DrawPanel, &dc);
+			frame->GetScreen()->CursorOff(frame->DrawPanel, &dc);
 			frame->GetScreen()->m_Curseur = Module->m_Pos;
-			frame->GetScreen()->Trace_Curseur(frame->DrawPanel, &dc);
+			frame->GetScreen()->CursorOn(frame->DrawPanel, &dc);
 		}
 	}
 
-	if( strcmp(idcmd,"$PIN:") == 0)
+	if(idcmd && strcmp(idcmd,"$PIN:") == 0)
 	{
 		wxString PinName, ModName;
 		MODULE * Module;
@@ -59,7 +64,7 @@ WinEDA_PcbFrame * frame = EDA_Appl->m_PcbFrame;
 		int netcode = -1;
 		PinName = CONV_FROM_UTF8(text);
 		text = strtok(NULL," \n\r");
-		if( strcmp(text, "$PART:") == 0 ) text = strtok(NULL,"\n\r");
+		if(text && strcmp(text, "$PART:") == 0 ) text = strtok(NULL,"\n\r");
 
 wxClientDC dc(frame->DrawPanel);
 	frame->DrawPanel->PrepareGraphicContext(&dc);
@@ -74,9 +79,9 @@ wxClientDC dc(frame->DrawPanel);
 			if(g_HightLigt_Status) frame->Hight_Light(&dc);
 			g_HightLigth_NetCode = netcode;
 			frame->Hight_Light(&dc);
-			frame->GetScreen()->Trace_Curseur(frame->DrawPanel, &dc);
+			frame->GetScreen()->CursorOff(frame->DrawPanel, &dc);
 			frame->GetScreen()->m_Curseur = Pad->m_Pos;
-			frame->GetScreen()->Trace_Curseur(frame->DrawPanel, &dc);
+			frame->GetScreen()->CursorOn(frame->DrawPanel, &dc);
 			}
 
 		if ( Module == NULL )
@@ -110,10 +115,10 @@ int hotkey = 0;
 
 	ActiveScreen = GetScreen();
 
-	// Sauvegarde du board si necessaire:
+	// Save the board after the time out :
 int CurrentTime = time(NULL);
 	if( !GetScreen()->IsModify() || GetScreen()->IsSave() )
-	{		/* Sauvegarde inutile */
+	{		/* If no change, reset the time out */
 		g_SaveTime = CurrentTime;
 	}
 
@@ -164,7 +169,6 @@ int CurrentTime = time(NULL);
 			GetScreen()->m_Active_Layer = ll;
 			if ( DisplayOpt.ContrastModeDisplay ) DrawPanel->Refresh(TRUE);
 			break ;
-
 		case WXK_NUMPAD0 :
 		case WXK_PRIOR :
 			if ( GetScreen()->m_Active_Layer != CMP_N )
@@ -203,12 +207,12 @@ int CurrentTime = time(NULL);
 
 		case WXK_F1 :
 			OnZoom(ID_ZOOM_PLUS_KEY);
-			curpos = GetScreen()->m_Curseur;
+			oldpos = curpos = GetScreen()->m_Curseur;
 			break;
 
 		case WXK_F2 :
 			OnZoom(ID_ZOOM_MOINS_KEY);
-			curpos = GetScreen()->m_Curseur;
+			oldpos = curpos = GetScreen()->m_Curseur;
 			break;
 
 		case WXK_F3 :
@@ -217,7 +221,7 @@ int CurrentTime = time(NULL);
 
 		case WXK_F4 :
 			OnZoom(ID_ZOOM_CENTER_KEY);
-			curpos = GetScreen()->m_Curseur;
+			oldpos = curpos = GetScreen()->m_Curseur;
 			break;
 
 		case WXK_F5 :	/* unused */
@@ -250,31 +254,54 @@ int CurrentTime = time(NULL);
 		default: hotkey = g_KeyPressed;
 			break;
 		}
-	/* Recalcul de la position du curseur schema */
+
+		/* Recalcul de la position du curseur schema */
 	GetScreen()->m_Curseur = curpos;
-	/* Placement sur la grille generale */
-	PutOnGrid( & GetScreen()->m_Curseur);
 
-	if( GetScreen()->IsRefreshReq() )
-		{
-		RedrawActiveWindow(DC, TRUE);
-		}
+	/* Put cursor on grid or a pad centre if requested */
+	D_PAD * pad;
+	switch ( g_MagneticPadOption )
+	{
+		case capture_cursor_in_track_tool:
+		case capture_always:
+			pad = Locate_Any_Pad(m_Pcb,CURSEUR_OFF_GRILLE, TRUE);
+			if ( (m_ID_current_state != ID_TRACK_BUTT ) &&
+				 (g_MagneticPadOption == capture_cursor_in_track_tool) )
+				pad = NULL;
+			if (pad)	// Put cursor on the pad
+				GetScreen()->m_Curseur = curpos = pad->m_Pos;
+			else { /* Put On Grid */
+				PutOnGrid( & GetScreen()->m_Curseur);
+			}
+			break;
 
-	if ( (oldpos.x != GetScreen()->m_Curseur.x) ||
-		 (oldpos.y != GetScreen()->m_Curseur.y) )
-		{
+		case no_effect: /* Always Put cursor On Grid */
+		default:
+			PutOnGrid( & GetScreen()->m_Curseur);
+			break;
+	}
+	
+
+
+	if ( oldpos != GetScreen()->m_Curseur )
+	{
 		curpos = GetScreen()->m_Curseur;
 		GetScreen()->m_Curseur = oldpos;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);
+		GetScreen()->CursorOff(DrawPanel, DC);
 
 		GetScreen()->m_Curseur = curpos;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);
+		GetScreen()->CursorOn(DrawPanel, DC);
 
 		if(GetScreen()->ManageCurseur)
-			{
+		{
 			GetScreen()->ManageCurseur(DrawPanel, DC, TRUE);
-			}
 		}
+	}
+
+	if( GetScreen()->IsRefreshReq() )
+	{
+		RedrawActiveWindow(DC, TRUE);
+	}
 
 	SetToolbars();
 	Affiche_Status_Box();	 /* Affichage des coord curseur */

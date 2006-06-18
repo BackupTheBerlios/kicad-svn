@@ -142,10 +142,10 @@ eda_global int ref_D_CODE [MAX_D_CODE+1]
 class D_CODE
 {
 public:
-	int dx, dy ;	/* Dimensions horiz et Vert */
-	int type ;		/* Type ( Line, rect , circulaire , ovale .. ) */
-	int num_dcode;  /* numero de code ( >= 10 ) */
-	int drill ;		/* diametre de percage (non utilise ici) */
+	int m_Dx, m_Dy ;	/* Dimensions horiz et Vert */
+	int m_Type ;		/* Type ( Line, rect , circulaire , ovale .. ); -1 = not used (free) descr */
+	int m_NumDcode;  /* numero de code ( >= 10 ) */
+	int m_Drill ;		/* diametre de percage (non utilise ici) */
 } ;
 
 

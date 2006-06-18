@@ -32,6 +32,7 @@ void WinEDA_ModuleEditFrame::OnSelectOptionToolbar(wxCommandEvent& event)
 int id = event.GetId();
 wxClientDC dc(DrawPanel);
 
+	GetScreen()->CursorOff(DrawPanel, &dc);
 	DrawPanel->PrepareGraphicContext(&dc);
 	switch ( id )
 		{
@@ -56,9 +57,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_CURSOR:
-			GetScreen()->Trace_Curseur(DrawPanel, &dc);
 			g_CursorShape = m_OptionsToolBar->GetToolState(id);
-			GetScreen()->Trace_Curseur(DrawPanel, &dc);
 			break;
 
 		case ID_TB_OPTIONS_SHOW_PADS_SKETCH:
@@ -84,5 +83,6 @@ wxClientDC dc(DrawPanel);
 		}
 
 	SetToolbars();
+	GetScreen()->CursorOn(DrawPanel, &dc);
 }
 

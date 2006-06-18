@@ -30,16 +30,22 @@
 ////@begin XPM images
 ////@end XPM images
 
-/**************************************************************************/
-void InstallPineditFrame(WinEDA_LibeditFrame * parent, const wxPoint & pos)
-/**************************************************************************/
+/*****************************************************************************************/
+void InstallPineditFrame(WinEDA_LibeditFrame * parent, wxDC * DC, const wxPoint & pos)
+/*****************************************************************************************/
 {
 wxPoint MousePos = parent->GetScreen()->m_Curseur;
-	
+int accept = TRUE;	
 	if ( (CurrentDrawItem == NULL) || (CurrentDrawItem->m_StructType == COMPONENT_PIN_DRAW_TYPE) )
 	{
+		LibDrawPin * Pin = (LibDrawPin *) CurrentDrawItem;
 		WinEDA_PinPropertiesFrame * frame = new WinEDA_PinPropertiesFrame(parent);
-		frame->ShowModal(); frame->Destroy();
+		accept = frame->ShowModal(); frame->Destroy();
+		if ( !accept && Pin && ( Pin->m_Flags & IS_NEW ) )	// Abord create new pin
+		{
+			if ( parent->GetScreen()->ForceCloseManageCurseur && DC)
+				parent->GetScreen()->ForceCloseManageCurseur(parent, DC);
+		}
 	}
 	else DisplayError(parent, wxT("Error: Not a Pin!") );
 	parent->GetScreen()->m_Curseur = MousePos;
@@ -371,7 +377,7 @@ wxIcon WinEDA_PinPropertiesFrame::GetIconResource( const wxString& name )
 void WinEDA_PinPropertiesFrame::OnOkClick( wxCommandEvent& event )
 {
 	PinPropertiesAccept(event);
-	Close();
+	EndModal(1);
 }
 
 /*!
@@ -380,10 +386,7 @@ void WinEDA_PinPropertiesFrame::OnOkClick( wxCommandEvent& event )
 
 void WinEDA_PinPropertiesFrame::OnCancelClick( wxCommandEvent& event )
 {
-////@begin wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_PinPropertiesFrame.
-    // Before editing this code, remove the block markers.
-    event.Skip();
-////@end wxEVT_COMMAND_BUTTON_CLICKED event handler for wxID_CANCEL in WinEDA_PinPropertiesFrame. 
+	EndModal(0);
 }
 
 

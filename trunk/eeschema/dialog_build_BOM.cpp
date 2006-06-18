@@ -362,7 +362,8 @@ wxString msg;
 
 		/* generation du fichier listing */
 		DateAndTime(Line);
-		fprintf( f, "%s  >> Creation date: %s\n", CONV_TO_UTF8(Main_Title), Line );
+		wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+		fprintf( f, "%s  >> Creation date: %s\n", CONV_TO_UTF8(Title), Line );
 
 		/* Tri et impression de la liste des composants */
 

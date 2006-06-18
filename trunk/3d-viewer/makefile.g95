@@ -4,7 +4,6 @@ TARGET=3d-viewer
 DLLSUFF=.dll
 
 include ../libs.win
-include ../makeg95.env
 
 DLLGEN=dllwrap --export-all --output-def $(TARGET).def --implib lib$(TARGET).a --driver-name c++
 
@@ -12,22 +11,13 @@ all: $(TARGET).a
 
 include makefile.include
 
-#.$(SRCSUFF).$(OBJSUFF):
-#	gcc -c $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -DBUILDING_DLL=1 -I. -g -o $@ $*.$(SRCSUFF)
-
-#$(TARGET)$(DLLSUFF): $(OBJECTS) $(OBJECTS3D) makefile.g95
-#	$(DLLGEN) -o $(TARGET)$(DLLSUFF) $(OBJECTS) $(OBJECTS3D) $(AUXLIBS)
-#	cp $(TARGET)$(DLLSUFF) ../../kicad/winexe
 
 $(TARGET).a: $(OBJECTS3D)
-	ar $(AROPTIONS) $@ $(OBJECTS3D)
+	ar ruv $@ $(OBJECTS3D)
 	ranlib $@
 
 
 clean :
-	-$(RM) *.o
-	-$(RM) $(TARGET)_resources.o
-	-$(RM) *.res
-	-$(RM) *.exe
-	-$(RM) *.bak
+	rm *.o
+	rm *.bak
 

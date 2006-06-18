@@ -62,13 +62,9 @@ int WinEDA_BasePcbFrame::SelectLayer(int default_layer, int min_layer, int max_l
 */
 {
 int layer;
-bool IgnoreEvent = DrawPanel->m_IgnoreMouseEvents;
-	
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_SelLayerFrame * frame =
 			new WinEDA_SelLayerFrame(this, default_layer,min_layer, max_layer);
 	layer = frame->ShowModal(); frame->Destroy();
-	DrawPanel->m_IgnoreMouseEvents = IgnoreEvent;
 	DrawPanel->MouseToCursorSchema();
 	return layer;
 }
@@ -188,13 +184,9 @@ void WinEDA_BasePcbFrame::SelectLayerPair(void)
 	pour autorutage, vias...
 */
 {
-bool IgnoreEvent = DrawPanel->m_IgnoreMouseEvents;
-	
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_SelLayerPairFrame * frame =
 			new WinEDA_SelLayerPairFrame(this);
 	frame->ShowModal(); frame->Destroy();
-	DrawPanel->m_IgnoreMouseEvents = IgnoreEvent;
 	DrawPanel->MouseToCursorSchema();
 }
 

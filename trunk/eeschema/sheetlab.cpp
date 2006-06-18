@@ -20,9 +20,9 @@ static void Move_PinSheet(WinEDA_DrawPanel * panel, wxDC * DC, bool erase);
 static int CurrentTypeLabel = NET_INPUT;
 static wxSize NetSheetTextSize(DEFAULT_SIZE_TEXT, DEFAULT_SIZE_TEXT);
 
-	/************************************/
-	/* class WinEDA_TextPropertiesFrame */
-	/************************************/
+	/****************************************/
+	/* class WinEDA_PinSheetPropertiesFrame */
+	/****************************************/
 
 #define NBSHAPES 5
 static wxString shape_list[NBSHAPES] =

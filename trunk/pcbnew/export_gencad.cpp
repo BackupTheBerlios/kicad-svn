@@ -484,7 +484,8 @@ PCB_SCREEN * screen = frame->GetScreen();
 	
 	fputs("$HEADER\n", file);
 	fputs("GENCAD 1.4\n", file);
-	msg = wxT("USER ") + Main_Title; fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
+	msg = wxT("USER ") + g_Main_Title + wxT(" ") + GetBuildVersion();
+	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
 	msg = wxT("DRAWING ") + screen->m_FileName;
 	fputs(CONV_TO_UTF8(msg), file); fputs("\n", file);
 	msg = wxT("REVISION ") + screen->m_Revision + wxT(" ") + screen->m_Date;

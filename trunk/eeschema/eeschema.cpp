@@ -29,7 +29,7 @@
 static void CreateScreens(void);
 
 // Global variables
-wxString Main_Title( wxT("EESchema (07-mar-2006)") );
+wxString g_Main_Title( wxT("EESchema") );
 
 	/************************************/
 	/* Called to initialize the program */
@@ -80,14 +80,16 @@ wxString FFileName;
 	{
 		ChangeFileNameExt(FFileName, g_SchExtBuffer);
 		wxSetWorkingDirectory( wxPathOnly(FFileName) );
-		if ( SchematicFrame->LoadOneEEProject(FFileName, FALSE) <= 0 )
-			SchematicFrame->DrawPanel->Refresh(TRUE);	// File not found or error
+		if ( SchematicFrame->DrawPanel )
+			if ( SchematicFrame->LoadOneEEProject(FFileName, FALSE) <= 0 )
+				SchematicFrame->DrawPanel->Refresh(TRUE);	// File not found or error
 	}
 
 	else
 	{
 		Read_Config(wxEmptyString, TRUE); // Read config file ici si pas de fichier a charger
-		SchematicFrame->DrawPanel->Refresh(TRUE);
+		if ( SchematicFrame->DrawPanel )
+			SchematicFrame->DrawPanel->Refresh(TRUE);
 	}
 
 	return TRUE;
@@ -111,7 +113,7 @@ static void CreateScreens(void)
 
 	if(ScreenLib == NULL )
 		ScreenLib = new SCH_SCREEN(NULL, NULL, LIBEDITOR_FRAME);
-	ScreenLib->SetZoom(16);
+	ScreenLib->SetZoom(4);
 	ScreenLib->m_UndoRedoCountMax = 10;
 }
 

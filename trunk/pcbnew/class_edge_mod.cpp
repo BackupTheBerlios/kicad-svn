@@ -141,8 +141,8 @@ MODULE * Module = NULL;
 	if ( m_Parent && (m_Parent->m_StructType == TYPEMODULE) )
 		Module = (MODULE*) m_Parent;
 
-	GRSetDrawMode(DC, draw_mode);
 	color = g_DesignSettings.m_LayerColor[m_Layer];
+	if ( (color & ITEM_NOT_SHOW) != 0 ) return;
 
 	if ( panel ) screen = (PCB_SCREEN *) panel->m_Parent->m_CurrentScreen;
 	else screen = ActiveScreen;
@@ -156,6 +156,7 @@ MODULE * Module = NULL;
 	dx = m_End.x - offset.x ;
 	dy = m_End.y - offset.y ;
 
+	GRSetDrawMode(DC, draw_mode);
 	typeaff = frame->m_DisplayModEdge;
 	if( m_Layer <= CMP_N )
 		typeaff = frame->m_DisplayPcbTrackFill;

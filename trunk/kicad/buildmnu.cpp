@@ -9,8 +9,7 @@
 #include "wx/spinctrl.h"
 
 #include "kicad.h"
-
-#include "protos.h"
+#include "macros.h"
 
 #define BITMAP wxBitmap
 
@@ -56,6 +55,9 @@ BEGIN_EVENT_TABLE(WinEDA_MainFrame, WinEDA_BasicFrame)
 	EVT_MENU(ID_TO_EDITOR, WinEDA_MainFrame::Process_Fct)
 	EVT_MENU(ID_BROWSE_AN_SELECT_FILE, WinEDA_MainFrame::Process_Fct)
 	EVT_MENU(ID_SELECT_PREFERED_EDITOR, WinEDA_MainFrame::Process_Preferences)
+	EVT_MENU(ID_SELECT_DEFAULT_PDF_BROWSER, WinEDA_MainFrame::Process_Preferences)
+	EVT_MENU(ID_SELECT_PREFERED_PDF_BROWSER, WinEDA_MainFrame::Process_Preferences)
+	EVT_MENU(ID_SELECT_PREFERED_PDF_BROWSER_NAME, WinEDA_MainFrame::Process_Preferences)
 	EVT_MENU(ID_SAVE_AND_ZIP_FILES, WinEDA_MainFrame::Process_Files)
 	EVT_MENU(ID_READ_ZIP_ARCHIVE, WinEDA_MainFrame::Process_Files)
 
@@ -153,6 +155,32 @@ wxMenuBar * menuBar = GetMenuBar() ;
 				_("Select Fonts"), _("Select Fonts and  Font sizes"));
 	    item->SetBitmap(fonts_xpm);
 		PreferencesMenu->Append(item);
+
+		// Submenu Pdf Browser selection: system browser or user selected browser (and its name)
+		wxMenu *SubMenuPdfBrowserChoice = new wxMenu;
+		item = new wxMenuItem(SubMenuPdfBrowserChoice , ID_SELECT_DEFAULT_PDF_BROWSER,
+				_("Default Pdf Viewer"), _("Use the default (system) PDF viewer used to browse datasheets"),
+				wxITEM_CHECK);
+	    SETBITMAPS(datasheet_xpm);
+		SubMenuPdfBrowserChoice->Append(item);
+		SubMenuPdfBrowserChoice->Check(ID_SELECT_DEFAULT_PDF_BROWSER,
+			EDA_Appl->m_PdfBrowserIsDefault);
+		item = new wxMenuItem(SubMenuPdfBrowserChoice , ID_SELECT_PREFERED_PDF_BROWSER,
+				_("Favourite Pdf Viewer"), _("Use your favourite PDF viewer used to browse datasheets"),
+				wxITEM_CHECK);
+	    SETBITMAPS(preference_xpm);
+		SubMenuPdfBrowserChoice->Append(item);
+		SubMenuPdfBrowserChoice->AppendSeparator();
+		SubMenuPdfBrowserChoice->Check(ID_SELECT_PREFERED_PDF_BROWSER,
+			!EDA_Appl->m_PdfBrowserIsDefault);
+		item = new wxMenuItem(SubMenuPdfBrowserChoice , ID_SELECT_PREFERED_PDF_BROWSER_NAME,
+				_("Select Pdf Viewer"), _("Select your favourite PDF viewer used to browse datasheets"));
+	    item->SetBitmap(datasheet_xpm);
+		SubMenuPdfBrowserChoice->Append(item);
+		ADD_MENUITEM_WITH_HELP_AND_SUBMENU(PreferencesMenu, SubMenuPdfBrowserChoice,
+			-1,  _("Pdf Browser"),
+			wxT("Pdf Browser choice: default or user selection"),
+			datasheet_xpm);
 
 		PreferencesMenu->AppendSeparator();
 		m_Parent->SetLanguageList(PreferencesMenu);

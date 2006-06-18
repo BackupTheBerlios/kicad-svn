@@ -45,7 +45,7 @@ void WinEDA_DrawFrame::Recadre_Trace(bool ToMouse)
 	si ToMouse == TRUE, le curseur souris (curseur "systeme") est replace
 	en position curseur graphique (curseur kicad)
 	
-	Note: Mac OS ** do not ** allow moving mouse cursor by program.
+	Note: Mac OS ** does not ** allow moving mouse cursor by program.
 */
 {
 
@@ -139,7 +139,6 @@ Toute autre commande est transmise a Parent->Process_Special_Functions(event)
 int id = event.GetId();
 wxClientDC dc(this);
 
-	MouseToCursorSchema();
 	switch (id)
 		{
 		case ID_POPUP_ZOOM_PLUS :
@@ -302,8 +301,8 @@ public:
 /*************************************************************/
 void WinEDA_DrawPanel::AddMenuZoom( wxMenu * MasterMenu )
 /*************************************************************/
-/* construit la liste des items relatifs au zoom pour le menu Popup crée par
-	OnRightClick(wxMouseEvent& event)
+/* add the zoom list menu the the MasterMenu.
+	used in OnRightClick(wxMouseEvent& event)
 */
 {
 int zoom;
@@ -354,7 +353,7 @@ wxMenu * zoom_choice = new wxMenu;
 	ADD_MENUITEM(MasterMenu, ID_POPUP_ZOOM_AUTO, _("Auto"), zoom_optimal_xpm);
 	ADD_MENUITEM(MasterMenu, ID_POPUP_ZOOM_REDRAW, _("Redraw"), repaint_xpm);
 
-	/* Creation de la liste minimale des zooms: */
+	/* Create the basic zoom list: */
 	zoom = m_Parent->m_CurrentScreen->GetZoom();
 	zoom_value = 1;
 	for ( ii = 0; zoom_value <= m_Parent->m_ZoomMaxValue; zoom_value <<= 1, ii ++ )	// Create zoom choice 1 .. zoom max

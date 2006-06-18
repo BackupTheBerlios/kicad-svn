@@ -294,7 +294,7 @@ EDA_LibComponentStruct * LibEntry;
 		wxMenu *sel_unit_menu = new wxMenu; int ii;
 		for( ii = 0; ii < LibEntry->m_UnitCount; ii++ )
 		{
-			wxString num_unit; num_unit.Printf( _("Unit %d"), ii+1);
+			wxString num_unit; num_unit.Printf( _("Unit %d %c"), ii+1, "?ABCDEFGHIJKLMNOPQRSTUVWXYZ"[ii+1]);
 			sel_unit_menu->Append(ID_POPUP_SCH_SELECT_UNIT1 + ii,
 				num_unit);
 		}

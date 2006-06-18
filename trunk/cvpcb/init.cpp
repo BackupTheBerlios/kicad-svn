@@ -135,7 +135,8 @@ int error_level = -1;
 	SetStatusText(msg,1);
 
 	/* Mise a jour du titre de la fenetre principale */
-	msg.Printf( wxT("%s [%s]"), Main_Title.GetData(), FFileName.GetData());
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	msg.Printf( wxT("%s [%s]"), Title.GetData(), FFileName.GetData());
 	SetTitle(msg);
 
 }
@@ -230,7 +231,8 @@ wxString Mask, Line;
 	FFileName = NetInNameBuffer;
 
 	/* Mise a jour du titre de la fenetre principale */
-	Line = Main_Title + wxT(" ") + NetInNameBuffer;
+	Line = g_Main_Title + wxT(" ") + GetBuildVersion();
+	Line += wxT(" ") + NetInNameBuffer;
 	SetTitle(Line);
 
 	ReadNetListe();

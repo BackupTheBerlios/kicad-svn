@@ -410,7 +410,7 @@ int LookForConvertPart( EDA_LibComponentStruct * LibEntry );
 /**************/
 /* PINEDIT.CPP */
 /**************/
-void InstallPineditFrame(WinEDA_LibeditFrame * parent, const wxPoint & pos);
+void InstallPineditFrame(WinEDA_LibeditFrame * parent, wxDC * DC, const wxPoint & pos);
 
 
 /**************/

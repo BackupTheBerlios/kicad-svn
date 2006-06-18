@@ -79,9 +79,9 @@ DrawBusEntryStruct * BusEntry = new DrawBusEntryStruct(GetScreen()->m_Curseur,
 									LastShape , entry_type);
 	BusEntry->m_Flags = IS_NEW;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel, DC, BusEntry, g_XorMode);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	SetFlagModify(GetScreen());
 
@@ -101,9 +101,15 @@ void WinEDA_SchematicFrame::StartMoveBusEntry(DrawBusEntryStruct * BusEntry,
 
 	ItemInitialPosition = BusEntry->m_Pos;
 
+ 	GetScreen()->CursorOff(DrawPanel, DC);
+ 	GetScreen()->m_Curseur = ItemInitialPosition;
+ 	DrawPanel->MouseToCursorSchema();
+ 
 	GetScreen()->m_CurrentItem = BusEntry;
 	GetScreen()->ManageCurseur = ShowWhileMoving;
 	GetScreen()->ForceCloseManageCurseur = ExitBusEntry;
+ 
+ 	GetScreen()->CursorOn(DrawPanel, DC);
 }
 
 

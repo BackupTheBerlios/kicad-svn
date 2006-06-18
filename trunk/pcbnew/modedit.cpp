@@ -48,6 +48,7 @@ int id = event.GetId();
 wxPoint pos;
 wxClientDC dc(DrawPanel);
 
+	GetScreen()->CursorOff(DrawPanel, &dc);
 	DrawPanel->PrepareGraphicContext(&dc);
 
 	wxGetMousePosition(&pos.x, &pos.y);
@@ -501,6 +502,7 @@ wxClientDC dc(DrawPanel);
 		}
 
 	SetToolbars();
+	GetScreen()->CursorOn(DrawPanel, &dc);
 }
 
 

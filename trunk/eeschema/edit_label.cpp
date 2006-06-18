@@ -78,10 +78,16 @@ void WinEDA_SchematicFrame::StartMoveTexte(DrawTextStruct * TextStruct, wxDC *DC
 		default: break;
 		}
 
+ 	m_CurrentScreen->CursorOff(DrawPanel, DC);
+ 	m_CurrentScreen->m_Curseur = ItemInitialPosition;
+ 	DrawPanel->MouseToCursorSchema();
+ 
 	SetFlagModify(GetScreen());
 	m_CurrentScreen->ManageCurseur = ShowWhileMoving;
 	m_CurrentScreen->ForceCloseManageCurseur = ExitMoveTexte;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC, TRUE);
+ 
+ 	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 
@@ -95,15 +101,15 @@ void WinEDA_SchematicFrame::EditSchematicText(DrawTextStruct * TextStruct,
 {
 	if(TextStruct == NULL)  return;
 
+	GetScreen()->CursorOff(DrawPanel, DC);
 	RedrawOneStruct(DrawPanel, DC, TextStruct, g_XorMode);
 
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 WinEDA_LabelPropertiesFrame * frame = new WinEDA_LabelPropertiesFrame(this,
 	TextStruct, wxPoint(30,30));
 	frame->ShowModal(); frame->Destroy();
 
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	RedrawOneStruct(DrawPanel, DC, TextStruct, GR_DEFAULT_DRAWMODE);
+	GetScreen()->CursorOn(DrawPanel, DC);
 }
 
 
@@ -282,7 +288,7 @@ void WinEDA_SchematicFrame::ChangeTypeText(DrawTextStruct * Text,
 {
 	if ( Text == NULL ) return;
 
-	m_CurrentScreen->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	m_CurrentScreen->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel, DC, Text, g_XorMode);	// erase drawing
 	switch( newtype )
 		{
@@ -307,7 +313,7 @@ void WinEDA_SchematicFrame::ChangeTypeText(DrawTextStruct * Text,
 		}
 
 	RedrawOneStruct(DrawPanel, DC, Text, GR_DEFAULT_DRAWMODE);
-	m_CurrentScreen->Trace_Curseur(DrawPanel, DC);	// redraw schematic cursor
+	m_CurrentScreen->CursorOn(DrawPanel, DC);	// redraw schematic cursor
 }
 
 

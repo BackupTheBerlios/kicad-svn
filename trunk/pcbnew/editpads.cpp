@@ -57,11 +57,9 @@ void WinEDA_BasePcbFrame::InstallPadOptionsFrame(D_PAD * Pad,
 					wxDC * DC, const wxPoint & pos)
 /*************************************************************/
 {
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_PadPropertiesFrame * frame = new WinEDA_PadPropertiesFrame(this,
 					 Pad, DC);
 	frame->ShowModal(); frame->Destroy();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
 /********************************************************/
@@ -279,6 +277,7 @@ void WinEDA_PadPropertiesFrame::PadPropertiesAccept(wxCommandEvent& event)
 */
 {
 long PadLayerMask;
+	if ( m_DC ) m_Parent->GetScreen()->CursorOff(m_Parent->DrawPanel, m_DC);
 
 	g_Pad_Master.m_Attribut = CodeType[m_PadType->GetSelection()];
 	g_Pad_Master.m_PadShape = CodeShape[m_PadShape->GetSelection()];
@@ -376,6 +375,7 @@ long PadLayerMask;
 	}
 
 	Close();
-}
 
+	if ( m_DC ) m_Parent->GetScreen()->CursorOn(m_Parent->DrawPanel, m_DC);
+}
 

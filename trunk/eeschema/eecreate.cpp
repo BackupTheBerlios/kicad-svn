@@ -92,9 +92,9 @@ wxPoint pos = GetScreen()->m_Curseur;
 		/* Placement en liste generale */
 		oldsegment->Pnext = GetScreen()->EEDrawList;
 		g_ItemToRepeat = GetScreen()->EEDrawList = oldsegment;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+		GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 		RedrawOneStruct(DrawPanel,DC, oldsegment, GR_DEFAULT_DRAWMODE);
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+		GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 		/* Creation du segment suivant */
 		newsegment = oldsegment->GenCopy();
@@ -145,9 +145,9 @@ DrawSegmentStruct * segment = (DrawSegmentStruct *)GetScreen()->m_CurrentItem;
 	SetFlagModify(GetScreen());
 	if( segment )
 	{
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+		GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 		RedrawOneStruct(DrawPanel,DC, segment, GR_DEFAULT_DRAWMODE);
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+		GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 	}
 }
 
@@ -271,9 +271,9 @@ DrawJunctionStruct *NewConnect;
 
 	g_ItemToRepeat = NewConnect;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel,DC, NewConnect, GR_DEFAULT_DRAWMODE);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	NewConnect->Pnext = GetScreen()->EEDrawList;
 	GetScreen()->EEDrawList = NewConnect;
@@ -292,9 +292,9 @@ DrawNoConnectStruct *NewNoConnect;
 	NewNoConnect = new DrawNoConnectStruct(GetScreen()->m_Curseur);
 	g_ItemToRepeat = NewNoConnect;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel,DC, NewNoConnect,  GR_DEFAULT_DRAWMODE);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	NewNoConnect->Pnext = GetScreen()->EEDrawList;
 	GetScreen()->EEDrawList = NewNoConnect;

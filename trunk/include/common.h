@@ -511,6 +511,8 @@ void Affiche_InfosLicence(wxWindow * frame);
 /**************/
 /* common.cpp */
 /**************/
+wxString GetBuildVersion(void);	/* Return the build date */
+
 void Affiche_1_Parametre(WinEDA_DrawFrame * frame ,
 			int pos_X,const wxString& texte_H,const wxString& texte_L,int color);
 /*

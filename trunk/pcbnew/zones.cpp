@@ -735,15 +735,15 @@ wxString msg;
 
 	MsgPanel->EraseMsgBox();
 	if ( m_Pcb->ComputeBoundaryBox() == FALSE )
-		{
+	{
 		DisplayError(this, wxT("Board is empty!"), 10);
 		return;
-		}
-wxPoint curs_pos = GetScreen()->m_Curseur;
+	}
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_ZoneFrame * frame = new WinEDA_ZoneFrame(this);
 	ii = frame->ShowModal(); frame->Destroy();
-	GetScreen()->m_Curseur = curs_pos;
 	DrawPanel->MouseToCursorSchema();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	if ( ii ) return;
 
 	g_DesignSettings.m_TrackClearence = g_DesignSettings.m_ZoneClearence;
@@ -751,16 +751,15 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	/* mise a jour de la couche */
 	PtLim = m_Pcb->m_CurrentLimitZone;
 	for( ; PtLim != NULL; PtLim = (EDGE_ZONE*) PtLim->Pback)
-		{
+	{
 		Trace_DrawSegmentPcb(DrawPanel, DC, PtLim, GR_XOR);
 		PtLim->m_Layer = GetScreen()->m_Active_Layer;
 		Trace_DrawSegmentPcb(DrawPanel, DC, PtLim, GR_XOR);
-		}
+	}
 
 	TimeStamp = time( NULL );
 
 	/* Calcul du pas de routage fixe a 5 mils et plus */
-	if (pas_route < 50 ) pas_route = 50 ;
 	E_scale = pas_route / 50 ; if (pas_route < 1 ) pas_route = 1 ;
 
 	/* calcule de Ncols et Nrow, taille de la matrice de routage */
@@ -797,14 +796,14 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 
 	/* Affichage du NetName */
 	if(g_HightLigth_NetCode > 0)
-		{
+	{
 		pt_equipot = GetEquipot(m_Pcb, g_HightLigth_NetCode);
 		if( pt_equipot == NULL)
-			{
+		{
 			if(g_HightLigth_NetCode > 0 ) DisplayError(this, wxT("Equipot Error"));
-			}
-		else msg = pt_equipot->m_Netname;
 		}
+		else msg = pt_equipot->m_Netname;
+	}
 	else msg = _("No Net");
 
 	Affiche_1_Parametre(this, 22,_("NetName"),msg,RED) ;
@@ -813,12 +812,12 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 		les pistes du net sont des points d'accrochage convenables*/
 	TRACK * pt_segm = m_Pcb->m_Track;
 	for( ; pt_segm != NULL; pt_segm = (TRACK*) pt_segm->Pnext)
-		{
+	{
 		if(g_HightLigth_NetCode != pt_segm->m_NetCode) continue;
 		if ( pt_segm->m_Layer != GetScreen()->m_Active_Layer ) continue;
 		if (pt_segm->m_StructType != TYPETRACK ) continue;
 		TraceSegmentPcb(m_Pcb, pt_segm, CELL_is_FRIEND, 0, WRITE_CELL );
-		}
+	}
 
 	/* Trace des contours du PCB sur la matrice de routage: */
 	Route_Layer_BOTTOM = Route_Layer_TOP = EDGE_N;
@@ -828,14 +827,14 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	/* Trace des limites de la zone sur la matrice de routage: */
 	PtLim = m_Pcb->m_CurrentLimitZone;
 	for( ; PtLim != NULL; PtLim = (EDGE_ZONE*)PtLim->Pback)
-		{
+	{
 		int ux0, uy0, ux1, uy1;
 		ux0 = PtLim->m_Start.x - m_Pcb->m_BoundaryBox.m_Pos.x;
 		uy0 = PtLim->m_Start.y - m_Pcb->m_BoundaryBox.m_Pos.y;
 		ux1 = PtLim->m_End.x - m_Pcb->m_BoundaryBox.m_Pos.x;
 		uy1 = PtLim->m_End.y - m_Pcb->m_BoundaryBox.m_Pos.y;
 		TraceLignePcb(ux0,uy0,ux1,uy1,-1,HOLE|CELL_is_EDGE,WRITE_CELL);
-		}
+	}
 
 
 	OrCell(ZoneStartFill.y,ZoneStartFill.x, BOTTOM, CELL_is_ZONE);
@@ -843,25 +842,26 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	/* Marquage des cellules faisant partie de la zone*/
 	ii = 1; jj = 1;
 	while( ii )
-		{
+	{
 		msg.Printf( wxT("%d"), jj++ );
 		Affiche_1_Parametre(this, 50, wxT("Iter."),msg,CYAN);
 		ii = Propagation(this);
-		}
+	}
 
 	/* Selection des cellules convenables pour les points d'ancrage de la zone */
 	for( ii = 0; ii < Nrows ; ii++)
-		{
+	{
 		for( jj = 0; jj < Ncols ; jj++)
-			{
+		{
 			long cell = GetCell(ii,jj,BOTTOM);
 			if( (cell & CELL_is_ZONE) )
-				{
+			{
 				if ( (cell & CELL_is_FRIEND) == 0)
 					AndCell(ii,jj,BOTTOM, ~(CELL_is_FRIEND|CELL_is_ZONE) );
-				}
 			}
 		}
+	}
+
 
     /* Maintenant, toutes les cellules candidates sont marquees */
 	/* Placement des cellules (pads, tracks, vias, edges pcb ou segments)
@@ -876,14 +876,14 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	(a pu etre detruit par PlaceCells()) : */
 	PtLim = m_Pcb->m_CurrentLimitZone;
 	for( ; PtLim != NULL; PtLim = (EDGE_ZONE*)PtLim->Pback)
-		{
+	{
 		int ux0, uy0, ux1, uy1;
 		ux0 = PtLim->m_Start.x - m_Pcb->m_BoundaryBox.m_Pos.x;
 		uy0 = PtLim->m_Start.y - m_Pcb->m_BoundaryBox.m_Pos.y;
 		ux1 = PtLim->m_End.x - m_Pcb->m_BoundaryBox.m_Pos.x;
 		uy1 = PtLim->m_End.y - m_Pcb->m_BoundaryBox.m_Pos.y;
 		TraceLignePcb(ux0,uy0,ux1,uy1,-1,HOLE|CELL_is_EDGE,WRITE_CELL);
-		}
+	}
 
 
 	/* Init du point d'accrochage de la zone donné par la position souris
@@ -895,11 +895,11 @@ wxPoint curs_pos = GetScreen()->m_Curseur;
 	/* Remplissage des cellules (creation effective de la zone)*/
 	ii = 1; jj = 1;
 	while( ii )
-		{
+	{
 		msg.Printf( wxT("%d"), jj++ );
 		Affiche_1_Parametre(this, 50, wxT("Iter."),msg,CYAN);
 		ii = Propagation(this);
-		}
+	}
 
 	if(Zone_Debug) DisplayBoard(DrawPanel, DC);
 
@@ -1248,8 +1248,7 @@ wxString msg;
 				}
 
 			/* on doit pouvoir se connecter sur la zone */
-			loctrack = Locate_Zone(frame->m_Pcb->m_Zone,pt_track->m_End.x,
-									pt_track->m_End.y,layer);
+			loctrack = Locate_Zone(frame->m_Pcb->m_Zone,pt_track->m_End, layer);
 			if( (loctrack == NULL) || (loctrack->m_TimeStamp != TimeStamp) )
 				{
 				delete pt_track; continue;

@@ -91,7 +91,7 @@ const wxChar ** ListNames;
 	}
 	ListNames = (const wxChar**) MyZMalloc( (ii+1) * sizeof(wxChar*));
 
-	msg.Printf( _("Select Part (%d items)"), ii );
+	msg.Printf( _("Select component (%d items)"), ii );
 
 	ii = 0;
 	LibEntry = (EDA_LibComponentStruct *) PQFirst(&Library->m_Entries, FALSE);

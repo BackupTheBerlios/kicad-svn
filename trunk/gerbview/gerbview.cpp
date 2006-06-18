@@ -18,7 +18,7 @@
 #include "protos.h"
 
 
-wxString Main_Title = wxT("GERBVIEW 03-mar-06");
+wxString g_Main_Title = wxT("GERBVIEW");
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -45,7 +45,8 @@ wxString FFileName;
 
 	m_GerberFrame = new WinEDA_GerberFrame(NULL, this, wxT("GerbView"),
 				 wxPoint(0,0), wxSize(600,400) );
-	m_GerberFrame->SetTitle(Main_Title);
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	m_GerberFrame->SetTitle(Title);
 	ScreenPcb->SetParentFrame(m_GerberFrame);
 	m_GerberFrame->m_Pcb = new BOARD(NULL, m_GerberFrame);
 

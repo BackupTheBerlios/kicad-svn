@@ -140,7 +140,7 @@ void WinEDA_PartPropertiesFrame::CreateControls()
     wxStaticText* itemStaticText9 = new wxStaticText( m_PanelBasic, wxID_STATIC, _("Number of Units:"), wxDefaultPosition, wxDefaultSize, 0 );
     itemBoxSizer8->Add(itemStaticText9, 0, wxGROW|wxLEFT|wxRIGHT|wxTOP|wxADJUST_MINSIZE, 5);
 
-    SelNumberOfUnits = new wxSpinCtrl( m_PanelBasic, ID_SPINCTRL1, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 16, 0 );
+    SelNumberOfUnits = new wxSpinCtrl( m_PanelBasic, ID_SPINCTRL1, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 26, 0 );
     itemBoxSizer8->Add(SelNumberOfUnits, 0, wxALIGN_CENTER_HORIZONTAL|wxLEFT|wxRIGHT|wxBOTTOM, 5);
 
     wxBoxSizer* itemBoxSizer11 = new wxBoxSizer(wxVERTICAL);

@@ -213,6 +213,7 @@ WinEDA_PcbFrame::WinEDA_PcbFrame(wxWindow * father, WinEDA_App *parent,
 			GridSize.x = SizeX;
 			GridSize.y = SizeY;
 		}
+		m_Parent->m_EDA_Config->Read( wxT("PcbMagPadOpt"), & g_MagneticPadOption);
 	}
 	GetScreen()->SetGrid(GridSize);
 	
@@ -284,6 +285,7 @@ PCB_SCREEN * screen;
 		wxSize GridSize = GetScreen()->GetGrid();
 		m_Parent->m_EDA_Config->Write( wxT("PcbEditGrid_X"), (long)GridSize.x);
 		m_Parent->m_EDA_Config->Write( wxT("PcbEditGrid_Y"), (long)GridSize.y);
+		m_Parent->m_EDA_Config->Write( wxT("PcbMagPadOpt"), (long)g_MagneticPadOption);
 	}
 	Destroy();
 }

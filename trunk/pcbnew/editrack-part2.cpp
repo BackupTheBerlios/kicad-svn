@@ -165,14 +165,13 @@ int itmp;
 	}
 
 	/* Les vias ne doivent pas etre inutilement empilees: */
-	if( Locate_Via(m_Pcb, g_CurrentTrackSegment->m_End.x,g_CurrentTrackSegment->m_End.y,g_CurrentTrackSegment->m_Layer))
+	if( Locate_Via(m_Pcb, g_CurrentTrackSegment->m_End, g_CurrentTrackSegment->m_Layer))
 		return;
 	pt_segm = g_FirstTrackSegment;
 	for ( ii = 0; ii < g_TrackSegmentCount-1 ; ii++, pt_segm = (TRACK*)pt_segm->Pnext)
 	{
 		if( (pt_segm->m_StructType == TYPEVIA) &&
-			(g_CurrentTrackSegment->m_End.x == pt_segm->m_Start.x) &&
-			(g_CurrentTrackSegment->m_End.y == pt_segm->m_Start.y) )
+			(g_CurrentTrackSegment->m_End == pt_segm->m_Start) )
 				return;
 	}
 	/* Test si segment possible a placer */

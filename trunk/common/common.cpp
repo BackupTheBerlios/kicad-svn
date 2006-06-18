@@ -11,7 +11,16 @@
 #include "base_struct.h"
 #include "common.h"
 #include "macros.h"
+#include "build_version.h"
 
+/*****************************/
+wxString GetBuildVersion(void)
+/*****************************/
+/* Return the build date
+*/
+{
+	return g_BuildVersion;
+}
 
 /*********************************************************************************************/
 Ki_PageDescr::Ki_PageDescr(const wxSize & size, const wxPoint & offset, const wxString & name)

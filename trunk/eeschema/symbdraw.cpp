@@ -170,6 +170,7 @@ int * ptpoly;
 
 	if(CurrentDrawItem)	return NULL;
 
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	// Creation du nouvel element
 	switch ( m_ID_current_state )
 		{
@@ -290,6 +291,9 @@ int * ptpoly;
 		if(g_FlDrawSpecificUnit) CurrentDrawItem->m_Unit = CurrentUnit;
 		if(g_FlDrawSpecificConvert) CurrentDrawItem->m_Convert = CurrentConvert;
 	}
+
+	DrawPanel->MouseToCursorSchema();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 
 	return CurrentDrawItem;
 }

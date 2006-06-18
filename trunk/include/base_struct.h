@@ -84,8 +84,8 @@ private:
 
 public:
 
-	EDA_BaseStruct::EDA_BaseStruct(EDA_BaseStruct * parent, int idType);
-	EDA_BaseStruct::EDA_BaseStruct(int struct_type);
+	EDA_BaseStruct(EDA_BaseStruct * parent, int idType);
+	EDA_BaseStruct(int struct_type);
 	virtual ~EDA_BaseStruct() {};
 	EDA_BaseStruct * Next(void) { return Pnext; }
 	/* Gestion de l'etat (status) de la structure (active, deleted..) */

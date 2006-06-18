@@ -51,6 +51,7 @@ void WinEDA_BasePcbFrame::InstallTextModOptionsFrame(TEXTE_MODULE * TextMod,
 	WinEDA_TextModPropertiesFrame * frame = new WinEDA_TextModPropertiesFrame(this,
 					 TextMod, DC);
 	frame->ShowModal(); frame->Destroy();
+	DrawPanel->MouseToCursorSchema();
 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 

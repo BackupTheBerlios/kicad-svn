@@ -17,33 +17,35 @@
 /*********************************************************************/
 int WinEDA_PcbFrame::Edit_TrackSegm_Width(wxDC * DC, TRACK * pt_segm)
 /*********************************************************************/
-/* Routine de modification de la largeur d'un segment ( ou via) de piste
-   Routine de base utilisee par les autres routines
+/* Routine to modify one track segment width or one via diameter.
+   Basic routine used by other routines when editing tracks or vias
 */
 {
 int errdrc = OK_DRC;
 int old_w, consigne ;
 
-	pt_segm->Draw(DrawPanel, DC, GR_XOR) ; // effacement a l'ecran
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase cursor shape
+	pt_segm->Draw(DrawPanel, DC, GR_XOR) ;		// Erase old track shape
 
-	/* Test DRC et mise a la largeur */
+	/* Test DRC and width change */
 	old_w = pt_segm->m_Width;
 	consigne = pt_segm->m_Width = g_DesignSettings.m_CurrentTrackWidth;
 	if( pt_segm->m_StructType == TYPEVIA )
-		{
+	{
 		consigne = pt_segm->m_Width = g_DesignSettings.m_CurrentViaSize;
-		}
+	}
 
 	if ( old_w < consigne) /* DRC utile puisque augm de dimension */
-		{
+	{
 		if(Drc_On) errdrc = Drc(this, DC, pt_segm, m_Pcb->m_Track,1);
 		if(errdrc == BAD_DRC) pt_segm->m_Width = old_w;
 		else GetScreen()->SetModify();
-		}
+	}
 
 	else  GetScreen()->SetModify();	/* Correction systematiquement faite si reduction */
 
-	pt_segm->Draw(DrawPanel, DC, GR_OR) ;
+	pt_segm->Draw(DrawPanel, DC, GR_OR) ;		// Display new track shape
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display cursor shape
 	return(errdrc);
 }
 
@@ -60,12 +62,12 @@ int nb_segm, nb_segm_modifies = 0, nb_segm_non_modifies = 0;
 
 	pt_track = Marque_Une_Piste(this, DC, pt_segm, &nb_segm, 0);
 	for(ii = 0; ii < nb_segm; ii++, pt_track = (TRACK*) pt_track->Pnext)
-		{
+	{
 		pt_track->SetState(BUSY,OFF);
 		errdrc = Edit_TrackSegm_Width(DC, pt_track);
 		if(errdrc == BAD_DRC) nb_segm_non_modifies++;
 		else nb_segm_modifies++;
-		}
+	}
 }
 
 
@@ -100,7 +102,6 @@ int nb_segm_non_modifies = 0;
 /*************************************************************************/
 bool WinEDA_PcbFrame::Resize_Pistes_Vias(wxDC * DC, bool Track, bool Via)
 /*************************************************************************/
-
 /* remet a jour la largeur des pistes et/ou le diametre des vias
 	Si piste == 0 , pas de cht sur les pistes
 	Si via == 0 , pas de cht sur les vias

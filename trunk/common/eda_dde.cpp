@@ -24,7 +24,7 @@
 
 #define ID_CONN "CAO_COM"
 
-const wxChar HOSTNAME[80] = wxT("localhost");
+wxString HOSTNAME(wxT("localhost"));
 
 /* variables locales */
 #define IPC_BUF_SIZE 4000
@@ -128,41 +128,76 @@ bool SendCommand( int service, char * cmdline)
     service contient le numéro de service en ascii.
 */
 {
-static wxSocketClient * sock_client;
+wxSocketClient * sock_client;
 bool success = FALSE;
 wxIPV4address addr;
 
 	// Create a connexion
-	if (!sock_client)
-		{
-		addr.Hostname(HOSTNAME);
-		addr.Service(service);
+	addr.Hostname(HOSTNAME);
+	addr.Service(service);
 
-		sock_client = new wxSocketClient();
-		sock_client->SetTimeout(2);	// Time out in Seconds
-		sock_client->Connect(addr, FALSE);
-		sock_client->WaitOnConnect(0, 100);
+ // Mini-tutorial for Connect() :-)	(JP CHARRAS Note: see wxWidgets: sockets/client.cpp sample)
+  // ---------------------------
+  //
+  // There are two ways to use Connect(): blocking and non-blocking,
+  // depending on the value passed as the 'wait' (2nd) parameter.
+  //
+  // Connect(addr, true) will wait until the connection completes,
+  // returning true on success and false on failure. This call blocks
+  // the GUI (this might be changed in future releases to honour the
+  // wxSOCKET_BLOCK flag).
+  //
+  // Connect(addr, false) will issue a nonblocking connection request
+  // and return immediately. If the return value is true, then the
+  // connection has been already successfully established. If it is
+  // false, you must wait for the request to complete, either with
+  // WaitOnConnect() or by watching wxSOCKET_CONNECTION / LOST
+  // events (please read the documentation).
+  //
+  // WaitOnConnect() itself never blocks the GUI (this might change
+  // in the future to honour the wxSOCKET_BLOCK flag). This call will
+  // return false on timeout, or true if the connection request
+  // completes, which in turn might mean:
+  //
+  //   a) That the connection was successfully established
+  //   b) That the connection request failed (for example, because
+  //      it was refused by the peer.
+  //
+  // Use IsConnected() to distinguish between these two.
+  //
+  // So, in a brief, you should do one of the following things:
+  //
+  // For blocking Connect:
+  //
+  //   bool success = client->Connect(addr, true);
+  //
+  // For nonblocking Connect:
+  //
+  //   client->Connect(addr, false);
+  //
+  //   bool waitmore = true;
+  //   while (! client->WaitOnConnect(seconds, millis) && waitmore )
+  //   {
+  //     // possibly give some feedback to the user,
+  //     // update waitmore if needed.
+  //   }
+  //   bool success = client->IsConnected();
+  //
+  // And that's all :-)
+	sock_client = new wxSocketClient();
+	sock_client->SetTimeout(2);	// Time out in Seconds
+	sock_client->Connect(addr, FALSE);
+	sock_client->WaitOnConnect(0, 100);
 
-		if (!sock_client->Ok())
-			{
-			sock_client->Destroy();
-			sock_client = NULL;
-			}
-
-		if ( sock_client && !sock_client->IsConnected())
-			{
-			sock_client->Destroy();
-			sock_client = NULL;
-			}
-		}
-
-	if (sock_client)
-		{
+	if (sock_client->Ok() && sock_client->IsConnected())
+	{
 		success = TRUE;
 		sock_client->SetFlags(wxSOCKET_NOWAIT /*wxSOCKET_WAITALL*/);
 		sock_client->Write(cmdline, strlen(cmdline));
-		}
+	}
 
+	sock_client->Close();
+	sock_client->Destroy();
 	return success;
 }
 

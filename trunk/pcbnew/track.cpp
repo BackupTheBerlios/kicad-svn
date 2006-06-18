@@ -29,7 +29,7 @@ void Montre_Position_New_Piste(int flag);	/* defini dans editrack.cc */
 
 
 /* Routines Locales */
-static void Marque_Chaine_segments(BOARD * Pcb, int ox, int oy, int masklayer);
+static void Marque_Chaine_segments(BOARD * Pcb, wxPoint ref_pos, int masklayer);
 
 /* Variables locales */
 TSTSEGM * ListSegm = NULL;
@@ -70,16 +70,16 @@ TSTSEGM * Segm, * NextSegm;
 		{
 		TRACK * Segm1, *Segm2 = NULL, *Segm3 =NULL;
 		Segm1 = Fast_Locate_Piste(frame->m_Pcb->m_Track,NULL,
-					pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
+					pt_segm->m_Start, masque_layer);
 		if(Segm1)
 			{
 			Segm2 = Fast_Locate_Piste((TRACK*)Segm1->Pnext,NULL,
-					pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
+					pt_segm->m_Start, masque_layer);
 			}
 		if( Segm2 )
 			{
 			Segm3 = Fast_Locate_Piste((TRACK*)Segm2->Pnext,NULL,
-						pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
+						pt_segm->m_Start, masque_layer);
 			}
 		if(Segm3)
 			{
@@ -88,18 +88,18 @@ TSTSEGM * Segm, * NextSegm;
 		if(Segm1)
 			{
 			masque_layer = Segm1->ReturnMaskLayer();
-			Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
+			Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start, masque_layer);
 			}
 		if(Segm2)
 			{
 			masque_layer = Segm2->ReturnMaskLayer();
-			Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
+			Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start, masque_layer);
 			}
 		}
 	else /* Marquage de la chaine connectee aux extremites du segment */
 		{
-		Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start.x, pt_segm->m_Start.y, masque_layer);
-		Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_End.x, pt_segm->m_End.y, masque_layer);
+		Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_Start, masque_layer);
+		Marque_Chaine_segments(frame->m_Pcb, pt_segm->m_End, masque_layer);
 		}
 
 	/* marquage des vias (vias non connectees ou inutiles */
@@ -111,13 +111,13 @@ TSTSEGM * Segm, * NextSegm;
 		Segm->RefTrack->SetState(BUSY,ON);
 		masque_layer = Segm->RefTrack->ReturnMaskLayer();
 		Track = Fast_Locate_Piste(frame->m_Pcb->m_Track,NULL,
-							Segm->RefTrack->m_Start.x, Segm->RefTrack->m_Start.y,
+							Segm->RefTrack->m_Start,
 							masque_layer);
 		if( Track == NULL ) continue;
 		/* Test des connexions: si via utile: suppression marquage */
 		layer = Track->m_Layer;
 		while ( (Track = Fast_Locate_Piste((TRACK*)Track->Pnext,NULL,
-							Segm->RefTrack->m_Start.x, Segm->RefTrack->m_Start.y,
+							Segm->RefTrack->m_Start,
 							masque_layer)) != NULL )
 			{
 			if( layer != Track->m_Layer )
@@ -168,7 +168,7 @@ TSTSEGM * Segm, * NextSegm;
 
 
 /********************************************************************************/
-static void Marque_Chaine_segments(BOARD * Pcb, int ox, int oy, int masque_layer)
+static void Marque_Chaine_segments(BOARD * Pcb, wxPoint ref_pos, int masque_layer)
 /********************************************************************************/
 /*
 	routine utilisee par Supprime_1_Piste()
@@ -190,10 +190,10 @@ TSTSEGM * Segm;
 	/* Marquage de la chaine */
 	for( ; ; )
 		{
-		if( Fast_Locate_Pad_Connecte(Pcb, ox,oy,masque_layer) != NULL ) return;
+		if( Fast_Locate_Pad_Connecte(Pcb, ref_pos,masque_layer) != NULL ) return;
 
 		/* Localisation d'une via (car elle connecte plusieurs segments) */
-		pt_via = Fast_Locate_Via(Pcb->m_Track, NULL, ox, oy, masque_layer);
+		pt_via = Fast_Locate_Via(Pcb->m_Track, NULL, ref_pos, masque_layer);
 		if(pt_via)
 			{
 			if(pt_via->GetState(EDIT)) return;
@@ -204,7 +204,7 @@ TSTSEGM * Segm;
 			ListSegm = Segm;
 			}
 
-		/* Recherche des segments connectes au point ox, oy
+		/* Recherche des segments connectes au point ref_pos
 			si 1 segment: peut etre marque
 			si > 1 segment:
 				le segment ne peut etre marque
@@ -212,7 +212,7 @@ TSTSEGM * Segm;
 		pt_segm =Pcb->m_Track; MarqSegm = NULL;
 		NbSegm = 0;
 		while( (pt_segm = Fast_Locate_Piste(pt_segm, NULL,
-						ox,oy,masque_layer) ) != NULL )
+						ref_pos,masque_layer) ) != NULL )
 			{
 			if(pt_segm->GetState(EDIT)) /* Fin de piste */
 				return;
@@ -245,12 +245,12 @@ TSTSEGM * Segm;
 			{
 			/* preparation de la nouvelle recherche */
 			masque_layer = MarqSegm->ReturnMaskLayer();
-			if( (ox == MarqSegm->m_Start.x) && (oy == MarqSegm->m_Start.y) )
+			if( ref_pos == MarqSegm->m_Start )
 				{
-				ox = MarqSegm->m_End.x; oy = MarqSegm->m_End.y;
+				ref_pos = MarqSegm->m_End;
 				}
 			else {
-				ox = MarqSegm->m_Start.x; oy = MarqSegm->m_Start.y;
+				ref_pos = MarqSegm->m_Start;
 				}
 
 			pt_segm = Pcb->m_Track; /* reinit recherche des segments */
@@ -305,7 +305,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 
 		masque_layer = Track->ReturnMaskLayer();
 		via = Fast_Locate_Via(RefTrack, TrackListEnd,
-							Track->m_Start.x, Track->m_Start.y, masque_layer);
+							Track->m_Start, masque_layer);
 		if( via )
 			{
 			masque_layer |= via->ReturnMaskLayer();
@@ -314,7 +314,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 
 		Track->SetState(BUSY,ON);
 		segm = Fast_Locate_Piste(RefTrack, TrackListEnd,
-							Track->m_Start.x, Track->m_Start.y, masque_layer);
+							Track->m_Start, masque_layer);
 		Track->SetState(BUSY,OFF);
 		if(via) via->SetState(BUSY,OFF);
 
@@ -337,8 +337,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 						Track->SetState(END_ONPAD, ON);
 					if( EndPad )
 						Track->SetState(BEGIN_ONPAD, ON);
-					EXCHG(Track->m_Start.x,Track->m_End.x);
-					EXCHG(Track->m_Start.y,Track->m_End.y);
+					EXCHG(Track->m_Start,Track->m_End);
 					EXCHG(Track->start,Track->end);
 					ok = 1; return(ok);
 				}
@@ -346,7 +345,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 
 		masque_layer = Track->ReturnMaskLayer();
 		via = Fast_Locate_Via(RefTrack, TrackListEnd,
-							Track->m_End.x, Track->m_End.y, masque_layer);
+							Track->m_End, masque_layer);
 		if( via )
 			{
 			masque_layer |= via->ReturnMaskLayer();
@@ -355,7 +354,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 
 		Track->SetState(BUSY,ON);
 		segm = Fast_Locate_Piste(RefTrack, TrackListEnd,
-							Track->m_End.x, Track->m_End.y, masque_layer);
+							Track->m_End, masque_layer);
 		Track->SetState(BUSY,OFF);
 		if (via) via->SetState(BUSY,OFF);
 		if ( segm == NULL )
@@ -373,8 +372,7 @@ int NbEnds, masque_layer, ii, ok = 0;
 						Track->SetState(END_ONPAD, ON);
 					if( EndPad )
 						Track->SetState(BEGIN_ONPAD, ON);
-					EXCHG(Track->m_Start.x,Track->m_End.x);
-					EXCHG(Track->m_Start.y,Track->m_End.y);
+					EXCHG(Track->m_Start,Track->m_End);
 					EXCHG(Track->start,Track->end);
 					break;
 

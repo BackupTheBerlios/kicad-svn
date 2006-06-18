@@ -282,10 +282,11 @@ int zoom = panel->GetScreen()->GetZoom();
 
 	m_Text->Draw(panel, DC, offset, mode_color );
 
-	GRSetDrawMode(DC, mode_color);
 	gcolor = g_DesignSettings.m_LayerColor[m_Layer];
+	if( (gcolor & ITEM_NOT_SHOW) != 0 ) return ;
 
-	typeaff = DisplayOpt.DisplayPcbTrackFill;
+	GRSetDrawMode(DC, mode_color);
+	typeaff = DisplayOpt.DisplayDrawItems;
 	width = m_Width;
 	if( width/zoom < 2 ) typeaff = FILAIRE;
 
@@ -358,7 +359,7 @@ int zoom = panel->GetScreen()->GetZoom();
 			GRCSegm(&panel->m_ClipBox, DC,
 					TraitD_ox - ox, TraitD_oy - oy,
 					TraitD_fx - ox, TraitD_fy- oy,
-					width / zoom, gcolor);
+					width, gcolor);
 			GRCSegm(&panel->m_ClipBox, DC,
 					FlecheD1_ox - ox, FlecheD1_oy - oy,
 					FlecheD1_fx - ox, FlecheD1_fy- oy,

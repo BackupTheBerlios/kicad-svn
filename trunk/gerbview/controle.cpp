@@ -44,6 +44,19 @@ wxSize delta;
 wxPoint curpos, oldpos;
 int hotkey = 0;
 
+	if( GetScreen()->IsRefreshReq() )
+		{
+		RedrawActiveWindow(DC, TRUE);
+                // We must return here, instead of proceeding.
+                // If we let the cursor move during a refresh request,
+                // the cursor be displayed in the wrong place
+                // during delayed repaint events that occur when
+                // you move the mouse when a message dialog is on
+                // the screen, and then you dismiss the dialog by
+                // typing the Enter key.
+                return;
+		}
+
 	curpos = DrawPanel->CursorRealPosition(Mouse);
 	oldpos = GetScreen()->m_Curseur;
 
@@ -137,20 +150,15 @@ int hotkey = 0;
 	/* Placement sur la grille generale */
 	PutOnGrid( & GetScreen()->m_Curseur);
 
-	if( GetScreen()->IsRefreshReq() )
-		{
-		RedrawActiveWindow(DC, TRUE);
-		}
-
 	if ( (oldpos.x != GetScreen()->m_Curseur.x) ||
 		 (oldpos.y != GetScreen()->m_Curseur.y) )
 		{
 		curpos = GetScreen()->m_Curseur;
 		GetScreen()->m_Curseur = oldpos;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);
+		GetScreen()->CursorOff(DrawPanel, DC);
 
 		GetScreen()->m_Curseur = curpos;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);
+		GetScreen()->CursorOn(DrawPanel, DC);
 
 		if(GetScreen()->ManageCurseur)
 			{

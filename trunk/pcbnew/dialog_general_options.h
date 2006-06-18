@@ -24,6 +24,7 @@
 
 ////@begin includes
 #include "wx/spinctrl.h"
+#include "wx/valgen.h"
 ////@end includes
 
 /*!
@@ -58,6 +59,7 @@ class wxSpinCtrl;
 #define ID_CHECKBOX5 10012
 #define ID_CHECKBOX6 10013
 #define ID_CHECKBOX7 10014
+#define ID_MAGNETIC_PAD_CTRL 10000
 ////@end control identifiers
 
 /*!
@@ -128,6 +130,7 @@ public:
     wxCheckBox* m_Segments_45_Only_Ctrl;
     wxCheckBox* m_AutoPANOpt;
     wxCheckBox* m_Track_DoubleSegm_Ctrl;
+    wxRadioBox* m_MagneticPadOptCtrl;
 ////@end WinEDA_PcbGeneralOptionsFrame member variables
 	WinEDA_PcbFrame * m_Parent;
 	wxDC * m_DC;

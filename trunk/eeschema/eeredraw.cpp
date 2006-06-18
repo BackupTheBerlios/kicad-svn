@@ -88,7 +88,7 @@ wxString title;
 	DC->SetBackground(*wxBLACK_BRUSH);
 	DC->SetBackgroundMode(wxTRANSPARENT);
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC); // effacement curseur
+	GetScreen()->CursorOff(DrawPanel, DC); // effacement curseur
 	if ( GetScreen()->m_FirstRedraw )
 	{
 		m_CurrentScreen->SetZoom(BestZoom());
@@ -108,7 +108,7 @@ wxString title;
 
 	TraceWorkSheet(DC, GetScreen());
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC); // reaffichage curseur
+	GetScreen()->CursorOn(DrawPanel, DC); // reaffichage curseur
 	if(GetScreen()->ManageCurseur)
 	{
 		GetScreen()->ManageCurseur(DrawPanel, DC, FALSE);
@@ -118,7 +118,8 @@ wxString title;
 	GetScreen()->ClrRefreshReq();
 	if( GetScreen()->m_FileName == g_DefaultSchematicFileName )
 	{
-		title.Printf( wxT("%s [%s]"), Main_Title.GetData(),GetScreen()->m_FileName.GetData());
+		wxString msg = g_Main_Title + wxT(" ") + GetBuildVersion();
+		title.Printf( wxT("%s [%s]"), msg.GetData(),GetScreen()->m_FileName.GetData());
 		SetTitle(title);
 	}
 	else

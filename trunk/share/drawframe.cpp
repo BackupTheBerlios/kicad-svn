@@ -192,6 +192,8 @@ void WinEDA_DrawFrame::OnActivate(wxActivateEvent& event)
 	m_FrameIsActive = event.GetActive();
 	if ( DrawPanel )
 		DrawPanel->m_CanStartBlock = -1;
+	
+	event.Skip();	// required under wxMAC
 }
 
 
@@ -450,8 +452,11 @@ si ( id < 0 )
 */
 {
 	// Change Cursor
-	DrawPanel->m_PanelDefaultCursor = new_cursor_id;
-	DrawPanel->SetCursor( new_cursor_id );
+	if (DrawPanel )
+	{
+		DrawPanel->m_PanelDefaultCursor = new_cursor_id;
+		DrawPanel->SetCursor( new_cursor_id );
+	}
 	SetCursor( wxCURSOR_ARROW );
 	DisplayToolMsg(title);
 
@@ -460,29 +465,28 @@ si ( id < 0 )
 	// Old Tool Inactif ou ID_NO_SELECT_BUTT actif si pas de nouveau Tool
 	if ( m_ID_current_state )
 	{
-		m_VToolBar->ToggleTool(m_ID_current_state, FALSE);
+		if ( m_VToolBar ) m_VToolBar->ToggleTool(m_ID_current_state, FALSE);
 		if ( m_AuxVToolBar ) m_AuxVToolBar->ToggleTool(m_ID_current_state, FALSE);
 	}
 	else
 		{
 		if ( id )
 		{
-			m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, FALSE);
+			if ( m_VToolBar ) m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, FALSE);
 			if ( m_AuxVToolBar ) m_AuxVToolBar->ToggleTool(m_ID_current_state, FALSE);
 		}
-		else m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
+		else if ( m_VToolBar ) m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
 		}
 
 	// New Tool Actif
 	if ( id )
 	{
-		m_VToolBar->ToggleTool(id, TRUE);
+		if ( m_VToolBar ) m_VToolBar->ToggleTool(id, TRUE);
 		if ( m_AuxVToolBar ) m_AuxVToolBar->ToggleTool(id, TRUE);
 	}
-	else m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
+	else if ( m_VToolBar ) m_VToolBar->ToggleTool(ID_NO_SELECT_BUTT, TRUE);
 
 	m_ID_current_state = id;
-
 }
 
 
@@ -496,9 +500,9 @@ void WinEDA_DrawFrame::OnZoom(int zoom_type)
 	replacé au centre de l'ecran
 */
 {
-bool move_mouse_cursor = FALSE;
-
 	if ( DrawPanel == NULL ) return;
+
+bool move_mouse_cursor = FALSE;
 
 	switch (zoom_type)
 		{

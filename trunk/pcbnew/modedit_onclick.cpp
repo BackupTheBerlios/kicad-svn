@@ -35,6 +35,7 @@ void WinEDA_ModuleEditFrame::OnLeftClick(wxDC * DC, const wxPoint& MousePos)
 {
 EDA_BaseStruct * DrawStruct = m_CurrentScreen->m_CurrentItem;
 
+	GetScreen()->CursorOff(DrawPanel, DC);
 	if ( m_ID_current_state == 0 )
 		{
 		if ( DrawStruct && DrawStruct->m_Flags ) // Commande "POPUP" en cours
@@ -161,6 +162,7 @@ wxT("WinEDA_ModEditFrame::ProcessCommand err: m_Flags != 0\nStruct @%p, type %d 
 				m_ID_current_state = 0;
 				break;
 		}
+	GetScreen()->CursorOn(DrawPanel, DC);
 }
 
 

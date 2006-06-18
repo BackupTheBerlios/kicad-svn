@@ -29,8 +29,8 @@ TRACK * EndNewTrack,		/* Pointeur sur le dernier segment de la liste
 							chainee de la mouvelle piste */
 		 * pt_segm, * pt_del;
 int ii, jj, nb_segm, nbconnect;
-int startx, starty;				/* coord du point de depart de la piste */
-int endx, endy;					/* coord du point de fin de la piste */
+wxPoint start;				/* coord du point de depart de la piste */
+wxPoint end;					/* coord du point de fin de la piste */
 int startmasklayer, endmasklayer;		/* masque couche de depart et de fin */
 TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
 								des pistes equipotentielles */
@@ -73,17 +73,17 @@ TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
 	if( (StartTrack == NULL) || (EndTrack == NULL) ) return(0);
 
 	/* Calcul des caracteristiques des points de debut et de fin */
-	startx = StartTrack->m_Start.x; starty = StartTrack->m_Start.y;
-	endx = EndTrack->m_End.x; endy = EndTrack->m_End.y;
+	start = StartTrack->m_Start;
+	end = EndTrack->m_End;
 
 	/* Les points de depart et de fin doivent etre distincts */
-	if( (startx == endx) && (starty == endy) ) return(0);
+	if( start == end ) return(0);
 
 	/* Determinations des couches interconnectees a ces points */
 	startmasklayer = StartTrack->ReturnMaskLayer();
 	endmasklayer = EndTrack->ReturnMaskLayer();
 	/* Il peut y avoir une via ou un pad sur les extremites: */
-	pt_segm = Fast_Locate_Via(Pcb->m_Track,NULL,startx,starty,startmasklayer);
+	pt_segm = Fast_Locate_Via(Pcb->m_Track, NULL, start, startmasklayer);
 	if( pt_segm ) startmasklayer |= pt_segm->ReturnMaskLayer();
 	if( StartTrack->start && (StartTrack->start->m_StructType == TYPEPAD) )
 		{	/* start sur pad */
@@ -91,7 +91,7 @@ TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
 		startmasklayer |=  pt_pad->m_Masque_Layer;
 		}
 
-	pt_segm = Fast_Locate_Via(Pcb->m_Track,NULL,endx,endy,endmasklayer);
+	pt_segm = Fast_Locate_Via(Pcb->m_Track, NULL, end, endmasklayer);
 	if( pt_segm ) endmasklayer |= pt_segm->ReturnMaskLayer();
 	if( EndTrack->end && ( EndTrack->end->m_StructType == TYPEPAD) )
 		{
@@ -106,7 +106,7 @@ TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
  	/* test : un segment doit etre connecte au point de depart car sinon
 	il est inutile d'analyser l'autre point */
 
-	pt_segm = Fast_Locate_Piste(BufDeb, BufEnd, startx, starty, startmasklayer);
+	pt_segm = Fast_Locate_Piste(BufDeb, BufEnd, start, startmasklayer);
 
 	if(pt_segm == NULL)		/* Pas de piste reliee au point de depart */
 		{
@@ -120,7 +120,7 @@ TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
 	pas de definir une piste, puisque elles sont sur un carrefour */
 	for( pt_del = BufDeb, nbconnect = 0; ; )
 		{
-		pt_segm = Fast_Locate_Piste( pt_del,BufEnd, endx, endy, endmasklayer );
+		pt_segm = Fast_Locate_Piste( pt_del,BufEnd, end, endmasklayer );
 		if( pt_segm == NULL) break;
 
 		if(pt_segm->m_StructType != TYPEVIA)
@@ -173,8 +173,7 @@ TRACK * BufDeb, *BufEnd;		/* Pointeurs de debut et de fin de la zone
 			{
 			if( (pt_segm->GetState(BUSY)) == 0 ) break;
 
-			if( ((pt_segm->m_Start.x == startx) && (pt_segm->m_Start.y == starty))
-				|| ((pt_segm->m_End.x == startx) && (pt_segm->m_End.y == starty)) )
+			if( (pt_segm->m_Start == start) || (pt_segm->m_End == start) )
 				{	/* la piste marquee peut etre effacee */
 				TRACK* NextS;
 				Trace_Une_Piste(frame->DrawPanel, DC, pt_del, nb_segm, GR_XOR|GR_SURBRILL);

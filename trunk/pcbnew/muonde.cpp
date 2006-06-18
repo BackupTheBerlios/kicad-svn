@@ -159,8 +159,6 @@ bool abort;
 			break;
 	}
 	
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
-
 wxString value;	
 	if( g_UnitMetric)
 	{
@@ -203,7 +201,6 @@ wxString value;
 	if (abort)
 	{
 		DrawPanel->MouseToCursorSchema();
-		DrawPanel->m_IgnoreMouseEvents = FALSE;
 		return NULL;
 	}
 
@@ -267,7 +264,6 @@ wxString value;
 	Module->Set_Rectangle_Encadrement();
 	Module->Draw(DrawPanel, DC, wxPoint(0,0), GR_OR) ;
 	DrawPanel->MouseToCursorSchema();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	m_Pcb->m_Status_Pcb = 0 ;
 	m_CurrentScreen->SetModify();
 	return Module;
@@ -511,12 +507,10 @@ int pad_count = 2;
 EDGE_MODULE * edge; int * ptr;
 int ii, npoints;
 	
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 WinEDA_SetParamShapeFrame * frame = new WinEDA_SetParamShapeFrame(this, wxPoint(-1,-1));
 	int ok = frame->ShowModal(); frame->Destroy();
 	
 	DrawPanel->MouseToCursorSchema();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 	
 	if ( ok != 1 )
 	{

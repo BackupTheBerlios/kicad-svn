@@ -231,8 +231,11 @@ MODULE * Module = (MODULE *) m_Parent;
 
 	if( Module && Module->m_Layer == CUIVRE_N) color = g_ModuleTextCUColor;
 	if( Module && Module->m_Layer == CMP_N)  color = g_ModuleTextCMPColor;
+		
+	if ( (color & ITEM_NOT_SHOW) != 0 ) return;
 
 	if(m_NoShow) color = g_ModuleTextNOVColor;
+	if ( (color & ITEM_NOT_SHOW) != 0 ) return;
 
 	/* Si le texte doit etre mis en miroir: modif des parametres */
 	if( miroir == 0 ) size.x = - size.x;

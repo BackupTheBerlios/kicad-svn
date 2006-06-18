@@ -247,9 +247,7 @@ void WinEDA_PcbFrame::Place_Mire(MIREPCB * MirePcb, wxDC * DC)
 {
 	if( MirePcb == NULL ) return ;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase cursor
 	MirePcb->Draw(DrawPanel, DC, wxPoint(0,0),GR_OR);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display cursor
 
 	MirePcb->m_Flags = 0;
 	GetScreen()->ManageCurseur = NULL;

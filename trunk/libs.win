@@ -16,10 +16,6 @@ KICAD_BIN = /f/kicad/winexe
 ifndef WXWIN
 WXWIN=/f/wxWidgets-2.6.3
 endif
-WXLIBVERSION = -2.6
-#define/undef the unicode prefix
-UNICODELIB = u
-
 
 #comment this for static wxWidgets link
 #WXUSINGDLL = 1
@@ -29,24 +25,36 @@ OBJSUFF = .o
 
 FINAL = 1
 
-#setup.h is in "$(WXWIN)/lib/wx/include/msw-ansi-release-xxxx"; Adjust exact name
-ALL_CPPFLAGS += -I$(WXWIN)/lib/wx/include/msw-unicode-release-static$(WXLIBVERSION)
+ALL_CPPFLAGS = `$(WXWIN)/wx-config --cppflags`
 
-EDACPPFLAGS = $(ALL_CPPFLAGS) $(ALL_CXXFLAGS)
+EDACPPFLAGS = $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(EXTRACPPFLAGS)
 
 EDALIBS = $(EXTRALIBS)
 
-# Attention: l'ordre des librairies semble avoir de l'importance
-#Warning: Library order seems important
-WXLIB_BASE = -L$(WXWIN)/lib --subsystem,windows -mwindows\
-	-lwx_msw$(UNICODELIB)$(WXLIBVERSION) -lwxexpat$(WXLIBVERSION)\
-	-lwxpng$(WXLIBVERSION) -lwxjpeg$(WXLIBVERSION)\
-	-lwxzlib$(WXLIBVERSION)
+SYSWXLIB = `$(WXWIN)/wx-config --libs gl`
 
-SYSWXLIB =  -mthreads $(WXLIB_BASE)\
-	-lrpcrt4 -loleaut32 -lole32 -luuid -lwinspool -lwinmm\
-	-lshell32 -lcomctl32 -lcomdlg32 -lctl3d32 -ladvapi32\
-	-lwsock32 -lgdi32
+#include ../makeg95.env
 
-LIBS3D = -lwx_msw$(UNICODELIB)_gl$(WXLIBVERSION) /mingw/lib/libglu32.a -lopengl32
+.cpp.o:
+	gcc -c $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) $(EXTRACPPFLAGS) -o $@ $*.cpp
 
+
+# Settings for Cyginw/Mingw32
+# Some versions of windres cannot cope with the --preprocessor
+# option. Uncomment the RCPREPROCESSOR line below if yours can.
+ifndef WINE
+RESCOMP=$(CROSS)windres $(_USE_TEMP_FILE_IF_SUPPORTED)
+else
+RESCOMP=wrc
+endif
+RCINPUTSWITCH=-i
+RCOUTPUTSWITCH=-o
+RCINCSWITCH=--include-dir
+RCDEFSWITCH=--define
+# Note that this can cause windres to fail (Win95/98 problem?)
+# but commenting out RCPREPROCESSOR then does the trick.
+#RCPREPROCESSOR=--preprocessor "$(CXX) -c -E -xc-header -DRC_INVOKED"
+
+# Don't make this too long (e.g. by adding contrib/include/wx) because it will
+# truncate the command line
+RESFLAGS=$(RCPREPROCESSOR) $(RCINCSWITCH) $(WXDIR)/include $(RCEXTRAINC) $(RCDEFSWITCH) __WIN32__ $(RCDEFSWITCH) __WIN95__ $(RCDEFSWITCH) __GNUWIN32__

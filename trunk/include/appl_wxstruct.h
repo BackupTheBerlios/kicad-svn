@@ -56,6 +56,8 @@ public:
 	wxLocale * m_Locale;				// Gestion de la localisation
 	int m_LanguageId;				// indicateur de choix du langage ( 0 = defaut)
 	wxMenu * m_Language_Menu;		// List menu for languages
+	wxString m_PdfBrowser;			// Name of the selected browser, for browsing pdf datasheets
+	bool m_PdfBrowserIsDefault;		// True if the pdf browser is the default (m_PdfBrowser not used)
 
 public:
 	WinEDA_App(void);
@@ -79,6 +81,9 @@ public:
 	bool ReadProjectConfig(const wxString & local_config_filename,
 			const wxString & GroupName, PARAM_CFG_BASE ** List,
 			bool Load_Only_if_New);
+
+	void ReadPdfBrowserInfos(void);
+	void WritePdfBrowserInfos(void);
 
 };
 

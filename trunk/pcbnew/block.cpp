@@ -315,18 +315,24 @@ int endcommande = TRUE;
 			break;
 
 		case BLOCK_DELETE: /* Delete */
+			// Turn off the block rectangle now so it is not redisplayed
+			GetScreen()->ManageCurseur = NULL;
 			GetScreen()->BlockLocate.m_State = STATE_BLOCK_STOP;
 			DrawAndSizingBlockOutlines(DrawPanel, DC, FALSE);
 			Block_Delete(DC);
 			break;
 
 		case BLOCK_ROTATE: /* Rotation */
+			// Turn off the block rectangle now so it is not redisplayed
+			GetScreen()->ManageCurseur = NULL;
 			GetScreen()->BlockLocate.m_State = STATE_BLOCK_STOP;
 			DrawAndSizingBlockOutlines(DrawPanel, DC, FALSE);
 			Block_Rotate(DC);
 			break;
 
-		case BLOCK_INVERT: /* Fip */
+		case BLOCK_INVERT: /* Flip */
+			// Turn off the block rectangle now so it is not redisplayed
+			GetScreen()->ManageCurseur = NULL;
 			GetScreen()->BlockLocate.m_State = STATE_BLOCK_STOP;
 			DrawAndSizingBlockOutlines(DrawPanel, DC, FALSE);
 			Block_Invert(DC);
@@ -344,6 +350,9 @@ int endcommande = TRUE;
 		case BLOCK_PASTE: break;
 
 		case BLOCK_ZOOM: /* Window Zoom */
+			//Turn off the redraw block routine now so it is not displayed
+			// with one corner at the new center of the screen
+			GetScreen()->ManageCurseur = NULL;
 			Window_Zoom( GetScreen()->BlockLocate );
 			break;
 

@@ -24,16 +24,53 @@ void WinEDA_MainFrame::Process_Preferences(wxCommandEvent& event)
 /*****************************************************************/
 {
 int id = event.GetId();
+wxString FullFileName;
+wxString mask(wxT("*"));
+#ifdef __WINDOWS__
+mask += wxT(".exe");
+#endif
 
 	switch (id)
 	{
+		case ID_SELECT_DEFAULT_PDF_BROWSER:
+			EDA_Appl->m_PdfBrowserIsDefault = TRUE;
+			GetMenuBar()->Check(ID_SELECT_DEFAULT_PDF_BROWSER, EDA_Appl->m_PdfBrowserIsDefault);
+			GetMenuBar()->Check(ID_SELECT_PREFERED_PDF_BROWSER, !EDA_Appl->m_PdfBrowserIsDefault);
+			EDA_Appl->WritePdfBrowserInfos();
+			break;
+
+		case ID_SELECT_PREFERED_PDF_BROWSER:
+			if ( EDA_Appl->m_PdfBrowser.IsEmpty() )
+			{
+				DisplayError(this, _("You must choose a PDF wiever before use this option"));
+				break;
+			}
+			EDA_Appl->m_PdfBrowserIsDefault = FALSE;
+			GetMenuBar()->Check(ID_SELECT_DEFAULT_PDF_BROWSER, EDA_Appl->m_PdfBrowserIsDefault);
+			GetMenuBar()->Check(ID_SELECT_PREFERED_PDF_BROWSER, !EDA_Appl->m_PdfBrowserIsDefault);
+			EDA_Appl->WritePdfBrowserInfos();
+			break;
+
+		case ID_SELECT_PREFERED_PDF_BROWSER_NAME:
+			EDA_Appl->ReadPdfBrowserInfos();
+			FullFileName = EDA_Appl->m_PdfBrowser;
+			FullFileName = EDA_FileSelector( _("Prefered Pdf Browser:"),
+					wxPathOnly(FullFileName),	/* Default path */
+					FullFileName,			/* default filename */
+					wxEmptyString,			/* default filename extension */
+					mask,					/* filter for filename list */
+					this,					/* parent frame */
+					wxOPEN,					/* wxSAVE, wxOPEN ..*/
+					TRUE					/* true = keep the current path */
+					);
+			if ( ! FullFileName.IsEmpty() && (EDA_Appl->m_PdfBrowser != FullFileName) )
+			{
+				EDA_Appl->m_PdfBrowser = FullFileName;
+				EDA_Appl->WritePdfBrowserInfos();
+			}
+			break;
+
 		case ID_SELECT_PREFERED_EDITOR:
-		{
-			wxString FullFileName;
-			wxString mask(wxT("*"));
-#ifdef __WINDOWS__
-			mask += wxT(".exe");
-#endif
 			FullFileName = EDA_FileSelector( _("Prefered Editor:"),
 					wxPathOnly(g_EditorName),	/* Default path */
 					g_EditorName,			/* default filename */
@@ -48,7 +85,6 @@ int id = event.GetId();
 				g_EditorName = FullFileName;
 				EDA_Appl->m_EDA_CommonConfig->Write(wxT("Editor"), g_EditorName);
 			}
-		}
 			break;
 
 		case ID_PREFERENCES_FONT_INFOSCREEN:

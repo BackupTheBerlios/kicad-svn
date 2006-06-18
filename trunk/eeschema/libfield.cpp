@@ -51,15 +51,25 @@ void WinEDA_LibeditFrame::StartMoveField(wxDC * DC, LibDrawField *field)
 /****************************************************************************/
 /* Initialise le deplacement d'un champ ( ref ou Name) */
 {
+wxPoint startPos;
 
 	if( (CurrentLibEntry == NULL) || ( field == NULL ) ) return;
 	CurrentDrawItem = field;
 	LastTextPosition = field->m_Pos;
 	CurrentDrawItem->m_Flags |= IS_MOVED;
+
+	startPos.x = LastTextPosition.x;
+	startPos.y = -LastTextPosition.y;
+	m_CurrentScreen->CursorOff(DrawPanel, DC);
+	m_CurrentScreen->m_Curseur = startPos;
+	DrawPanel->MouseToCursorSchema();
+
 	m_CurrentScreen->ManageCurseur = ShowMoveField;
 	m_CurrentScreen->ForceCloseManageCurseur = ExitMoveField;
 	m_CurrentScreen->ManageCurseur(DrawPanel, DC, TRUE);
 	StartCursor = m_CurrentScreen->m_Curseur;
+
+	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 /*****************************************************************/
@@ -102,8 +112,8 @@ LibDrawField *Field = (LibDrawField *)CurrentDrawItem;
 
 	LastTextPosition.x = panel->GetScreen()->m_Curseur.x;
 	LastTextPosition.y = - panel->GetScreen()->m_Curseur.y;
-	if ( (Field->m_Flags & IS_NEW) )
-		Field->m_Pos = LastTextPosition;
+
+	Field->m_Pos = LastTextPosition;
 
 	DrawGraphicText(panel, DC,
 			wxPoint(LastTextPosition.x, - LastTextPosition.y),

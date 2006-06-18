@@ -51,7 +51,7 @@ Under msys:
 	of msys.)
 	
 Build wxWidgets:
-	-> currently, my build version is 2.6.2, with or without unicode support
+	-> currently, my build version is 2.6.3, with or without unicode support
 	you can copy wxWidgets_windows.txt or wxWidgets_windows_unicode.txt
 	in wxWidgets directory an run sh wxWidgets_linux.txt (or wxWidgets_windows_unicode.txt)
 	and make
@@ -77,7 +77,7 @@ Under msys:
 Patch wxWidgets (wxGTK version)
 *************************************************************************************
 patch for Arcs drawings  (correct draw arcs)
-wxGTK-2.6.2/src/gtk/dcclient.cpp
+wxGTK-2.6.3/src/gtk/dcclient.cpp
 line 604
         if (m_pen.GetStyle() != wxTRANSPARENT)
         {
@@ -100,7 +100,7 @@ must be
 
 
 Patch for printing (correct line ends )
-wxGTK-2.6.2/src/generic/dcpsg.cpp
+wxGTK-2.6.3/src/generic/dcpsg.cpp
 line 1622
 	PsPrint( "%%EndProlog\n" );
 

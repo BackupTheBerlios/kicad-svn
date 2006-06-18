@@ -33,10 +33,8 @@ static int s_ItemCount, s_MarkerCount;
 void WinEDA_PcbFrame::InstallFindFrame(const wxPoint & pos, wxDC * DC)
 /*********************************************************************/
 {
-	DrawPanel->m_IgnoreMouseEvents = TRUE;
 	WinEDA_PcbFindFrame * frame = new WinEDA_PcbFindFrame(this, DC, pos);
 	frame->ShowModal(); frame->Destroy();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
 
@@ -122,11 +120,11 @@ int StartCount;
 		}
 		else
 		{	// Positionnement du curseur sur l'item
-			screen->Trace_Curseur(m_Parent->DrawPanel, m_DC);
+			screen->CursorOff(m_Parent->DrawPanel, m_DC);
 			screen->m_Curseur = locate_pos;
 			GRMouseWarp(m_Parent->DrawPanel, screen->m_Curseur );
 			m_Parent->DrawPanel->MouseToCursorSchema();
-			screen->Trace_Curseur(m_Parent->DrawPanel, m_DC);
+			screen->CursorOn(m_Parent->DrawPanel, m_DC);
 		}
 
 		if( FindMarker ) msg = _("Marker found");

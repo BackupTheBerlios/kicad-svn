@@ -1248,6 +1248,9 @@ public:
 	void SetValue(const wxString & new_text);
 	void Enable(bool enbl);
 	void SetFocus(void) { m_FrameText->SetFocus(); }
+ 	void SetInsertionPoint(int n) { m_FrameText->SetInsertionPoint(n); }
+ 	void SetSelection(int n, int m) {
+		m_FrameText->SetSelection(n, m); }
 };
 
 /*********************************************************************/

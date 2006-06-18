@@ -57,7 +57,9 @@ bool WinEDA_App::OnInit(void)
 	}
 	else m_MainFrame->m_PrjFileName = wxT("noname.pro");
 
-	m_MainFrame->SetTitle(Main_Title + wxT(" ") + m_MainFrame->m_PrjFileName);
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	Title += wxT(" ") + m_MainFrame->m_PrjFileName;
+	m_MainFrame->SetTitle(Title);
 	m_MainFrame->ReCreateMenuBar();
 	m_MainFrame->RecreateBaseHToolbar();
 

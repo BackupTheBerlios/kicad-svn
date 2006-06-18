@@ -130,6 +130,8 @@ public:
 	void CopyDocToAlias(wxCommandEvent& event);
 	void BrowseAndSelectDocFile(wxCommandEvent& event);
 	void SelectNewField(wxCommandEvent& event);
+	void CopyFieldDataToBuffer(LibDrawField * Field);
+	void CopyBufferToFieldData(LibDrawField * Field);
 	void CopyDataToPanelField(void);
 	void CopyPanelFieldToData(void);
 

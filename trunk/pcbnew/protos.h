@@ -59,9 +59,9 @@ void Trace_Pads_Only(WinEDA_DrawPanel * panel, wxDC * DC, MODULE * Module, int o
 void Affiche_1_Segment(WinEDA_DrawPanel * panel, wxDC * DC, int ux0, int uy0, int dx, int dy,
 						int width, int mode, int color);
 
-/**************/
-/* LOCATE.C : */
-/**************/
+/****************/
+/* LOCATE.CPP : */
+/****************/
 
 MODULE * ReturnModule(BOARD * Pcb, const wxString & name);
 	/* Recherche d'une empreinte par son nom */
@@ -69,17 +69,17 @@ MODULE * ReturnModule(BOARD * Pcb, const wxString & name);
 D_PAD * ReturnPad(MODULE * Module, const wxString & name);
 	/* Recherche d'un pad par son nom, pour le module Module */
 
-TRACK * Locate_Via(BOARD * Pcb, int pX, int pY, int layer);
+TRACK * Locate_Via(BOARD * Pcb, const wxPoint & pos, int layer);
 
 TRACK * Fast_Locate_Via(TRACK *start_adr, TRACK* end_adr,
-			int x, int y, int masquelayer);
+			const wxPoint & pos, int masquelayer);
 	/* Localise la via de centre le point x,y , sur les couches donnees
 		 par masquelayer.
 		 la recherche se fait de l'adresse start_adr a end_adr(non comprise)
 	*/
 
 TRACK* Fast_Locate_Piste(TRACK *start_adr, TRACK* end_adr,
-						int x, int y, int masquelayer);
+						const wxPoint & ref_pos, int masquelayer);
 	/* Localiste le segment dont une extremite coincide avec le point x,y
 		 sur les couches donnees par masquelayer
 		 la recherche se fait de l'adresse start_adr a end_adr(non comprise)
@@ -97,7 +97,7 @@ TRACK * Locate_Piste_Connectee( TRACK*ptr_piste, TRACK* pt_base,
 
 TRACK * Locate_Pistes(TRACK * start_adresse,int layer, int typeloc);
 TRACK * Locate_Pistes(TRACK * start_adresse,
-							 int ref_pX, int ref_pY,int layer);
+							const wxPoint & ref_pos,int layer);
 	/*
 	1 -  routine de localisation du segment de piste pointe par la souris.
 	2 -  routine de localisation du segment de piste pointe par le point
@@ -115,8 +115,8 @@ D_PAD * Locate_Pad_Connecte(BOARD * Pcb, TRACK * ptr_segment, int extr);
 			 un pointeur sur la description de la pastille si localisation
 			  pointeur NULL si pastille non trouvee */
 
-D_PAD * Locate_Any_Pad(BOARD * Pcb, int typeloc);
-D_PAD * Locate_Any_Pad(BOARD * Pcb, int ref_pX, int ref_pY);
+D_PAD * Locate_Any_Pad(BOARD * Pcb, int typeloc, bool OnlyCurrentLayer = FALSE);
+D_PAD * Locate_Any_Pad(BOARD * Pcb, const wxPoint & ref_pos, bool OnlyCurrentLayer = FALSE);
 	/*
 	localisation de la pastille pointee par la coordonnee ref_pX,,ref_pY, ou
 	par la souris,  recherche faite sur toutes les empreintes.
@@ -129,7 +129,7 @@ D_PAD * Locate_Any_Pad(BOARD * Pcb, int ref_pX, int ref_pY);
 	*/
 
 D_PAD * Locate_Pads(MODULE * Module, int layer, int typeloc) ;
-D_PAD * Locate_Pads(MODULE * Module, int ref_pX, int ref_pY,int layer) ;
+D_PAD * Locate_Pads(MODULE * Module, const wxPoint & ref_pos,int layer) ;
 	/* localisation de la pastille pointee par la coordonnee ref_pX,,ref_pY, ou
 	par la souris,  concernant l'empreinte  en cours.
 		entree :
@@ -183,7 +183,7 @@ TEXTE_PCB * Locate_Texte_Pcb(EDA_BaseStruct * PtStruct, int typeloc);
 		la recherche se fait a partir de l'adresse pr_texte */
 
 
-D_PAD * Fast_Locate_Pad_Connecte(BOARD * Pcb, int px, int py, int layer);
+D_PAD * Fast_Locate_Pad_Connecte(BOARD * Pcb, const wxPoint & ref_pos, int layer);
 	/* Routine cherchant le pad contenant le point px,py, sur la couche layer
 		( extremite de piste )
 		 La liste des pads doit deja exister.
@@ -213,7 +213,7 @@ int distance(int seuil);
 	*/
 
 TRACK * Locate_Zone(TRACK * start_adresse,int layer, int typeloc);
-TRACK * Locate_Zone(TRACK * start_adresse, int ref_pX, int ref_pY,int layer);
+TRACK * Locate_Zone(TRACK * start_adresse, const wxPoint & ref_pos,int layer);
 	/*
 	1 -  routine de localisation du segment de zone pointe par la souris.
 	2 -  routine de localisation du segment de zone pointe par le point

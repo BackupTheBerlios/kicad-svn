@@ -109,9 +109,9 @@ wxPoint cursorpos = GetScreen()->m_Curseur;
 		/* Placement en liste generale */
 		oldsegment->Pnext = GetScreen()->EEDrawList;
 		GetScreen()->EEDrawList = oldsegment;
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+		GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 		RedrawOneStruct(DrawPanel,DC, oldsegment, GR_DEFAULT_DRAWMODE);
-		GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+		GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 		/* Create a new segment, and chain it after the current new segment */
 		if ( nextsegment ) 
@@ -233,7 +233,7 @@ wxPoint end_point, alt_end_point;
 
 	
 	/* Redraw wires and junctions which can be changed by TestDanglingEnds() */
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	EDA_BaseStruct *item = GetScreen()->EEDrawList;
 	while ( item )
 	{
@@ -251,7 +251,7 @@ wxPoint end_point, alt_end_point;
 	}
 	
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	SetFlagModify(GetScreen());
 }
@@ -426,9 +426,9 @@ DrawJunctionStruct *NewConnect;
 
 	g_ItemToRepeat = NewConnect;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel,DC, NewConnect, GR_DEFAULT_DRAWMODE);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	NewConnect->Pnext = GetScreen()->EEDrawList;
 	GetScreen()->EEDrawList = NewConnect;
@@ -447,9 +447,9 @@ DrawNoConnectStruct *NewNoConnect;
 	NewNoConnect = new DrawNoConnectStruct(GetScreen()->m_Curseur);
 	g_ItemToRepeat = NewNoConnect;
 
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Erase schematic cursor
+	GetScreen()->CursorOff(DrawPanel, DC);	// Erase schematic cursor
 	RedrawOneStruct(DrawPanel,DC, NewNoConnect,  GR_DEFAULT_DRAWMODE);
-	GetScreen()->Trace_Curseur(DrawPanel, DC);	// Display schematic cursor
+	GetScreen()->CursorOn(DrawPanel, DC);	// Display schematic cursor
 
 	NewNoConnect->Pnext = GetScreen()->EEDrawList;
 	GetScreen()->EEDrawList = NewNoConnect;
@@ -599,7 +599,7 @@ long number = 0;
  	ii = name.Len() - 1; nn = 0;
 	if( !isdigit(name.GetChar(ii)) ) return;
 
-	while( (ii > 0) && isdigit(name.GetChar(ii)) ) { ii--; nn++ ; }
+	while( (ii >= 0) && isdigit(name.GetChar(ii)) ) { ii--; nn++ ; }
 	ii++;	/* digits are starting at ii position */
 wxString litt_number = name.Right(nn);
 	if ( litt_number.ToLong(&number) )

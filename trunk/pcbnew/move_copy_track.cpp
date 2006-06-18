@@ -552,15 +552,15 @@ MODULE * Module;
 	Module = Pcb->m_Modules;
 	for( ; Module != NULL; Module = (MODULE*)Module->Pnext )
 		{
-		pt_pad = Locate_Pads(Module,pos.x, pos.y, LayerMask);
+		pt_pad = Locate_Pads(Module, pos, LayerMask);
 		if (pt_pad) return(pt_pad);
 		}
 
 	/* ici aucun pad n'a ete localise: detection d'un segment de piste */
 
-	ptsegm = Fast_Locate_Piste( Pcb->m_Track, NULL, pos.x, pos.y, LayerMask);
+	ptsegm = Fast_Locate_Piste( Pcb->m_Track, NULL, pos, LayerMask);
 	if( ptsegm == NULL )
-		ptsegm = Locate_Pistes( Pcb->m_Track, pos.x, pos.y, LayerMask);
+		ptsegm = Locate_Pistes( Pcb->m_Track, pos, LayerMask);
 	return(ptsegm);
 }
 

@@ -21,6 +21,7 @@
 #include "common.h"
 #include "worksheet.h"
 #include "id.h"
+#include "build_version.h"
 
 #include "bitmaps.h"
 #include "Language.xpm"
@@ -36,17 +37,13 @@
 #include "Lang_De.xpm"
 #include "Lang_Sl.xpm"
 #include "Lang_Hu.xpm"
+#include "Lang_Po.xpm"
 #endif
 
 
 #define FONT_DEFAULT_SIZE 10	/* Default font size.
 				The real font size will be computed at run time */
 
-#ifdef __WINDOWS__
-#define SETBITMAPS(icon) item->SetBitmaps(apply_xpm, (icon))
-#else
-#define SETBITMAPS(icon)
-#endif
 
 	/*****************************/
 	/* Constructeur de WinEDA_App */
@@ -72,6 +69,8 @@ WinEDA_App::WinEDA_App(void)
 	m_LanguageId = wxLANGUAGE_DEFAULT;
 	m_Language_Menu = NULL;
 	m_Locale = NULL;
+
+	m_PdfBrowserIsDefault = TRUE;
 
 	/* Init de variables globales d'interet general: */
 	g_FloatSeparator = '.';		// Nombres flottants = 0.1 par exemple
@@ -128,7 +127,7 @@ wxString EnvLang;
 	SetAppName(name);
 	m_EDA_Config = new wxConfig(name);
 	m_EDA_CommonConfig = new wxConfig(wxT("kicad_common"));
-
+	
 	/* Creation des outils de trace */
 	DrawPen = new wxPen( wxT("GREEN"), 1, wxSOLID);
 	DrawBrush = new wxBrush(wxT("BLACK"), wxTRANSPARENT);
@@ -153,6 +152,7 @@ wxString EnvLang;
 	// Analyse command line & init binary path
 	SetBinDir();
 
+	ReadPdfBrowserInfos();
 	// Internationalisation: chargement du Dictionnaire de kicad
 	m_EDA_CommonConfig->Read(wxT("Language"), &m_LanguageId, wxLANGUAGE_DEFAULT);
 
@@ -429,6 +429,10 @@ void WinEDA_App::SetLanguageIdentifier(int menu_id)
 			m_LanguageId = wxLANGUAGE_HUNGARIAN ;
 			break;
 
+		case ID_LANGUAGE_POLISH:
+			m_LanguageId = wxLANGUAGE_POLISH ;
+			break;
+
 		default:
 			m_LanguageId = wxLANGUAGE_DEFAULT;
 			break;
@@ -495,6 +499,11 @@ wxMenuItem * item;
 		SETBITMAPS(lang_hu_xpm);
 		m_Language_Menu->Append(item);
 
+		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_POLISH,
+			_("Polish"), wxEmptyString, wxITEM_CHECK);
+		SETBITMAPS(lang_po_xpm);
+		m_Language_Menu->Append(item);
+
 #if 0
 		item = new wxMenuItem(m_Language_Menu, ID_LANGUAGE_RUSSIAN,
 			_("Russian"), wxEmptyString, wxITEM_CHECK);
@@ -503,6 +512,7 @@ wxMenuItem * item;
 #endif
 	}
 
+	m_Language_Menu->Check(ID_LANGUAGE_POLISH, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_HUNGARIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, FALSE);
 	m_Language_Menu->Check(ID_LANGUAGE_ITALIAN, FALSE);
@@ -540,11 +550,16 @@ wxMenuItem * item;
 
 		case wxLANGUAGE_SLOVENIAN:
 			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
+			break;
 		
 		case wxLANGUAGE_HUNGARIAN:
 			m_Language_Menu->Check(ID_LANGUAGE_SLOVENIAN, TRUE);
-		
 			break;
+
+		case wxLANGUAGE_POLISH:
+			m_Language_Menu->Check(ID_LANGUAGE_POLISH, TRUE);
+			break;
+
 		default:
 			m_Language_Menu->Check(ID_LANGUAGE_DEFAULT, TRUE);
 			break;

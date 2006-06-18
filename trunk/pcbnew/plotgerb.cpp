@@ -71,7 +71,7 @@ Outils et D_CODES
 #define DIM_TRAIT 120 	/* largeur des traits (serigraphie,contours) en 0.1 mils */
 
 /* Variables locales : */
-static int last_D_code ;
+static int s_Last_D_code ;
 static float Gerb_scale_plot;		/*Coeff de conversion d'unites des traces */
 static int scale_spot_mini;		/* Ouverture mini (pour remplissages) */
 static D_CODE * ListeDCode;		/* Pointeur sur la zone de stockage des D_CODES
@@ -83,6 +83,7 @@ static double scale_x , scale_y ; /* echelles de convertion en X et Y (compte te
 /* Routines Locales */
 
 static void Init_Trace_GERBER(WinEDA_BasePcbFrame * frame, FILE * gerbfile);
+static void Init_ApertureList(void);
 static void Fin_Trace_GERBER(WinEDA_BasePcbFrame * frame, FILE * gerbfile);
 static void Plot_1_CIRCLE_pad_GERBER(wxPoint pos,int diametre) ;
 static void trace_1_pastille_OVALE_GERBER(wxPoint pos, wxSize size,int orient);
@@ -118,10 +119,9 @@ int tracevia = 1;
 
 	InitPlotParametresGERBER(g_PlotOffset, scale_x, scale_y);
 
-	ListeDCode = (D_CODE *) adr_himem - (MAX_D_CODE + 2 );
-	memset(ListeDCode, 0, sizeof(D_CODE)); /* code indiquant a la routine get_D_code la fin de
-					la zone de description des D_CODES */
-
+	/*	Clear the memory used for handle the D_CODE (aperture) list	 */
+	Init_ApertureList();
+	
 	dest = wxFopen(FullFileName, wxT("wt"));
 	if (dest == NULL)
 	{
@@ -256,23 +256,26 @@ wxString msg;
 	Affiche_1_Parametre(this, 48, wxT("Pads"),wxEmptyString,GREEN) ;
 	Module = m_Pcb->m_Modules;
 	for( ; Module != NULL ;Module = (MODULE *)Module->Pnext )
-		{
+	{
 		PtPad = (D_PAD*) Module->m_Pads;
 		for ( ; PtPad != NULL ; PtPad = (D_PAD*)PtPad->Pnext )
-			{
+		{
 			wxPoint shape_pos;
 			if( (PtPad->m_Masque_Layer & masque_layer) == 0)
 							continue ;
 			shape_pos = PtPad->ReturnShapePos();
-			pos =shape_pos;
+			pos = shape_pos;
 
 			size.x = PtPad->m_Size.x + (garde * 2) ;
 			size.y = PtPad->m_Size.y + (garde * 2) ;
+			
+			/* Don't draw a null size item : */
+			if ( (size.x == 0) || (size.y == 0) ) continue;
 
 			nb_items++ ;
 
 			switch (PtPad->m_PadShape)
-				{
+			{
 				case CIRCLE :
 					Plot_1_CIRCLE_pad_GERBER(pos,size.x) ;
 					break ;
@@ -295,11 +298,11 @@ wxString msg;
 				default:
 					PlotRectangularPad_GERBER(pos,size, PtPad->m_Orient) ;
 					break ;
-				}
+			}
 			msg.Printf( wxT("%d"),nb_items) ;
 			Affiche_1_Parametre(this, 48,wxEmptyString, msg,GREEN) ;
-			}
 		}
+	}
 	/* trace des VIAS : */
 	if(tracevia)
 	{
@@ -392,11 +395,11 @@ int x0, y0, x1, y1, delta;
 		UserToDeviceSize(size);
 
 		ii = get_D_code(size.x,size.y,GERB_OVALE,0) ;
-		if (ii != last_D_code )
+		if (ii != s_Last_D_code )
 			{
 			sprintf(cbuf,"G54D%d*\n",ref_D_CODE[ii]) ;
 			fputs(cbuf,dest) ;
-			last_D_code = ii ;
+			s_Last_D_code = ii ;
 			}
 		sprintf(cbuf,"X%5.5dY%5.5dD03*\n", pos.x, pos.y);
 		fputs(cbuf,dest) ;
@@ -433,11 +436,11 @@ wxSize size(diametre, diametre);
 	UserToDeviceSize(size);
 
 	ii = get_D_code(size.x,size.x,GERB_CIRCLE,0) ;
-	if (ii != last_D_code )
+	if (ii != s_Last_D_code )
 		{
 		sprintf(cbuf,"G54D%d*\n",ref_D_CODE[ii]) ;
 		fputs(cbuf,dest) ;
-		last_D_code = ii ;
+		s_Last_D_code = ii ;
 		}
 
 	sprintf(cbuf,"X%5.5dY%5.5dD03*\n", pos.x, pos.y);
@@ -459,7 +462,7 @@ int ii ;
 
 	/* Trace de la forme flashee */
 	switch (orient)
-		{
+	{
 		case 900 :
 		case 2700 :  /* la rotation de 90 ou 270 degres revient a permutter des dimensions */
 				 EXCHG(size.x,size.y);
@@ -469,12 +472,12 @@ int ii ;
 			UserToDeviceSize(size);
 
 			ii = get_D_code(size.x,size.y,GERB_RECT,0) ;
-			if (ii != last_D_code )
-				{
+			if (ii != s_Last_D_code )
+			{
 				sprintf(cbuf,"G54D%d*\n",ref_D_CODE[ii]) ;
 				fputs(cbuf,dest) ;
-				last_D_code = ii ;
-				}
+				s_Last_D_code = ii ;
+			}
 			sprintf(cbuf,"X%5.5dY%5.5dD03*\n", pos.x, pos.y);
 			fputs(cbuf,dest) ;
 			break;
@@ -482,7 +485,7 @@ int ii ;
 		default:	  /* Forme tracee par remplissage */
 				trace_1_pad_TRAPEZE_GERBER(pos, size, wxSize(0, 0), orient,FILLED);
 			break;
-		}
+	}
 }
 
 
@@ -631,12 +634,12 @@ int ii ;
 	UserToDeviceCoordinate(end);
 
 	ii = get_D_code(large,large,GERB_LINE,0) ;
-	if (ii != last_D_code )
-		{
+	if (ii != s_Last_D_code )
+	{
 		sprintf(cbuf,"G54D%d*\n",ref_D_CODE[ii]) ;
 		fputs(cbuf,dest) ;
-		last_D_code = ii ;
-		}
+		s_Last_D_code = ii ;
+	}
 	sprintf(cbuf,"X%5.5dY%5.5dD02*\n",start.x,start.y) ; fputs(cbuf,dest) ;
 	sprintf(cbuf,"X%5.5dY%5.5dD01*\n",end.x,end.y) ; fputs(cbuf,dest) ;
 }
@@ -709,29 +712,29 @@ int num_new_D_code = 1 ;
 
 	ptr_tool = ListeDCode;
 
-	while(ptr_tool->dx != 0 )
-		{
-		if( ( ptr_tool->dx == dx ) &&
-			( ptr_tool->dy == dy ) &&
-			( ptr_tool->type == type ) )	/* D_code deja existant */
-					return(ptr_tool->num_dcode) ;
+	while(ptr_tool->m_Type >= 0 )
+	{
+		if( ( ptr_tool->m_Dx == dx ) &&
+			( ptr_tool->m_Dy == dy ) &&
+			( ptr_tool->m_Type == type ) )	/* D_code deja existant */
+					return(ptr_tool->m_NumDcode) ;
 
 			ptr_tool++ ; num_new_D_code++ ;
-		}
+	}
 
-	/* Ici de D_CODE demande n'existe pas : il va etre cree */
+	/* At this point, the requested D_CODE does not exist: It will be created */
 	if( ref_D_CODE[num_new_D_code] < 0 )
-		{	/* Tous les DCODES prevus sont epuises */
+	{	/* Tous les DCODES prevus sont epuises */
 		nb_plot_erreur++ ;Affiche_erreur(nb_plot_erreur) ;
 		return (-1) ;
-		}
-	ptr_tool->dx = dx ;
-	ptr_tool->dy = dy ;
-	ptr_tool->type = type ;
-	ptr_tool->drill = drill ;
-	ptr_tool->num_dcode = num_new_D_code ;
-	(ptr_tool+1)->dx = 0 ;
-	return(ptr_tool->num_dcode) ;
+	}
+	ptr_tool->m_Dx = dx ;
+	ptr_tool->m_Dy = dy ;
+	ptr_tool->m_Type = type ;
+	ptr_tool->m_Drill = drill ;
+	ptr_tool->m_NumDcode = num_new_D_code ;
+	(ptr_tool+1)->m_Type = -1;
+	return(ptr_tool->m_NumDcode) ;
 }
 
 
@@ -741,12 +744,11 @@ void Init_Trace_GERBER(WinEDA_BasePcbFrame * frame, FILE * gerbfile)
 {
 char Line[1024];
 
-	memset(ListeDCode, 0, sizeof(D_CODE)); /* code indiquant a la routine get_D_code la fin de
-					la zone de description des D_CODES */
-	last_D_code = 0 ;
+	s_Last_D_code = 0 ;
 
 	DateAndTime(Line);
-	fprintf(gerbfile,"G04 (Genere par %s) le %s*\n",Main_Title.GetData(), Line);
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	fprintf(gerbfile,"G04 (Genere par %s) le %s*\n",Title.GetData(), Line);
 
 	// Specify linear interpol (G01), unit = INCH (G70), abs format (G90):
 	fputs("G01*\nG70*\nG90*\n", gerbfile);
@@ -758,6 +760,20 @@ char Line[1024];
 	fputs(Line,gerbfile);
 
 	fputs("G04 APERTURE LIST*\n", gerbfile);
+}
+
+
+/***********************************/
+static void Init_ApertureList(void)
+/***********************************/
+/* Init the memory to handle the aperture list: Create the first aperture descr
+	the member .m_Type is used by get_D_code() to handle the end of list:
+	.m_Type < 0 is the first free aperture descr */
+{
+	ListeDCode = (D_CODE *) adr_himem - (MAX_D_CODE + 10 );
+	memset(ListeDCode, 0, sizeof(D_CODE)); /* code indiquant a la routine get_D_code la fin de
+					la zone de description des D_CODES */
+	ListeDCode->m_Type = -1;	// The first aperture is free (.dx = 0)
 }
 
 /*****************************************************************/
@@ -825,30 +841,30 @@ int nb_dcodes = 0 ;
 	ptr_tool = ListeDCode;
 	pt_lim = ptr_tool + MAX_D_CODE;
 
-	while((ptr_tool->dx != 0 ) && (ptr_tool <= pt_lim) )
+	while((ptr_tool->m_Type >= 0 ) && (ptr_tool <= pt_lim) )
 	{
 		float fscale = 0.0001;	// For 3.4 format
 		char * text;
-		sprintf(cbuf,"%%ADD%d", ref_D_CODE[ptr_tool->num_dcode]);
+		sprintf(cbuf,"%%ADD%d", ref_D_CODE[ptr_tool->m_NumDcode]);
 		text = cbuf + strlen(cbuf);
-		switch ( ptr_tool->type )
+		switch ( ptr_tool->m_Type )
 		{
 			case 1:	// Circle (flash )
-				sprintf(text,"C,%f*%%\n", ptr_tool->dx * fscale);
+				sprintf(text,"C,%f*%%\n", ptr_tool->m_Dx * fscale);
 				break;
 
 			case 2:	// RECT
-				sprintf(text,"R,%fX%f*%%\n", ptr_tool->dx * fscale,
-								ptr_tool->dy * fscale);
+				sprintf(text,"R,%fX%f*%%\n", ptr_tool->m_Dx * fscale,
+								ptr_tool->m_Dy * fscale);
 				break;
 
 			case 3:	// Circle ( lines )
-				sprintf(text,"C,%f*%%\n", ptr_tool->dx * fscale);
+				sprintf(text,"C,%f*%%\n", ptr_tool->m_Dx * fscale);
 				break;
 
 			case 4:	// OVALE
-				sprintf(text,"O,%fX%f*%%\n", ptr_tool->dx * fscale,
-								ptr_tool->dy * fscale);
+				sprintf(text,"O,%fX%f*%%\n", ptr_tool->m_Dx * fscale,
+								ptr_tool->m_Dy * fscale);
 				break;
 
 			default:

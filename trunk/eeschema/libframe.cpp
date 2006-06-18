@@ -287,6 +287,8 @@ int id = event.GetId();
 wxPoint pos;
 wxClientDC dc(DrawPanel);
 
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
+
 	DrawPanel->PrepareGraphicContext(&dc);
 
 	wxGetMousePosition(&pos.x, &pos.y);
@@ -456,10 +458,7 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_POPUP_LIBEDIT_PIN_EDIT:
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
-			InstallPineditFrame(this, pos);
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
+			InstallPineditFrame(this, &dc, pos);
 			break;
 
 		case ID_LIBEDIT_PIN_BUTT:
@@ -470,7 +469,7 @@ wxClientDC dc(DrawPanel);
 			else
 			{
 				SetToolID( id, wxCURSOR_ARROW, _("Set Pin Opt"));
-				InstallPineditFrame(this, pos);
+				InstallPineditFrame(this, &dc, pos);
 				SetToolID( 0, wxCURSOR_ARROW, wxEmptyString);
 			}
 			break;
@@ -533,6 +532,7 @@ wxClientDC dc(DrawPanel);
 		case ID_POPUP_LIBEDIT_BODY_EDIT_ITEM:
 			if ( CurrentDrawItem )
 				{
+				m_CurrentScreen->CursorOff(DrawPanel, &dc);
 				switch ( CurrentDrawItem->m_StructType )
 					{
 					case COMPONENT_ARC_DRAW_TYPE:
@@ -540,18 +540,13 @@ wxClientDC dc(DrawPanel);
 					case COMPONENT_RECT_DRAW_TYPE:
 					case COMPONENT_POLYLINE_DRAW_TYPE:
 					case COMPONENT_LINE_DRAW_TYPE:
-						DrawPanel->m_IgnoreMouseEvents = TRUE;
 						EditGraphicSymbol(&dc, CurrentDrawItem);
-						DrawPanel->MouseToCursorSchema();
-						DrawPanel->m_IgnoreMouseEvents = FALSE;
 						break;
 					case COMPONENT_GRAPHIC_TEXT_DRAW_TYPE:
-						DrawPanel->m_IgnoreMouseEvents = TRUE;
 						EditSymbolText(&dc, CurrentDrawItem);
-						DrawPanel->MouseToCursorSchema();
-						DrawPanel->m_IgnoreMouseEvents = FALSE;
 						break;
 					}
+				m_CurrentScreen->CursorOn(DrawPanel, &dc);
 				}
 			break;
 
@@ -572,6 +567,7 @@ wxClientDC dc(DrawPanel);
 		case ID_POPUP_LIBEDIT_DELETE_ITEM:
 			if ( CurrentDrawItem == NULL) break;
 			DrawPanel->MouseToCursorSchema();
+			m_CurrentScreen->CursorOff(DrawPanel, &dc);
 			SaveCopyInUndoList();
 			if ( CurrentDrawItem->m_StructType == COMPONENT_PIN_DRAW_TYPE )
 			{
@@ -587,6 +583,7 @@ wxClientDC dc(DrawPanel);
 
 			CurrentDrawItem = NULL;
 			m_CurrentScreen->SetModify();
+			m_CurrentScreen->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_POPUP_LIBEDIT_MOVE_ITEM_REQUEST:
@@ -601,31 +598,34 @@ wxClientDC dc(DrawPanel);
 
 		case ID_POPUP_LIBEDIT_ROTATE_GRAPHIC_TEXT:
 			if ( CurrentDrawItem == NULL) break;
+			m_CurrentScreen->CursorOff(DrawPanel, &dc);
 			DrawPanel->MouseToCursorSchema();
 			if ( (CurrentDrawItem->m_Flags & IS_NEW) == 0 )
 				SaveCopyInUndoList();
 			RotateSymbolText(&dc);
+			m_CurrentScreen->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_POPUP_LIBEDIT_FIELD_ROTATE_ITEM:
 			if ( CurrentDrawItem == NULL) break;
+			m_CurrentScreen->CursorOff(DrawPanel, &dc);
 			DrawPanel->MouseToCursorSchema();
 			if ( CurrentDrawItem->m_StructType == COMPONENT_FIELD_DRAW_TYPE )
 			{
 				SaveCopyInUndoList();
 				RotateField(&dc, (LibDrawField *) CurrentDrawItem);
 			}
+			m_CurrentScreen->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_POPUP_LIBEDIT_FIELD_EDIT_ITEM:
 			if ( CurrentDrawItem == NULL) break;
-			DrawPanel->m_IgnoreMouseEvents = TRUE;
+			m_CurrentScreen->CursorOff(DrawPanel, &dc);
 			if ( CurrentDrawItem->m_StructType == COMPONENT_FIELD_DRAW_TYPE )
 			{
 				EditField(&dc, (LibDrawField *) CurrentDrawItem);
 			}
-			DrawPanel->MouseToCursorSchema();
-			DrawPanel->m_IgnoreMouseEvents = FALSE;
+			m_CurrentScreen->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_POPUP_LIBEDIT_PIN_GLOBAL_CHANGE_PINSIZE_ITEM:
@@ -693,6 +693,8 @@ wxClientDC dc(DrawPanel);
 			DisplayError(this, wxT("WinEDA_LibeditFrame::Process_Special_Functions error"));
 			break;
 	}
+	DrawPanel->MouseToCursorSchema();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
 
 	if ( m_ID_current_state == 0 ) LibItemToRepeat = NULL;
 }

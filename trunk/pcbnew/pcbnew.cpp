@@ -24,7 +24,7 @@
 
 #include "eda_dde.h"
 
-wxString Main_Title( wxT("PCBNEW 07-mar-06") );
+wxString g_Main_Title( wxT("PCBNEW") );
 
 IMPLEMENT_APP(WinEDA_App)
 
@@ -72,7 +72,8 @@ wxString FFileName;
 	}
 	m_PcbFrame = new WinEDA_PcbFrame(NULL, this, wxT("PcbNew"),
 				 wxPoint(0,0), wxSize(600,400) );
-	m_PcbFrame->SetTitle(Main_Title);
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
+	m_PcbFrame->SetTitle(Title);
 	ScreenPcb->SetParentFrame(m_PcbFrame);
 	ActiveScreen = ScreenPcb;
 	m_PcbFrame->m_Pcb = new BOARD(NULL, m_PcbFrame);

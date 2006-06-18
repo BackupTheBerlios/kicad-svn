@@ -78,7 +78,8 @@ void WinEDA_PcbFrame::InstallTextPCBOptionsFrame(TEXTE_PCB * TextPCB,
 	WinEDA_TextPCBPropertiesFrame * frame = new WinEDA_TextPCBPropertiesFrame(this,
 					 TextPCB, DC, pos);
 	frame->ShowModal(); frame->Destroy();
-	DrawPanel->m_IgnoreMouseEvents = FALSE;
+ 	DrawPanel->MouseToCursorSchema();
+ 	DrawPanel->m_IgnoreMouseEvents = FALSE;
 }
 
 
@@ -109,18 +110,20 @@ wxButton * Button;
 	MainBoxSizer->Add(RightBoxSizer, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
 
 	/* Creation des boutons de commande */
-	Button = new wxButton(this, ID_ACCEPT_TEXTE_PCB_PROPERTIES );
+	Button = new wxButton(this, ID_ACCEPT_TEXTE_PCB_PROPERTIES, _("Ok") );
 	Button->SetForegroundColour(*wxRED);
 	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
+	Button->SetDefault();
 
-	Button = new wxButton(this, ID_CLOSE_TEXTE_PCB_PROPERTIES,
-						_("Cancel"));
+	Button = new wxButton(this, ID_CLOSE_TEXTE_PCB_PROPERTIES, _("Cancel"));
 	Button->SetForegroundColour(*wxBLUE);
 	RightBoxSizer->Add(Button, 0, wxGROW|wxALL, 5);
 
 	m_Name = new WinEDA_EnterText(this, _("Text:"),
 			TextPCB->m_Text,
 			LeftBoxSizer, wxSize( 200, -1) );
+    m_Name->SetFocus();
+    m_Name->SetSelection(-1,-1);
 
 	m_TxtSizeCtrl = new WinEDA_SizeCtrl(this, _("Size"),
 			TextPCB->m_Size,

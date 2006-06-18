@@ -5,7 +5,6 @@ TARGET=eeschema
 
 WXDIR = $(WXWIN)
 include ../libs.win
-include ../makeg95.env
 
 
 all: $(TARGET).exe
@@ -13,9 +12,9 @@ all: $(TARGET).exe
 include makefile.include
 
 
-$(TARGET).exe: $(OBJECTS) $(TARGET)_resources.$(OBJSUFF) $(EDALIBS)
+$(TARGET).exe: $(OBJECTS) $(TARGET)_resources.o $(EDALIBS)
 	$(CXX) $(ALL_LDFLAGS) -o $(TARGET).exe $(OBJECTS)\
-			$(TARGET)_resources.$(OBJSUFF) $(EDALIBS) $(SYSWXLIB)
+			$(TARGET)_resources.o $(EDALIBS) $(SYSWXLIB)
 			
 install:
 	cp -v $(TARGET).exe $(KICAD_BIN)

@@ -91,8 +91,6 @@ EDGE_MODULE * Edge = (EDGE_MODULE * ) screen->m_CurrentItem;
 
 MODULE * Module = (MODULE*) Edge->m_Parent;
 
-	screen->Trace_Curseur(panel, DC);
-
 	if( erase )
 	{
 		Edge->Draw(panel, DC, MoveVector, GR_XOR);
@@ -102,8 +100,6 @@ MODULE * Module = (MODULE*) Edge->m_Parent;
 	MoveVector.y = -(screen->m_Curseur.y - CursorInitialPosition.y);
 
  	Edge->Draw(panel, DC, MoveVector, GR_XOR);
-
-	screen->Trace_Curseur(panel, DC);
 
 	Module->Set_Rectangle_Encadrement();
 }
@@ -122,8 +118,6 @@ EDGE_MODULE * Edge = (EDGE_MODULE * ) screen->m_CurrentItem;
 
 MODULE * Module = (MODULE*) Edge->m_Parent;
 
-	screen->Trace_Curseur(panel, DC);
-
  //	if( erase )
 		{
 		Edge->Draw(panel, DC, wxPoint(0, 0), GR_XOR);
@@ -138,8 +132,6 @@ MODULE * Module = (MODULE*) Edge->m_Parent;
 				(int*)&Edge->m_End0.y, - Module->m_Orient);
 
  	Edge->Draw(panel, DC, wxPoint(0, 0), GR_XOR);
-
-	screen->Trace_Curseur(panel, DC);
 
 	Module->Set_Rectangle_Encadrement();
 }
@@ -351,9 +343,7 @@ int angle = 0;
 			if( (Edge->m_Start0.x) != (Edge->m_End0.x) ||
 				(Edge->m_Start0.y) != (Edge->m_End0.y) )
 			{
-				GetScreen()->Trace_Curseur(DrawPanel, DC);
 				Edge->Draw(DrawPanel, DC, wxPoint(0, 0), GR_OR);
-				GetScreen()->Trace_Curseur(DrawPanel, DC);
 				EDGE_MODULE * newedge = new EDGE_MODULE(Module);
 				newedge->Copy(Edge);
 				newedge->AddToChain(Edge);

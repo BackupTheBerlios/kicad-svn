@@ -108,6 +108,7 @@ wxString StringPinNum;
 		}
         
 	ReturnPinStringNum(StringPinNum);
+	if ( StringPinNum.IsEmpty() ) StringPinNum = wxT("~");
 	
     if( ! m_PinName.IsEmpty() )
 		fprintf(ExportFile,"X %s", CONV_TO_UTF8(m_PinName) );

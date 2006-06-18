@@ -14,8 +14,6 @@ install:
 
 clean :
 	-$(RM) *.o
-	-$(RM) *.rsc
-	-$(RM) *.res
 	-$(RM) *.exe
 	-$(RM) *.bak
 

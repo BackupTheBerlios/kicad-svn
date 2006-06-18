@@ -274,6 +274,8 @@ void WinEDA_SchematicFrame::ReCreateOptToolbar(void)
 void WinEDA_SchematicFrame::OnSelectOptionToolbar(wxCommandEvent& event)
 /*******************************************************************************************/
 {
+	if ( DrawPanel == NULL ) return;
+
 int id = event.GetId();
 wxClientDC dc(DrawPanel);
 
@@ -296,9 +298,9 @@ wxClientDC dc(DrawPanel);
 			break;
 
 		case ID_TB_OPTIONS_SELECT_CURSOR:
-			m_CurrentScreen->Trace_Curseur(DrawPanel, &dc);
+			m_CurrentScreen->CursorOff(DrawPanel, &dc);
 			g_CursorShape = m_OptionsToolBar->GetToolState(id);
-			m_CurrentScreen->Trace_Curseur(DrawPanel, &dc);
+			m_CurrentScreen->CursorOn(DrawPanel, &dc);
 			break;
 
 		case ID_TB_OPTIONS_HIDDEN_PINS:

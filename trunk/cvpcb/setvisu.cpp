@@ -68,6 +68,7 @@ bool IsNew = FALSE;
 		if ( DrawFrame->m_Draw3DFrame )
 			DrawFrame->m_Draw3DFrame->NewDisplay();
 	}
+// XXX The following line appears to be redundant
 	else if ( !IsNew  )DrawFrame->ReDrawPanel();
 
 	if ( !IsNew && DrawFrame->m_Draw3DFrame )

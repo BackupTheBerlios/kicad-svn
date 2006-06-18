@@ -22,7 +22,7 @@ EDACPPFLAGS = $(CPPFLAGS)
 
 
 $(TARGET): $(OBJECTS) makefile.gtk  makefile.include $(LIBVIEWER3D) $(EXTRALIBS) ../libs.linux
-		$(LD) $(LDFLAGS) $(OBJECTS) $(LIBS) $(LIBVIEWER3D) $(LIBS3D)\
+		$(LD) $(LDFLAGS) $(OBJECTS) $(LIBVIEWER3D) $(LIBS_WITH_GL)\
 		-o $(TARGET)
 		
 		

@@ -74,17 +74,22 @@ wxString msg;
 		LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 		wxClientDC dc(m_Parent->DrawPanel);
 		m_Parent->DrawPanel->PrepareGraphicContext(&dc);
-		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
+		if ( m_Parent->GetScreen()->ManageCurseur ) // Pin is moving
+			m_Parent->GetScreen()->ManageCurseur(m_Parent->DrawPanel, &dc, FALSE);
+		else DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
 				0,0, CurrentPin,CurrentUnit, g_XorMode);
 
 		SetPinName(m_PinNameCtrl->GetValue(), LastPinNameSize);
-		SetPinNum(m_PinNumCtrl->GetValue(), LastPinNumSize);
+		msg = m_PinNumCtrl->GetValue(); if ( msg.IsEmpty() ) msg = wxT("~");
+		SetPinNum(msg, LastPinNumSize);
 		NewSizePin(LastPinSize);
 		SetPinShape(LastPinShape);
 		SetPinType(LastPinType);
 		SetPinOrient(LastPinOrient);
 		SetAttributsPin(TRUE, TRUE, TRUE);
-		DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
+		if ( m_Parent->GetScreen()->ManageCurseur )
+			m_Parent->GetScreen()->ManageCurseur(m_Parent->DrawPanel, &dc, FALSE);
+		else DrawLibraryDrawStruct(m_Parent->DrawPanel, &dc, CurrentLibEntry,
 			0,0, CurrentPin,CurrentUnit, g_XorMode);
 	}
 
@@ -115,8 +120,9 @@ LibDrawPin  * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 		{
 		if (Pin->m_StructType != COMPONENT_PIN_DRAW_TYPE ) continue;
 		if ( Pin == CurrentPin ) continue;
-		if( (Pin->m_Pos.x == CurrentPin->m_Pos.x) &&
-			(Pin->m_Pos.y == CurrentPin->m_Pos.y) &&
+		if( (Pin->m_Pos == CurrentPin->m_Pos) &&
+			(Pin->m_Orient == CurrentPin->m_Orient) &&
+            (! (CurrentPin->m_Flags & IS_NEW)) &&
 			(g_EditPinByPinIsOn == FALSE) )
 			Pin->m_Flags |= IS_LINKED | IN_EDIT;
 		else Pin->m_Flags = 0;
@@ -129,7 +135,7 @@ LibDrawPin  * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 /*************************************************************/
 static void AbortPinMove(WinEDA_DrawFrame * frame, wxDC * DC)
 /*************************************************************/
-/* Routine de sortie forcee de la commande de deplacement de pins.
+/* Used to abort the move pin command.
 */
 {
 LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
@@ -159,6 +165,7 @@ LibDrawPin * Pin;
 LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 bool ask_for_pin = TRUE;
 wxPoint newpos;
+bool status;
 	
 	if( CurrentPin == NULL ) return;
 
@@ -171,12 +178,15 @@ wxPoint newpos;
 	{
 		if ( Pin->m_StructType != COMPONENT_PIN_DRAW_TYPE ) continue;
 		if ( Pin == CurrentPin ) continue;
-		if( newpos.x != Pin->m_Pos.x ) continue;
-		if( newpos.y != Pin->m_Pos.y ) continue;
+		if( newpos != Pin->m_Pos ) continue;
 		if ( Pin->m_Flags ) continue;
 		if ( ask_for_pin )
 		{
-			if( ! IsOK(this, _("Occupied by other pin, Continue ?")) )
+			DrawPanel->m_IgnoreMouseEvents = TRUE;
+			status = IsOK(this, _("Occupied by other pin, Continue ?"));
+			DrawPanel->MouseToCursorSchema();
+			DrawPanel->m_IgnoreMouseEvents = FALSE;
+			if( ! status )
 				return;
 			else ask_for_pin = FALSE;
 		}
@@ -206,8 +216,10 @@ wxPoint newpos;
 		Pin->m_Flags = 0;
 	}
 	
+	GetScreen()->CursorOff(DrawPanel, DC);
 	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,0,0, CurrentPin,CurrentUnit,
 					GR_DEFAULT_DRAWMODE);
+	GetScreen()->CursorOn(DrawPanel, DC);
 	
 	CurrentDrawItem = NULL;
 };
@@ -248,6 +260,7 @@ void WinEDA_LibeditFrame::StartMovePin(wxDC * DC)
 {
 LibDrawPin * Pin;
 LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
+wxPoint startPos;
 
 	/* Marquage des pins a traiter */
 	Pin = (LibDrawPin *)CurrentLibEntry->m_Drawings;
@@ -256,16 +269,24 @@ LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 		Pin->m_Flags = 0;
 		if (Pin->m_StructType != COMPONENT_PIN_DRAW_TYPE ) continue;
 		if ( Pin == CurrentPin) continue;
-		if ( (Pin->m_Pos.x == CurrentPin->m_Pos.x) &&
-			 (Pin->m_Pos.y == CurrentPin->m_Pos.y ) &&
+		if ( (Pin->m_Pos == CurrentPin->m_Pos) && (Pin->m_Orient == CurrentPin->m_Orient) &&
 			 (g_EditPinByPinIsOn == FALSE ) )
 			 Pin->m_Flags |= IS_LINKED | IS_MOVED;
 	}
 	CurrentPin->m_Flags |= IS_LINKED | IS_MOVED;
 	PinPreviousPos = OldPos = CurrentPin->m_Pos;
+ 
+ 	startPos.x = OldPos.x;
+ 	startPos.y = -OldPos.y;
+ 	m_CurrentScreen->CursorOff(DrawPanel, DC);
+ 	m_CurrentScreen->m_Curseur = startPos;
+ 	DrawPanel->MouseToCursorSchema();
+ 
 	CurrentPin->Display_Infos_DrawEntry(this);
 	GetScreen()->ManageCurseur = DrawMovePin;
 	GetScreen()->ForceCloseManageCurseur = AbortPinMove;
+ 
+ 	m_CurrentScreen->CursorOn(DrawPanel, DC);
 }
 
 
@@ -436,13 +457,12 @@ void WinEDA_LibeditFrame::DeletePin(wxDC * DC,
 */
 {
 LibEDA_BaseStruct * DrawItem;
-int PinPosX, PinPosY;
+wxPoint PinPos;
 
 	if(LibEntry == NULL ) return;
 	if(Pin == NULL ) return;
 
-	PinPosX = Pin->m_Pos.x;
-	PinPosY = Pin->m_Pos.y;
+	PinPos = Pin->m_Pos;
 	DeleteOneLibraryDrawStruct(DrawPanel, DC, LibEntry, Pin, TRUE);
 
 	/* Effacement des autres pins de meme coordonnees */
@@ -457,8 +477,7 @@ int PinPosX, PinPosY;
 			}
 			Pin = (LibDrawPin*) DrawItem;
 			DrawItem = DrawItem->Next();
-			if( Pin->m_Pos.x != PinPosX ) continue;
-			if( Pin->m_Pos.y != PinPosY ) continue;
+			if( Pin->m_Pos != PinPos ) continue;
 			DeleteOneLibraryDrawStruct(DrawPanel, DC, LibEntry, Pin, 0);
 		}
 	}
@@ -511,12 +530,20 @@ LibDrawPin * CurrentPin = (LibDrawPin *) CurrentDrawItem;
 	CurrentLibEntry->m_Drawings = CurrentPin;
 	CurrentLibEntry->SortDrawItems();
 
+	if ( DC ) DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,
+			0,0, CurrentPin,CurrentUnit, g_XorMode);
+
+	DrawPanel->m_IgnoreMouseEvents = TRUE;
+	InstallPineditFrame(this, DC, wxPoint(-1,-1) );
+	DrawPanel->MouseToCursorSchema();
+	DrawPanel->m_IgnoreMouseEvents = FALSE;
+
+	PinPreviousPos = CurrentPin->m_Pos;
+
 	GetScreen()->ManageCurseur = DrawMovePin;
 	GetScreen()->ForceCloseManageCurseur = AbortPinMove;
 
 	CurrentPin->Display_Infos_DrawEntry(this);
-	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,
-			0,0, CurrentPin,CurrentUnit, g_XorMode);
 	GetScreen()->SetModify();
 }
 
@@ -566,8 +593,8 @@ LibDrawPin * Pin, * CurrentPin = (LibDrawPin * ) CurrentDrawItem;
 				if( Pin == CurrentPin) continue;
 				if(CurrentPin->m_Convert && (CurrentPin->m_Convert != Pin->m_Convert))
 					 continue;
-				if( CurrentPin->m_Pos.x != Pin->m_Pos.x ) continue;
-				if( CurrentPin->m_Pos.y != Pin->m_Pos.y ) continue;
+				if( CurrentPin->m_Pos != Pin->m_Pos ) continue;
+				if(Pin->m_Orient != CurrentPin->m_Orient) continue;
 				DeleteOneLibraryDrawStruct(m_Parent->DrawPanel, NULL,
 						CurrentLibEntry, Pin, 0);
 			}
@@ -590,8 +617,8 @@ LibDrawPin * Pin, * CurrentPin = (LibDrawPin * ) CurrentDrawItem;
 				if( Pin == CurrentPin) continue;
 				if( CurrentPin->m_Unit && (CurrentPin->m_Unit != Pin->m_Unit) )
 					 continue;
-				if( CurrentPin->m_Pos.x != Pin->m_Pos.x ) continue;
-				if( CurrentPin->m_Pos.y != Pin->m_Pos.y ) continue;
+				if( CurrentPin->m_Pos != Pin->m_Pos ) continue;
+				if(Pin->m_Orient != CurrentPin->m_Orient) continue;
 				DeleteOneLibraryDrawStruct(m_Parent->DrawPanel, NULL,
 						CurrentLibEntry, Pin, 0);
 				}
@@ -643,8 +670,8 @@ LibDrawPin * RefPin, * Pin = (LibDrawPin *) CurrentDrawItem;
 		for ( ; Pin != NULL; Pin = (LibDrawPin *)Pin->Pnext )
 		{
 			if (Pin->m_StructType != COMPONENT_PIN_DRAW_TYPE ) continue;
-			if( Pin->m_Pos.x != RefPin->m_Pos.x ) continue;
-			if( Pin->m_Pos.y != RefPin->m_Pos.y ) continue;
+			if( Pin->m_Pos != RefPin->m_Pos ) continue;
+			if(Pin->m_Orient != RefPin->m_Orient) continue;
 			if( Pin->m_Convert == RefPin->m_Convert ) Pin->m_PinLen = newsize;
 		}
 	}
@@ -784,11 +811,16 @@ int ox = 0, oy = 0;
 	/* Marquage des pins a traiter */
 	if( g_EditPinByPinIsOn == FALSE ) Pin->m_Flags |= IS_LINKED;
 
+wxPoint savepos = GetScreen()->m_Curseur;
+	GetScreen()->CursorOff(DrawPanel, DC);
+	GetScreen()->m_Curseur.x = Pin->m_Pos.x;
+	GetScreen()->m_Curseur.y = -Pin->m_Pos.y;
 	PlacePin(DC);
+	GetScreen()->m_Curseur = savepos;
 //	DrawPanel->MouseToCursorSchema();
+	GetScreen()->CursorOn(DrawPanel, DC);
 
 	Pin->Display_Infos_DrawEntry(this);
-	DrawLibraryDrawStruct(DrawPanel, DC, CurrentLibEntry,0,0, Pin,CurrentUnit, GR_DEFAULT_DRAWMODE);
 	GetScreen()->SetModify();
 }
 

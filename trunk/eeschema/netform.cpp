@@ -805,12 +805,13 @@ char Line[1024];
 BASE_SCREEN *CurrScreen;
 EDA_BaseStruct *DrawList;
 EDA_SchComponentStruct *Component;
+	wxString Title = g_Main_Title + wxT(" ") + GetBuildVersion();
 
 	fprintf( f, "%sHEA\n", CONV_TO_UTF8(StartLine));
 	DateAndTime(Line);
 	fprintf( f, "%sTIM %s\n", CONV_TO_UTF8(StartLine), Line );
 	fprintf( f, "%sAPP ", CONV_TO_UTF8(StartLine) );
-	fprintf( f, "\"%s\"\n", CONV_TO_UTF8(Main_Title) );
+	fprintf( f, "\"%s\"\n", CONV_TO_UTF8(Title) );
 	fprintf( f, "\n");
 
 	/* Create netlist module section */
