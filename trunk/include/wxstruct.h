@@ -416,7 +416,7 @@ public:
 	// Chargement de modules
 	MODULE * Get_Librairie_Module(wxWindow * winaff, const wxString & library,
 					const wxString & ModuleName, bool show_msg_err);
-	wxString WinEDA_BasePcbFrame::Select_1_Module_From_List(
+	wxString Select_1_Module_From_List(
 				wxWindow * active_window, const wxString & Library,
 				const wxString & Mask, const wxString &  KeyWord);
 	MODULE * Load_Module_From_Library(const wxString & library, wxDC * DC);
@@ -981,8 +981,7 @@ public:
 	bool EditSheet(DrawSheetStruct * Sheet, wxDC * DC);
 private:
 	void StartMoveSheet(DrawSheetStruct* sheet, wxDC * DC);
-	DrawSheetLabelStruct * WinEDA_SchematicFrame::Create_PinSheet(
-		DrawSheetStruct * Sheet, wxDC * DC);
+	DrawSheetLabelStruct * Create_PinSheet(DrawSheetStruct * Sheet, wxDC * DC);
 	void Edit_PinSheet(DrawSheetLabelStruct * SheetLabel, wxDC * DC);
 	void StartMove_PinSheet(DrawSheetLabelStruct * SheetLabel, 	wxDC * DC);
 	void Place_PinSheet(DrawSheetLabelStruct * SheetLabel, wxDC * DC);

@@ -208,7 +208,7 @@ public:
 				wxPoint & pin_pos, int orient,
 				int TextInside, bool DrawPinNum, bool DrawPinName,
 				int Color, int DrawMode);
-	void LibDrawPin::PlotPinTexts(wxPoint & pin_pos, int orient,
+	void PlotPinTexts(wxPoint & pin_pos, int orient,
 				int TextInside, bool DrawPinNum, bool DrawPinName);
 };
 

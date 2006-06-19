@@ -138,8 +138,8 @@ public:
 	int m_MemSize;
 
 public:
-	BOARDHEAD::BOARDHEAD(void);
-	BOARDHEAD::~BOARDHEAD(void);
+	BOARDHEAD(void);
+	~BOARDHEAD(void);
 	int InitBoard(void);
 	void UnInitBoard(void);
 

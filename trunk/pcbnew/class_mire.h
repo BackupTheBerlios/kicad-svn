@@ -17,8 +17,8 @@ class MIREPCB: public EDA_BaseStruct
 	int m_Size;
 
 	public:
-	MIREPCB::MIREPCB(EDA_BaseStruct * StructFather);
-	MIREPCB::~MIREPCB(void);
+	MIREPCB(EDA_BaseStruct * StructFather);
+	~MIREPCB(void);
 
 	bool WriteMirePcbDescr(FILE * File);
 	bool ReadMirePcbDescr(FILE * File, int * LineNum);

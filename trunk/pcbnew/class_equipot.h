@@ -22,8 +22,8 @@ public:
 	CHEVELU * m_RatsnestStart;	// pointeur sur debut de liste ratsnests du net
 	CHEVELU * m_RatsnestEnd;	// pointeur sur fin de liste ratsnests du net
 
-	EQUIPOT::EQUIPOT(EDA_BaseStruct * StructFather);
-	EQUIPOT::~EQUIPOT(void);
+	EQUIPOT(EDA_BaseStruct * StructFather);
+	~EQUIPOT(void);
 
 	/* Effacement memoire de la structure */
 	void UnLink( void );

@@ -78,7 +78,7 @@ public:
 	WinEDA_TreePrj * m_TreeProject;
 
 public:
-	WinEDA_PrjFrame::WinEDA_PrjFrame(WinEDA_MainFrame * parent,
+	WinEDA_PrjFrame(WinEDA_MainFrame * parent,
 				const wxPoint & pos, const wxSize & size );
 	~WinEDA_PrjFrame(void) {}
 	void OnSelect(wxTreeEvent & Event);

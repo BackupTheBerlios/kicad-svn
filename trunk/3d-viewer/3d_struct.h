@@ -21,7 +21,7 @@ class S3D_Vertex	/* This is a 3D coordinate (3 float numbers: x,y,z coordinates)
 public:
 	double x, y, z;
 public:
-	S3D_Vertex::S3D_Vertex(void);
+	S3D_Vertex(void);
 };
 
 class S3D_Material: public EDA_BaseStruct		/* openGL "material" data*/

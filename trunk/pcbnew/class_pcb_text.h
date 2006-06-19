@@ -9,9 +9,9 @@
 class TEXTE_PCB: public EDA_BaseStruct, public EDA_TextStruct
 {
 public:
-	TEXTE_PCB::TEXTE_PCB(EDA_BaseStruct * parent);
-	TEXTE_PCB::TEXTE_PCB(TEXTE_PCB * textepcb);
-	TEXTE_PCB::~TEXTE_PCB(void);
+	TEXTE_PCB(EDA_BaseStruct * parent);
+	TEXTE_PCB(TEXTE_PCB * textepcb);
+	~TEXTE_PCB(void);
 
 	/* supprime du chainage la structure Struct */
 	void UnLink( void );

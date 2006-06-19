@@ -32,8 +32,8 @@ public:
 	int m_Param;					// Auxiliary variable ( used in some computations )
 
 public:
-	TRACK::TRACK(EDA_BaseStruct * StructFather, DrawStructureType idtype = TYPETRACK);
-	TRACK::TRACK(const TRACK & track);
+	TRACK(EDA_BaseStruct * StructFather, DrawStructureType idtype = TYPETRACK);
+	TRACK(const TRACK & track);
 
 	TRACK * Next(void);	// Retourne le chainage avant
 	TRACK * Back(void)	// Retourne le chainage avant
@@ -76,13 +76,13 @@ public:
 class SEGZONE: public TRACK
 {
 public:
-	SEGZONE::SEGZONE(EDA_BaseStruct * StructFather);
+	SEGZONE(EDA_BaseStruct * StructFather);
 };
 
 class SEGVIA: public TRACK
 {
 public:
-	SEGVIA::SEGVIA(EDA_BaseStruct * StructFather);
+	SEGVIA(EDA_BaseStruct * StructFather);
 	bool IsViaOnLayer(int layer);
 	void SetLayerPair(int top_layer, int bottom_layer);
 	void ReturnLayerPair(int * top_layer, int * bottom_layer);

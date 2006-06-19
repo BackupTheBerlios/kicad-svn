@@ -26,8 +26,8 @@ class COTATION: public EDA_BaseStruct
 	int FlecheG2_ox, FlecheG2_oy, FlecheG2_fx, FlecheG2_fy;
 
 	public:
-	COTATION::COTATION(EDA_BaseStruct * StructFather);
-	COTATION::~COTATION(void);
+	COTATION(EDA_BaseStruct * StructFather);
+	~COTATION(void);
 
 	bool ReadCotationDescr(FILE * File, int * LineNum);
 	bool WriteCotationDescr(FILE * File);

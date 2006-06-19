@@ -67,9 +67,9 @@ public:
 	wxString m_KeyWord;		// Liste des mots cles relatifs au module
 
 public:
-	MODULE::MODULE(BOARD * parent);
-	MODULE::MODULE(MODULE * module);
-	MODULE::~MODULE(void);
+	MODULE(BOARD * parent);
+	MODULE(MODULE * module);
+	~MODULE(void);
 
 	void Copy(MODULE * Module);	// Copy structure
 	MODULE * Next(void) { return (MODULE *) Pnext; }

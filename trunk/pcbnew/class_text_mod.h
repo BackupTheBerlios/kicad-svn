@@ -24,8 +24,8 @@ public:
 	wxString m_Text;
 
 	public:
-	TEXTE_MODULE::TEXTE_MODULE(MODULE * parent, int text_type = TEXT_is_DIVERS );
-	TEXTE_MODULE::~TEXTE_MODULE(void);
+	TEXTE_MODULE(MODULE * parent, int text_type = TEXT_is_DIVERS );
+	~TEXTE_MODULE(void);
 
 	/* supprime du chainage la structure Struct */
 	void UnLink( void );

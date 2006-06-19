@@ -212,7 +212,7 @@ class BOARD: public EDA_BaseStruct
 	EDGE_ZONE * m_CurrentLimitZone;	/* pointeur sur la liste des segments
 									de delimitation de la zone en cours de trace */
 
-	BOARD::BOARD(EDA_BaseStruct * StructFather, WinEDA_BasePcbFrame * frame);
+	BOARD(EDA_BaseStruct * StructFather, WinEDA_BasePcbFrame * frame);
 	~BOARD(void);
 
 	/* supprime du chainage la structure Struct */
@@ -272,8 +272,8 @@ public:
 	int m_Angle;				// pour les arcs: "longueur" de l'arc en 1/10 deg
 
 public:
-	DRAWSEGMENT::DRAWSEGMENT(EDA_BaseStruct * StructFather, DrawStructureType idtype = TYPEDRAWSEGMENT);
-	DRAWSEGMENT:: ~DRAWSEGMENT(void);
+	DRAWSEGMENT(EDA_BaseStruct * StructFather, DrawStructureType idtype = TYPEDRAWSEGMENT);
+	~DRAWSEGMENT(void);
 
 	// Read/write data
 	bool WriteDrawSegmentDescr(FILE * File);
@@ -298,9 +298,9 @@ public:
 class EDGE_ZONE: public DRAWSEGMENT
 {
 public:
-	EDGE_ZONE::EDGE_ZONE(EDA_BaseStruct * StructFather);
-	EDGE_ZONE::EDGE_ZONE(const EDGE_ZONE & edgezone);
-	EDGE_ZONE:: ~EDGE_ZONE(void);
+	EDGE_ZONE(EDA_BaseStruct * StructFather);
+	EDGE_ZONE(const EDGE_ZONE & edgezone);
+	~EDGE_ZONE(void);
 };
 
 
@@ -318,8 +318,8 @@ public:
 	wxString m_Diag;				/* Associated text (comment) */
 
 public:
-	MARQUEUR::MARQUEUR(EDA_BaseStruct * StructFather);
-	MARQUEUR::~MARQUEUR(void);
+	MARQUEUR(EDA_BaseStruct * StructFather);
+	~MARQUEUR(void);
 	void UnLink( void );
 	void Draw( WinEDA_DrawPanel * panel, wxDC * DC, int DrawMode);
 };

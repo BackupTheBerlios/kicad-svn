@@ -125,7 +125,7 @@ private:
 	
 
 public:
-WinEDA3D_DrawFrame::WinEDA3D_DrawFrame(WinEDA_BasePcbFrame * parent, WinEDA_App *app_parent,
+	WinEDA3D_DrawFrame(WinEDA_BasePcbFrame * parent, WinEDA_App *app_parent,
 	const wxString& title );
 
     void Exit3DFrame(wxCommandEvent& event);
